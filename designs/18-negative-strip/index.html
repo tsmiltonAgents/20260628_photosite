@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Negatives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;500;600&family=Saira+Semi+Condensed:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --table:#121316;          /* dark light-table */
+    --base:#c5631a;           /* orange film base / rebate */
+    --base-d:#9c4a10;
+    --base-l:#e0853a;
+    --rebate-ink:#ffe6c4;     /* printed edge codes (clear/light) */
+    --rebate-ink-d:#3a1a06;
+    --glow:#fff4e2;
+    --fg:#e9e2d4;
+    --fg-dim:#8b8576;
+    --cond:'Saira Condensed',sans-serif;
+    --semi:'Saira Semi Condensed',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased}
+  body{
+    background:var(--table);color:var(--fg);font-family:var(--semi);
+    min-height:100vh;overflow-x:hidden;
+    background-image:
+      radial-gradient(120% 80% at 50% -10%, rgba(255,244,226,.10), transparent 55%),
+      radial-gradient(90% 60% at 50% 50%, rgba(255,244,226,.05), transparent 70%);
+    background-attachment:fixed;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:300;pointer-events:none;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;opacity:.05;
+  }
+  ::selection{background:var(--base-l);color:#1a0d02}
+  a{color:inherit}
+
+  .back{
+    position:fixed;top:.9rem;left:.9rem;z-index:200;
+    font-family:var(--cond);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+    text-decoration:none;color:var(--fg-dim);padding:.4rem .6rem;
+    border:1px solid #2a2b2f;background:rgba(20,21,24,.7);transition:.2s;
+  }
+  .back:hover{color:var(--base-l);border-color:var(--base-d)}
+
+  .wrap{max-width:1500px;margin:0 auto;padding:clamp(3.2rem,7vw,5rem) clamp(.6rem,3vw,2.5rem) 5rem;}
+
+  /* ── header ─────────────────────────── */
+  header.lt{margin-bottom:clamp(1.6rem,4vw,2.8rem);padding:0 .4rem;}
+  .lt .tag{font-family:var(--cond);font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--base-l);}
+  .lt h1{
+    font-family:var(--cond);font-weight:600;letter-spacing:.01em;text-transform:uppercase;
+    font-size:clamp(2.4rem,9vw,5.5rem);line-height:.92;margin:.3rem 0;
+    color:var(--fg);
+  }
+  .lt h1 .o{color:var(--base);}
+  .lt .desc{max-width:62ch;color:var(--fg-dim);font-size:.92rem;line-height:1.65;margin-top:.7rem;}
+  .lt .desc b{color:var(--base-l);font-weight:500;}
+  .lt .loupe-tip{
+    margin-top:1rem;display:inline-flex;align-items:center;gap:.5rem;
+    font-family:var(--cond);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-dim);
+    border:1px dashed #34353a;padding:.35rem .7rem;border-radius:100px;
+  }
+  .lt .loupe-tip b{color:var(--glow);}
+
+  /* ── film strip ─────────────────────── */
+  .roll{margin-bottom:clamp(1.6rem,4vw,2.6rem);}
+  .roll-label{
+    font-family:var(--cond);font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--fg-dim);margin:0 0 .55rem .3rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:baseline;
+  }
+  .roll-label b{color:var(--base-l);font-weight:600;}
+  .roll-label .yr{color:var(--fg-dim);}
+
+  .strip{
+    position:relative;background:var(--base);
+    background-image:linear-gradient(180deg, var(--base-l) 0%, var(--base) 18%, var(--base-d) 100%);
+    border-radius:3px;
+    padding:26px 0;                 /* room for sprocket rows */
+    overflow-x:auto;overflow-y:hidden;
+    scrollbar-width:thin;scrollbar-color:var(--base-d) transparent;
+    box-shadow:0 22px 50px -22px rgba(0,0,0,.85), inset 0 0 0 1px rgba(0,0,0,.18),
+               inset 0 0 60px rgba(255,240,220,.08);
+  }
+  .strip::-webkit-scrollbar{height:8px}
+  .strip::-webkit-scrollbar-thumb{background:var(--base-d);border-radius:8px}
+  /* sprocket holes top & bottom */
+  .strip::before,.strip::after{
+    content:"";position:absolute;left:0;right:0;height:18px;z-index:3;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='18'%3E%3Crect x='5' y='3' width='24' height='12' rx='3' fill='%23121316'/%3E%3C/svg%3E");
+    background-size:34px 18px;background-repeat:repeat-x;
+  }
+  .strip::before{top:4px}
+  .strip::after{bottom:4px}
+
+  .frames{display:flex;align-items:stretch;gap:0;min-width:min-content;padding:0 4px;}
+
+  .frame{
+    position:relative;flex:0 0 auto;
+    width:clamp(220px,26vw,340px);
+    padding:2px 10px;             /* rebate gap between frames */
+  }
+  .frame .win{
+    position:relative;overflow:hidden;background:#000;border-radius:1px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);
+    cursor:zoom-in;
+  }
+  .frame img{
+    display:block;width:100%;aspect-ratio:3/2;object-fit:cover;
+    /* NEGATIVE look: orange-base colour negative */
+    filter:invert(1) hue-rotate(178deg) saturate(.7) contrast(.78) brightness(1.18);
+    transition:filter .55s ease, transform .55s ease;
+    transform:scale(1.02);
+  }
+  /* orange film-base mask wash over the negative */
+  .frame .win::after{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+    background:linear-gradient(160deg, rgba(214,108,32,.55), rgba(150,70,14,.42));
+    mix-blend-mode:screen;transition:opacity .55s ease;opacity:1;
+  }
+  /* b&w negative: no orange mask, just inverted tone */
+  .frame.bw img{filter:invert(1) grayscale(1) contrast(.9) brightness(1.1);}
+  .frame.bw .win::after{background:rgba(120,120,120,.12);}
+
+  /* HOVER → flip to POSITIVE true colour */
+  .frame:hover{z-index:20;}
+  .frame:hover .win{box-shadow:0 0 0 2px var(--glow), 0 14px 40px -8px rgba(0,0,0,.7),
+                    0 0 40px rgba(255,244,226,.25);}
+  .frame:hover img{
+    filter:saturate(1.12) contrast(1.05) brightness(1.03) sepia(.07);
+    transform:scale(1.0);
+  }
+  .frame.bw:hover img{filter:grayscale(1) contrast(1.12) brightness(1.0);}
+  .frame:hover .win::after{opacity:0;}
+  .frame:active .win{cursor:zoom-out;}
+
+  /* frame edge code printed in rebate (top) */
+  .frame .fnum{
+    position:absolute;top:7px;left:14px;z-index:5;
+    font-family:var(--cond);font-weight:600;font-size:.66rem;letter-spacing:.14em;
+    color:var(--rebate-ink);text-shadow:0 1px 1px rgba(60,26,6,.6);pointer-events:none;
+  }
+  .frame .fnum.alt{left:auto;right:14px;color:var(--rebate-ink-d);text-shadow:none;}
+  .frame .fmark{           /* little arrow registration mark */
+    position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:5;
+    font-size:.6rem;color:var(--rebate-ink-d);pointer-events:none;
+  }
+  /* caption printed in rebate (bottom), reads on hover */
+  .frame .fcap{
+    position:absolute;bottom:6px;left:14px;right:14px;z-index:5;pointer-events:none;
+    font-family:var(--semi);display:flex;justify-content:space-between;gap:.6rem;
+    font-size:.6rem;letter-spacing:.04em;color:var(--rebate-ink-d);
+    opacity:.65;transition:opacity .4s,color .4s;
+  }
+  .frame:hover .fcap{opacity:1;color:var(--rebate-ink);text-shadow:0 1px 2px rgba(60,26,6,.7);}
+  .frame .fcap .t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .frame .fcap .y{flex:0 0 auto;}
+
+  /* strip edge-print: stock name + DX barcode running along very edge */
+  .edgeprint{
+    display:flex;align-items:center;gap:.7rem;
+    padding:.45rem .9rem .1rem;
+    font-family:var(--cond);font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;
+    color:var(--base-l);opacity:.8;
+  }
+  .edgeprint .dx{
+    height:11px;flex:0 0 auto;width:120px;
+    background:repeating-linear-gradient(90deg,
+      var(--base-l) 0 2px, transparent 2px 4px,
+      var(--base-l) 4px 5px, transparent 5px 9px,
+      var(--base-l) 9px 12px, transparent 12px 14px);
+    opacity:.7;
+  }
+  .edgeprint .spacer{flex:1}
+
+  footer{
+    margin-top:3rem;padding:0 .4rem;border-top:1px solid #26272b;padding-top:1.1rem;
+    font-family:var(--cond);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--fg-dim);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem;
+  }
+  footer b{color:var(--base-l)}
+
+  @media(max-width:680px){
+    /* stack frames vertically on mobile */
+    .strip{overflow:visible;padding:22px 0;}
+    .frames{flex-direction:column;align-items:center;min-width:0;gap:6px;}
+    .frame{width:min(92%,420px);padding:6px 12px;}
+    .frame .win{cursor:default;}
+    /* on touch: show positive by default-tappable; keep negative but tap toggles */
+    .frame.show img{filter:saturate(1.12) contrast(1.05) brightness(1.03) sepia(.07);transform:scale(1);}
+    .frame.show.bw img{filter:grayscale(1) contrast(1.12) brightness(1);}
+    .frame.show .win::after{opacity:0;}
+    .frame.show .win{box-shadow:0 0 0 2px var(--glow),0 10px 30px -8px rgba(0,0,0,.7);}
+    .frame.show .fcap{opacity:1;color:var(--rebate-ink);}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">← All designs</a>
+
+<div class="wrap">
+  <header class="lt">
+    <div class="tag">Tom Milton · Light-Table Archive</div>
+    <h1>Negat<span class="o">i</span>ves</h1>
+    <p class="desc">Strips of film as they came back from the lab — laid out on the table, base side up. Each frame is the <b>orange-base negative</b>; hover a frame (or tap, on a phone) and the loupe brings it back to a <b>positive</b>, true colour. Read the rebate for frame numbers, edge codes and DX markings.</p>
+    <span class="loupe-tip">🔍 Hover / tap a frame to develop it → <b>positive</b></span>
+  </header>
+
+  <div id="rolls"></div>
+
+  <footer>
+    <span>Tom Milton — 35mm &amp; medium format</span>
+    <span>Handle <b>by the edges</b> · MCMXCV–MMXXIII</span>
+  </footer>
+</div>
+
+<script>
+const ROLLS=[
+ {label:"Roll 12 — Landscapes",stock:"Kodak Portra 400",base:"35mm Colour Neg",frames:[
+   ["golden-field-sunburst","Last Light","Tuscany, Italy",1998,0],
+   ["cliff-coast-ocean","Edge of the World","Big Sur, USA",2002,0],
+   ["autumn-forest-road","October Road","Vermont, USA",2007,0],
+   ["lake-mountain-house","Reflections","Hallstatt, Austria",2000,0],
+   ["forest-sunlight","Cathedral of Pines","Olympic NP, USA",1996,0],
+   ["valley-green-river","River Bend","Glencoe, Scotland",1999,0],
+ ]},
+ {label:"Roll 23 — Portraits",stock:"Kodak Portra 800",base:"120 Colour Neg",frames:[
+   ["woman-portrait-window","By the Window","Lisbon, Portugal",2011,0],
+   ["woman-portrait-freckles","Freckles & Sun","Studio",2015,0],
+   ["friends-golden-hour","Golden Hour","California, USA",2016,0],
+   ["woman-laughing-portrait","That Laugh","Mexico City, MX",2021,0],
+   ["woman-fashion-portrait","The Red Wall","Marrakesh, MA",2019,0],
+   ["couple-silhouette-sunset","Goodnight","Santorini, GR",2013,0],
+ ]},
+ {label:"Roll 31 — Black & White",stock:"Ilford HP5 Plus",base:"35mm B&W Neg",frames:[
+   ["misty-pine-forest","Silence","Norway",2003,1],
+   ["man-bw-portrait","Portrait in Shadow","Berlin, Germany",2018,1],
+   ["man-portrait-street","Stranger No.14","Havana, Cuba",2012,1],
+   ["waterfall-bridge","Hidden Falls","Iceland",2006,0],
+ ]},
+];
+
+const rollsEl=document.getElementById('rolls');
+rollsEl.innerHTML=ROLLS.map((roll,ri)=>{
+  const frames=roll.frames.map((f,fi)=>{
+    const [file,title,loc,year,bw]=f;
+    const fn=(fi+1);
+    const code=fn+ (fi%2? 'A':'');
+    return `<figure class="frame${bw?' bw':''}" tabindex="0">
+      <span class="fnum">${String(fn).padStart(2,'0')}</span>
+      <span class="fmark">▸</span>
+      <span class="fnum alt">${code}</span>
+      <div class="win"><img src="../../assets/img/${file}.jpg" alt="${title} — ${loc}, ${year} (${bw?'black & white':'colour'} negative)" loading="lazy"></div>
+      <figcaption class="fcap"><span class="t">${title}</span><span class="y">${year}</span></figcaption>
+    </figure>`;
+  }).join('');
+  return `<section class="roll">
+    <div class="roll-label"><span>${roll.label}</span><b>${roll.stock}</b><span class="yr">· ${roll.base}</span></div>
+    <div class="strip">
+      <div class="frames">${frames}</div>
+    </div>
+    <div class="edgeprint">
+      <span>${roll.stock}</span>
+      <span class="dx" aria-hidden="true"></span>
+      <span>Tom Milton</span>
+      <span class="spacer"></span>
+      <span>↦ ${String(ri+12)} ↤</span>
+    </div>
+  </section>`;
+}).join('');
+
+// touch: tap toggles positive
+if(matchMedia('(hover:none)').matches){
+  rollsEl.addEventListener('click',e=>{
+    const fr=e.target.closest('.frame');
+    if(fr) fr.classList.toggle('show');
+  });
+}
+</script>
+</body>
+</html>

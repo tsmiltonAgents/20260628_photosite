@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Expired Rolls</title>
+<meta name="description" content="Expired Rolls — film photography by Tom Milton, shot on expired stock and run through point-and-shoots. Warm, grainy, imperfect, nostalgic.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Gloria+Hallelujah&family=Share+Tech+Mono&family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efe6d4;
+    --paper-2:#e7dcc6;
+    --ink:#2b2620;
+    --ink-soft:#5c5447;
+    --leak-orange:#ff7a18;
+    --leak-red:#ff3b2f;
+    --leak-magenta:#ff2e88;
+    --stamp:#ff7a18;
+    --tape:rgba(228,210,160,0.55);
+    --hand:'Caveat', cursive;
+    --scrawl:'Gloria Hallelujah', cursive;
+    --sans:'Space Grotesk', system-ui, sans-serif;
+    --seg:'VT323', monospace;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    font-family:var(--sans);
+    color:var(--ink);
+    background:
+      radial-gradient(120% 90% at 15% 0%, #f6eeddff 0%, rgba(246,238,221,0) 55%),
+      radial-gradient(120% 90% at 90% 10%, #f1e3c6ff 0%, rgba(241,227,198,0) 50%),
+      linear-gradient(160deg, #efe6d4 0%, #e6d8bd 55%, #ecdfc8 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ----- global paper grain overlay ----- */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:60;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/></svg>");
+    background-size:180px 180px;
+    opacity:0.10;
+    mix-blend-mode:multiply;
+  }
+  /* subtle warm haze at very top so header sits in light */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+    background:radial-gradient(80% 40% at 80% -5%, rgba(255,122,24,0.16), rgba(255,122,24,0) 60%);
+    mix-blend-mode:screen;
+  }
+
+  a{color:inherit;}
+
+  /* ----- back link ----- */
+  .backlink{
+    position:fixed;
+    top:14px;
+    left:16px;
+    z-index:80;
+    font-family:var(--sans);
+    font-size:.78rem;
+    font-weight:600;
+    letter-spacing:.04em;
+    text-decoration:none;
+    color:var(--ink);
+    background:rgba(245,238,222,0.82);
+    border:1px solid rgba(43,38,32,0.22);
+    padding:7px 12px;
+    border-radius:30px;
+    backdrop-filter:blur(4px);
+    box-shadow:0 2px 8px rgba(60,45,20,0.18);
+    transition:transform .18s ease, background .18s ease;
+  }
+  .backlink:hover{transform:translateX(-2px) rotate(-1deg);background:#fff7e8;}
+
+  /* ----- ISO / DO NOT X-RAY stickers ----- */
+  .sticker{
+    position:fixed;
+    z-index:80;
+    font-family:var(--sans);
+    font-weight:700;
+    text-transform:uppercase;
+    pointer-events:none;
+    user-select:none;
+  }
+  .sticker--xray{
+    top:18px;right:18px;
+    font-size:.62rem;letter-spacing:.12em;
+    color:#fff;
+    background:repeating-linear-gradient(45deg,#c8341f,#c8341f 8px,#1b1b1b 8px,#1b1b1b 16px);
+    padding:6px 11px 5px;
+    border:2px solid #1b1b1b;
+    border-radius:4px;
+    transform:rotate(6deg);
+    box-shadow:0 3px 10px rgba(0,0,0,.28);
+    line-height:1;
+    text-shadow:0 1px 1px rgba(0,0,0,.6);
+  }
+  .sticker--xray b{background:rgba(0,0,0,.55);padding:1px 3px;border-radius:2px;}
+
+  /* ===================== HEADER ===================== */
+  header.hero{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    padding:96px 20px 40px;
+  }
+  .canister{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    font-family:var(--sans);
+    font-size:.66rem;
+    font-weight:700;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:#fff;
+    background:linear-gradient(180deg,#2a2520,#171410);
+    padding:7px 16px;
+    border-radius:30px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 4px 14px rgba(40,25,5,.3);
+    margin-bottom:22px;
+  }
+  .canister .dot{width:9px;height:9px;border-radius:50%;background:var(--leak-orange);box-shadow:0 0 8px var(--leak-orange);}
+  .canister .iso{color:var(--leak-orange);}
+
+  .hero h1{
+    margin:0;
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(3.2rem, 14vw, 9rem);
+    line-height:.86;
+    letter-spacing:-.02em;
+    color:var(--ink);
+    position:relative;
+    display:inline-block;
+  }
+  .hero h1 .leak-word{
+    background:linear-gradient(95deg,#ff3b2f 0%,#ff7a18 38%,#ff2e88 78%,#ff7a18 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    filter:saturate(1.1);
+  }
+  .hero h1::after{
+    content:"";
+    position:absolute;
+    left:50%;top:50%;
+    width:118%;height:160%;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(60% 70% at 70% 30%, rgba(255,122,24,.28), rgba(255,46,136,0) 70%);
+    mix-blend-mode:screen;
+    pointer-events:none;
+    z-index:-1;
+  }
+  .hero .byline{
+    margin-top:8px;
+    font-family:var(--scrawl);
+    font-size:clamp(1rem,3.4vw,1.5rem);
+    color:var(--ink-soft);
+  }
+  .hero .sub{
+    margin:18px auto 0;
+    max-width:560px;
+    font-family:var(--hand);
+    font-size:clamp(1.25rem,4vw,1.85rem);
+    color:#7a5a2e;
+    line-height:1.15;
+    transform:rotate(-1.2deg);
+  }
+  .hero .meta-strip{
+    margin-top:26px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px 14px;
+    font-family:var(--sans);
+    font-size:.66rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .hero .meta-strip span{display:inline-flex;align-items:center;gap:7px;}
+  .hero .meta-strip span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--leak-orange);opacity:.8;}
+
+  /* ===================== GALLERY ===================== */
+  .gallery{
+    position:relative;
+    z-index:2;
+    max-width:1180px;
+    margin:30px auto 0;
+    padding:0 26px 120px;
+    column-count:3;
+    column-gap:42px;
+  }
+  @media(max-width:900px){ .gallery{column-count:2;column-gap:30px;} }
+  @media(max-width:560px){ .gallery{column-count:1;padding:0 18px 90px;} }
+
+  /* ----- a print ----- */
+  .print{
+    break-inside:avoid;
+    -webkit-column-break-inside:avoid;
+    margin:0 0 52px;
+    background:#fbf7ec;
+    padding:14px 14px 8px;
+    border-radius:3px;
+    box-shadow:
+      0 1px 1px rgba(0,0,0,.06),
+      0 14px 30px -12px rgba(60,40,15,.42);
+    position:relative;
+    transform:rotate(var(--rot,0deg));
+    transition:transform .35s cubic-bezier(.2,.8,.3,1), box-shadow .35s ease;
+  }
+  .print:hover{
+    transform:rotate(0deg) scale(1.025);
+    box-shadow:0 1px 1px rgba(0,0,0,.08), 0 26px 46px -14px rgba(60,40,15,.5);
+    z-index:5;
+  }
+
+  /* tape on a few prints */
+  .print.tape::before{
+    content:"";
+    position:absolute;
+    top:-12px;left:50%;
+    width:96px;height:30px;
+    transform:translateX(-50%) rotate(-3deg);
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.25), rgba(255,255,255,0) 60%),
+      var(--tape);
+    border-left:1px dashed rgba(120,100,60,.25);
+    border-right:1px dashed rgba(120,100,60,.25);
+    box-shadow:0 2px 4px rgba(0,0,0,.12);
+    z-index:7;
+  }
+  .print.tape.tl::before{left:18px;transform:rotate(-28deg);width:80px;}
+  .print.tape.tr::before{left:auto;right:18px;transform:rotate(26deg);width:80px;}
+
+  /* frame holding the image + all overlays */
+  .frame{
+    position:relative;
+    overflow:hidden;
+    border-radius:2px;
+    background:#1a1712;
+    line-height:0;
+  }
+  .frame img{
+    width:100%;
+    height:auto;
+    display:block;
+    /* expired emulsion shift */
+    filter:sepia(.22) saturate(1.12) brightness(1.06) contrast(.9) hue-rotate(-6deg);
+  }
+  /* b&w override */
+  .frame.bw img{
+    filter:grayscale(1) sepia(.12) brightness(1.07) contrast(.92);
+  }
+
+  /* vignette */
+  .frame::after{
+    content:"";
+    position:absolute;inset:0;
+    pointer-events:none;
+    box-shadow:inset 0 0 60px 8px rgba(30,18,5,.5);
+    background:radial-gradient(120% 120% at 50% 50%, rgba(0,0,0,0) 58%, rgba(25,15,5,.35) 100%);
+    z-index:3;
+  }
+
+  /* per-frame grain (independent, slightly animated feel via blend) */
+  .frame .grain{
+    position:absolute;inset:-10%;
+    pointer-events:none;
+    z-index:4;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)' opacity='0.6'/></svg>");
+    background-size:140px 140px;
+    opacity:.13;
+    mix-blend-mode:overlay;
+  }
+
+  /* LIGHT LEAK layer — varies per print via modifier classes */
+  .frame .leak{
+    position:absolute;inset:0;
+    pointer-events:none;
+    z-index:2;
+    mix-blend-mode:screen;
+    opacity:.9;
+  }
+  /* default leak: warm corner bleed bottom-right + edge top */
+  .leak-a{
+    background:
+      radial-gradient(60% 80% at 102% 105%, rgba(255,59,47,.85), rgba(255,122,24,.35) 35%, rgba(255,122,24,0) 62%),
+      linear-gradient(180deg, rgba(255,120,30,.32), rgba(255,120,30,0) 22%);
+  }
+  .leak-b{
+    background:
+      radial-gradient(70% 90% at -8% 0%, rgba(255,46,136,.8), rgba(255,122,24,.3) 40%, rgba(255,122,24,0) 66%),
+      radial-gradient(40% 60% at 100% 100%, rgba(255,180,40,.45), rgba(255,180,40,0) 60%);
+  }
+  .leak-c{ /* strong streak down right edge */
+    background:
+      linear-gradient(270deg, rgba(255,80,30,.9), rgba(255,140,30,.4) 14%, rgba(255,140,30,0) 32%),
+      radial-gradient(50% 50% at 95% 20%, rgba(255,40,90,.6), rgba(255,40,90,0) 60%);
+    opacity:.95;
+  }
+  .leak-d{ /* gentle, soft top wash */
+    background:
+      linear-gradient(165deg, rgba(255,150,40,.4), rgba(255,150,40,0) 30%),
+      radial-gradient(60% 50% at 10% 100%, rgba(255,60,120,.4), rgba(255,60,120,0) 55%);
+    opacity:.7;
+  }
+  .leak-e{ /* fat magenta blob upper-right, classic 35mm leak */
+    background:
+      radial-gradient(55% 75% at 108% -6%, rgba(255,46,136,.92), rgba(255,90,40,.4) 38%, rgba(255,90,40,0) 64%),
+      linear-gradient(0deg, rgba(255,120,30,.25), rgba(255,120,30,0) 18%);
+    opacity:.92;
+  }
+  .leak-f{ /* very light — for the moody/landscape ones */
+    background:
+      radial-gradient(70% 60% at 100% 110%, rgba(255,120,40,.55), rgba(255,120,40,0) 58%);
+    opacity:.6;
+  }
+
+  /* DATE STAMP */
+  .datestamp{
+    position:absolute;
+    right:9px;bottom:6px;
+    z-index:5;
+    font-family:var(--seg);
+    font-size:clamp(1.1rem,4.4vw,1.6rem);
+    line-height:1;
+    letter-spacing:.06em;
+    color:#ffce6a;
+    text-shadow:
+      0 0 2px #ff9b30,
+      0 0 6px rgba(255,122,24,.95),
+      0 0 14px rgba(255,90,20,.7);
+    /* faint un-lit segment ghosts behind */
+    pointer-events:none;
+    transform:skewX(-3deg);
+    filter:blur(.2px);
+  }
+  .datestamp::before{
+    /* dim ghost segments (8 8 8888) */
+    content:attr(data-ghost);
+    position:absolute;inset:0;
+    color:rgba(255,140,40,.12);
+    text-shadow:none;
+    z-index:-1;
+  }
+
+  /* ----- caption / scrawled notes ----- */
+  .caption{
+    padding:11px 6px 4px;
+    position:relative;
+  }
+  .caption .title{
+    font-family:var(--scrawl);
+    font-size:1.02rem;
+    color:var(--ink);
+    line-height:1.25;
+    margin:0 0 4px;
+  }
+  .caption .notes{
+    font-family:var(--hand);
+    font-size:1.18rem;
+    color:#6f5a3a;
+    line-height:1.05;
+    display:flex;
+    flex-wrap:wrap;
+    gap:2px 12px;
+  }
+  .caption .notes b{font-weight:600;color:#8a4a1a;}
+  .caption .loc{
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .caption .loc::before{content:"⌖";font-family:var(--sans);font-size:.85rem;color:var(--leak-orange);}
+  /* tiny film-stock tag */
+  .filmtag{
+    display:inline-block;
+    font-family:var(--sans);
+    font-size:.56rem;
+    font-weight:700;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#fff;
+    background:#1f1a14;
+    padding:3px 7px;
+    border-radius:3px;
+    margin-top:8px;
+    transform:rotate(-1.5deg);
+  }
+  .filmtag.warm{background:#b8431d;}
+  .filmtag.cool{background:#1f4e57;}
+
+  /* rotation helpers */
+  .r1{--rot:-2.4deg;} .r2{--rot:1.8deg;} .r3{--rot:-1.2deg;}
+  .r4{--rot:2.6deg;} .r5{--rot:-3deg;} .r6{--rot:1.1deg;}
+  .r7{--rot:-1.8deg;} .r8{--rot:2.2deg;}
+
+  @media(max-width:560px){
+    .print{--rot:0deg !important;margin-bottom:38px;}
+    .print:hover{transform:scale(1.01);}
+  }
+
+  /* scattered standalone scrawls between prints */
+  .scrawl-note{
+    break-inside:avoid;
+    font-family:var(--hand);
+    color:#8a5a2c;
+    font-size:1.5rem;
+    line-height:1.05;
+    text-align:center;
+    margin:0 0 46px;
+    transform:rotate(var(--rot,-2deg));
+    opacity:.85;
+  }
+  .scrawl-note .big{display:block;font-family:var(--scrawl);font-size:.9rem;color:var(--leak-orange);letter-spacing:.05em;}
+
+  /* ===================== FOOTER ===================== */
+  footer{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    padding:10px 20px 70px;
+    color:var(--ink-soft);
+  }
+  footer .roll{
+    font-family:var(--seg);
+    font-size:1.4rem;
+    color:#ffce6a;
+    text-shadow:0 0 6px rgba(255,122,24,.8);
+    letter-spacing:.1em;
+    margin-bottom:6px;
+  }
+  footer .sig{
+    font-family:var(--scrawl);
+    font-size:1.05rem;
+    color:var(--ink);
+  }
+  footer .fine{
+    margin-top:14px;
+    font-family:var(--sans);
+    font-size:.62rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:#9a8a6c;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+  <a class="backlink" href="../../index.html">&larr; All designs</a>
+  <div class="sticker sticker--xray">Do Not <b>X-Ray</b></div>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="hero">
+    <div class="canister"><span class="dot"></span>35mm &nbsp;·&nbsp; <span class="iso">ISO&nbsp;400</span> &nbsp;·&nbsp; EXP&nbsp;2009</div>
+    <h1><span class="leak-word">EXPIRED</span><br>ROLLS</h1>
+    <div class="byline">photographs by Tom Milton</div>
+    <p class="sub">stuff I shot on film that sat in a fridge too long. dust, leaks, weird colors &amp; all — exactly how I like it.</p>
+    <div class="meta-strip">
+      <span>Shot on expired stock</span>
+      <span>Developed at home</span>
+      <span>No corrections</span>
+      <span>13 frames</span>
+    </div>
+  </header>
+
+  <!-- ===================== GALLERY ===================== -->
+  <main class="gallery">
+
+    <!-- 1 -->
+    <figure class="print tape r1">
+      <div class="frame">
+        <img src="../../assets/img/friends-golden-hour.jpg" alt="Three friends backlit by warm golden-hour sun, laughing together outdoors in California." loading="lazy">
+        <div class="leak leak-a"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'16 7 22</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Golden Hour, Together</p>
+        <div class="notes"><span class="loc">California, USA</span><span><b>'16</b></span></div>
+        <span class="filmtag warm">Kodak Portra 400 · Nikon F100</span>
+      </figcaption>
+    </figure>
+
+    <!-- 2 -->
+    <figure class="print r2">
+      <div class="frame">
+        <img src="../../assets/img/woman-laughing-portrait.jpg" alt="Woman caught mid-laugh in soft daylight, Mexico City." loading="lazy">
+        <div class="leak leak-e"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'21 3 09</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">That Laugh</p>
+        <div class="notes"><span class="loc">Mexico City, MX</span><span><b>'21</b></span></div>
+        <span class="filmtag warm">Kodak Portra 800 · Contax G2</span>
+      </figcaption>
+    </figure>
+
+    <!-- scrawl -->
+    <div class="scrawl-note r3" style="--rot:-3deg"><span class="big">★ keeper ★</span>best roll of the year</div>
+
+    <!-- 3 -->
+    <figure class="print tape tr r3">
+      <div class="frame">
+        <img src="../../assets/img/couple-silhouette-sunset.jpg" alt="A couple silhouetted against a glowing sunset over the sea in Santorini." loading="lazy">
+        <div class="leak leak-c"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'13 9 02</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Goodnight</p>
+        <div class="notes"><span class="loc">Santorini, GR</span><span><b>'13</b></span></div>
+        <span class="filmtag warm">Kodak Portra 800 · Canon EOS-1V</span>
+      </figcaption>
+    </figure>
+
+    <!-- 4 -->
+    <figure class="print r4">
+      <div class="frame">
+        <img src="../../assets/img/woman-curly-portrait.jpg" alt="Portrait of a woman with curly hair under tungsten-tinted city light, Brooklyn." loading="lazy">
+        <div class="leak leak-b"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'17 11 04</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Curls</p>
+        <div class="notes"><span class="loc">Brooklyn, USA</span><span><b>'17</b></span></div>
+        <span class="filmtag cool">Cinestill 800T · Canon AE-1</span>
+      </figcaption>
+    </figure>
+
+    <!-- 5 — B&W -->
+    <figure class="print tape tl r5">
+      <div class="frame bw">
+        <img src="../../assets/img/man-portrait-street.jpg" alt="Black and white street portrait of a weathered man in Havana, Cuba." loading="lazy">
+        <div class="leak leak-f"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'12 5 19</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Stranger, No. 14</p>
+        <div class="notes"><span class="loc">Havana, Cuba</span><span><b>'12</b></span></div>
+        <span class="filmtag">Kodak Tri-X 400 · Leica M4 · B&amp;W</span>
+      </figcaption>
+    </figure>
+
+    <!-- 6 -->
+    <figure class="print r6">
+      <div class="frame">
+        <img src="../../assets/img/street-cafe-paris.jpg" alt="Café de Flore terrace on a Paris street in warm morning light." loading="lazy">
+        <div class="leak leak-d"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'20 2 14</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Café de Flore</p>
+        <div class="notes"><span class="loc">Paris, France</span><span><b>'20</b></span></div>
+        <span class="filmtag warm">Kodak Gold 200 · Olympus OM-1</span>
+      </figcaption>
+    </figure>
+
+    <!-- scrawl -->
+    <div class="scrawl-note r7" style="--rot:2deg"><span class="big">note to self →</span>buy more Portra<br>before it's gone</div>
+
+    <!-- 7 -->
+    <figure class="print tape r7">
+      <div class="frame">
+        <img src="../../assets/img/woman-portrait-window.jpg" alt="Woman lit softly by window light, Lisbon, on medium-format film." loading="lazy">
+        <div class="leak leak-a"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'11 6 30</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">By the Window</p>
+        <div class="notes"><span class="loc">Lisbon, PT</span><span><b>'11</b></span></div>
+        <span class="filmtag warm">Kodak Portra 400 · Pentax 67</span>
+      </figcaption>
+    </figure>
+
+    <!-- 8 -->
+    <figure class="print r8">
+      <div class="frame">
+        <img src="../../assets/img/vintage-car-street.jpg" alt="A classic vintage car parked on a sunlit Havana street." loading="lazy">
+        <div class="leak leak-c"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'22 4 17</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Sunday Drive</p>
+        <div class="notes"><span class="loc">Havana, Cuba</span><span><b>'22</b></span></div>
+        <span class="filmtag warm">Kodak Ektar 100 · Nikon FE</span>
+      </figcaption>
+    </figure>
+
+    <!-- 9 -->
+    <figure class="print r1">
+      <div class="frame">
+        <img src="../../assets/img/golden-field-sunburst.jpg" alt="Wheat field in Tuscany glowing under a low sunburst at last light." loading="lazy">
+        <div class="leak leak-e"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'98 8 11</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Last Light, Wheat Country</p>
+        <div class="notes"><span class="loc">Tuscany, Italy</span><span><b>'98</b></span></div>
+        <span class="filmtag warm">Kodak Portra 400 · Leica M6</span>
+      </figcaption>
+    </figure>
+
+    <!-- 10 -->
+    <figure class="print tape tr r3">
+      <div class="frame">
+        <img src="../../assets/img/sun-through-leaves.jpg" alt="Sunlight filtering through green backlit leaves in Kyoto." loading="lazy">
+        <div class="leak leak-b"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'04 5 25</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Backlit</p>
+        <div class="notes"><span class="loc">Kyoto, Japan</span><span><b>'04</b></span></div>
+        <span class="filmtag warm">Kodak Portra 800 · Leica M6</span>
+      </figcaption>
+    </figure>
+
+    <!-- scrawl -->
+    <div class="scrawl-note" style="--rot:-2deg"><span class="big">~ developed in the kitchen ~</span>smelled awful. worth it.</div>
+
+    <!-- 11 -->
+    <figure class="print r4">
+      <div class="frame">
+        <img src="../../assets/img/mountain-road-fog.jpg" alt="A winding mountain road disappearing into fog in the Dolomites." loading="lazy">
+        <div class="leak leak-f"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'05 10 08</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">The Long Way Home</p>
+        <div class="notes"><span class="loc">Dolomites, IT</span><span><b>'05</b></span></div>
+        <span class="filmtag cool">Cinestill 800T · Canon AE-1</span>
+      </figcaption>
+    </figure>
+
+    <!-- 12 -->
+    <figure class="print r2">
+      <div class="frame">
+        <img src="../../assets/img/woman-portrait-freckles.jpg" alt="Studio portrait of a freckled woman in soft sunlit warmth." loading="lazy">
+        <div class="leak leak-a"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'15 1 28</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Freckles &amp; Sun</p>
+        <div class="notes"><span class="loc">Studio</span><span><b>'15</b></span></div>
+        <span class="filmtag warm">Kodak Portra 160 · Mamiya 645</span>
+      </figcaption>
+    </figure>
+
+    <!-- 13 -->
+    <figure class="print tape r6">
+      <div class="frame">
+        <img src="../../assets/img/cliff-coast-ocean.jpg" alt="Rugged cliffs meeting the ocean at Big Sur under hazy light." loading="lazy">
+        <div class="leak leak-c"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'02 7 06</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Edge of the World</p>
+        <div class="notes"><span class="loc">Big Sur, USA</span><span><b>'02</b></span></div>
+        <span class="filmtag warm">Kodak Portra 400 · Contax G2</span>
+      </figcaption>
+    </figure>
+
+    <!-- 14 -->
+    <figure class="print r8">
+      <div class="frame">
+        <img src="../../assets/img/cozy-interior-window.jpg" alt="Warm domestic interior glowing by a window in Copenhagen." loading="lazy">
+        <div class="leak leak-d"></div>
+        <div class="grain"></div>
+        <div class="datestamp" data-ghost="'88 8 88">'23 12 03</div>
+      </div>
+      <figcaption class="caption">
+        <p class="title">Home Light</p>
+        <div class="notes"><span class="loc">Copenhagen, DK</span><span><b>'23</b></span></div>
+        <span class="filmtag warm">Kodak Portra 400 · Leica M6</span>
+      </figcaption>
+    </figure>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer>
+    <div class="roll">END OF ROLL ▸ 36/36</div>
+    <div class="sig">— shot &amp; soup'd by Tom Milton —</div>
+    <div class="fine">Expired Rolls · process before it's too late · keep film away from heat</div>
+  </footer>
+
+</body>
+</html>

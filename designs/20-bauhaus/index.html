@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOM MILTON / FILM — Constructions in Light</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,600;0,800;0,900;1,800&family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#e2231a;
+    --blue:#005bbb;
+    --yellow:#ffd500;
+    --ink:#111111;
+    --paper:#f4f1ea;
+    --paper2:#ece8dc;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Archivo',system-ui,sans-serif;
+    line-height:1.15;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ---- Film grain overlay ---- */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    opacity:.10;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  /* ---------- BACK LINK ---------- */
+  .backlink{
+    position:fixed;
+    top:18px;left:18px;
+    z-index:200;
+    background:var(--ink);
+    color:var(--paper);
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    padding:9px 14px;
+    border:3px solid var(--ink);
+    transition:transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .backlink:hover{
+    background:var(--yellow);
+    color:var(--ink);
+    transform:translate(-2px,-2px);
+  }
+
+  /* ---------- MASTHEAD ---------- */
+  .masthead{
+    position:relative;
+    min-height:100vh;
+    border-bottom:14px solid var(--ink);
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:auto 1fr auto;
+  }
+
+  /* big geometric shapes in the masthead */
+  .shape{position:absolute;pointer-events:none;}
+  .circle-red{
+    width:46vw;height:46vw;max-width:540px;max-height:540px;
+    border-radius:50%;
+    background:var(--red);
+    top:-8vw;right:-6vw;
+    z-index:1;
+  }
+  .tri-blue{
+    width:0;height:0;
+    border-left:22vw solid transparent;
+    border-right:22vw solid transparent;
+    border-bottom:34vw solid var(--blue);
+    bottom:-6vw;left:-8vw;
+    z-index:1;
+    transform:rotate(8deg);
+  }
+  .bar-yellow{
+    position:absolute;
+    left:0;right:0;
+    height:30px;
+    background:var(--yellow);
+    top:62%;
+    z-index:2;
+  }
+  .bar-ink{
+    position:absolute;
+    width:18px;
+    background:var(--ink);
+    top:0;bottom:0;
+    left:48%;
+    z-index:2;
+  }
+
+  .mast-head-row{
+    grid-column:1 / -1;
+    z-index:5;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:78px 28px 0 28px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .kicker{
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    background:var(--ink);
+    color:var(--paper);
+    padding:6px 10px;
+  }
+  .kicker.alt{background:var(--blue);}
+
+  .mast-title-wrap{
+    grid-column:1 / -1;
+    z-index:6;
+    align-self:center;
+    padding:0 24px;
+  }
+  .mast-title{
+    font-family:'Archivo Black','Archivo',sans-serif;
+    font-weight:900;
+    line-height:.82;
+    text-transform:uppercase;
+    letter-spacing:-.02em;
+    font-size:clamp(64px,16vw,230px);
+    color:var(--ink);
+  }
+  .mast-title .line2{
+    display:inline-block;
+    color:var(--paper);
+    background:var(--red);
+    padding:0 .12em;
+    transform:rotate(-2deg);
+    box-shadow:10px 10px 0 var(--ink);
+  }
+  .mast-sub{
+    grid-column:1 / -1;
+    z-index:6;
+    align-self:end;
+    padding:0 26px 40px 26px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:18px;
+    flex-wrap:wrap;
+  }
+  .mast-sub p{
+    max-width:46ch;
+    font-size:clamp(14px,1.7vw,18px);
+    font-weight:600;
+    line-height:1.35;
+  }
+  .mast-sub .stat{
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    border:3px solid var(--ink);
+    padding:8px 12px;
+    background:var(--paper);
+  }
+
+  /* vertical rotated label */
+  .vlabel{
+    position:absolute;
+    z-index:7;
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+    writing-mode:vertical-rl;
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.34em;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+
+  /* ---------- SECTION HEADER BANDS ---------- */
+  .band{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:18px 26px;
+    border-bottom:8px solid var(--ink);
+    flex-wrap:wrap;
+  }
+  .band .bignum{
+    font-family:'Archivo Black','Archivo';
+    font-weight:900;
+    font-size:clamp(34px,6vw,64px);
+    line-height:.8;
+  }
+  .band .bandtitle{
+    font-weight:900;
+    text-transform:uppercase;
+    font-size:clamp(20px,3.4vw,40px);
+    letter-spacing:-.01em;
+  }
+  .band .bandmeta{
+    margin-left:auto;
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+  .band.b-red{background:var(--red);color:var(--paper);}
+  .band.b-blue{background:var(--blue);color:var(--paper);}
+  .band.b-yellow{background:var(--yellow);color:var(--ink);}
+
+  /* ---------- GALLERY GRID ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:0;
+    border-bottom:14px solid var(--ink);
+  }
+
+  .cell{
+    position:relative;
+    border-right:6px solid var(--ink);
+    border-bottom:6px solid var(--ink);
+    background:var(--paper2);
+    overflow:hidden;
+    min-height:300px;
+  }
+  /* column spans */
+  .c12{grid-column:span 12;}
+  .c8{grid-column:span 8;}
+  .c6{grid-column:span 6;}
+  .c5{grid-column:span 5;}
+  .c4{grid-column:span 4;}
+  .c3{grid-column:span 3;}
+  .c7{grid-column:span 7;}
+  .tall{min-height:560px;}
+  .mid{min-height:440px;}
+
+  .cell img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    /* Kodak Portra warm grade */
+    filter:saturate(1.06) contrast(1.04) brightness(1.02) sepia(.12) hue-rotate(-6deg);
+    transition:transform .6s cubic-bezier(.2,.7,.2,1);
+  }
+  .cell.bw img{
+    filter:grayscale(1) contrast(1.08) brightness(1.02);
+  }
+  .cell:hover img{transform:scale(1.045);}
+
+  /* warm portra wash + corner geometry */
+  .cell::before{
+    content:"";
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(255,213,0,.05),rgba(226,35,26,.06) 60%,rgba(0,91,187,.08));
+    mix-blend-mode:multiply;
+    pointer-events:none;
+    z-index:2;
+  }
+  .cell.bw::before{display:none;}
+
+  /* big index number plate */
+  .plate{
+    position:absolute;
+    top:0;left:0;
+    z-index:4;
+    font-family:'Archivo Black','Archivo';
+    font-weight:900;
+    font-size:clamp(28px,4vw,52px);
+    line-height:1;
+    color:var(--ink);
+    background:var(--yellow);
+    padding:6px 12px 8px;
+    border-right:5px solid var(--ink);
+    border-bottom:5px solid var(--ink);
+  }
+  .cell.bw .plate{background:var(--paper);}
+
+  /* decorative corner shapes per cell */
+  .dot{
+    position:absolute;z-index:3;
+    width:54px;height:54px;border-radius:50%;
+    background:var(--red);
+    bottom:-12px;left:50%;
+    opacity:.95;
+  }
+  .corner-tri{
+    position:absolute;z-index:3;
+    width:0;height:0;
+    border-style:solid;
+    border-width:0 70px 70px 0;
+    border-color:transparent var(--blue) transparent transparent;
+    top:0;right:0;
+  }
+
+  /* metadata caption */
+  .meta{
+    position:absolute;
+    left:0;right:0;bottom:0;
+    z-index:5;
+    padding:14px 16px 14px;
+    background:linear-gradient(0deg,rgba(17,17,17,.92),rgba(17,17,17,.78) 55%,rgba(17,17,17,0));
+    color:var(--paper);
+    transform:translateY(calc(100% - 58px));
+    transition:transform .35s cubic-bezier(.2,.7,.2,1);
+  }
+  .cell:hover .meta,
+  .cell:focus-within .meta{transform:translateY(0);}
+  .meta h3{
+    font-weight:900;
+    text-transform:uppercase;
+    font-size:clamp(17px,2.1vw,24px);
+    line-height:.95;
+    letter-spacing:-.01em;
+  }
+  .meta .loc{
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--yellow);
+    margin-top:6px;
+  }
+  .tags{
+    display:flex;flex-wrap:wrap;gap:6px;
+    margin-top:12px;
+  }
+  .tag{
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:4px 8px;
+    border:2px solid var(--paper);
+    color:var(--paper);
+  }
+  .tag.film{background:var(--red);border-color:var(--red);}
+  .tag.cam{background:var(--blue);border-color:var(--blue);}
+  .tag.year{background:var(--yellow);border-color:var(--yellow);color:var(--ink);}
+
+  /* ---------- MID POSTER BREAK ---------- */
+  .poster-break{
+    position:relative;
+    border-bottom:14px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    padding:64px 26px;
+    overflow:hidden;
+  }
+  .poster-break .pb-circle{
+    position:absolute;width:240px;height:240px;border-radius:50%;
+    background:var(--yellow);right:-60px;top:-60px;
+  }
+  .poster-break .pb-bar{
+    position:absolute;height:100%;width:60px;background:var(--red);
+    left:12%;top:0;transform:skewX(-12deg);opacity:.9;
+  }
+  .poster-break .pb-quote{
+    position:relative;z-index:2;
+    max-width:18ch;
+    font-family:'Archivo Black','Archivo';
+    font-weight:900;
+    text-transform:uppercase;
+    font-size:clamp(30px,6vw,76px);
+    line-height:.88;
+    letter-spacing:-.02em;
+  }
+  .poster-break .pb-quote span{color:var(--yellow);}
+  .poster-break .pb-attr{
+    position:relative;z-index:2;
+    margin-top:22px;
+    font-family:'Space Mono',monospace;
+    font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    background:var(--blue);
+    color:var(--paper);
+    padding:60px 26px 80px;
+    position:relative;
+    overflow:hidden;
+  }
+  footer .ft-circle{
+    position:absolute;width:200px;height:200px;border-radius:50%;
+    border:30px solid var(--yellow);left:-50px;bottom:-60px;
+  }
+  footer h2{
+    font-family:'Archivo Black','Archivo';
+    font-weight:900;text-transform:uppercase;
+    font-size:clamp(40px,9vw,120px);
+    line-height:.82;letter-spacing:-.02em;
+    position:relative;z-index:2;
+  }
+  footer .ft-row{
+    position:relative;z-index:2;
+    margin-top:30px;
+    display:flex;flex-wrap:wrap;gap:14px 26px;
+    align-items:center;
+  }
+  footer a.ftlink{
+    font-weight:800;text-transform:uppercase;letter-spacing:.04em;
+    font-size:14px;
+    background:var(--paper);color:var(--ink);
+    padding:11px 16px;
+    border:3px solid var(--ink);
+    transition:transform .15s ease,background .15s ease;
+  }
+  footer a.ftlink:hover{background:var(--red);color:var(--paper);transform:translate(-2px,-2px);}
+  footer .colophon{
+    position:relative;z-index:2;
+    margin-top:40px;
+    font-family:'Space Mono',monospace;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    max-width:60ch;line-height:1.6;opacity:.92;
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:880px){
+    .c8,.c7,.c6,.c5,.c4,.c3{grid-column:span 12;}
+    .cell{min-height:320px;}
+    .tall{min-height:420px;}
+    .mid{min-height:360px;}
+    .bar-ink{display:none;}
+    .vlabel{display:none;}
+    .meta{transform:translateY(0);}
+    .meta{background:linear-gradient(0deg,rgba(17,17,17,.94),rgba(17,17,17,.7));}
+  }
+  @media (max-width:560px){
+    .mast-head-row{padding-top:64px;}
+    .mast-title .line2{box-shadow:6px 6px 0 var(--ink);}
+    .backlink{font-size:11px;padding:7px 10px;}
+  }
+
+  /* focus visibility */
+  a:focus-visible,.cell:focus-within{outline:4px solid var(--blue);outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<a class="backlink" href="../../index.html">&larr; All designs</a>
+
+<!-- ============ MASTHEAD ============ -->
+<header class="masthead" role="banner">
+  <div class="shape circle-red" aria-hidden="true"></div>
+  <div class="shape tri-blue" aria-hidden="true"></div>
+  <div class="bar-yellow" aria-hidden="true"></div>
+  <div class="bar-ink" aria-hidden="true"></div>
+  <div class="vlabel" aria-hidden="true">Film &middot; Silver &middot; Light &middot; 1996—2022</div>
+
+  <div class="mast-head-row">
+    <span class="kicker">Est. 1996 — Analog Only</span>
+    <span class="kicker alt">Portfolio No. 20</span>
+  </div>
+
+  <div class="mast-title-wrap">
+    <h1 class="mast-title">
+      TOM<br>
+      <span class="line2">MILTON</span><br>
+      FILM
+    </h1>
+  </div>
+
+  <div class="mast-sub">
+    <p>Constructions in light. Twenty-five years of landscapes, portraits and street work — exposed on grain, never on glass. Shot on Leica, Hasselblad, Pentax &amp; more.</p>
+    <span class="stat">15 Frames &nbsp;/&nbsp; 11 Cameras &nbsp;/&nbsp; 9 Stocks</span>
+  </div>
+</header>
+
+<!-- ============ SECTION I — LANDSCAPE ============ -->
+<div class="band b-red">
+  <span class="bignum">01</span>
+  <span class="bandtitle">Land &amp; Horizon</span>
+  <span class="bandmeta">Frames 01—06 &middot; Large &amp; Medium Format</span>
+</div>
+
+<section class="grid" aria-label="Landscape photographs">
+
+  <figure class="cell c8 tall">
+    <img src="../../assets/img/golden-field-sunburst.jpg" alt="Sun bursting over a golden wheat field at last light in the Tuscan countryside">
+    <span class="plate">01</span>
+    <span class="corner-tri" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Last Light, Wheat Country</h3>
+      <div class="loc">Tuscany, Italy</div>
+      <div class="tags">
+        <span class="tag film">Kodak Portra 400</span>
+        <span class="tag cam">Leica M6</span>
+        <span class="tag year">1998</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c4 tall">
+    <img src="../../assets/img/landscape-misty-mountains.jpg" alt="Morning fog drifting between layered mountain ridges in the Cascades">
+    <span class="plate">02</span>
+    <span class="dot" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Morning Fog, Cascades</h3>
+      <div class="loc">Washington, USA</div>
+      <div class="tags">
+        <span class="tag film">Fujifilm Pro 400H</span>
+        <span class="tag cam">Pentax 67</span>
+        <span class="tag year">2001</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c5 mid">
+    <img src="../../assets/img/lake-cabin-dawn.jpg" alt="A wooden cabin reflected in a still mountain lake at dawn near Banff">
+    <span class="plate">03</span>
+    <figcaption class="meta">
+      <h3>The Cabin at Dawn</h3>
+      <div class="loc">Banff, Canada</div>
+      <div class="tags">
+        <span class="tag film">Kodak Ektar 100</span>
+        <span class="tag cam">Mamiya 7 II</span>
+        <span class="tag year">2003</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c7 mid">
+    <img src="../../assets/img/cliff-coast-ocean.jpg" alt="Rugged cliffs meeting the open ocean along the Big Sur coastline">
+    <span class="plate">04</span>
+    <span class="corner-tri" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Edge of the World</h3>
+      <div class="loc">Big Sur, USA</div>
+      <div class="tags">
+        <span class="tag film">Kodak Portra 400</span>
+        <span class="tag cam">Contax G2</span>
+        <span class="tag year">2002</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c6 mid">
+    <img src="../../assets/img/mountain-road-fog.jpg" alt="A winding mountain road disappearing into fog in the Dolomites">
+    <span class="plate">05</span>
+    <span class="dot" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>The Long Way Home</h3>
+      <div class="loc">Dolomites, Italy</div>
+      <div class="tags">
+        <span class="tag film">Cinestill 800T</span>
+        <span class="tag cam">Canon AE-1</span>
+        <span class="tag year">2005</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c6 mid">
+    <img src="../../assets/img/desert-dunes.jpg" alt="Wind-sculpted lines across vast desert sand dunes in Namibia">
+    <span class="plate">06</span>
+    <span class="corner-tri" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Wind Lines</h3>
+      <div class="loc">Namibia</div>
+      <div class="tags">
+        <span class="tag film">Kodak Ektar 100</span>
+        <span class="tag cam">Hasselblad 503CW</span>
+        <span class="tag year">2008</span>
+      </div>
+    </figcaption>
+  </figure>
+
+</section>
+
+<!-- ============ POSTER BREAK ============ -->
+<div class="poster-break">
+  <div class="pb-bar" aria-hidden="true"></div>
+  <div class="pb-circle" aria-hidden="true"></div>
+  <p class="pb-quote">Form follows <span>the light</span> that finds it.</p>
+  <p class="pb-attr">— Field notes, darkroom &middot; sheet no. 07</p>
+</div>
+
+<!-- ============ SECTION II — NATURE ============ -->
+<div class="band b-blue">
+  <span class="bignum">02</span>
+  <span class="bandtitle">Green Detail</span>
+  <span class="bandmeta">Frames 07—09 &middot; Nature Studies</span>
+</div>
+
+<section class="grid" aria-label="Nature photographs">
+
+  <figure class="cell c4 mid">
+    <img src="../../assets/img/forest-sunlight.jpg" alt="Tall pines lit by shafts of sunlight in Olympic National Park">
+    <span class="plate">07</span>
+    <span class="dot" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Cathedral of Pines</h3>
+      <div class="loc">Olympic NP, USA</div>
+      <div class="tags">
+        <span class="tag film">Kodak Portra 160</span>
+        <span class="tag cam">Hasselblad 500CM</span>
+        <span class="tag year">1996</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c4 mid">
+    <img src="../../assets/img/sun-through-leaves.jpg" alt="Sunlight glowing through backlit green leaves in a Kyoto garden">
+    <span class="plate">08</span>
+    <span class="corner-tri" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Backlit</h3>
+      <div class="loc">Kyoto, Japan</div>
+      <div class="tags">
+        <span class="tag film">Kodak Portra 800</span>
+        <span class="tag cam">Leica M6</span>
+        <span class="tag year">2004</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c4 mid">
+    <img src="../../assets/img/succulent-closeup.jpg" alt="Close-up of a succulent showing its geometric spiral of leaves">
+    <span class="plate">09</span>
+    <span class="dot" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Geometry of Growth</h3>
+      <div class="loc">Studio</div>
+      <div class="tags">
+        <span class="tag film">Kodak Portra 160</span>
+        <span class="tag cam">Hasselblad 500CM</span>
+        <span class="tag year">2009</span>
+      </div>
+    </figcaption>
+  </figure>
+
+</section>
+
+<!-- ============ SECTION III — PORTRAIT & STREET ============ -->
+<div class="band b-yellow">
+  <span class="bignum">03</span>
+  <span class="bandtitle">Faces &amp; Streets</span>
+  <span class="bandmeta">Frames 10—15 &middot; Portrait / Street</span>
+</div>
+
+<section class="grid" aria-label="Portrait and street photographs">
+
+  <figure class="cell c5 tall">
+    <img src="../../assets/img/woman-portrait-window.jpg" alt="A woman sitting in soft window light in a Lisbon interior">
+    <span class="plate">10</span>
+    <span class="corner-tri" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>By the Window</h3>
+      <div class="loc">Lisbon, Portugal</div>
+      <div class="tags">
+        <span class="tag film">Kodak Portra 400</span>
+        <span class="tag cam">Pentax 67</span>
+        <span class="tag year">2011</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c4 tall bw">
+    <img src="../../assets/img/man-bw-portrait.jpg" alt="Black and white portrait of a man half lit in deep shadow, Berlin">
+    <span class="plate">11</span>
+    <span class="dot" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Portrait in Shadow</h3>
+      <div class="loc">Berlin, Germany</div>
+      <div class="tags">
+        <span class="tag film">Ilford Delta 3200</span>
+        <span class="tag cam">Leica M6</span>
+        <span class="tag year">2018</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c3 tall">
+    <img src="../../assets/img/woman-fashion-portrait.jpg" alt="Fashion portrait of a woman against a bold red wall in Marrakesh">
+    <span class="plate">12</span>
+    <span class="corner-tri" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>The Red Wall</h3>
+      <div class="loc">Marrakesh, Morocco</div>
+      <div class="tags">
+        <span class="tag film">Kodak Portra 400</span>
+        <span class="tag cam">Pentax 67</span>
+        <span class="tag year">2019</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c7 mid">
+    <img src="../../assets/img/vintage-car-street.jpg" alt="A vintage car parked on a sunlit colourful street in Havana">
+    <span class="plate">13</span>
+    <span class="dot" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Sunday Drive</h3>
+      <div class="loc">Havana, Cuba</div>
+      <div class="tags">
+        <span class="tag film">Kodak Ektar 100</span>
+        <span class="tag cam">Nikon FE</span>
+        <span class="tag year">2022</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c5 mid bw">
+    <img src="../../assets/img/man-portrait-street.jpg" alt="Black and white street portrait of a man, the fourteenth stranger, in Havana">
+    <span class="plate">14</span>
+    <span class="corner-tri" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Stranger, No. 14</h3>
+      <div class="loc">Havana, Cuba</div>
+      <div class="tags">
+        <span class="tag film">Kodak Tri-X 400</span>
+        <span class="tag cam">Leica M4</span>
+        <span class="tag year">2012</span>
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure class="cell c12 mid">
+    <img src="../../assets/img/woman-curly-portrait.jpg" alt="Portrait of a woman with curly hair lit in tungsten tones in Brooklyn">
+    <span class="plate">15</span>
+    <span class="dot" aria-hidden="true"></span>
+    <figcaption class="meta">
+      <h3>Curls</h3>
+      <div class="loc">Brooklyn, USA</div>
+      <div class="tags">
+        <span class="tag film">Cinestill 800T</span>
+        <span class="tag cam">Canon AE-1</span>
+        <span class="tag year">2017</span>
+      </div>
+    </figcaption>
+  </figure>
+
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="ft-circle" aria-hidden="true"></div>
+  <h2>Let's make<br>a frame.</h2>
+  <div class="ft-row">
+    <a class="ftlink" href="mailto:tom.milton@amododesign.com">Email the Studio</a>
+    <a class="ftlink" href="#">Instagram</a>
+    <a class="ftlink" href="../../index.html">&larr; All Designs</a>
+  </div>
+  <p class="colophon">
+    Tom Milton / Film &middot; Constructions in Light &middot; Portfolio No. 20.
+    All images exposed on photographic film and scanned. Graded for Kodak Portra warmth;
+    black-and-white frames printed silver. Set in Archivo &amp; Space Mono. &copy; 1996—2026.
+  </p>
+</footer>
+
+</body>
+</html>

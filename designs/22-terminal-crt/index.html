@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHOTO.SYS — Tom Milton Photographic Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#33ff66;
+    --green-dim:#1f9c40;
+    --green-glow:rgba(51,255,102,.55);
+    --amber:#ffb14a;
+    --bg:#040a05;
+    --panel:#06160a;
+    --line:rgba(51,255,102,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:#020503;
+    color:var(--green);
+    font-family:'IBM Plex Mono',monospace;
+    line-height:1.5;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  /* ===== CRT SHELL ===== */
+  .crt{
+    position:relative;
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse 120% 130% at 50% 50%, rgba(8,30,14,.65) 0%, rgba(2,8,4,.95) 78%, #000 100%),
+      var(--bg);
+    padding:0;
+  }
+  /* scanlines */
+  .crt::before{
+    content:"";
+    position:fixed;inset:0;
+    background:repeating-linear-gradient(to bottom,
+      rgba(0,0,0,0) 0px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,.28) 3px,
+      rgba(0,0,0,.28) 4px);
+    pointer-events:none;
+    z-index:9000;
+    mix-blend-mode:multiply;
+  }
+  /* curvature vignette + flicker */
+  .crt::after{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;
+    z-index:9001;
+    box-shadow:inset 0 0 140px 30px rgba(0,0,0,.9), inset 0 0 40px rgba(20,80,40,.25);
+    border-radius:18px;
+    animation:flicker 6s infinite steps(60);
+  }
+  @keyframes flicker{
+    0%,96%,100%{opacity:1}
+    97%{opacity:.94}
+    98%{opacity:.99}
+    99%{opacity:.92}
+  }
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding:22px 22px 90px;
+    position:relative;
+    z-index:10;
+    text-shadow:0 0 6px var(--green-glow);
+  }
+  a{color:inherit}
+  ::selection{background:var(--green);color:#021006}
+
+  /* top bar */
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:8px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:8px;margin-bottom:14px;
+    font-size:13px;letter-spacing:.04em;
+  }
+  .topbar .back{
+    text-decoration:none;color:var(--green-dim);
+    border:1px solid var(--line);padding:2px 9px;border-radius:2px;
+    transition:.15s;
+  }
+  .topbar .back:hover{background:var(--green);color:#031007;text-shadow:none}
+  .topbar .sys{color:var(--green-dim)}
+
+  /* boot screen */
+  #boot{
+    font-family:'VT323',monospace;
+    font-size:21px;line-height:1.35;
+    min-height:60vh;
+    padding-top:8vh;
+    letter-spacing:.02em;
+  }
+  #boot .ln{white-space:pre-wrap;display:block}
+  #boot .ok{color:var(--green)}
+  #boot .dim{color:var(--green-dim)}
+  .cursor{
+    display:inline-block;width:.6ch;height:1.05em;
+    background:var(--green);vertical-align:-2px;
+    box-shadow:0 0 8px var(--green-glow);
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0}}
+
+  /* main hidden until booted */
+  #main{display:none;animation:fadein .6s ease}
+  @keyframes fadein{from{opacity:0}to{opacity:1}}
+
+  /* hero header ascii */
+  .hero{
+    font-family:'VT323',monospace;
+    font-size:clamp(20px,5.4vw,40px);
+    line-height:1;
+    letter-spacing:0;
+    white-space:pre;
+    overflow-x:auto;
+    color:var(--green);
+    margin:6px 0 4px;
+    text-shadow:0 0 9px var(--green-glow);
+  }
+  .tagline{
+    font-size:14px;color:var(--green-dim);
+    letter-spacing:.06em;margin-bottom:6px;
+  }
+  .promptline{
+    font-family:'VT323',monospace;font-size:20px;
+    margin:14px 0 26px;color:var(--green);
+  }
+  .promptline .path{color:var(--green-dim)}
+
+  /* directory nav / filter */
+  .dirbar{
+    border:1px solid var(--line);
+    padding:10px 12px;margin-bottom:30px;
+    font-size:13px;
+    background:linear-gradient(rgba(20,80,40,.05),rgba(0,0,0,0));
+  }
+  .dirbar .label{color:var(--green-dim);margin-right:8px}
+  .dirbar button{
+    font-family:'IBM Plex Mono',monospace;
+    background:transparent;border:1px solid var(--line);
+    color:var(--green);cursor:pointer;
+    padding:3px 10px;margin:3px 4px 3px 0;font-size:12px;
+    letter-spacing:.05em;border-radius:2px;transition:.15s;
+    text-shadow:0 0 5px var(--green-glow);
+  }
+  .dirbar button:hover{background:rgba(51,255,102,.12)}
+  .dirbar button.active{background:var(--green);color:#021006;text-shadow:none}
+
+  /* photo windows */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(330px,1fr));
+    gap:30px 26px;
+  }
+  .win{
+    border:1px solid var(--line);
+    background:var(--panel);
+    box-shadow:0 0 0 1px rgba(0,0,0,.5), 0 0 22px rgba(20,80,40,.12);
+    display:flex;flex-direction:column;
+    transition:.2s;
+  }
+  .win:hover{border-color:var(--green);box-shadow:0 0 26px rgba(51,255,102,.18)}
+  .win .titlebar{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;letter-spacing:.05em;
+    border-bottom:1px solid var(--line);
+    padding:4px 8px;color:var(--green-dim);
+    background:rgba(51,255,102,.05);
+  }
+  .win .titlebar .dots{letter-spacing:2px}
+  .win .titlebar .fname{color:var(--green);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .frame{
+    padding:10px;
+    position:relative;
+  }
+  /* ascii corner overlay */
+  .frame .ascii-tl,.frame .ascii-tr,.frame .ascii-bl,.frame .ascii-br{
+    position:absolute;font-size:13px;line-height:1;color:var(--green-dim);
+    pointer-events:none;
+  }
+  .frame .ascii-tl{top:6px;left:8px}
+  .frame .ascii-tr{top:6px;right:8px}
+  .frame .ascii-bl{bottom:6px;left:8px}
+  .frame .ascii-br{bottom:6px;right:8px}
+  .imgbox{
+    position:relative;
+    border:1px solid var(--green-dim);
+    overflow:hidden;
+    aspect-ratio:4/3;
+    background:#000;
+  }
+  .imgbox img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    /* warm portra grade */
+    filter:saturate(1.06) contrast(1.03) brightness(1.02) sepia(.14) hue-rotate(-6deg);
+  }
+  .imgbox.bw img{filter:grayscale(1) contrast(1.08) brightness(1.03)}
+  /* phosphor tint + scan inside frame */
+  .imgbox::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(rgba(51,255,102,.05),rgba(51,255,102,.05)),
+      repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.10) 2px 3px);
+    mix-blend-mode:screen;
+    opacity:.5;
+  }
+  .meta{
+    padding:9px 12px 13px;
+    font-size:12.5px;
+  }
+  .meta .cap{
+    color:var(--green);font-size:14px;font-weight:500;
+    margin-bottom:5px;
+  }
+  .meta .cap::before{content:"> ";color:var(--green-dim)}
+  .meta .typed{border-right:.5ch solid transparent}
+  .meta .row{color:var(--green-dim);line-height:1.55;letter-spacing:.02em}
+  .meta .k{color:var(--green-dim)}
+  .meta .v{color:var(--green)}
+  .tag{
+    display:inline-block;border:1px solid var(--line);
+    font-size:10px;padding:0 6px;margin-top:8px;
+    color:var(--green);letter-spacing:.08em;border-radius:2px;
+  }
+
+  /* footer */
+  footer{
+    margin-top:48px;border-top:1px solid var(--line);
+    padding-top:14px;font-size:12px;color:var(--green-dim);
+    letter-spacing:.04em;
+  }
+  footer .blink{animation:blink 1s steps(1) infinite}
+
+  @media(max-width:560px){
+    .grid{grid-template-columns:1fr}
+    .hero{font-size:15px}
+    #boot{font-size:17px}
+  }
+</style>
+</head>
+<body>
+<div class="crt">
+  <div class="wrap">
+    <div class="topbar">
+      <a class="back" href="../../index.html">&larr; All designs</a>
+      <span class="sys">PHOTO.SYS v2.4 &nbsp;|&nbsp; MEM OK &nbsp;|&nbsp; 38 FILES &nbsp;|&nbsp; SYS 2026-06-28</span>
+    </div>
+
+    <!-- BOOT SEQUENCE -->
+    <div id="boot"></div>
+
+    <!-- MAIN -->
+    <div id="main">
+      <pre class="hero" aria-label="TOM MILTON">  _____ ___  __  __   __  __ ___ _    _____ ___  _  _
+ |_   _/ _ \|  \/  | |  \/  |_ _| |  |_   _/ _ \| \| |
+   | || (_) | |\/| | | |\/| || || |__  | || (_) | .` |
+   |_| \___/|_|  |_| |_|  |_|___|____| |_| \___/|_|\_|</pre>
+      <div class="tagline">PHOTOGRAPHIC ARCHIVE // FILM EMULSION DATABASE // EST. 1995</div>
+      <div class="promptline"><span class="path">archive@milton:~/photos$</span> ls --gallery --sort=year<span class="cursor"></span></div>
+
+      <div class="dirbar">
+        <span class="label">FILTER &gt;</span>
+        <button class="active" data-k="all">ALL</button>
+        <button data-k="landscape">LANDSCAPE</button>
+        <button data-k="portrait">PORTRAIT</button>
+        <button data-k="nature">NATURE</button>
+        <button data-k="street">STREET</button>
+        <button data-k="bw">B&amp;W</button>
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <footer>
+        <div>archive@milton:~/photos$ <span class="blink">_</span></div>
+        <div style="margin-top:6px">&copy; 1995&ndash;2026 TOM MILTON. ALL FRAMES SHOT ON FILM. NO BYTES WERE HARMED.</div>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- DATA ----------
+const PHOTOS = [
+  {f:"golden-field-sunburst.jpg",t:"Last Light, Wheat Country",loc:"Tuscany, Italy",film:"Kodak Portra 400",cam:"Leica M6",y:1998,k:"landscape"},
+  {f:"forest-sunlight.jpg",t:"Cathedral of Pines",loc:"Olympic NP, USA",film:"Kodak Portra 160",cam:"Hasselblad 500CM",y:1996,k:"nature"},
+  {f:"cliff-coast-ocean.jpg",t:"Edge of the World",loc:"Big Sur, USA",film:"Kodak Portra 400",cam:"Contax G2",y:2002,k:"landscape"},
+  {f:"mountain-road-fog.jpg",t:"The Long Way Home",loc:"Dolomites, Italy",film:"Cinestill 800T",cam:"Canon AE-1",y:2005,k:"landscape"},
+  {f:"sun-through-leaves.jpg",t:"Backlit",loc:"Kyoto, Japan",film:"Kodak Portra 800",cam:"Leica M6",y:2004,k:"nature"},
+  {f:"lake-mountain-house.jpg",t:"Reflections, Still Morning",loc:"Hallstatt, Austria",film:"Kodak Ektar 100",cam:"Mamiya RZ67",y:2000,k:"landscape"},
+  {f:"forest-path-trees.jpg",t:"Into the Woods",loc:"Black Forest, Germany",film:"Kodak Portra 160",cam:"Rolleiflex 2.8F",y:1995,k:"nature"},
+  {f:"waterfall-bridge.jpg",t:"Hidden Falls",loc:"Iceland",film:"Fujifilm Velvia 50",cam:"Nikon FM2",y:2006,k:"nature"},
+  {f:"autumn-forest-road.jpg",t:"October Road",loc:"Vermont, USA",film:"Kodak Portra 400",cam:"Leica M7",y:2007,k:"landscape"},
+  {f:"desert-dunes.jpg",t:"Wind Lines",loc:"Namibia",film:"Kodak Ektar 100",cam:"Hasselblad 503CW",y:2008,k:"landscape"},
+  {f:"misty-pine-forest.jpg",t:"Silence",loc:"Norway",film:"Ilford HP5 Plus",cam:"Leica M6",y:2003,k:"nature",bw:true},
+  {f:"foggy-pier-lake.jpg",t:"The Quiet Dock",loc:"Lake District, UK",film:"Cinestill 50D",cam:"Contax T2",y:2010,k:"landscape"},
+  {f:"woman-portrait-window.jpg",t:"By the Window",loc:"Lisbon, Portugal",film:"Kodak Portra 400",cam:"Pentax 67",y:2011,k:"portrait"},
+  {f:"man-portrait-street.jpg",t:"Stranger, No. 14",loc:"Havana, Cuba",film:"Kodak Tri-X 400",cam:"Leica M4",y:2012,k:"portrait",bw:true},
+  {f:"woman-portrait-freckles.jpg",t:"Freckles & Sun",loc:"Studio",film:"Kodak Portra 160",cam:"Mamiya 645",y:2015,k:"portrait"},
+  {f:"man-bw-portrait.jpg",t:"Portrait in Shadow",loc:"Berlin, Germany",film:"Ilford Delta 3200",cam:"Leica M6",y:2018,k:"portrait",bw:true},
+  {f:"woman-fashion-portrait.jpg",t:"The Red Wall",loc:"Marrakesh, Morocco",film:"Kodak Portra 400",cam:"Pentax 67",y:2019,k:"portrait"},
+  {f:"street-cafe-paris.jpg",t:"Cafe de Flore",loc:"Paris, France",film:"Kodak Gold 200",cam:"Olympus OM-1",y:2020,k:"street"},
+  {f:"vintage-car-street.jpg",t:"Sunday Drive",loc:"Havana, Cuba",film:"Kodak Ektar 100",cam:"Nikon FE",y:2022,k:"street"},
+  {f:"cozy-interior-window.jpg",t:"Home Light",loc:"Copenhagen, Denmark",film:"Kodak Portra 400",cam:"Leica M6",y:2023,k:"interior"}
+];
+
+// ---------- BOOT ----------
+const bootLines = [
+  {t:"MILTON BIOS (C) 1995-2026 ........................ [ OK ]",c:"dim"},
+  {t:"PHOTOGRAPHIC ARCHIVE SYSTEM v2.4",c:"ok"},
+  {t:""},
+  {t:"Detecting emulsion banks .......................... 38 KB",c:"dim"},
+  {t:"Mounting /dev/film0 ............................... [ OK ]",c:"ok"},
+  {t:"Loading colour profile: KODAK PORTRA 400 .......... [ OK ]",c:"ok"},
+  {t:"Calibrating phosphor (P1 green) ................... [ OK ]",c:"ok"},
+  {t:"Indexing frames 1995-2023 ........................ [ OK ]",c:"ok"},
+  {t:""},
+  {t:"TOM MILTON PHOTOGRAPHIC ARCHIVE v2.4 -- LOADING...",c:"ok"},
+  {t:"READY.",c:"ok"}
+];
+const boot = document.getElementById('boot');
+let bi=0;
+function bootStep(){
+  if(bi<bootLines.length){
+    const L=bootLines[bi];
+    const span=document.createElement('span');
+    span.className='ln '+(L.c||'');
+    span.textContent=L.t;
+    boot.appendChild(span);
+    bi++;
+    setTimeout(bootStep, L.t===''?40:(80+Math.random()*70));
+  } else {
+    const cur=document.createElement('span');
+    cur.className='cursor';boot.appendChild(cur);
+    setTimeout(()=>{ boot.style.display='none'; startMain(); }, 380);
+  }
+}
+// allow skip
+function skip(){ if(document.getElementById('main').style.display!=='block'){ boot.style.display='none'; startMain(); } }
+document.addEventListener('keydown',skip);
+document.addEventListener('click',e=>{ if(e.target.closest('#boot')||e.target===document.body) skip(); });
+
+// ---------- RENDER ----------
+function asciiCorner(c){return c;}
+function render(list){
+  const grid=document.getElementById('grid');
+  grid.innerHTML='';
+  list.forEach((p,idx)=>{
+    const win=document.createElement('article');
+    win.className='win';
+    win.dataset.k=p.k+(p.bw?' bw':'');
+    win.innerHTML=`
+      <div class="titlebar">
+        <span class="fname">${p.f}</span>
+        <span class="dots">[ _ ][ &#9633; ][ x ]</span>
+      </div>
+      <div class="frame">
+        <span class="ascii-tl">+</span><span class="ascii-tr">+</span>
+        <span class="ascii-bl">+</span><span class="ascii-br">+</span>
+        <div class="imgbox${p.bw?' bw':''}">
+          <img src="../../assets/img/${p.f}" alt="${p.t} — ${p.loc}, shot on ${p.film}" loading="lazy">
+        </div>
+      </div>
+      <div class="meta">
+        <div class="cap">${p.t}</div>
+        <div class="row"><span class="k">LOC </span><span class="v">${p.loc}</span></div>
+        <div class="row"><span class="k">FILM</span> <span class="v">${p.film}</span></div>
+        <div class="row"><span class="k">CAM </span><span class="v">${p.cam}</span> <span class="k">YEAR</span> <span class="v">${p.y}</span></div>
+        <span class="tag">${(p.bw?'B&W ':'')+p.k.toUpperCase()}</span>
+      </div>`;
+    grid.appendChild(win);
+  });
+}
+
+function startMain(){
+  const main=document.getElementById('main');
+  main.style.display='block';
+  render(PHOTOS);
+  // filters
+  document.querySelectorAll('.dirbar button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.dirbar button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const k=b.dataset.k;
+      let list = k==='all'?PHOTOS : (k==='bw'?PHOTOS.filter(p=>p.bw):PHOTOS.filter(p=>p.k===k));
+      render(list);
+    });
+  });
+}
+
+bootStep();
+</script>
+</body>
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>On Film — A Photo Essay · Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f5efe4;
+  --paper-deep:#efe6d6;
+  --ink:#2b2018;
+  --ink-soft:#5a4c3e;
+  --ink-faint:#8a7a68;
+  --rule:#d8ccb6;
+  --accent:#a8541f;     /* warm portra orange-rust */
+  --accent-soft:#c47b3e;
+  --shadow:rgba(58,42,26,0.22);
+  --measure:34rem;
+  --portra: saturate(1.06) contrast(1.02) brightness(1.03) sepia(0.12) hue-rotate(-6deg);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Spectral',Georgia,serif;
+  font-weight:400;
+  font-size:clamp(1.02rem,0.55rem + 0.9vw,1.22rem);
+  line-height:1.72;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+
+/* ---------- film grain overlay ---------- */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:9000;
+  opacity:0.05;
+  mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* warm vignette */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:8999;
+  background:radial-gradient(120% 90% at 50% 35%,transparent 55%,rgba(70,44,20,0.10) 100%);
+}
+
+img{display:block;width:100%;height:auto}
+
+/* ---------- reading progress ---------- */
+.progress{
+  position:fixed;top:0;left:0;height:3px;width:0%;
+  background:linear-gradient(90deg,var(--accent),var(--accent-soft));
+  z-index:9500;transition:width .08s linear;
+  box-shadow:0 0 8px rgba(168,84,31,0.5);
+}
+
+/* ---------- top nav ---------- */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:9200;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.1rem clamp(1rem,4vw,2.4rem);
+  font-family:'Fraunces',serif;
+  font-size:.82rem;letter-spacing:.04em;
+  mix-blend-mode:difference;color:#f4ece0;
+  pointer-events:none;
+}
+.topbar a{pointer-events:auto;color:inherit;text-decoration:none;opacity:.92;transition:opacity .3s}
+.topbar a:hover{opacity:1}
+.topbar .brand{letter-spacing:.22em;text-transform:uppercase;font-size:.74rem}
+
+/* ---------- HERO ---------- */
+.hero{
+  position:relative;height:100svh;min-height:560px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  overflow:hidden;
+}
+.hero-img{
+  position:absolute;inset:0;
+  background:url("../../assets/img/golden-field-sunburst.jpg") center 40%/cover no-repeat;
+  filter:var(--portra) brightness(0.92);
+  transform:scale(1.08);
+  will-change:transform;
+}
+.hero-grad{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(to top,rgba(28,18,10,0.86) 0%,rgba(28,18,10,0.30) 40%,rgba(28,18,10,0.12) 70%,rgba(28,18,10,0.45) 100%);
+}
+.hero-inner{
+  position:relative;z-index:3;
+  padding:0 clamp(1.2rem,5vw,4.5rem) clamp(2.4rem,6vh,4rem);
+  color:#f7efe2;max-width:60rem;
+}
+.hero .kicker{
+  font-family:'Fraunces',serif;text-transform:uppercase;
+  letter-spacing:.42em;font-size:.72rem;font-weight:500;
+  color:var(--accent-soft);margin-bottom:1.3rem;
+  text-shadow:0 1px 12px rgba(0,0,0,.5);
+}
+.hero h1{
+  font-family:'Fraunces',serif;
+  font-weight:300;font-style:normal;
+  font-size:clamp(3rem,2rem + 7vw,8.2rem);
+  line-height:0.94;letter-spacing:-0.02em;
+  margin-bottom:1.4rem;
+  text-shadow:0 2px 30px rgba(0,0,0,.45);
+}
+.hero h1 em{font-style:italic;font-weight:400;color:var(--accent-soft)}
+.hero .dek{
+  font-size:clamp(1.05rem,0.7rem + 1vw,1.5rem);
+  font-weight:300;font-style:italic;
+  max-width:38rem;line-height:1.5;
+  color:#efe4d4;text-shadow:0 1px 16px rgba(0,0,0,.5);
+}
+.hero .byline{
+  margin-top:1.8rem;font-family:'Fraunces',serif;
+  font-size:.8rem;letter-spacing:.24em;text-transform:uppercase;
+  color:#cdb89a;
+}
+.scrollcue{
+  position:absolute;bottom:1.4rem;left:50%;transform:translateX(-50%);
+  z-index:4;color:#e8dcc8;font-family:'Fraunces',serif;
+  font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;
+  display:flex;flex-direction:column;align-items:center;gap:.6rem;opacity:.85;
+}
+.scrollcue .line{width:1px;height:42px;background:linear-gradient(#e8dcc8,transparent);
+  animation:cue 2.4s ease-in-out infinite;transform-origin:top}
+@keyframes cue{0%,100%{transform:scaleY(.4);opacity:.4}50%{transform:scaleY(1);opacity:1}}
+
+/* ---------- layout shells ---------- */
+.chapter{padding:clamp(4rem,11vh,9rem) 0}
+.wrap{max-width:var(--measure);margin:0 auto;padding:0 1.4rem}
+.wide{max-width:74rem;margin:0 auto;padding:0 1.4rem}
+
+/* chapter opener */
+.chapter-head{max-width:48rem;margin:0 auto clamp(2.2rem,5vh,3.6rem);padding:0 1.4rem;text-align:center}
+.chapter-num{
+  font-family:'Fraunces',serif;font-size:.74rem;letter-spacing:.4em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:1.1rem;
+  display:flex;align-items:center;justify-content:center;gap:1rem;
+}
+.chapter-num::before,.chapter-num::after{content:"";height:1px;width:2.4rem;background:var(--rule)}
+.chapter-head h2{
+  font-family:'Fraunces',serif;font-weight:400;font-style:italic;
+  font-size:clamp(2rem,1.3rem + 3vw,3.8rem);line-height:1.04;
+  letter-spacing:-0.01em;color:var(--ink);
+}
+.chapter-head .place{
+  margin-top:.9rem;font-size:.92rem;font-style:italic;color:var(--ink-faint);
+  letter-spacing:.02em;
+}
+
+/* body prose */
+.prose p{margin-bottom:1.5rem;color:var(--ink-soft)}
+.prose p:last-child{margin-bottom:0}
+.prose .lead{color:var(--ink);font-size:1.06em}
+/* drop cap */
+.dropcap::first-letter{
+  font-family:'Fraunces',serif;font-weight:400;
+  float:left;font-size:4.6em;line-height:.78;
+  padding:.04em .12em 0 0;color:var(--accent);
+}
+/* small caps opener */
+.prose .opener{font-variant:small-caps;letter-spacing:.04em;color:var(--ink);font-weight:500}
+
+/* pull quote */
+.pullquote{
+  max-width:46rem;margin:clamp(2.6rem,6vh,4.5rem) auto;padding:0 1.4rem;text-align:center;
+}
+.pullquote blockquote{
+  font-family:'Fraunces',serif;font-weight:300;font-style:italic;
+  font-size:clamp(1.5rem,1rem + 2.4vw,2.7rem);line-height:1.22;
+  color:var(--ink);letter-spacing:-0.01em;position:relative;
+}
+.pullquote blockquote::before{
+  content:"\201C";position:absolute;top:-.5em;left:50%;transform:translateX(-50%);
+  font-size:2.4em;color:var(--accent-soft);opacity:.35;
+}
+.pullquote cite{
+  display:block;margin-top:1.3rem;font-style:normal;font-family:'Spectral';
+  font-size:.82rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);
+}
+
+/* ---------- figures ---------- */
+figure{margin:0}
+.figcap{
+  margin-top:.8rem;font-size:.8rem;line-height:1.5;color:var(--ink-faint);
+  display:flex;flex-wrap:wrap;gap:.2rem .9rem;align-items:baseline;
+  font-style:italic;
+}
+.figcap .ftitle{font-style:normal;font-weight:500;color:var(--ink-soft);font-family:'Fraunces',serif;letter-spacing:.01em}
+.figcap .fmeta{font-style:normal;letter-spacing:.06em;font-size:.72rem;text-transform:uppercase;color:var(--ink-faint)}
+.figcap .fmeta::before{content:"·";margin-right:.6rem;color:var(--accent-soft)}
+
+/* image frames */
+.frame{position:relative;overflow:hidden;background:#e3d8c4;box-shadow:0 18px 40px -20px var(--shadow)}
+.frame img{filter:var(--portra)}
+.frame.bw img{filter:grayscale(1) contrast(1.08) brightness(1.02)}
+
+/* full bleed */
+.fullbleed{margin:clamp(3rem,8vh,6rem) 0;position:relative;width:100%}
+.fullbleed .frame{box-shadow:none}
+.fullbleed img{max-height:96vh;object-fit:cover}
+.fullbleed .figcap{max-width:74rem;margin-left:auto;margin-right:auto;padding:.8rem 1.4rem 0}
+
+/* inset (within measure) */
+.inset{margin:clamp(2.4rem,6vh,4rem) auto;max-width:var(--measure);padding:0 1.4rem}
+.inset.bleed-r{max-width:52rem}
+
+/* pair */
+.pair{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(.8rem,2vw,1.6rem);
+  max-width:74rem;margin:clamp(2.6rem,7vh,4.5rem) auto;padding:0 1.4rem;
+  align-items:start;
+}
+.pair.offset figure:nth-child(2){margin-top:clamp(2rem,6vw,4.5rem)}
+
+/* triptych */
+.trip{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.7rem,1.6vw,1.4rem);
+  max-width:78rem;margin:clamp(2.6rem,7vh,4.5rem) auto;padding:0 1.4rem}
+
+/* ---------- sticky scrollytelling ---------- */
+.scrolly{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  max-width:84rem;margin:clamp(3rem,8vh,6rem) auto;
+  align-items:start;
+}
+.scrolly .sticky-col{position:sticky;top:0;height:100svh;display:flex;align-items:center;padding:0 clamp(1rem,2vw,2rem)}
+.scrolly .sticky-col figure{width:100%}
+.scrolly .sticky-img{height:78svh;}
+.scrolly .sticky-img img{height:100%;object-fit:cover}
+.scrolly .text-col{padding:0 clamp(1.4rem,4vw,3rem)}
+.scrolly .step{min-height:90svh;display:flex;flex-direction:column;justify-content:center}
+.scrolly .step h3{
+  font-family:'Fraunces',serif;font-weight:500;font-style:italic;
+  font-size:clamp(1.3rem,1rem + 1.4vw,2rem);margin-bottom:1rem;color:var(--ink);
+}
+.scrolly .step p{color:var(--ink-soft);margin-bottom:1.2rem}
+
+/* section interludes (full-width tinted band) */
+.interlude{
+  background:var(--paper-deep);
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:clamp(3rem,8vh,6rem) 0;margin:clamp(2rem,5vh,4rem) 0;
+}
+
+/* ---------- colophon ---------- */
+.colophon{
+  background:#1f160e;color:#e9ddca;
+  padding:clamp(4rem,10vh,8rem) 0 clamp(3rem,7vh,5rem);
+  position:relative;
+}
+.colophon .wide{text-align:center}
+.colophon .c-kicker{font-family:'Fraunces',serif;letter-spacing:.4em;text-transform:uppercase;
+  font-size:.72rem;color:var(--accent-soft);margin-bottom:1.6rem}
+.colophon h2{font-family:'Fraunces',serif;font-weight:300;font-style:italic;
+  font-size:clamp(2rem,1.4rem + 3vw,3.6rem);line-height:1.1;margin-bottom:1.6rem}
+.colophon .c-body{max-width:36rem;margin:0 auto 3rem;color:#c9bca6;font-weight:300}
+.cols{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:2rem clamp(1.5rem,4vw,3.5rem);max-width:60rem;margin:0 auto;text-align:left;
+}
+.cols h4{font-family:'Fraunces',serif;font-size:.72rem;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--accent-soft);margin-bottom:1rem;
+  padding-bottom:.6rem;border-bottom:1px solid rgba(196,123,62,.3)}
+.cols ul{list-style:none;font-size:.92rem;line-height:1.9;color:#c9bca6}
+.cols li{color:#c9bca6}
+.cols li span{color:#8c7d66;font-size:.82rem;font-style:italic}
+.signature{
+  margin-top:clamp(3rem,7vh,5rem);text-align:center;
+}
+.signature .sig{font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+  font-size:clamp(2.2rem,1.5rem + 3vw,3.4rem);color:#f4ecdc;
+  transform:rotate(-3deg);display:inline-block}
+.signature .sig-line{font-size:.74rem;letter-spacing:.34em;text-transform:uppercase;
+  color:#8c7d66;margin-top:1.4rem;font-family:'Fraunces',serif}
+
+/* ---------- reveal animation ---------- */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 1.1s cubic-bezier(.2,.7,.2,1),transform 1.1s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.12s}
+.reveal.d2{transition-delay:.24s}
+@media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  .hero-img{transform:none!important}
+  html{scroll-behavior:auto}
+}
+
+/* ---------- responsive ---------- */
+@media(max-width:760px){
+  :root{--measure:100%}
+  .pair{grid-template-columns:1fr;gap:2.4rem}
+  .pair.offset figure:nth-child(2){margin-top:0}
+  .trip{grid-template-columns:1fr;gap:1.6rem}
+  .scrolly{grid-template-columns:1fr}
+  .scrolly .sticky-col{position:relative;height:auto;padding:0 1.4rem;margin-bottom:1.5rem}
+  .scrolly .sticky-img{height:auto}
+  .scrolly .sticky-img img{height:auto}
+  .scrolly .step{min-height:auto;padding:1.5rem 0;display:block}
+  .scrolly .text-col{padding:0 1.4rem}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<nav class="topbar">
+  <a href="../../index.html">&larr; All designs</a>
+  <span class="brand">On Film</span>
+  <a href="#colophon">Colophon</a>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero">
+  <div class="hero-img" id="heroImg"></div>
+  <div class="hero-grad"></div>
+  <div class="hero-inner">
+    <div class="kicker">A Photo Essay · 1995 — 2023</div>
+    <h1>On <em>Film</em></h1>
+    <p class="dek">Twenty-eight years measured not in days, but in rolls of Portra — a life spent chasing the light before it goes.</p>
+    <div class="byline">Words &amp; Photographs by Tom Milton</div>
+  </div>
+  <div class="scrollcue"><span>Scroll</span><span class="line"></span></div>
+</header>
+
+<!-- ===================== CHAPTER I ===================== -->
+<section class="chapter" id="ch1">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">Chapter One</div>
+    <h2>The Weight of Light</h2>
+    <p class="place">Tuscany · The Cascades · Olympic National Park</p>
+  </div>
+
+  <div class="wrap prose">
+    <p class="dropcap lead reveal">There is a moment, perhaps an hour before the sun gives up the day, when the world stops pretending. The fields exhale. The shadows grow honest and long. I have spent the better part of my life waiting for that hour, a camera warm against my palm, a single roll of film holding thirty-six chances to keep what cannot be kept.</p>
+    <p class="reveal"><span class="opener">I came to film late, and stayed on purpose.</span> Everyone I knew had gone digital by then — instant, endless, forgiving. But there is a particular kind of attention that only thirty-six frames will teach you. You learn to wait. You learn that the photograph is mostly made before the shutter ever opens, in the quiet arithmetic of light and patience.</p>
+  </div>
+
+  <div class="fullbleed reveal">
+    <figure>
+      <div class="frame"><img src="../../assets/img/golden-field-sunburst.jpg" alt="Sun bursting low over a golden wheat field at dusk in Tuscany" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Last Light, Wheat Country</span> <span>Tuscany, Italy</span> <span class="fmeta">Kodak Portra 400 · Leica M6 · 1998</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap prose">
+    <p class="reveal">Portra was always my film. It renders skin like memory does — softened, warmed, more forgiving than the truth. Greens fall back politely; the oranges and ambers step forward. It is not how the eye sees. It is how the heart remembers having seen.</p>
+    <p class="reveal">That first autumn I drove the spine of Tuscany with no destination, only a feeling that the country had something to tell me if I slowed down enough to listen. I shot the wheat at the exact minute the sun touched the far ridge, and I knew — the way you sometimes simply know — that the frame was already good before the film was ever developed.</p>
+  </div>
+
+  <div class="pair offset">
+    <figure class="reveal">
+      <div class="frame"><img src="../../assets/img/landscape-misty-mountains.jpg" alt="Layered mountain ridges fading into morning fog in the Cascades" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Morning Fog, Cascades</span> <span class="fmeta">Fujifilm Pro 400H · Pentax 67 · 2001</span></figcaption>
+    </figure>
+    <figure class="reveal d1">
+      <div class="frame"><img src="../../assets/img/forest-sunlight.jpg" alt="Sunlight filtering through a tall stand of pine trees" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Cathedral of Pines</span> <span class="fmeta">Kodak Portra 160 · Hasselblad 500CM · 1996</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap prose">
+    <p class="reveal">Mountains taught me humility; forests taught me silence. In the Cascades I learned that fog is not an obstacle to a photograph but the photograph itself — the way it erases the middle distance and leaves only the near and the suggested-far, a watercolour the camera can almost hold.</p>
+  </div>
+</section>
+
+<div class="pullquote reveal">
+  <blockquote>You do not photograph the light. You photograph what the light is willing to leave behind.</blockquote>
+  <cite>Field notebook, Olympic Peninsula, 1996</cite>
+</div>
+
+<!-- ===================== CHAPTER II ===================== -->
+<section class="chapter interlude" id="ch2">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">Chapter Two</div>
+    <h2>The Long Way Home</h2>
+    <p class="place">The roads between places · 1999 — 2008</p>
+  </div>
+
+  <div class="wrap prose">
+    <p class="dropcap lead reveal">Most of my best photographs were taken on the way to somewhere else. The detour is the discipline. I learned to give myself the extra hour, the wrong turn, the gravel road that bends out of sight into fog — because that is where the country keeps its quiet things.</p>
+  </div>
+
+  <!-- scrollytelling -->
+  <div class="scrolly">
+    <div class="sticky-col">
+      <figure class="reveal">
+        <div class="frame sticky-img"><img src="../../assets/img/mountain-road-fog.jpg" alt="An empty mountain road disappearing into thick fog in the Dolomites" loading="lazy"></div>
+        <figcaption class="figcap"><span class="ftitle">The Long Way Home</span> <span>Dolomites, Italy</span> <span class="fmeta">Cinestill 800T · Canon AE-1 · 2005</span></figcaption>
+      </figure>
+    </div>
+    <div class="text-col">
+      <div class="step reveal">
+        <h3>An hour before sunrise</h3>
+        <p>The Dolomites do not wake gently. They loom out of the dark all at once, grey then blue then briefly, impossibly, pink. I shot this with the engine still ticking as it cooled, the headlights catching the first of the mist, the tungsten warmth of Cinestill turning the fog the colour of a half-remembered dream.</p>
+      </div>
+      <div class="step reveal">
+        <h3>The river finds the lowest ground</h3>
+        <p>Water always knows the way home, even when I don't. In Scotland I followed a river for a full day with no map, certain only that downstream meant somewhere. Velvia made the green almost violent — a saturated, jewelled green that no screen has ever quite reproduced.</p>
+      </div>
+      <div class="step reveal">
+        <h3>And the coast, where the road runs out</h3>
+        <p>Eventually every road I loved ended at water. Big Sur was the edge of the map and the edge of something in me too — the cliffs falling into the Pacific, the air thick with salt and the particular gold of a Portra afternoon. You stand there and understand why people once believed the world had an edge you could fall off.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pair">
+    <figure class="reveal">
+      <div class="frame"><img src="../../assets/img/valley-green-river.jpg" alt="A green river bending through a Scottish valley in spring" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">River Bend, Spring</span> <span class="fmeta">Fujifilm Velvia 50 · Nikon F3 · 1999</span></figcaption>
+    </figure>
+    <figure class="reveal d1">
+      <div class="frame"><img src="../../assets/img/cliff-coast-ocean.jpg" alt="Cliffs of Big Sur dropping into the Pacific Ocean at golden hour" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Edge of the World</span> <span class="fmeta">Kodak Portra 400 · Contax G2 · 2002</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap prose">
+    <p class="reveal">There were years I drove more than I slept. Iceland in the rain, the Black Forest at the blue end of dusk, Vermont when the maples turned and the whole state seemed to be burning slowly and beautifully down. I kept a film log in a leather notebook, one line per frame, and reading it now is reading a map of my own restlessness.</p>
+  </div>
+
+  <div class="trip">
+    <figure class="reveal">
+      <div class="frame"><img src="../../assets/img/waterfall-bridge.jpg" alt="A hidden waterfall beside a small bridge in Iceland" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Hidden Falls</span> <span class="fmeta">Velvia 50 · Nikon FM2 · 2006</span></figcaption>
+    </figure>
+    <figure class="reveal d1">
+      <div class="frame"><img src="../../assets/img/forest-path-trees.jpg" alt="A path winding into the dense Black Forest in Germany" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Into the Woods</span> <span class="fmeta">Portra 160 · Rolleiflex 2.8F · 1995</span></figcaption>
+    </figure>
+    <figure class="reveal d2">
+      <div class="frame"><img src="../../assets/img/autumn-forest-road.jpg" alt="An autumn road through Vermont forest in full fall colour" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">October Road</span> <span class="fmeta">Portra 400 · Leica M7 · 2007</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== CHAPTER III ===================== -->
+<section class="chapter" id="ch3">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">Chapter Three</div>
+    <h2>Still Water, Still Mornings</h2>
+    <p class="place">Banff · Hallstatt · the Lake District</p>
+  </div>
+
+  <div class="wrap prose">
+    <p class="dropcap lead reveal">A lake at dawn is the closest thing I know to a held breath. Everything doubled, everything paused. I have stood waist-deep in cold Austrian water at five in the morning to keep a tripod steady, shivering, grinning like a fool, because the mountains were repeating themselves perfectly in the glass of the lake and I had four frames left.</p>
+  </div>
+
+  <div class="fullbleed reveal">
+    <figure>
+      <div class="frame"><img src="../../assets/img/lake-mountain-house.jpg" alt="A lakeside house in Hallstatt reflected in perfectly still morning water" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Reflections, Still Morning</span> <span>Hallstatt, Austria</span> <span class="fmeta">Kodak Ektar 100 · Mamiya RZ67 · 2000</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap prose">
+    <p class="reveal">Ektar is a colder, sharper film than my beloved Portra — clinical, almost — and for water it is perfect. It keeps the blues honest and the whites clean. I save it for the still mornings, the ones that ask to be remembered exactly as they were rather than as I felt them.</p>
+    <p class="reveal">The cabin at Banff I returned to three years running. Each time the light was different and the lake was the same, and I came to understand that this is the whole secret of landscape work: you are never photographing the place. You are photographing a single morning that will never happen again, in a place that will outlast you by ten thousand of them.</p>
+  </div>
+
+  <div class="inset bleed-r reveal">
+    <figure>
+      <div class="frame"><img src="../../assets/img/lake-cabin-dawn.jpg" alt="A small cabin beside a still lake at dawn in Banff, Canada" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">The Cabin at Dawn</span> <span>Banff, Canada</span> <span class="fmeta">Kodak Ektar 100 · Mamiya 7 II · 2003</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="pair offset">
+    <figure class="reveal">
+      <div class="frame"><img src="../../assets/img/foggy-pier-lake.jpg" alt="A quiet wooden dock reaching into fog over a lake in the Lake District" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">The Quiet Dock</span> <span class="fmeta">Cinestill 50D · Contax T2 · 2010</span></figcaption>
+    </figure>
+    <figure class="reveal d1">
+      <div class="frame bw"><img src="../../assets/img/misty-pine-forest.jpg" alt="Black and white pine forest dissolving into mist in Norway" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Silence</span> <span class="fmeta">Ilford HP5 Plus · Leica M6 · 2003</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap prose">
+    <p class="reveal">Once a year or so I would load a roll of black and white and shoot a forest until the colour drained out of how I was seeing. Norway in the snow, the pines barely there, the grain of HP5 doing what no Kodak ever could — turning silence into something you can almost hold in your two hands.</p>
+  </div>
+</section>
+
+<div class="pullquote reveal">
+  <blockquote>Film does not capture a moment. It agrees to remember one, on your behalf, long after you have forgotten how it felt.</blockquote>
+  <cite>Tom Milton</cite>
+</div>
+
+<!-- ===================== CHAPTER IV ===================== -->
+<section class="chapter interlude" id="ch4">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">Chapter Four</div>
+    <h2>The Faces We Keep</h2>
+    <p class="place">Lisbon · Havana · Paris · everywhere there were people</p>
+  </div>
+
+  <div class="wrap prose">
+    <p class="dropcap lead reveal">For years I told myself I was a landscape photographer because landscapes do not ask anything of you. They do not flinch or perform or look away. Then somewhere in my forties the work turned, the way a river turns, and I found I could not stop photographing faces — the small weather that moves across them, the light that gets caught in the corner of a smile.</p>
+    <p class="reveal">A portrait on film is a negotiation. There is no chimping, no instant reassurance on a screen. You ask a stranger to trust you for a thirtieth of a second, and you trust the film to be there when the trust runs out. When it works, it is the most intimate thing a photograph can do.</p>
+  </div>
+
+  <div class="fullbleed reveal">
+    <figure>
+      <div class="frame"><img src="../../assets/img/woman-portrait-window.jpg" alt="A woman lit softly by a window in Lisbon, Portugal" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">By the Window</span> <span>Lisbon, Portugal</span> <span class="fmeta">Kodak Portra 400 · Pentax 67 · 2011</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap prose">
+    <p class="reveal">This is where Portra finally came home. Built for skin, it renders a face the way affection does — warm, soft, generous with the highlights, kind to every imperfection it finds. I shot the woman by the window in Lisbon on a grey afternoon, the only light a tall casement and the white of a curtain, and the film made of it something almost holy.</p>
+  </div>
+
+  <div class="pair">
+    <figure class="reveal">
+      <div class="frame"><img src="../../assets/img/woman-portrait-freckles.jpg" alt="Close portrait of a freckled woman in warm sunlight" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Freckles &amp; Sun</span> <span class="fmeta">Portra 160 · Mamiya 645 · 2015</span></figcaption>
+    </figure>
+    <figure class="reveal d1">
+      <div class="frame bw"><img src="../../assets/img/man-portrait-street.jpg" alt="Black and white street portrait of a man in Havana, Cuba" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Stranger, No. 14</span> <span class="fmeta">Kodak Tri-X 400 · Leica M4 · 2012</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap prose">
+    <p class="reveal">In Havana I made a small project of strangers — fourteen of them, one frame each, a roll and a half over two weeks. I shot them on Tri-X because a city that old and that proud deserves the gravity of black and white. Number fourteen looked straight down the lens of my old M4 and did not blink, and I have wondered ever since what he was thinking.</p>
+  </div>
+
+  <!-- scrollytelling 2 -->
+  <div class="scrolly">
+    <div class="sticky-col">
+      <figure class="reveal">
+        <div class="frame sticky-img"><img src="../../assets/img/woman-fashion-portrait.jpg" alt="A woman against a deep red wall in Marrakesh, Morocco" loading="lazy"></div>
+        <figcaption class="figcap"><span class="ftitle">The Red Wall</span> <span>Marrakesh, Morocco</span> <span class="fmeta">Kodak Portra 400 · Pentax 67 · 2019</span></figcaption>
+      </figure>
+    </div>
+    <div class="text-col">
+      <div class="step reveal">
+        <h3>Colour as a kind of weather</h3>
+        <p>The wall in Marrakesh was the red of a slow sunset and I waited an hour for someone to stand against it. Portra took that red and made it sing without ever shouting — the genius of the film is its restraint, the way it pulls a scene toward warmth without ever tipping into nostalgia.</p>
+      </div>
+      <div class="step reveal">
+        <h3>And colour as joy</h3>
+        <p>Then there are the frames you don't plan at all. A laugh in Mexico City, caught between one breath and the next; the gold of a California evening with friends who didn't know I was shooting. These are the photographs I'd run back into a burning house for.</p>
+      </div>
+      <div class="step reveal">
+        <h3>The light always goes</h3>
+        <p>In Santorini I watched two strangers become a silhouette as the sun dropped into the Aegean, and I made one frame, the last on the roll. Goodnight, I thought, to them and to the light and to the day. There was no second chance and I did not want one.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="trip">
+    <figure class="reveal">
+      <div class="frame"><img src="../../assets/img/woman-laughing-portrait.jpg" alt="A woman laughing, caught mid-moment in Mexico City" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">That Laugh</span> <span class="fmeta">Portra 800 · Contax G2 · 2021</span></figcaption>
+    </figure>
+    <figure class="reveal d1">
+      <div class="frame"><img src="../../assets/img/friends-golden-hour.jpg" alt="Friends together in warm golden hour light in California" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Golden Hour, Together</span> <span class="fmeta">Portra 400 · Nikon F100 · 2016</span></figcaption>
+    </figure>
+    <figure class="reveal d2">
+      <div class="frame"><img src="../../assets/img/couple-silhouette-sunset.jpg" alt="A couple silhouetted against a Santorini sunset" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Goodnight</span> <span class="fmeta">Portra 800 · Canon EOS-1V · 2013</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== CHAPTER V ===================== -->
+<section class="chapter" id="ch5">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">Chapter Five</div>
+    <h2>Coming Home to the Light</h2>
+    <p class="place">Paris · Havana · Copenhagen · 2020 — 2023</p>
+  </div>
+
+  <div class="wrap prose">
+    <p class="dropcap lead reveal">In the end I stopped chasing and started staying. The cafés of Paris in the grey hush of a closed-down spring. A Sunday car the colour of a boiled sweet, idling on a Havana street. A window in Copenhagen with the lamp left on, the most domestic and tender light there is. The world had narrowed, and so had I, and I found there was a whole life inside the smaller frame.</p>
+  </div>
+
+  <div class="pair offset">
+    <figure class="reveal">
+      <div class="frame"><img src="../../assets/img/street-cafe-paris.jpg" alt="A quiet Parisian café exterior, Café de Flore" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Café de Flore</span> <span class="fmeta">Kodak Gold 200 · Olympus OM-1 · 2020</span></figcaption>
+    </figure>
+    <figure class="reveal d1">
+      <div class="frame"><img src="../../assets/img/vintage-car-street.jpg" alt="A vintage car parked on a Havana street, Sunday morning" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Sunday Drive</span> <span class="fmeta">Kodak Ektar 100 · Nikon FE · 2022</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap prose">
+    <p class="reveal">Kodak Gold is a humble film, the stuff of family albums and disposable cameras, and I have grown to love it for exactly that. It does not flatter. It simply remembers, the way your grandmother's photographs remember — a little soft, a little gold, entirely true to the feeling if not the fact.</p>
+  </div>
+
+  <div class="fullbleed reveal">
+    <figure>
+      <div class="frame"><img src="../../assets/img/cozy-interior-window.jpg" alt="A warm, cozy interior with light falling through a Copenhagen window" loading="lazy"></div>
+      <figcaption class="figcap"><span class="ftitle">Home Light</span> <span>Copenhagen, Denmark</span> <span class="fmeta">Kodak Portra 400 · Leica M6 · 2023</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap prose">
+    <p class="reveal">The last frame in this essay is the most ordinary one I have ever made: a room, a window, an afternoon. After twenty-eight years and a hundred thousand miles, I came home to find that the light I had been chasing across the whole turning world had been falling, all along, through the window of an ordinary room, asking only that I stop long enough to see it.</p>
+    <p class="reveal">I shot it on the same Leica M6 I have carried since 1998, on the same Portra 400 I have always loved, and when I held the developed frame up to my own window I understood that this was the photograph the entire life had been practising for. Not the grandest. Just the truest. The light comes in. You keep what you can. The rest, you let go.</p>
+  </div>
+</section>
+
+<!-- ===================== COLOPHON ===================== -->
+<footer class="colophon" id="colophon">
+  <div class="wide">
+    <div class="c-kicker reveal">Colophon</div>
+    <h2 class="reveal">Made of glass, silver,<br>and a great deal of waiting.</h2>
+    <p class="c-body reveal">This essay gathers thirty frames made between 1995 and 2023, on twelve cameras and a dozen emulsions. Everything here was shot on film, developed in chemistry, and scanned with as light a hand as patience allowed. Nothing was generated; everything was found.</p>
+
+    <div class="cols reveal">
+      <div>
+        <h4>Cameras</h4>
+        <ul>
+          <li>Leica M6, M4, M7</li>
+          <li>Hasselblad 500CM / 503CW</li>
+          <li>Mamiya 7 II · RZ67 · 645</li>
+          <li>Pentax 67 · 645</li>
+          <li>Rolleiflex 2.8F</li>
+          <li>Contax G2 · T2 · 645</li>
+          <li>Nikon F3 · FM2 · F100 · FE</li>
+          <li>Canon AE-1 · EOS-1V</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Films</h4>
+        <ul>
+          <li>Kodak Portra 160 / 400 / 800 <span>the home rolls</span></li>
+          <li>Kodak Ektar 100 <span>still mornings</span></li>
+          <li>Kodak Gold 200 <span>for memory</span></li>
+          <li>Fujifilm Velvia 50 <span>jewelled greens</span></li>
+          <li>Fujifilm Pro 400H</li>
+          <li>Cinestill 800T / 50D</li>
+          <li>Ilford HP5 · Delta 3200</li>
+          <li>Kodak Tri-X 400 <span>for the strangers</span></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Type</h4>
+        <ul>
+          <li>Fraunces <span>display &amp; headings</span></li>
+          <li>Spectral <span>body text</span></li>
+          <li>Set ragged-right, generous of leading, in the spirit of the printed page.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="signature reveal">
+      <div class="sig">Tom Milton</div>
+      <div class="sig-line">On Film · 1995 — 2023</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// reading progress
+(function(){
+  var bar=document.getElementById('progress');
+  function upd(){
+    var h=document.documentElement;
+    var max=h.scrollHeight-h.clientHeight;
+    var p=max>0?(h.scrollTop||document.body.scrollTop)/max:0;
+    bar.style.width=(p*100).toFixed(2)+'%';
+  }
+  window.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd);
+  upd();
+})();
+
+// hero parallax
+(function(){
+  var hero=document.getElementById('heroImg');
+  if(!hero)return;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce)return;
+  window.addEventListener('scroll',function(){
+    var y=window.scrollY;
+    if(y<window.innerHeight){
+      hero.style.transform='scale(1.08) translateY('+(y*0.18)+'px)';
+    }
+  },{passive:true});
+})();
+
+// scroll reveals
+(function(){
+  var els=document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(e){e.classList.add('in');});
+    return;
+  }
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}
+    });
+  },{threshold:0.12,rootMargin:'0px 0px -8% 0px'});
+  els.forEach(function(e){io.observe(e);});
+})();
+</script>
+</body>
+</html>

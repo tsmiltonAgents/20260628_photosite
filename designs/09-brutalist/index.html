@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TOM_MILTON / FILM-INDEX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#000;
+    --paper:#fff;
+    --accent:#ff3b00;     /* warning red/orange, used sparingly */
+    --rule:#000;
+    --hair:1px;
+    --bar:3px;
+    --mono:'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  *{ box-sizing:border-box; border-radius:0 !important; }
+
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1.35;
+    letter-spacing:0.01em;
+    -webkit-font-smoothing:none;
+    overflow-x:hidden;
+  }
+
+  /* ===== INVERT MODE ===== */
+  body.invert{ --ink:#fff; --paper:#000; --rule:#fff; }
+  body.invert .grain{ mix-blend-mode:screen; opacity:.10; }
+
+  /* ===== GRAIN OVERLAY ===== */
+  .grain{
+    position:fixed; inset:0; z-index:9999; pointer-events:none;
+    opacity:.06; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  .wrap{ width:100%; }
+
+  /* ===== TOPBAR ===== */
+  .topbar{
+    position:sticky; top:0; z-index:100;
+    display:flex; flex-wrap:wrap; align-items:stretch;
+    background:var(--paper);
+    border-bottom:var(--bar) solid var(--rule);
+  }
+  .topbar > *{
+    padding:8px 14px;
+    border-right:var(--hair) solid var(--rule);
+    display:flex; align-items:center; gap:8px;
+    font-size:12px; text-transform:uppercase; letter-spacing:0.08em;
+    white-space:nowrap;
+  }
+  .topbar a:hover{ background:var(--ink); color:var(--paper); }
+  .topbar .spacer{ flex:1 1 auto; border-right:0; min-width:10px; }
+  .btn-invert{
+    cursor:pointer; background:transparent; color:inherit;
+    border:0; border-left:var(--hair) solid var(--rule);
+    font-family:var(--mono); font-size:12px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.08em;
+    padding:8px 14px;
+  }
+  .btn-invert:hover{ background:var(--accent); color:#000; }
+  .dot{ width:9px; height:9px; background:var(--accent); display:inline-block; }
+
+  /* ===== MASTHEAD ===== */
+  .masthead{
+    border-bottom:var(--bar) solid var(--rule);
+    padding:clamp(14px,3vw,30px) clamp(14px,3vw,30px) 0;
+  }
+  .mast-kick{
+    font-size:12px; text-transform:uppercase; letter-spacing:0.25em;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    border-bottom:var(--hair) solid var(--rule);
+    padding-bottom:8px; margin-bottom:clamp(8px,2vw,18px);
+  }
+  h1.giant{
+    margin:0;
+    font-weight:700;
+    font-size:clamp(2.4rem,12vw,9.5rem);
+    line-height:0.86;
+    letter-spacing:-0.03em;
+    text-transform:uppercase;
+    word-break:break-word;
+  }
+  h1.giant .slash{ color:var(--accent); }
+  .sub{
+    font-size:clamp(0.7rem,2.2vw,1rem);
+    letter-spacing:0.1em; text-transform:uppercase;
+    padding:clamp(8px,1.5vw,14px) 0 clamp(14px,2vw,22px);
+    border-bottom:var(--hair) solid var(--rule);
+  }
+
+  /* ===== FACTS STRIP ===== */
+  .facts{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    border-bottom:var(--bar) solid var(--rule);
+  }
+  .facts .cell{
+    padding:10px 14px;
+    border-right:var(--hair) solid var(--rule);
+  }
+  .facts .cell:last-child{ border-right:0; }
+  .facts .k{ font-size:10px; letter-spacing:0.18em; text-transform:uppercase; opacity:.6; }
+  .facts .v{ font-size:clamp(0.85rem,2vw,1.15rem); font-weight:700; text-transform:uppercase; }
+  .facts .v .ac{ color:var(--accent); }
+
+  /* ===== SECTION MARKER ===== */
+  .marker{
+    font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.2em;
+    padding:9px 14px;
+    border-bottom:var(--bar) solid var(--rule);
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  .marker .r{ font-weight:400; opacity:.6; letter-spacing:0.1em; font-size:11px; }
+
+  /* ===== MANIFEST TABLE ===== */
+  .table-scroll{
+    overflow-x:auto;
+    border-bottom:var(--bar) solid var(--rule);
+    scrollbar-width:thin;
+    scrollbar-color:var(--ink) var(--paper);
+  }
+  .table-scroll::-webkit-scrollbar{ height:12px; }
+  .table-scroll::-webkit-scrollbar-track{ background:var(--paper); border-top:var(--hair) solid var(--rule); }
+  .table-scroll::-webkit-scrollbar-thumb{ background:var(--ink); }
+  table.manifest{
+    border-collapse:collapse;
+    width:100%;
+    min-width:860px;
+    font-size:12.5px;
+  }
+  table.manifest th, table.manifest td{
+    border:var(--hair) solid var(--rule);
+    padding:6px 10px;
+    text-align:left;
+    white-space:nowrap;
+  }
+  table.manifest thead th{
+    position:sticky; top:0;
+    background:var(--ink); color:var(--paper);
+    text-transform:uppercase; letter-spacing:0.12em; font-size:11px;
+    z-index:2;
+  }
+  table.manifest tbody tr:hover td{ background:var(--ink); color:var(--paper); }
+  table.manifest tbody tr:hover td .bw{ color:var(--accent); }
+  table.manifest .idx{ font-weight:700; }
+  table.manifest .file{ font-weight:700; }
+  table.manifest .file a:hover{ text-decoration:underline; }
+  table.manifest .bw{ color:var(--accent); font-weight:700; }
+  .kind-tag{ text-transform:uppercase; letter-spacing:0.06em; }
+
+  /* ===== IMAGE GRID ===== */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    border-top:0;
+  }
+  .cell{
+    border-right:var(--hair) solid var(--rule);
+    border-bottom:var(--hair) solid var(--rule);
+    background:var(--paper);
+    display:flex; flex-direction:column;
+    position:relative;
+  }
+  /* close the right edge cleanly on 3-col */
+  .grid .cell:nth-child(3n){ border-right:0; }
+
+  .cell .frame{
+    position:relative;
+    aspect-ratio:4/3;
+    overflow:hidden;
+    border-bottom:var(--hair) solid var(--rule);
+    background:var(--paper);
+  }
+  .cell img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    /* WARM KODAK PORTRA grade for color photos */
+    filter:saturate(1.05) contrast(0.97) brightness(1.02) sepia(0.08);
+    transition:filter .15s linear;
+  }
+  .cell img.bw{
+    filter:grayscale(1) contrast(1.02);
+  }
+  body.invert .cell img{ /* keep photos readable in dark */
+    filter:saturate(1.05) contrast(0.97) brightness(1.0) sepia(0.08);
+  }
+  body.invert .cell img.bw{ filter:grayscale(1) contrast(1.05) brightness(1.02); }
+
+  .cell .num{
+    position:absolute; top:0; left:0; z-index:3;
+    background:var(--paper); color:var(--ink);
+    border-right:var(--hair) solid var(--rule);
+    border-bottom:var(--hair) solid var(--rule);
+    font-weight:700; font-size:12px; padding:3px 8px;
+    letter-spacing:0.08em;
+  }
+  .cell .fname{
+    position:absolute; bottom:0; right:0; z-index:3;
+    background:var(--ink); color:var(--paper);
+    font-size:11px; padding:3px 8px;
+    letter-spacing:0.04em;
+    opacity:0; transform:translateY(2px);
+    transition:opacity .12s linear, transform .12s linear;
+  }
+  .cell:hover .fname{ opacity:1; transform:translateY(0); }
+  .cell:hover img{ filter:grayscale(1) contrast(1.1) brightness(0.95); }
+  .cell:hover img.bw{ filter:grayscale(1) invert(1) contrast(1.1); }
+
+  /* metadata block under image */
+  .meta{ display:flex; flex-direction:column; }
+  .meta .title{
+    font-weight:700; text-transform:uppercase; letter-spacing:0.02em;
+    font-size:clamp(0.85rem,1.6vw,1.05rem);
+    padding:8px 10px 6px;
+    display:flex; justify-content:space-between; gap:8px; align-items:baseline;
+    border-bottom:var(--hair) solid var(--rule);
+  }
+  .meta .title .yr{ font-size:12px; opacity:.7; font-weight:400; }
+  .meta .kv{
+    display:grid;
+    grid-template-columns:auto 1fr;
+  }
+  .meta .kv > div{
+    padding:4px 10px;
+    border-bottom:var(--hair) solid var(--rule);
+    font-size:11.5px;
+    overflow:hidden; text-overflow:ellipsis;
+  }
+  .meta .kv .key{
+    border-right:var(--hair) solid var(--rule);
+    text-transform:uppercase; letter-spacing:0.1em;
+    opacity:.6; white-space:nowrap;
+  }
+  .meta .kv .val{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .meta .kv > div:nth-last-child(-n+2){ border-bottom:0; }
+  .meta .pipe{
+    font-size:11px; padding:5px 10px;
+    border-top:var(--hair) solid var(--rule);
+    letter-spacing:0.02em;
+    display:flex; gap:6px; flex-wrap:wrap;
+  }
+  .meta .pipe .sep{ color:var(--accent); }
+  .cell:hover .meta .title{ background:transparent; }
+
+  /* ===== COLOPHON / EOF ===== */
+  .colophon{
+    display:grid; grid-template-columns:repeat(3,1fr);
+    border-bottom:var(--bar) solid var(--rule);
+  }
+  .colophon .cell{
+    padding:14px; border-right:var(--hair) solid var(--rule);
+    font-size:12px; line-height:1.6;
+  }
+  .colophon .cell:last-child{ border-right:0; }
+  .colophon .cell h3{
+    margin:0 0 8px; font-size:11px; letter-spacing:0.2em; text-transform:uppercase;
+    border-bottom:var(--hair) solid var(--rule); padding-bottom:6px;
+  }
+  .colophon .ac{ color:var(--accent); }
+
+  .eof{
+    padding:clamp(20px,6vw,60px) 14px;
+    text-align:center;
+    font-weight:700; letter-spacing:0.5em; text-transform:uppercase;
+    font-size:clamp(1.2rem,6vw,3rem);
+  }
+  .eof .blink{ color:var(--accent); animation:blink 1.1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:900px){
+    .grid{ grid-template-columns:repeat(2,1fr); }
+    .grid .cell:nth-child(3n){ border-right:var(--hair) solid var(--rule); }
+    .grid .cell:nth-child(2n){ border-right:0; }
+    .facts{ grid-template-columns:repeat(2,1fr); }
+    .facts .cell:nth-child(2n){ border-right:0; }
+    .facts .cell{ border-bottom:var(--hair) solid var(--rule); }
+    .colophon{ grid-template-columns:1fr; }
+    .colophon .cell{ border-right:0; border-bottom:var(--hair) solid var(--rule); }
+  }
+  @media (max-width:560px){
+    .grid{ grid-template-columns:1fr; }
+    .grid .cell, .grid .cell:nth-child(n){ border-right:0; }
+    .facts{ grid-template-columns:1fr; }
+    .topbar > *{ font-size:11px; padding:7px 10px; }
+    .mast-kick{ font-size:10px; letter-spacing:0.15em; }
+  }
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="wrap">
+
+  <!-- TOPBAR -->
+  <nav class="topbar">
+    <a href="../../index.html">[ ../ALL_DESIGNS ]</a>
+    <span class="spacer hide-mobile" style="border-right:1px solid var(--rule);">DIR&nbsp;/FILM-INDEX</span>
+    <span><span class="dot"></span>&nbsp;STATUS: PUBLIC</span>
+    <span class="spacer"></span>
+    <span>ENC: UTF-8</span>
+    <button class="btn-invert" id="invertBtn" type="button" aria-pressed="false">[ INVERT: OFF ]</button>
+  </nav>
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="mast-kick">
+      <span>CATALOGUE RAISONNÉ // ANALOG NEGATIVES</span>
+      <span>FILE: index.html</span>
+    </div>
+    <h1 class="giant">TOM<span class="slash">_</span>MILTON<span class="slash">/</span>FILM<span class="slash">-</span>INDEX</h1>
+    <div class="sub">FILM PHOTOGRAPHY &nbsp;|&nbsp; A READABLE MANIFEST OF NEGATIVES, 1996&ndash;2022 &nbsp;|&nbsp; NO RETOUCH. NO DIGITAL. GRAIN INTACT.</div>
+  </header>
+
+  <!-- FACTS -->
+  <section class="facts" aria-label="key facts">
+    <div class="cell"><div class="k">NAME</div><div class="v">TOM MILTON</div></div>
+    <div class="cell"><div class="k">ROLE</div><div class="v">FILM PHOTOGRAPHY</div></div>
+    <div class="cell"><div class="k">WORKS</div><div class="v"><span class="ac">014</span> FRAMES</div></div>
+    <div class="cell"><div class="k">YEAR RANGE</div><div class="v">1996&ndash;2022</div></div>
+    <div class="cell"><div class="k">LAST UPDATED</div><div class="v">2026-06-28</div></div>
+  </section>
+
+  <!-- MANIFEST TABLE -->
+  <div class="marker">[ INDEX ] // FILE MANIFEST<span class="r">14 ROWS &middot; SORTED BY IDX ASC &middot; SCROLL &rarr;</span></div>
+  <div class="table-scroll" tabindex="0" aria-label="scrollable file manifest">
+    <table class="manifest">
+      <thead>
+        <tr>
+          <th>IDX</th>
+          <th>FILE</th>
+          <th>TITLE</th>
+          <th>KIND</th>
+          <th>LOCATION</th>
+          <th>FILM_STOCK</th>
+          <th>CAMERA</th>
+          <th>YEAR</th>
+          <th>MODE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="idx">001</td><td class="file"><a href="#f001">man-bw-portrait.jpg</a></td><td>Portrait in Shadow</td><td class="kind-tag">portrait</td><td>Berlin, Germany</td><td>Ilford Delta 3200</td><td>Leica M6</td><td>2018</td><td class="bw">B&amp;W</td></tr>
+        <tr><td class="idx">002</td><td class="file"><a href="#f002">man-portrait-street.jpg</a></td><td>Stranger, No. 14</td><td class="kind-tag">portrait</td><td>Havana, Cuba</td><td>Kodak Tri-X 400</td><td>Leica M4</td><td>2012</td><td class="bw">B&amp;W</td></tr>
+        <tr><td class="idx">003</td><td class="file"><a href="#f003">misty-pine-forest.jpg</a></td><td>Silence</td><td class="kind-tag">nature</td><td>Norway</td><td>Ilford HP5 Plus</td><td>Leica M6</td><td>2003</td><td class="bw">B&amp;W</td></tr>
+        <tr><td class="idx">004</td><td class="file"><a href="#f004">succulent-closeup.jpg</a></td><td>Geometry of Growth</td><td class="kind-tag">nature</td><td>Studio</td><td>Kodak Portra 160</td><td>Hasselblad 500CM</td><td>2009</td><td>RGB</td></tr>
+        <tr><td class="idx">005</td><td class="file"><a href="#f005">vintage-car-street.jpg</a></td><td>Sunday Drive</td><td class="kind-tag">street</td><td>Havana, Cuba</td><td>Kodak Ektar 100</td><td>Nikon FE</td><td>2022</td><td>RGB</td></tr>
+        <tr><td class="idx">006</td><td class="file"><a href="#f006">rolling-green-hills.jpg</a></td><td>Patchwork</td><td class="kind-tag">landscape</td><td>Tuscany, Italy</td><td>Fujifilm Pro 400H</td><td>Pentax 645</td><td>1997</td><td>RGB</td></tr>
+        <tr><td class="idx">007</td><td class="file"><a href="#f007">desert-dunes.jpg</a></td><td>Wind Lines</td><td class="kind-tag">landscape</td><td>Namibia</td><td>Kodak Ektar 100</td><td>Hasselblad 503CW</td><td>2008</td><td>RGB</td></tr>
+        <tr><td class="idx">008</td><td class="file"><a href="#f008">woman-fashion-portrait.jpg</a></td><td>The Red Wall</td><td class="kind-tag">portrait</td><td>Marrakesh, Morocco</td><td>Kodak Portra 400</td><td>Pentax 67</td><td>2019</td><td>RGB</td></tr>
+        <tr><td class="idx">009</td><td class="file"><a href="#f009">street-cafe-paris.jpg</a></td><td>Café de Flore</td><td class="kind-tag">street</td><td>Paris, France</td><td>Kodak Gold 200</td><td>Olympus OM-1</td><td>2020</td><td>RGB</td></tr>
+        <tr><td class="idx">010</td><td class="file"><a href="#f010">waterfall-bridge.jpg</a></td><td>Hidden Falls</td><td class="kind-tag">nature</td><td>Iceland</td><td>Fujifilm Velvia 50</td><td>Nikon FM2</td><td>2006</td><td>RGB</td></tr>
+        <tr><td class="idx">011</td><td class="file"><a href="#f011">forest-sunlight.jpg</a></td><td>Cathedral of Pines</td><td class="kind-tag">nature</td><td>Olympic NP, USA</td><td>Kodak Portra 160</td><td>Hasselblad 500CM</td><td>1996</td><td>RGB</td></tr>
+        <tr><td class="idx">012</td><td class="file"><a href="#f012">lake-mountain-house.jpg</a></td><td>Reflections, Still Morning</td><td class="kind-tag">landscape</td><td>Hallstatt, Austria</td><td>Kodak Ektar 100</td><td>Mamiya RZ67</td><td>2000</td><td>RGB</td></tr>
+        <tr><td class="idx">013</td><td class="file"><a href="#f013">golden-field-sunburst.jpg</a></td><td>Last Light, Wheat Country</td><td class="kind-tag">landscape</td><td>Tuscany, Italy</td><td>Kodak Portra 400</td><td>Leica M6</td><td>1998</td><td>RGB</td></tr>
+        <tr><td class="idx">014</td><td class="file"><a href="#f014">woman-portrait-soft.jpg</a></td><td>Soft Hour</td><td class="kind-tag">portrait</td><td>Paris, France</td><td>Fujifilm Pro 400H</td><td>Contax 645</td><td>2014</td><td>RGB</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- IMAGE GRID -->
+  <div class="marker">// PLATES &nbsp;/&nbsp; FULL FRAMES<span class="r">HOVER = INVERT &middot; 4:3 CROP &middot; ../../assets/img/</span></div>
+  <section class="grid" aria-label="photograph plates">
+
+    <!-- 001 -->
+    <article class="cell" id="f001">
+      <div class="frame">
+        <span class="num">001</span>
+        <img class="bw" src="../../assets/img/man-bw-portrait.jpg" alt="Black and white close portrait of a man, face emerging from deep shadow, Berlin." loading="lazy" />
+        <span class="fname">man-bw-portrait.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Portrait in Shadow <span class="yr">2018</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Berlin, Germany</div>
+          <div class="key">FILM</div><div class="val">Ilford Delta 3200</div>
+          <div class="key">CAM</div><div class="val">Leica M6</div>
+          <div class="key">DIM</div><div class="val">6240&times;4160 &middot; 4:3</div>
+        </div>
+        <div class="pipe">portrait<span class="sep">|</span>B&amp;W<span class="sep">|</span>ISO 3200<span class="sep">|</span>~4.1MB</div>
+      </div>
+    </article>
+
+    <!-- 002 -->
+    <article class="cell" id="f002">
+      <div class="frame">
+        <span class="num">002</span>
+        <img class="bw" src="../../assets/img/man-portrait-street.jpg" alt="Black and white street portrait of a stranger looking at camera, Havana." loading="lazy" />
+        <span class="fname">man-portrait-street.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Stranger, No. 14 <span class="yr">2012</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Havana, Cuba</div>
+          <div class="key">FILM</div><div class="val">Kodak Tri-X 400</div>
+          <div class="key">CAM</div><div class="val">Leica M4</div>
+          <div class="key">DIM</div><div class="val">5472&times;3648 &middot; 4:3</div>
+        </div>
+        <div class="pipe">portrait<span class="sep">|</span>B&amp;W<span class="sep">|</span>ISO 400<span class="sep">|</span>~3.6MB</div>
+      </div>
+    </article>
+
+    <!-- 003 -->
+    <article class="cell" id="f003">
+      <div class="frame">
+        <span class="num">003</span>
+        <img class="bw" src="../../assets/img/misty-pine-forest.jpg" alt="Black and white misty pine forest, faint trees fading into fog, Norway." loading="lazy" />
+        <span class="fname">misty-pine-forest.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Silence <span class="yr">2003</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Norway</div>
+          <div class="key">FILM</div><div class="val">Ilford HP5 Plus</div>
+          <div class="key">CAM</div><div class="val">Leica M6</div>
+          <div class="key">DIM</div><div class="val">5472&times;3648 &middot; 4:3</div>
+        </div>
+        <div class="pipe">nature<span class="sep">|</span>B&amp;W<span class="sep">|</span>ISO 400<span class="sep">|</span>~3.9MB</div>
+      </div>
+    </article>
+
+    <!-- 004 -->
+    <article class="cell" id="f004">
+      <div class="frame">
+        <span class="num">004</span>
+        <img src="../../assets/img/succulent-closeup.jpg" alt="Warm color macro of a succulent plant, concentric geometric leaves, studio." loading="lazy" />
+        <span class="fname">succulent-closeup.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Geometry of Growth <span class="yr">2009</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Studio</div>
+          <div class="key">FILM</div><div class="val">Kodak Portra 160</div>
+          <div class="key">CAM</div><div class="val">Hasselblad 500CM</div>
+          <div class="key">DIM</div><div class="val">6048&times;4536 &middot; 4:3</div>
+        </div>
+        <div class="pipe">nature<span class="sep">|</span>RGB<span class="sep">|</span>ISO 160<span class="sep">|</span>~5.2MB</div>
+      </div>
+    </article>
+
+    <!-- 005 -->
+    <article class="cell" id="f005">
+      <div class="frame">
+        <span class="num">005</span>
+        <img src="../../assets/img/vintage-car-street.jpg" alt="Warm color photo of a vintage car parked on a sunlit street in Havana." loading="lazy" />
+        <span class="fname">vintage-car-street.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Sunday Drive <span class="yr">2022</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Havana, Cuba</div>
+          <div class="key">FILM</div><div class="val">Kodak Ektar 100</div>
+          <div class="key">CAM</div><div class="val">Nikon FE</div>
+          <div class="key">DIM</div><div class="val">6000&times;4000 &middot; 3:2</div>
+        </div>
+        <div class="pipe">street<span class="sep">|</span>RGB<span class="sep">|</span>ISO 100<span class="sep">|</span>~4.7MB</div>
+      </div>
+    </article>
+
+    <!-- 006 -->
+    <article class="cell" id="f006">
+      <div class="frame">
+        <span class="num">006</span>
+        <img src="../../assets/img/rolling-green-hills.jpg" alt="Warm color landscape of rolling green Tuscan hills like a patchwork quilt." loading="lazy" />
+        <span class="fname">rolling-green-hills.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Patchwork <span class="yr">1997</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Tuscany, Italy</div>
+          <div class="key">FILM</div><div class="val">Fujifilm Pro 400H</div>
+          <div class="key">CAM</div><div class="val">Pentax 645</div>
+          <div class="key">DIM</div><div class="val">5760&times;4320 &middot; 4:3</div>
+        </div>
+        <div class="pipe">landscape<span class="sep">|</span>RGB<span class="sep">|</span>ISO 400<span class="sep">|</span>~4.4MB</div>
+      </div>
+    </article>
+
+    <!-- 007 -->
+    <article class="cell" id="f007">
+      <div class="frame">
+        <span class="num">007</span>
+        <img src="../../assets/img/desert-dunes.jpg" alt="Warm color photo of sculpted desert sand dunes with wind ridge lines, Namibia." loading="lazy" />
+        <span class="fname">desert-dunes.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Wind Lines <span class="yr">2008</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Namibia</div>
+          <div class="key">FILM</div><div class="val">Kodak Ektar 100</div>
+          <div class="key">CAM</div><div class="val">Hasselblad 503CW</div>
+          <div class="key">DIM</div><div class="val">6048&times;4536 &middot; 4:3</div>
+        </div>
+        <div class="pipe">landscape<span class="sep">|</span>RGB<span class="sep">|</span>ISO 100<span class="sep">|</span>~5.0MB</div>
+      </div>
+    </article>
+
+    <!-- 008 -->
+    <article class="cell" id="f008">
+      <div class="frame">
+        <span class="num">008</span>
+        <img src="../../assets/img/woman-fashion-portrait.jpg" alt="Warm color fashion portrait of a woman against a vivid red wall, Marrakesh." loading="lazy" />
+        <span class="fname">woman-fashion-portrait.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">The Red Wall <span class="yr">2019</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Marrakesh, Morocco</div>
+          <div class="key">FILM</div><div class="val">Kodak Portra 400</div>
+          <div class="key">CAM</div><div class="val">Pentax 67</div>
+          <div class="key">DIM</div><div class="val">5600&times;4480 &middot; 5:4</div>
+        </div>
+        <div class="pipe">portrait<span class="sep">|</span>RGB<span class="sep">|</span>ISO 400<span class="sep">|</span>~4.8MB</div>
+      </div>
+    </article>
+
+    <!-- 009 -->
+    <article class="cell" id="f009">
+      <div class="frame">
+        <span class="num">009</span>
+        <img src="../../assets/img/street-cafe-paris.jpg" alt="Warm color photo of Café de Flore terrace in Paris with cane chairs." loading="lazy" />
+        <span class="fname">street-cafe-paris.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Café de Flore <span class="yr">2020</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Paris, France</div>
+          <div class="key">FILM</div><div class="val">Kodak Gold 200</div>
+          <div class="key">CAM</div><div class="val">Olympus OM-1</div>
+          <div class="key">DIM</div><div class="val">6000&times;4000 &middot; 3:2</div>
+        </div>
+        <div class="pipe">street<span class="sep">|</span>RGB<span class="sep">|</span>ISO 200<span class="sep">|</span>~4.3MB</div>
+      </div>
+    </article>
+
+    <!-- 010 -->
+    <article class="cell" id="f010">
+      <div class="frame">
+        <span class="num">010</span>
+        <img src="../../assets/img/waterfall-bridge.jpg" alt="Warm color photo of a hidden waterfall and footbridge among green rock, Iceland." loading="lazy" />
+        <span class="fname">waterfall-bridge.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Hidden Falls <span class="yr">2006</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Iceland</div>
+          <div class="key">FILM</div><div class="val">Fujifilm Velvia 50</div>
+          <div class="key">CAM</div><div class="val">Nikon FM2</div>
+          <div class="key">DIM</div><div class="val">5472&times;3648 &middot; 4:3</div>
+        </div>
+        <div class="pipe">nature<span class="sep">|</span>RGB<span class="sep">|</span>ISO 50<span class="sep">|</span>~4.6MB</div>
+      </div>
+    </article>
+
+    <!-- 011 -->
+    <article class="cell" id="f011">
+      <div class="frame">
+        <span class="num">011</span>
+        <img src="../../assets/img/forest-sunlight.jpg" alt="Warm color photo of sunlight beaming through a tall pine forest, Olympic NP." loading="lazy" />
+        <span class="fname">forest-sunlight.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Cathedral of Pines <span class="yr">1996</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Olympic NP, USA</div>
+          <div class="key">FILM</div><div class="val">Kodak Portra 160</div>
+          <div class="key">CAM</div><div class="val">Hasselblad 500CM</div>
+          <div class="key">DIM</div><div class="val">6048&times;4536 &middot; 4:3</div>
+        </div>
+        <div class="pipe">nature<span class="sep">|</span>RGB<span class="sep">|</span>ISO 160<span class="sep">|</span>~5.1MB</div>
+      </div>
+    </article>
+
+    <!-- 012 -->
+    <article class="cell" id="f012">
+      <div class="frame">
+        <span class="num">012</span>
+        <img src="../../assets/img/lake-mountain-house.jpg" alt="Warm color photo of a lakeside house mirrored in still water, Hallstatt." loading="lazy" />
+        <span class="fname">lake-mountain-house.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Reflections, Still Morning <span class="yr">2000</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Hallstatt, Austria</div>
+          <div class="key">FILM</div><div class="val">Kodak Ektar 100</div>
+          <div class="key">CAM</div><div class="val">Mamiya RZ67</div>
+          <div class="key">DIM</div><div class="val">5040&times;4032 &middot; 5:4</div>
+        </div>
+        <div class="pipe">landscape<span class="sep">|</span>RGB<span class="sep">|</span>ISO 100<span class="sep">|</span>~4.9MB</div>
+      </div>
+    </article>
+
+    <!-- 013 -->
+    <article class="cell" id="f013">
+      <div class="frame">
+        <span class="num">013</span>
+        <img src="../../assets/img/golden-field-sunburst.jpg" alt="Warm color photo of a golden wheat field at sunset with a sunburst, Tuscany." loading="lazy" />
+        <span class="fname">golden-field-sunburst.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Last Light, Wheat Country <span class="yr">1998</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Tuscany, Italy</div>
+          <div class="key">FILM</div><div class="val">Kodak Portra 400</div>
+          <div class="key">CAM</div><div class="val">Leica M6</div>
+          <div class="key">DIM</div><div class="val">5472&times;3648 &middot; 4:3</div>
+        </div>
+        <div class="pipe">landscape<span class="sep">|</span>RGB<span class="sep">|</span>ISO 400<span class="sep">|</span>~4.5MB</div>
+      </div>
+    </article>
+
+    <!-- 014 -->
+    <article class="cell" id="f014">
+      <div class="frame">
+        <span class="num">014</span>
+        <img src="../../assets/img/woman-portrait-soft.jpg" alt="Warm color soft-light portrait of a woman in gentle window light, Paris." loading="lazy" />
+        <span class="fname">woman-portrait-soft.jpg</span>
+      </div>
+      <div class="meta">
+        <div class="title">Soft Hour <span class="yr">2014</span></div>
+        <div class="kv">
+          <div class="key">LOC</div><div class="val">Paris, France</div>
+          <div class="key">FILM</div><div class="val">Fujifilm Pro 400H</div>
+          <div class="key">CAM</div><div class="val">Contax 645</div>
+          <div class="key">DIM</div><div class="val">5600&times;4480 &middot; 5:4</div>
+        </div>
+        <div class="pipe">portrait<span class="sep">|</span>RGB<span class="sep">|</span>ISO 400<span class="sep">|</span>~4.4MB</div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- COLOPHON -->
+  <div class="marker">// COLOPHON<span class="r">META &middot; CONTACT &middot; SPEC</span></div>
+  <section class="colophon">
+    <div class="cell">
+      <h3>[ ABOUT ]</h3>
+      Tom Milton shoots <span class="ac">film only</span>. Negatives scanned, dust spotted, otherwise unaltered. No HDR, no AI, no crop beyond the contact sheet. 35mm + medium format. Twenty-six years on the same shelf of cameras.
+    </div>
+    <div class="cell">
+      <h3>[ CONTACT ]</h3>
+      MAIL&nbsp;&nbsp;&nbsp;:&nbsp; tom.milton@amododesign.com<br/>
+      STUDIO :&nbsp; available worldwide<br/>
+      PRINTS :&nbsp; silver-gelatin + C-type<br/>
+      RIGHTS :&nbsp; <span class="ac">all reserved</span> &copy; 1996&ndash;2026
+    </div>
+    <div class="cell">
+      <h3>[ SPEC ]</h3>
+      ENCODING&nbsp;: UTF-8<br/>
+      DOCTYPE&nbsp;&nbsp;: HTML5 / 1 FILE<br/>
+      TYPEFACE&nbsp;: SPACE MONO<br/>
+      GRADE&nbsp;&nbsp;&nbsp;&nbsp;: KODAK PORTRA (color) / GRAYSCALE (b&amp;w)<br/>
+      BUILD&nbsp;&nbsp;&nbsp;&nbsp;: 2026-06-28
+    </div>
+  </section>
+
+  <div class="eof">EOF<span class="blink">_</span></div>
+
+</div>
+
+<script>
+  (function(){
+    var btn = document.getElementById('invertBtn');
+    btn.addEventListener('click', function(){
+      var on = document.body.classList.toggle('invert');
+      btn.textContent = on ? '[ INVERT: ON ]' : '[ INVERT: OFF ]';
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  })();
+</script>
+</body>
+</html>

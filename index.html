@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tom Milton — 25 Ways to Show Film Photographs</title>
+<meta name="description" content="Twenty-five distinct design concepts for a film photography portfolio — from Tufte-styled marginalia to Kodak Portra warmth, contact sheets, darkrooms and beyond." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#f3ebdd;
+    --paper-2:#efe5d4;
+    --ink:#2b2620;
+    --ink-soft:#6f6557;
+    --line:#d8cbb4;
+    --accent:#b6573a;      /* warm Portra terracotta */
+    --accent-2:#c8a24a;    /* film gold */
+    --shadow:rgba(60,46,30,.18);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+    position:relative;
+    overflow-x:hidden;
+  }
+  /* film grain */
+  body::after{
+    content:"";
+    position:fixed;inset:0;z-index:9999;pointer-events:none;
+    opacity:.05;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  a{color:inherit;text-decoration:none;}
+
+  /* ---------- Header ---------- */
+  header.hero{
+    max-width:1280px;margin:0 auto;
+    padding:clamp(3rem,7vw,6.5rem) clamp(1.25rem,5vw,4rem) 2.5rem;
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--accent);
+    display:flex;align-items:center;gap:.9rem;
+  }
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--line);}
+  h1.title{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:500;
+    font-size:clamp(2.8rem,8vw,6.3rem);
+    line-height:.98;
+    letter-spacing:-.01em;
+    margin:.5rem 0 .1rem;
+  }
+  h1.title em{font-style:italic;color:var(--accent);}
+  .lede{
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(1.15rem,2.4vw,1.7rem);
+    color:var(--ink-soft);
+    max-width:46ch;
+    margin:1rem 0 0;
+    font-style:italic;
+  }
+  .meta-row{
+    margin-top:2.2rem;
+    display:flex;flex-wrap:wrap;gap:1.5rem 2.5rem;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.74rem;letter-spacing:.06em;color:var(--ink-soft);
+    border-top:1px solid var(--line);padding-top:1.4rem;
+  }
+  .meta-row b{color:var(--ink);font-weight:500;}
+
+  /* ---------- Grid ---------- */
+  main{max-width:1280px;margin:0 auto;padding:1rem clamp(1.25rem,5vw,4rem) 5rem;}
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+    gap:clamp(1.4rem,2.5vw,2.4rem);
+  }
+  .card{
+    display:flex;flex-direction:column;
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:3px;
+    overflow:hidden;
+    transition:transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s, border-color .45s;
+    will-change:transform;
+  }
+  .card:hover{
+    transform:translateY(-7px);
+    box-shadow:0 24px 50px -22px var(--shadow);
+    border-color:var(--accent);
+  }
+  .thumb{
+    position:relative;aspect-ratio:4/3;overflow:hidden;background:#cdbfa8;
+  }
+  .thumb img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:saturate(1.05) contrast(1.02) sepia(.12) brightness(1.02);
+    transition:transform 1.1s cubic-bezier(.2,.8,.2,1), filter .6s;
+  }
+  .card:hover .thumb img{transform:scale(1.06);filter:saturate(1.12) contrast(1.04) sepia(.06);}
+  .thumb.bw img{filter:grayscale(1) contrast(1.05);}
+  .card:hover .thumb.bw img{filter:grayscale(1) contrast(1.1);}
+  .num{
+    position:absolute;top:.7rem;left:.8rem;
+    font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;
+    color:#fff;background:rgba(20,15,10,.5);backdrop-filter:blur(3px);
+    padding:.2rem .5rem;border-radius:2px;
+  }
+  .card-body{padding:1.05rem 1.15rem 1.25rem;display:flex;flex-direction:column;gap:.35rem;flex:1;}
+  .card-kicker{
+    font-family:'JetBrains Mono',monospace;font-size:.64rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--accent);
+  }
+  .card h2{
+    font-family:'Cormorant Garamond',serif;font-weight:600;
+    font-size:1.5rem;line-height:1.05;margin:0;letter-spacing:-.01em;
+  }
+  .card p{margin:.15rem 0 0;font-size:.82rem;color:var(--ink-soft);line-height:1.5;}
+  .card-foot{
+    margin-top:.85rem;display:flex;align-items:center;gap:.4rem;
+    font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ink);
+  }
+  .card-foot .arrow{transition:transform .4s;}
+  .card:hover .card-foot .arrow{transform:translateX(5px);color:var(--accent);}
+
+  footer{
+    max-width:1280px;margin:0 auto;padding:2.5rem clamp(1.25rem,5vw,4rem) 4rem;
+    border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.08em;color:var(--ink-soft);
+  }
+  footer a{border-bottom:1px solid var(--accent);color:var(--ink);padding-bottom:1px;}
+
+  @media (max-width:560px){
+    .grid{grid-template-columns:1fr;}
+    .meta-row{gap:1rem 1.5rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="eyebrow">Tom Milton — Photography &nbsp;·&nbsp; A Design Study</div>
+  <h1 class="title">Twenty-five ways<br/>to show a <em>photograph</em>.</h1>
+  <p class="lede">One body of work, shot on film between 1995 and 2023 — reimagined through twenty-five complete design languages. For someone who loves Tufte CSS and Kodak Portra in equal measure.</p>
+  <div class="meta-row">
+    <span><b>25</b> design concepts</span>
+    <span><b>30</b> photographs</span>
+    <span><b>18</b> film stocks &amp; cameras</span>
+    <span>Pick a look &nbsp;→</span>
+  </div>
+</header>
+
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <span>© 2026 Tom Milton — Shot on film.</span>
+  <span>Built as a design study · <a href="prompts.md">view the prompt log</a></span>
+</footer>
+
+<script>
+const designs = [
+  {n:"01", slug:"01-portra-warmth",      title:"Portra Warmth",   kicker:"Editorial · Warm",   desc:"A premium gallery-catalogue on cream paper with Cormorant serifs and warm film borders.", img:"golden-field-sunburst.jpg"},
+  {n:"02", slug:"02-darkroom",           title:"Darkroom",        kicker:"Dark · Safelight",   desc:"Photographs that glow against near-black under a pulsing red safelight.", img:"mountain-road-fog.jpg"},
+  {n:"03", slug:"03-contact-sheet",      title:"Contact Sheet",   kicker:"Analog · Proof",     desc:"A literal 35mm proof sheet — sprocket holes, frame numbers, grease-pencil selects.", img:"forest-path-trees.jpg"},
+  {n:"04", slug:"04-tufte-margin",       title:"Marginalia",      kicker:"Tufte · Essay",      desc:"A beautifully typeset essay with technical metadata set as margin sidenotes.", img:"lake-cabin-dawn.jpg"},
+  {n:"05", slug:"05-editorial-magazine", title:"PORTRA, the Magazine", kicker:"Print · Bold",  desc:"A dramatic fashion-magazine spread with giant display type and bleeding photos.", img:"woman-fashion-portrait.jpg"},
+  {n:"06", slug:"06-swiss-grid",         title:"Index",           kicker:"Swiss · Grid",       desc:"International Typographic Style — a rigorous modular grid and a single red accent.", img:"desert-dunes.jpg"},
+  {n:"07", slug:"07-polaroid-wall",      title:"The Wall",        kicker:"Scrapbook · Tactile",desc:"Scattered Polaroids on cork board, held by washi tape, captioned by hand.", img:"friends-golden-hour.jpg"},
+  {n:"08", slug:"08-cinema-widescreen",  title:"24 Frames",       kicker:"Cinema · Widescreen",desc:"Anamorphic letterboxed stills with a viewfinder HUD and a film-strip nav.", img:"couple-silhouette-sunset.jpg"},
+  {n:"09", slug:"09-brutalist",          title:"FILM / INDEX",    kicker:"Brutalist · Raw",    desc:"Stark monospace web-brutalism — exposed grids, filenames and raw EXIF.", img:"misty-pine-forest.jpg", bw:true},
+  {n:"10", slug:"10-museum-gallery",     title:"The Exhibition",  kicker:"Gallery · Framed",   desc:"Framed prints with cream mats and brass wall labels in a hushed museum.", img:"valley-green-river.jpg"},
+  {n:"11", slug:"11-riso-zine",          title:"GRAIN",           kicker:"Risograph · Zine",   desc:"A loud fluorescent duotone zine with halftone dots and joyful misregistration.", img:"woman-curly-portrait.jpg"},
+  {n:"12", slug:"12-kodak-pack",         title:"PORTRA 400",      kicker:"Packaging · Retro",  desc:"An homage to the Kodak film box — yellow, red, sprockets and DX codes.", img:"rolling-green-hills.jpg"},
+  {n:"13", slug:"13-broadsheet",         title:"The Daily Exposure", kicker:"Newspaper · Print",desc:"A vintage broadsheet with an ornate masthead, justified columns and halftones.", img:"street-cafe-paris.jpg"},
+  {n:"14", slug:"14-ma-vertical",        title:"間 / Ma",          kicker:"Japanese · Quiet",   desc:"Extreme negative space, vertical titles and one photograph at a time.", img:"foggy-pier-lake.jpg"},
+  {n:"15", slug:"15-light-leak",         title:"Expired",         kicker:"Lo-fi · Snapshot",   desc:"Shot on expired film — grain, light leaks and glowing orange date stamps.", img:"woman-laughing-portrait.jpg"},
+  {n:"16", slug:"16-archive-index",      title:"The Archive",     kicker:"Database · Catalogue",desc:"A filterable catalogue raisonné — sortable rows and a thumbnail that follows the cursor.", img:"succulent-closeup.jpg"},
+  {n:"17", slug:"17-immersive-fullbleed",title:"Full Frame",      kicker:"Immersive · Fullscreen",desc:"Each photograph fills the screen — scroll-snapped, cinematic, distraction-free.", img:"cliff-coast-ocean.jpg"},
+  {n:"18", slug:"18-negative-strip",     title:"Negatives",       kicker:"Light-table · Clever",desc:"Orange-base film negatives that 'develop' back to positive on hover.", img:"autumn-forest-road.jpg"},
+  {n:"19", slug:"19-field-journal",      title:"Field Notes",     kicker:"Journal · Personal", desc:"A ruled travel journal — taped-in photos, dated entries and coffee rings.", img:"vintage-car-street.jpg"},
+  {n:"20", slug:"20-bauhaus",            title:"Bauhaus",         kicker:"Modernist · Geometric",desc:"Primary colours and bold geometry framing the work like a Bauhaus poster.", img:"woman-portrait-freckles.jpg"},
+  {n:"21", slug:"21-pastel-faded",       title:"Soft Light",      kicker:"Pastel · Dreamy",    desc:"The softest take — faded pastel Portra, lots of air, feather-soft shadows.", img:"woman-portrait-soft.jpg"},
+  {n:"22", slug:"22-terminal-crt",       title:"PHOTO.SYS",       kicker:"Terminal · CRT",     desc:"A retro phosphor-green terminal with scanlines, a boot sequence and ASCII frames.", img:"lake-mountain-house.jpg"},
+  {n:"23", slug:"23-art-deco",           title:"Atelier",         kicker:"Art Deco · Gold",    desc:"1920s elegance — teal-black and gold linework, sunbursts and symmetry.", img:"woman-portrait-window.jpg"},
+  {n:"24", slug:"24-masonry-mosaic",     title:"Mosaic",          kicker:"Modern · Masonry",   desc:"A clean contemporary masonry grid with hover overlays and a lightbox.", img:"waterfall-bridge.jpg"},
+  {n:"25", slug:"25-photo-essay",        title:"On Film",         kicker:"Scrollytelling · Essay",desc:"A long-form photo essay — prose, pull-quotes and photographs woven together.", img:"landscape-misty-mountains.jpg"},
+];
+const grid = document.getElementById('grid');
+grid.innerHTML = designs.map(d => `
+  <a class="card" href="designs/${d.slug}/" aria-label="${d.title} — ${d.desc}">
+    <div class="thumb${d.bw?' bw':''}">
+      <span class="num">${d.n}</span>
+      <img src="assets/img/${d.img}" alt="Preview photograph for the ${d.title} design" loading="lazy" />
+    </div>
+    <div class="card-body">
+      <span class="card-kicker">${d.kicker}</span>
+      <h2>${d.title}</h2>
+      <p>${d.desc}</p>
+      <span class="card-foot">View design <span class="arrow">→</span></span>
+    </div>
+  </a>`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INDEX — Tom Milton, Photographs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fafafa;
+    --ink:#111111;
+    --ink-60:#5a5a5a;
+    --ink-30:#b4b4b4;
+    --line:#d9d9d9;
+    --line-strong:#111111;
+    --red:#e2231a;
+    --gutter:clamp(14px, 2vw, 28px);
+    --pad:clamp(18px, 4vw, 56px);
+    --rhythm:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Archivo', 'Helvetica Neue', Arial, sans-serif;
+    font-weight:400;
+    font-size:16px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    font-feature-settings:"tnum" 1, "ss01" 1;
+  }
+  a{color:inherit;text-decoration:none}
+
+  /* ---- grain overlay (very faint) ---- */
+  .grain{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    opacity:.035;
+    mix-blend-mode:multiply;
+  }
+
+  /* ---- layout shell ---- */
+  .wrap{
+    max-width:1680px;
+    margin:0 auto;
+    padding:0 var(--pad);
+  }
+  .grid12{
+    display:grid;
+    grid-template-columns:repeat(12, 1fr);
+    column-gap:var(--gutter);
+  }
+
+  /* ---- top bar ---- */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .topbar .back{
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    display:inline-flex;
+    align-items:center;
+    gap:.5em;
+    transition:color .18s ease;
+  }
+  .topbar .back:hover{color:var(--red)}
+  .topbar .meta-right{
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* ---- masthead ---- */
+  .masthead{
+    padding:clamp(28px,6vw,72px) 0 clamp(24px,4vw,44px);
+    border-bottom:2px solid var(--line-strong);
+  }
+  .masthead .title-row{
+    grid-column:1 / -1;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .indexword{
+    font-family:'Archivo Expanded','Archivo',sans-serif;
+    font-weight:700;
+    font-size:clamp(58px, 16vw, 248px);
+    line-height:.82;
+    letter-spacing:-.02em;
+    text-transform:uppercase;
+    position:relative;
+  }
+  .indexword .dot{color:var(--red)}
+  .masthead .lead{
+    text-align:right;
+    align-self:flex-end;
+  }
+  .masthead .lead .who{
+    font-size:clamp(15px,1.4vw,20px);
+    font-weight:600;
+    letter-spacing:-.01em;
+  }
+  .masthead .lead .desc{
+    font-size:12px;
+    color:var(--ink-60);
+    max-width:30ch;
+    margin-top:6px;
+    line-height:1.5;
+    letter-spacing:.01em;
+  }
+
+  /* ---- metadata fields row ---- */
+  .fields{
+    margin-top:clamp(24px,4vw,48px);
+    grid-column:1 / -1;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .fields-inner{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    column-gap:var(--gutter);
+    row-gap:18px;
+  }
+  .field{grid-column:span 2}
+  .field .k{
+    font-size:10px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--red);
+    display:block;
+    margin-bottom:5px;
+  }
+  .field .v{
+    font-size:13px;
+    font-weight:500;
+    letter-spacing:.01em;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* ---- section label ---- */
+  .sec-head{
+    grid-column:1 / -1;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:1px solid var(--line-strong);
+    padding:54px 0 10px;
+    margin-bottom:clamp(20px,3vw,38px);
+  }
+  .sec-head h2{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  .sec-head .count{
+    font-size:11px;
+    letter-spacing:.08em;
+    color:var(--ink-60);
+    text-transform:uppercase;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* ---- filter row ---- */
+  .filters{
+    grid-column:1 / -1;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 8px;
+    margin-bottom:clamp(26px,4vw,46px);
+  }
+  .filters button{
+    font-family:inherit;
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    padding:8px 14px;
+    cursor:pointer;
+    border-radius:0;
+    transition:border-color .16s ease, color .16s ease, background .16s ease;
+    font-variant-numeric:tabular-nums;
+    display:inline-flex;
+    align-items:center;
+    gap:.7em;
+  }
+  .filters button .n{
+    color:var(--ink-30);
+    font-size:10px;
+  }
+  .filters button:hover{border-color:var(--ink)}
+  .filters button[aria-pressed="true"]{
+    background:var(--red);
+    border-color:var(--red);
+    color:#fff;
+  }
+  .filters button[aria-pressed="true"] .n{color:rgba(255,255,255,.7)}
+
+  /* ---- plate grid ---- */
+  .plates{
+    grid-column:1 / -1;
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    column-gap:var(--gutter);
+    row-gap:clamp(34px,4vw,58px);
+  }
+  .plate{grid-column:span 4;display:flex;flex-direction:column}
+  .plate.tall{grid-column:span 4}
+  .plate.wide{grid-column:span 8}
+  .plate .frame{
+    position:relative;
+    width:100%;
+    overflow:hidden;
+    background:#ececec;
+    border:1px solid var(--line);
+  }
+  .plate .frame::after{
+    content:"";
+    position:absolute;inset:0;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);
+    pointer-events:none;
+  }
+  .plate img{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    filter:sepia(.10) saturate(1.04) contrast(.97) brightness(1.02);
+    transition:transform .5s cubic-bezier(.2,.7,.2,1), filter .4s ease;
+  }
+  .plate img.bw{filter:grayscale(1) contrast(1.02) brightness(1.0)}
+  .plate:hover img{transform:scale(1.025)}
+  .plate.ar-portrait .frame{aspect-ratio:4/5}
+  .plate.ar-land .frame{aspect-ratio:3/2}
+  .plate.ar-wideland .frame{aspect-ratio:16/9}
+  .plate.ar-square .frame{aspect-ratio:1/1}
+
+  /* corner index no. */
+  .plate .frame .idx{
+    position:absolute;
+    top:10px;left:10px;
+    font-size:10px;
+    letter-spacing:.1em;
+    background:rgba(250,250,250,.92);
+    color:var(--ink);
+    padding:3px 6px;
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+    z-index:2;
+  }
+
+  /* fielded caption */
+  .caption{
+    margin-top:11px;
+    border-top:1px solid var(--line-strong);
+    padding-top:8px;
+  }
+  .caption .cap-title{
+    display:flex;
+    align-items:baseline;
+    gap:.6em;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.01em;
+    line-height:1.2;
+  }
+  .caption .cap-title .mark{
+    color:var(--bg);
+    background:var(--ink);
+    font-size:9px;
+    padding:2px 4px;
+    letter-spacing:.08em;
+    transform:translateY(-1px);
+    transition:background .16s ease, color .16s ease;
+  }
+  .plate:hover .caption .cap-title .mark{background:var(--red)}
+  .caption .cap-data{
+    margin-top:7px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:2px 0;
+    font-size:10.5px;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    font-variant-numeric:tabular-nums;
+  }
+  .caption .cap-data span{
+    position:relative;
+    padding:0 9px;
+    white-space:nowrap;
+  }
+  .caption .cap-data span:first-child{padding-left:0}
+  .caption .cap-data span:not(:last-child)::after{
+    content:"/";
+    position:absolute;right:1px;top:0;
+    color:var(--ink-30);
+  }
+
+  .plate.is-hidden{display:none}
+
+  /* ---- index table ---- */
+  .indextable{
+    grid-column:1 / -1;
+    width:100%;
+    border-collapse:collapse;
+    font-variant-numeric:tabular-nums;
+  }
+  .indextable thead th{
+    font-size:10px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--red);
+    text-align:left;
+    font-weight:600;
+    padding:0 12px 10px 0;
+    border-bottom:1px solid var(--line-strong);
+  }
+  .indextable thead th.num{width:64px}
+  .indextable thead th.year{text-align:right;padding-right:0}
+  .indextable tbody td{
+    font-size:13px;
+    padding:13px 12px 13px 0;
+    border-bottom:1px solid var(--line);
+    letter-spacing:.005em;
+    vertical-align:baseline;
+  }
+  .indextable tbody td.num{color:var(--ink-60);font-weight:500}
+  .indextable tbody td.tt{font-weight:600}
+  .indextable tbody td.dim{color:var(--ink-60);font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+  .indextable tbody td.year{text-align:right;padding-right:0;font-weight:500}
+  .indextable tbody tr{transition:background .15s ease}
+  .indextable tbody tr:hover{background:#f0f0f0}
+  .indextable tbody tr:hover td.num{color:var(--red)}
+
+  /* ---- colophon / footer ---- */
+  .colophon{
+    margin-top:clamp(56px,7vw,110px);
+    border-top:2px solid var(--line-strong);
+    padding:clamp(28px,4vw,48px) 0 clamp(40px,6vw,80px);
+  }
+  .colophon .cinner{
+    grid-column:1 / -1;
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    column-gap:var(--gutter);
+    row-gap:24px;
+  }
+  .colophon .big{
+    grid-column:1 / 8;
+    font-family:'Archivo Expanded','Archivo',sans-serif;
+    font-weight:700;
+    font-size:clamp(26px,4.4vw,64px);
+    line-height:.96;
+    letter-spacing:-.02em;
+    text-transform:uppercase;
+  }
+  .colophon .big em{font-style:normal;color:var(--red)}
+  .colophon .cmeta{grid-column:9 / 13}
+  .colophon .cmeta .row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:11px;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    padding:7px 0;
+    border-bottom:1px solid var(--line);
+    font-variant-numeric:tabular-nums;
+  }
+  .colophon .cmeta .row b{color:var(--ink);font-weight:600}
+  .copyline{
+    grid-column:1 / -1;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:14px;
+    font-size:10px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-30);
+  }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width:1080px){
+    .plate{grid-column:span 6}
+    .plate.wide{grid-column:span 12}
+    .field{grid-column:span 3}
+    .colophon .big{grid-column:1 / 9}
+    .colophon .cmeta{grid-column:1 / 13}
+  }
+  @media (max-width:720px){
+    .field{grid-column:span 6}
+    .plate, .plate.wide, .plate.tall{grid-column:span 12}
+    .masthead .lead{text-align:left}
+    .masthead .title-row{flex-direction:column;gap:18px}
+    .indextable thead{display:none}
+    .indextable, .indextable tbody, .indextable tr, .indextable td{display:block;width:100%}
+    .indextable tbody tr{
+      padding:14px 0;
+      border-bottom:1px solid var(--line);
+      display:grid;
+      grid-template-columns:auto 1fr;
+      column-gap:14px;
+      row-gap:2px;
+    }
+    .indextable tbody td{border:none;padding:0}
+    .indextable tbody td.num{grid-row:1;grid-column:1;color:var(--red);font-weight:600}
+    .indextable tbody td.tt{grid-row:1;grid-column:2;font-size:14px}
+    .indextable tbody td.loc{grid-row:2;grid-column:2;font-size:11px;color:var(--ink-60);text-transform:uppercase;letter-spacing:.05em}
+    .indextable tbody td.dim{grid-column:2;font-size:10.5px}
+    .indextable tbody td.year{grid-row:1;grid-column:2;text-align:right}
+  }
+</style>
+</head>
+<body>
+
+<!-- faint grain -->
+<svg class="grain" xmlns="http://www.w3.org/2000/svg">
+  <filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter>
+  <rect width="100%" height="100%" filter="url(#g)"/>
+</svg>
+
+<div class="wrap">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <a class="back" href="../../index.html"><span aria-hidden="true">&larr;</span> All designs</a>
+    <div class="meta-right">Cat. 06 / Swiss Grid / Index Edition</div>
+  </header>
+
+  <!-- MASTHEAD -->
+  <section class="masthead grid12">
+    <div class="title-row">
+      <h1 class="indexword">Index<span class="dot">.</span></h1>
+      <div class="lead">
+        <div class="who">Tom Milton — Photographs</div>
+        <div class="desc">A catalogue of fourteen film photographs. Landscapes, portraits, nature and street, exposed on celluloid between 1995 and 2022.</div>
+      </div>
+    </div>
+
+    <div class="fields">
+      <div class="fields-inner">
+        <div class="field"><span class="k">Author</span><span class="v">Tom Milton</span></div>
+        <div class="field"><span class="k">Years</span><span class="v">1995–2022</span></div>
+        <div class="field"><span class="k">Works</span><span class="v">14 plates</span></div>
+        <div class="field"><span class="k">Categories</span><span class="v">04</span></div>
+        <div class="field"><span class="k">Medium</span><span class="v">Film, 35 / 120</span></div>
+        <div class="field"><span class="k">Edition</span><span class="v">Cat. No. 06</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATES -->
+  <section class="grid12">
+    <div class="sec-head">
+      <h2>Plates</h2>
+      <div class="count" id="plateCount">Showing 14 / 14</div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters" role="group" aria-label="Filter plates by category">
+      <button data-filter="all" aria-pressed="true">All <span class="n">14</span></button>
+      <button data-filter="landscape" aria-pressed="false">Landscape <span class="n">07</span></button>
+      <button data-filter="portrait" aria-pressed="false">Portrait <span class="n">03</span></button>
+      <button data-filter="nature" aria-pressed="false">Nature <span class="n">02</span></button>
+      <button data-filter="street" aria-pressed="false">Street <span class="n">02</span></button>
+    </div>
+
+    <!-- GRID -->
+    <div class="plates" id="plates">
+
+      <figure class="plate ar-land" data-kind="landscape">
+        <div class="frame"><span class="idx">No. 001</span>
+          <img src="../../assets/img/golden-field-sunburst.jpg" alt="Sunburst over a golden wheat field at dusk, Tuscany" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">L</span>Last Light, Wheat Country</div>
+          <div class="cap-data"><span>No. 001</span><span>Tuscany, Italy</span><span>Kodak Portra 400</span><span>Leica M6</span><span>1998</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-land" data-kind="landscape">
+        <div class="frame"><span class="idx">No. 002</span>
+          <img src="../../assets/img/landscape-misty-mountains.jpg" alt="Morning fog drifting through the Cascade mountains, Washington" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">L</span>Morning Fog, Cascades</div>
+          <div class="cap-data"><span>No. 002</span><span>Washington, USA</span><span>Fujifilm Pro 400H</span><span>Pentax 67</span><span>2001</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-land" data-kind="landscape">
+        <div class="frame"><span class="idx">No. 003</span>
+          <img src="../../assets/img/cliff-coast-ocean.jpg" alt="Rugged cliffs meeting the ocean at Big Sur" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">L</span>Edge of the World</div>
+          <div class="cap-data"><span>No. 003</span><span>Big Sur, USA</span><span>Kodak Portra 400</span><span>Contax G2</span><span>2002</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-wideland wide" data-kind="landscape">
+        <div class="frame"><span class="idx">No. 004</span>
+          <img src="../../assets/img/desert-dunes.jpg" alt="Wind-carved lines across desert dunes in Namibia" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">L</span>Wind Lines</div>
+          <div class="cap-data"><span>No. 004</span><span>Namibia</span><span>Kodak Ektar 100</span><span>Hasselblad 503CW</span><span>2008</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-portrait" data-kind="portrait">
+        <div class="frame"><span class="idx">No. 009</span>
+          <img src="../../assets/img/woman-portrait-freckles.jpg" alt="Studio portrait of a woman with freckles in warm light" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">P</span>Freckles &amp; Sun</div>
+          <div class="cap-data"><span>No. 009</span><span>Studio</span><span>Kodak Portra 160</span><span>Mamiya 645</span><span>2015</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-land" data-kind="landscape">
+        <div class="frame"><span class="idx">No. 005</span>
+          <img src="../../assets/img/rolling-green-hills.jpg" alt="Patchwork of rolling green hills in Tuscany" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">L</span>Patchwork</div>
+          <div class="cap-data"><span>No. 005</span><span>Tuscany, Italy</span><span>Fujifilm Pro 400H</span><span>Pentax 645</span><span>1997</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-square" data-kind="nature">
+        <div class="frame"><span class="idx">No. 007</span>
+          <img src="../../assets/img/succulent-closeup.jpg" alt="Close-up of a succulent showing geometric growth" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">N</span>Geometry of Growth</div>
+          <div class="cap-data"><span>No. 007</span><span>Studio</span><span>Kodak Portra 160</span><span>Hasselblad 500CM</span><span>2009</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-portrait" data-kind="portrait">
+        <div class="frame"><span class="idx">No. 010</span>
+          <img src="../../assets/img/woman-fashion-portrait.jpg" alt="Fashion portrait of a woman against a red wall in Marrakesh" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">P</span>The Red Wall</div>
+          <div class="cap-data"><span>No. 010</span><span>Marrakesh, Morocco</span><span>Kodak Portra 400</span><span>Pentax 67</span><span>2019</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-portrait" data-kind="nature">
+        <div class="frame"><span class="idx">No. 006</span>
+          <img src="../../assets/img/forest-path-trees.jpg" alt="A quiet path leading into tall forest trees, Black Forest" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">N</span>Into the Woods</div>
+          <div class="cap-data"><span>No. 006</span><span>Black Forest, Germany</span><span>Kodak Portra 160</span><span>Rolleiflex 2.8F</span><span>1995</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-land" data-kind="nature">
+        <div class="frame"><span class="idx">No. 008</span>
+          <img src="../../assets/img/misty-pine-forest.jpg" alt="Misty pine forest in Norway, black and white" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">N</span>Silence</div>
+          <div class="cap-data"><span>No. 008</span><span>Norway</span><span>Ilford HP5 Plus</span><span>Leica M6</span><span>2003</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-portrait" data-kind="portrait">
+        <div class="frame"><span class="idx">No. 011</span>
+          <img src="../../assets/img/man-bw-portrait.jpg" alt="Black and white portrait of a man partly in shadow, Berlin" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">P</span>Portrait in Shadow</div>
+          <div class="cap-data"><span>No. 011</span><span>Berlin, Germany</span><span>Ilford Delta 3200</span><span>Leica M6</span><span>2018</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-land" data-kind="street">
+        <div class="frame"><span class="idx">No. 012</span>
+          <img src="../../assets/img/street-cafe-paris.jpg" alt="Café de Flore terrace on a Paris street" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">S</span>Café de Flore</div>
+          <div class="cap-data"><span>No. 012</span><span>Paris, France</span><span>Kodak Gold 200</span><span>Olympus OM-1</span><span>2020</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-land" data-kind="street">
+        <div class="frame"><span class="idx">No. 013</span>
+          <img src="../../assets/img/vintage-car-street.jpg" alt="Vintage car parked on a Havana street" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">S</span>Sunday Drive</div>
+          <div class="cap-data"><span>No. 013</span><span>Havana, Cuba</span><span>Kodak Ektar 100</span><span>Nikon FE</span><span>2022</span></div>
+        </figcaption>
+      </figure>
+
+      <figure class="plate ar-wideland wide" data-kind="landscape">
+        <div class="frame"><span class="idx">No. 014</span>
+          <img src="../../assets/img/lake-mountain-house.jpg" alt="Still morning reflections on a lake at Hallstatt" loading="lazy">
+        </div>
+        <figcaption class="caption">
+          <div class="cap-title"><span class="mark">L</span>Reflections, Still Morning</div>
+          <div class="cap-data"><span>No. 014</span><span>Hallstatt, Austria</span><span>Kodak Ektar 100</span><span>Mamiya RZ67</span><span>2000</span></div>
+        </figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <!-- INDEX TABLE -->
+  <section class="grid12">
+    <div class="sec-head">
+      <h2>Index of Works</h2>
+      <div class="count">14 entries / chronological by catalogue</div>
+    </div>
+    <table class="indextable">
+      <thead>
+        <tr>
+          <th class="num">No.</th>
+          <th class="ttl">Title</th>
+          <th class="loc">Location</th>
+          <th class="flm">Film</th>
+          <th class="cam">Camera</th>
+          <th class="year">Year</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="num">001</td><td class="tt">Last Light, Wheat Country</td><td class="loc">Tuscany, Italy</td><td class="dim">Kodak Portra 400</td><td class="dim">Leica M6</td><td class="year">1998</td></tr>
+        <tr><td class="num">002</td><td class="tt">Morning Fog, Cascades</td><td class="loc">Washington, USA</td><td class="dim">Fujifilm Pro 400H</td><td class="dim">Pentax 67</td><td class="year">2001</td></tr>
+        <tr><td class="num">003</td><td class="tt">Edge of the World</td><td class="loc">Big Sur, USA</td><td class="dim">Kodak Portra 400</td><td class="dim">Contax G2</td><td class="year">2002</td></tr>
+        <tr><td class="num">004</td><td class="tt">Wind Lines</td><td class="loc">Namibia</td><td class="dim">Kodak Ektar 100</td><td class="dim">Hasselblad 503CW</td><td class="year">2008</td></tr>
+        <tr><td class="num">005</td><td class="tt">Patchwork</td><td class="loc">Tuscany, Italy</td><td class="dim">Fujifilm Pro 400H</td><td class="dim">Pentax 645</td><td class="year">1997</td></tr>
+        <tr><td class="num">006</td><td class="tt">Into the Woods</td><td class="loc">Black Forest, Germany</td><td class="dim">Kodak Portra 160</td><td class="dim">Rolleiflex 2.8F</td><td class="year">1995</td></tr>
+        <tr><td class="num">007</td><td class="tt">Geometry of Growth</td><td class="loc">Studio</td><td class="dim">Kodak Portra 160</td><td class="dim">Hasselblad 500CM</td><td class="year">2009</td></tr>
+        <tr><td class="num">008</td><td class="tt">Silence</td><td class="loc">Norway</td><td class="dim">Ilford HP5 Plus</td><td class="dim">Leica M6</td><td class="year">2003</td></tr>
+        <tr><td class="num">009</td><td class="tt">Freckles &amp; Sun</td><td class="loc">Studio</td><td class="dim">Kodak Portra 160</td><td class="dim">Mamiya 645</td><td class="year">2015</td></tr>
+        <tr><td class="num">010</td><td class="tt">The Red Wall</td><td class="loc">Marrakesh, Morocco</td><td class="dim">Kodak Portra 400</td><td class="dim">Pentax 67</td><td class="year">2019</td></tr>
+        <tr><td class="num">011</td><td class="tt">Portrait in Shadow</td><td class="loc">Berlin, Germany</td><td class="dim">Ilford Delta 3200</td><td class="dim">Leica M6</td><td class="year">2018</td></tr>
+        <tr><td class="num">012</td><td class="tt">Café de Flore</td><td class="loc">Paris, France</td><td class="dim">Kodak Gold 200</td><td class="dim">Olympus OM-1</td><td class="year">2020</td></tr>
+        <tr><td class="num">013</td><td class="tt">Sunday Drive</td><td class="loc">Havana, Cuba</td><td class="dim">Kodak Ektar 100</td><td class="dim">Nikon FE</td><td class="year">2022</td></tr>
+        <tr><td class="num">014</td><td class="tt">Reflections, Still Morning</td><td class="loc">Hallstatt, Austria</td><td class="dim">Kodak Ektar 100</td><td class="dim">Mamiya RZ67</td><td class="year">2000</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- COLOPHON -->
+  <footer class="colophon grid12">
+    <div class="cinner">
+      <div class="big">Tom <em>Milton</em><br>Photographs<br>1995&ndash;2022</div>
+      <div class="cmeta">
+        <div class="row"><span>Set &amp; type</span><b>Archivo Grotesque</b></div>
+        <div class="row"><span>System</span><b>12-column grid</b></div>
+        <div class="row"><span>Accent</span><b>Red / #E2231A</b></div>
+        <div class="row"><span>Process</span><b>Film, hand-graded</b></div>
+        <div class="row"><span>Catalogue</span><b>No. 06 — Index</b></div>
+      </div>
+      <div class="copyline">
+        <span>© 2026 Tom Milton. All works exhibited as catalogued.</span>
+        <span>International Typographic Style</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var buttons = document.querySelectorAll('.filters button');
+  var plates = Array.prototype.slice.call(document.querySelectorAll('#plates .plate'));
+  var countEl = document.getElementById('plateCount');
+  function apply(filter){
+    var shown = 0;
+    plates.forEach(function(p){
+      var match = (filter === 'all') || (p.getAttribute('data-kind') === filter);
+      p.classList.toggle('is-hidden', !match);
+      if(match) shown++;
+    });
+    countEl.textContent = 'Showing ' + String(shown).padStart(2,'0') + ' / 14';
+  }
+  buttons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      buttons.forEach(function(b){ b.setAttribute('aria-pressed','false'); });
+      btn.setAttribute('aria-pressed','true');
+      apply(btn.getAttribute('data-filter'));
+    });
+  });
+})();
+</script>
+</body>
+</html>

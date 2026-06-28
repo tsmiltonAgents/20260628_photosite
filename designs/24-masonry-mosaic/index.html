@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mosaic — Tom Milton, Film Photographer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f4f0;
+    --surface:#ffffff;
+    --ink:#1a1a1a;
+    --ink-soft:#6b6b6b;
+    --line:#e6e2db;
+    --accent:#b5573a; /* warm terracotta */
+    --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Manrope',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--accent);color:#fff}
+
+  .back{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:13px;font-weight:600;color:var(--ink-soft);
+    letter-spacing:.01em;transition:.2s;
+  }
+  .back:hover{color:var(--accent)}
+
+  /* ===== HEADER ===== */
+  .topbar{
+    position:sticky;top:0;z-index:40;
+    background:rgba(246,244,240,.82);
+    backdrop-filter:saturate(160%) blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:1500px;margin:0 auto;padding:14px 28px;
+    display:flex;align-items:center;justify-content:space-between;gap:20px;
+  }
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand .mark{
+    font-weight:800;font-size:20px;letter-spacing:-.02em;
+  }
+  .brand .mark b{color:var(--accent)}
+  .brand .who{font-size:13px;color:var(--ink-soft);font-weight:500}
+
+  .filters{display:flex;gap:4px;flex-wrap:wrap}
+  .filters button{
+    font-family:inherit;font-size:13px;font-weight:600;
+    color:var(--ink-soft);background:transparent;border:none;cursor:pointer;
+    padding:7px 14px;border-radius:999px;transition:.18s;letter-spacing:.01em;
+  }
+  .filters button:hover{color:var(--ink);background:rgba(0,0,0,.04)}
+  .filters button.active{color:#fff;background:var(--ink)}
+
+  /* ===== INTRO ===== */
+  .intro{
+    max-width:1500px;margin:0 auto;padding:64px 28px 30px;
+  }
+  .intro h1{
+    font-size:clamp(34px,6vw,72px);font-weight:800;letter-spacing:-.03em;
+    line-height:1.02;max-width:14ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--accent)}
+  .intro p{
+    margin-top:20px;max-width:54ch;font-size:18px;color:var(--ink-soft);font-weight:400;
+  }
+  .intro .stats{
+    margin-top:26px;display:flex;gap:34px;flex-wrap:wrap;
+    font-size:13px;color:var(--ink-soft);font-weight:600;letter-spacing:.02em;
+  }
+  .intro .stats b{display:block;font-size:24px;color:var(--ink);font-weight:800;letter-spacing:-.02em}
+
+  /* ===== MASONRY ===== */
+  .gallery{
+    max-width:1500px;margin:0 auto;padding:18px 22px 40px;
+    column-gap:18px;
+    columns:4;
+  }
+  @media(max-width:1200px){.gallery{columns:3}}
+  @media(max-width:820px){.gallery{columns:2;padding:18px 14px}}
+  @media(max-width:480px){.gallery{columns:1}}
+
+  .card{
+    break-inside:avoid;
+    margin-bottom:18px;
+    position:relative;
+    border-radius:14px;overflow:hidden;
+    background:var(--surface);
+    box-shadow:var(--shadow);
+    cursor:pointer;
+    transform:translateY(8px);opacity:0;
+    transition:opacity .5s ease,transform .5s ease;
+    display:block;
+  }
+  .card.in{opacity:1;transform:none}
+  .card img{
+    width:100%;display:block;
+    filter:saturate(1.06) contrast(1.03) brightness(1.02) sepia(.12) hue-rotate(-6deg);
+    transition:transform .8s cubic-bezier(.2,.8,.2,1);
+  }
+  .card.bw img{filter:grayscale(1) contrast(1.06) brightness(1.02)}
+  .card:hover img{transform:scale(1.05)}
+
+  /* overlay */
+  .card .overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(to top,rgba(20,14,10,.82) 0%,rgba(20,14,10,.18) 42%,rgba(20,14,10,0) 70%);
+    opacity:0;transition:opacity .3s ease;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    padding:18px;color:#fff;
+  }
+  .card:hover .overlay,.card:focus-visible .overlay{opacity:1}
+  .card .ov-title{
+    font-size:18px;font-weight:700;letter-spacing:-.01em;line-height:1.2;
+    transform:translateY(8px);transition:transform .35s ease .03s;
+  }
+  .card .ov-meta{
+    margin-top:6px;font-size:13px;font-weight:500;color:rgba(255,255,255,.82);
+    transform:translateY(8px);transition:transform .35s ease .07s;
+  }
+  .card .ov-film{
+    display:inline-block;margin-top:10px;font-size:11px;font-weight:700;
+    letter-spacing:.06em;text-transform:uppercase;
+    background:rgba(255,255,255,.16);backdrop-filter:blur(4px);
+    border:1px solid rgba(255,255,255,.25);
+    padding:4px 9px;border-radius:999px;align-self:flex-start;
+    transform:translateY(8px);transition:transform .35s ease .1s;
+  }
+  .card:hover .ov-title,.card:hover .ov-meta,.card:hover .ov-film{transform:none}
+  /* corner year tag always subtle */
+  .card .yeartag{
+    position:absolute;top:12px;left:12px;
+    font-size:11px;font-weight:700;letter-spacing:.04em;color:#fff;
+    background:rgba(0,0,0,.35);backdrop-filter:blur(4px);
+    padding:3px 8px;border-radius:999px;
+    opacity:0;transition:opacity .3s;
+  }
+  .card:hover .yeartag{opacity:1}
+
+  /* ===== LIGHTBOX ===== */
+  .lb{
+    position:fixed;inset:0;z-index:100;display:none;
+    background:rgba(18,14,12,.92);backdrop-filter:blur(6px);
+    align-items:center;justify-content:center;padding:30px;
+  }
+  .lb.open{display:flex;animation:lbf .25s ease}
+  @keyframes lbf{from{opacity:0}to{opacity:1}}
+  .lb figure{max-width:min(1100px,94vw);max-height:90vh;display:flex;flex-direction:column;align-items:center}
+  .lb img{max-width:100%;max-height:74vh;border-radius:8px;box-shadow:0 30px 80px rgba(0,0,0,.6);
+    filter:saturate(1.06) contrast(1.03) brightness(1.02) sepia(.12) hue-rotate(-6deg)}
+  .lb img.bw{filter:grayscale(1) contrast(1.06)}
+  .lb figcaption{color:#f3efe9;text-align:center;margin-top:18px;max-width:60ch}
+  .lb .lb-t{font-size:21px;font-weight:700}
+  .lb .lb-m{font-size:14px;color:rgba(255,255,255,.7);margin-top:5px;font-weight:500}
+  .lb-close{
+    position:absolute;top:22px;right:26px;width:42px;height:42px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);
+    color:#fff;font-size:20px;cursor:pointer;line-height:1;transition:.2s;
+  }
+  .lb-close:hover{background:rgba(255,255,255,.2)}
+
+  /* ===== FOOTER ===== */
+  footer{
+    border-top:1px solid var(--line);margin-top:30px;
+    max-width:1500px;margin-left:auto;margin-right:auto;
+    padding:46px 28px 70px;
+    display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;
+  }
+  footer .f-brand{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  footer .f-brand b{color:var(--accent)}
+  footer .f-meta{font-size:13px;color:var(--ink-soft);font-weight:500;text-align:right}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <a class="back" href="../../index.html">&larr; All designs</a>
+      <span class="mark">Mo<b>saic</b></span>
+      <span class="who">Tom Milton &middot; Film Photographer</span>
+    </div>
+    <div class="filters" id="filters">
+      <button class="active" data-k="all">All</button>
+      <button data-k="landscape">Landscape</button>
+      <button data-k="portrait">Portrait</button>
+      <button data-k="nature">Nature</button>
+      <button data-k="street">Street</button>
+      <button data-k="bw">B&amp;W</button>
+    </div>
+  </div>
+</div>
+
+<section class="intro">
+  <h1>Light, caught on <em>film</em> &mdash; thirty years of it.</h1>
+  <p>A working archive of analogue photographs by Tom Milton: landscapes, portraits and quiet rooms, made on Portra, Ektar, Velvia and Tri-X across four continents. Hover any frame for the story; click to enlarge.</p>
+  <div class="stats">
+    <span><b>30</b>Photographs</span>
+    <span><b>14</b>Film stocks</span>
+    <span><b>1995&ndash;2023</b>Years shooting</span>
+  </div>
+</section>
+
+<main class="gallery" id="gallery"></main>
+
+<footer>
+  <div class="f-brand">Mo<b>saic</b></div>
+  <div class="f-meta">&copy; 1995&ndash;2026 Tom Milton. All images shot on film.<br>Warm grade after Kodak Portra.</div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photograph viewer">
+  <button class="lb-close" id="lbClose" aria-label="Close">&times;</button>
+  <figure>
+    <img id="lbImg" src="" alt="">
+    <figcaption>
+      <div class="lb-t" id="lbT"></div>
+      <div class="lb-m" id="lbM"></div>
+    </figcaption>
+  </figure>
+</div>
+
+<script>
+const PHOTOS=[
+  {f:"golden-field-sunburst.jpg",t:"Last Light, Wheat Country",loc:"Tuscany, Italy",film:"Kodak Portra 400",cam:"Leica M6",y:1998,k:"landscape"},
+  {f:"woman-portrait-window.jpg",t:"By the Window",loc:"Lisbon, Portugal",film:"Kodak Portra 400",cam:"Pentax 67",y:2011,k:"portrait"},
+  {f:"landscape-misty-mountains.jpg",t:"Morning Fog, Cascades",loc:"Washington, USA",film:"Fujifilm Pro 400H",cam:"Pentax 67",y:2001,k:"landscape"},
+  {f:"man-portrait-street.jpg",t:"Stranger, No. 14",loc:"Havana, Cuba",film:"Kodak Tri-X 400",cam:"Leica M4",y:2012,k:"portrait",bw:true},
+  {f:"forest-sunlight.jpg",t:"Cathedral of Pines",loc:"Olympic NP, USA",film:"Kodak Portra 160",cam:"Hasselblad 500CM",y:1996,k:"nature"},
+  {f:"woman-fashion-portrait.jpg",t:"The Red Wall",loc:"Marrakesh, Morocco",film:"Kodak Portra 400",cam:"Pentax 67",y:2019,k:"portrait"},
+  {f:"lake-cabin-dawn.jpg",t:"The Cabin at Dawn",loc:"Banff, Canada",film:"Kodak Ektar 100",cam:"Mamiya 7 II",y:2003,k:"landscape"},
+  {f:"sun-through-leaves.jpg",t:"Backlit",loc:"Kyoto, Japan",film:"Kodak Portra 800",cam:"Leica M6",y:2004,k:"nature"},
+  {f:"couple-silhouette-sunset.jpg",t:"Goodnight",loc:"Santorini, Greece",film:"Kodak Portra 800",cam:"Canon EOS-1V",y:2013,k:"portrait"},
+  {f:"valley-green-river.jpg",t:"River Bend, Spring",loc:"Glencoe, Scotland",film:"Fujifilm Velvia 50",cam:"Nikon F3",y:1999,k:"landscape"},
+  {f:"woman-portrait-freckles.jpg",t:"Freckles & Sun",loc:"Studio",film:"Kodak Portra 160",cam:"Mamiya 645",y:2015,k:"portrait"},
+  {f:"cliff-coast-ocean.jpg",t:"Edge of the World",loc:"Big Sur, USA",film:"Kodak Portra 400",cam:"Contax G2",y:2002,k:"landscape"},
+  {f:"misty-pine-forest.jpg",t:"Silence",loc:"Norway",film:"Ilford HP5 Plus",cam:"Leica M6",y:2003,k:"nature",bw:true},
+  {f:"street-cafe-paris.jpg",t:"Cafe de Flore",loc:"Paris, France",film:"Kodak Gold 200",cam:"Olympus OM-1",y:2020,k:"street"},
+  {f:"rolling-green-hills.jpg",t:"Patchwork",loc:"Tuscany, Italy",film:"Fujifilm Pro 400H",cam:"Pentax 645",y:1997,k:"landscape"},
+  {f:"woman-curly-portrait.jpg",t:"Curls",loc:"Brooklyn, USA",film:"Cinestill 800T",cam:"Canon AE-1",y:2017,k:"portrait"},
+  {f:"mountain-road-fog.jpg",t:"The Long Way Home",loc:"Dolomites, Italy",film:"Cinestill 800T",cam:"Canon AE-1",y:2005,k:"landscape"},
+  {f:"succulent-closeup.jpg",t:"Geometry of Growth",loc:"Studio",film:"Kodak Portra 160",cam:"Hasselblad 500CM",y:2009,k:"nature"},
+  {f:"man-bw-portrait.jpg",t:"Portrait in Shadow",loc:"Berlin, Germany",film:"Ilford Delta 3200",cam:"Leica M6",y:2018,k:"portrait",bw:true},
+  {f:"waterfall-bridge.jpg",t:"Hidden Falls",loc:"Iceland",film:"Fujifilm Velvia 50",cam:"Nikon FM2",y:2006,k:"nature"},
+  {f:"vintage-car-street.jpg",t:"Sunday Drive",loc:"Havana, Cuba",film:"Kodak Ektar 100",cam:"Nikon FE",y:2022,k:"street"},
+  {f:"lake-mountain-house.jpg",t:"Reflections, Still Morning",loc:"Hallstatt, Austria",film:"Kodak Ektar 100",cam:"Mamiya RZ67",y:2000,k:"landscape"},
+  {f:"woman-laughing-portrait.jpg",t:"That Laugh",loc:"Mexico City, Mexico",film:"Kodak Portra 800",cam:"Contax G2",y:2021,k:"portrait"},
+  {f:"forest-path-trees.jpg",t:"Into the Woods",loc:"Black Forest, Germany",film:"Kodak Portra 160",cam:"Rolleiflex 2.8F",y:1995,k:"nature"},
+  {f:"autumn-forest-road.jpg",t:"October Road",loc:"Vermont, USA",film:"Kodak Portra 400",cam:"Leica M7",y:2007,k:"landscape"},
+  {f:"woman-portrait-soft.jpg",t:"Soft Hour",loc:"Paris, France",film:"Fujifilm Pro 400H",cam:"Contax 645",y:2014,k:"portrait"},
+  {f:"desert-dunes.jpg",t:"Wind Lines",loc:"Namibia",film:"Kodak Ektar 100",cam:"Hasselblad 503CW",y:2008,k:"landscape"},
+  {f:"friends-golden-hour.jpg",t:"Golden Hour, Together",loc:"California, USA",film:"Kodak Portra 400",cam:"Nikon F100",y:2016,k:"portrait"},
+  {f:"foggy-pier-lake.jpg",t:"The Quiet Dock",loc:"Lake District, UK",film:"Cinestill 50D",cam:"Contax T2",y:2010,k:"landscape"},
+  {f:"cozy-interior-window.jpg",t:"Home Light",loc:"Copenhagen, Denmark",film:"Kodak Portra 400",cam:"Leica M6",y:2023,k:"interior"}
+];
+
+const gallery=document.getElementById('gallery');
+let io;
+
+function build(list){
+  gallery.innerHTML='';
+  list.forEach(p=>{
+    const a=document.createElement('div');
+    a.className='card'+(p.bw?' bw':'');
+    a.tabIndex=0;
+    a.dataset.f=p.f;a.dataset.bw=p.bw?1:0;
+    a.dataset.t=p.t;a.dataset.m=`${p.loc} · ${p.film} · ${p.cam} · ${p.y}`;
+    a.innerHTML=`
+      <img src="../../assets/img/${p.f}" alt="${p.t} — ${p.loc}, shot on ${p.film}" loading="lazy">
+      <span class="yeartag">${p.y}</span>
+      <div class="overlay">
+        <div class="ov-title">${p.t}</div>
+        <div class="ov-meta">${p.loc} &middot; ${p.cam}</div>
+        <span class="ov-film">${p.film}</span>
+      </div>`;
+    a.addEventListener('click',()=>openLB(p));
+    a.addEventListener('keydown',e=>{if(e.key==='Enter')openLB(p)});
+    gallery.appendChild(a);
+  });
+  // reveal animation
+  if(io)io.disconnect();
+  io=new IntersectionObserver((es)=>{
+    es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}});
+  },{rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.card').forEach((c,i)=>{
+    c.style.transitionDelay=Math.min(i*30,300)+'ms';
+    io.observe(c);
+  });
+}
+
+// filters
+document.querySelectorAll('#filters button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#filters button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const k=b.dataset.k;
+    let list=k==='all'?PHOTOS:(k==='bw'?PHOTOS.filter(p=>p.bw):PHOTOS.filter(p=>p.k===k));
+    build(list);
+    window.scrollTo({top:document.querySelector('.gallery').offsetTop-90,behavior:'smooth'});
+  });
+});
+
+// lightbox
+const lb=document.getElementById('lb'),lbImg=document.getElementById('lbImg'),
+      lbT=document.getElementById('lbT'),lbM=document.getElementById('lbM');
+function openLB(p){
+  lbImg.src='../../assets/img/'+p.f;
+  lbImg.alt=p.t+' — '+p.loc;
+  lbImg.className=p.bw?'bw':'';
+  lbT.textContent=p.t;
+  lbM.textContent=`${p.loc} · ${p.film} · ${p.cam} · ${p.y}`;
+  lb.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeLB(){lb.classList.remove('open');document.body.style.overflow=''}
+document.getElementById('lbClose').addEventListener('click',closeLB);
+lb.addEventListener('click',e=>{if(e.target===lb)closeLB()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLB()});
+
+build(PHOTOS);
+</script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Portra Warmth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4ece0;
+    --paper-deep:#ece1d1;
+    --ink:#2c241c;
+    --ink-soft:#6b5d4d;
+    --ink-faint:#9c8d79;
+    --rule:#d9cab2;
+    --accent:#a85c34;
+    --frame:#efe6d8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'EB Garamond',Georgia,serif;
+    font-size:clamp(17px,1.05vw + 14px,20px);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  /* film grain + warm wash */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    mix-blend-mode:multiply;opacity:.5;
+  }
+  a{color:inherit}
+  ::selection{background:var(--accent);color:var(--paper)}
+
+  .back{
+    position:fixed;top:1.1rem;left:1.4rem;z-index:210;
+    font-family:'EB Garamond',serif;font-size:.82rem;letter-spacing:.08em;
+    text-transform:uppercase;text-decoration:none;color:var(--ink-soft);
+    padding:.35rem .7rem;border:1px solid var(--rule);border-radius:2px;
+    background:rgba(244,236,224,.8);backdrop-filter:blur(4px);transition:.3s;
+  }
+  .back:hover{color:var(--accent);border-color:var(--accent)}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.4rem,5vw,4rem)}
+
+  /* ---- masthead ---- */
+  header{padding:clamp(5rem,14vh,9rem) 0 clamp(3rem,7vh,5rem)}
+  .kicker{
+    font-family:'EB Garamond',serif;font-style:italic;color:var(--accent);
+    font-size:1.05rem;letter-spacing:.04em;margin-bottom:1.2rem;
+  }
+  h1{
+    font-family:'Cormorant Garamond',serif;font-weight:500;
+    font-size:clamp(3.4rem,11vw,8rem);line-height:.92;letter-spacing:-.01em;
+  }
+  h1 em{font-style:italic;font-weight:400;color:var(--ink-soft)}
+  .lede{
+    max-width:34em;margin-top:2.2rem;font-size:1.18rem;color:var(--ink-soft);
+    line-height:1.66;
+  }
+  .lede .drop{
+    float:left;font-family:'Cormorant Garamond',serif;font-weight:500;
+    font-size:4.4rem;line-height:.72;padding:.18rem .14rem 0 0;color:var(--ink);
+  }
+  .meta-row{
+    margin-top:2.6rem;display:flex;flex-wrap:wrap;gap:1.4rem 2.6rem;
+    font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);
+  }
+  .meta-row b{color:var(--ink-soft);font-weight:500}
+
+  .rule{height:1px;background:var(--rule);margin:0;border:0}
+  .rule.thick{height:2px;background:var(--ink);opacity:.18}
+
+  /* ---- plate (each photo) ---- */
+  .plate{padding:clamp(3.5rem,9vh,7rem) 0}
+  .plate-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:1rem;margin-bottom:1.6rem;
+  }
+  .plate-no{
+    font-family:'EB Garamond',serif;font-style:italic;color:var(--ink-faint);
+    font-size:1.1rem;white-space:nowrap;
+  }
+  .plate-title{
+    font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(1.8rem,4vw,2.9rem);
+    line-height:1.04;letter-spacing:-.005em;
+  }
+  .frame{
+    background:var(--frame);
+    padding:clamp(.7rem,1.4vw,1.15rem);
+    border:1px solid var(--rule);
+    box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 22px 50px -28px rgba(60,40,20,.55);
+    border-radius:2px;
+  }
+  .frame img{
+    display:block;width:100%;height:auto;border-radius:1px;
+    filter:saturate(1.06) contrast(1.02) sepia(.1) brightness(1.01);
+    transition:filter .6s ease, transform .6s ease;
+  }
+  .frame:hover img{filter:saturate(1.14) contrast(1.04) sepia(.06) brightness(1.03)}
+  .frame.bw img{filter:grayscale(1) contrast(1.08) brightness(1.02)}
+  .frame.bw:hover img{filter:grayscale(1) contrast(1.13) brightness(1.04)}
+
+  figcaption{
+    margin-top:1.1rem;display:flex;flex-wrap:wrap;gap:.3rem 1.6rem;
+    font-size:.86rem;color:var(--ink-soft);letter-spacing:.02em;
+  }
+  figcaption .loc{font-style:italic;color:var(--ink)}
+  figcaption .spec{color:var(--ink-faint);letter-spacing:.1em;text-transform:uppercase;font-size:.74rem;align-self:center}
+
+  /* a wide / tall rhythm variation */
+  .plate.feature .frame{max-width:none}
+  .plate.narrow{max-width:760px;margin-left:auto;margin-right:auto}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3vw,2.4rem);align-items:start}
+  .duo .plate-head{margin-bottom:1.1rem}
+  .duo .plate-title{font-size:clamp(1.4rem,2.5vw,2rem)}
+
+  /* pull quote */
+  .quote{padding:clamp(4rem,11vh,8rem) 0;text-align:center}
+  .quote p{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;
+    font-size:clamp(1.8rem,4.6vw,3.2rem);line-height:1.18;max-width:18em;margin:0 auto;
+  }
+  .quote cite{display:block;margin-top:1.8rem;font-style:normal;font-size:.82rem;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint)}
+
+  footer{padding:clamp(4rem,10vh,7rem) 0 5rem;text-align:center;color:var(--ink-soft)}
+  footer .sig{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,6vw,3.4rem);font-style:italic}
+  footer .fine{margin-top:1.4rem;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+
+  @media(max-width:680px){
+    .duo{grid-template-columns:1fr}
+    .plate-head{flex-direction:column;gap:.3rem}
+    figcaption .spec{align-self:flex-start}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">&larr; All designs</a>
+
+<header class="wrap">
+  <div class="kicker">A Catalogue of Light &amp; Land</div>
+  <h1>The Warm<br><em>Negative</em></h1>
+  <p class="lede"><span class="drop">F</span>or twenty-five years Tom Milton has shot exclusively on film — chasing the low gold of late afternoon, the soft give of Portra in shade, the way a meadow holds heat long after the sun has gone. These are plates from the archive, printed warm, exactly as the light intended.</p>
+  <div class="meta-row">
+    <span><b>Tom Milton</b> · Photographer</span>
+    <span>1995 &ndash; 2023</span>
+    <span>35mm &amp; Medium Format</span>
+    <span>Kodak · Fujifilm · Ilford</span>
+  </div>
+</header>
+<hr class="rule thick">
+
+<main>
+  <!-- Plate 1 feature -->
+  <section class="plate feature wrap">
+    <div class="plate-head">
+      <h2 class="plate-title">Last Light, Wheat Country</h2>
+      <span class="plate-no">Plate I</span>
+    </div>
+    <figure class="frame">
+      <img src="../../assets/img/golden-field-sunburst.jpg" alt="Sun bursting low over a golden wheat field at dusk in Tuscany">
+      <figcaption>
+        <span class="loc">Tuscany, Italy</span>
+        <span class="spec">Kodak Portra 400 · Leica M6 · 1998</span>
+      </figcaption>
+    </figure>
+  </section>
+  <hr class="rule">
+
+  <!-- Duo -->
+  <section class="plate wrap">
+    <div class="duo">
+      <figure>
+        <div class="plate-head"><h2 class="plate-title">Morning Fog</h2><span class="plate-no">II</span></div>
+        <div class="frame"><img src="../../assets/img/landscape-misty-mountains.jpg" alt="Misty layered mountains at dawn in the Cascades"></div>
+        <figcaption><span class="loc">Washington, USA</span><span class="spec">Fuji Pro 400H · Pentax 67 · 2001</span></figcaption>
+      </figure>
+      <figure>
+        <div class="plate-head"><h2 class="plate-title">The Cabin at Dawn</h2><span class="plate-no">III</span></div>
+        <div class="frame"><img src="../../assets/img/lake-cabin-dawn.jpg" alt="A still lakeside cabin reflected in calm water at dawn in Banff"></div>
+        <figcaption><span class="loc">Banff, Canada</span><span class="spec">Kodak Ektar 100 · Mamiya 7 II · 2003</span></figcaption>
+      </figure>
+    </div>
+  </section>
+  <hr class="rule">
+
+  <!-- Narrow portrait -->
+  <section class="plate narrow wrap">
+    <div class="plate-head">
+      <h2 class="plate-title">By the Window</h2>
+      <span class="plate-no">Plate IV</span>
+    </div>
+    <figure class="frame">
+      <img src="../../assets/img/woman-portrait-window.jpg" alt="A woman lit softly by window light in Lisbon">
+      <figcaption><span class="loc">Lisbon, Portugal</span><span class="spec">Kodak Portra 400 · Pentax 67 · 2011</span></figcaption>
+    </figure>
+  </section>
+  <hr class="rule">
+
+  <section class="quote wrap">
+    <p>&ldquo;I never trusted a colour I couldn&rsquo;t feel the warmth of.&rdquo;</p>
+    <cite>Tom Milton, on Portra</cite>
+  </section>
+  <hr class="rule">
+
+  <!-- Feature 2 -->
+  <section class="plate feature wrap">
+    <div class="plate-head">
+      <h2 class="plate-title">Cathedral of Pines</h2>
+      <span class="plate-no">Plate V</span>
+    </div>
+    <figure class="frame">
+      <img src="../../assets/img/forest-sunlight.jpg" alt="Shafts of sunlight falling through tall pines in Olympic National Park">
+      <figcaption><span class="loc">Olympic NP, USA</span><span class="spec">Kodak Portra 160 · Hasselblad 500CM · 1996</span></figcaption>
+    </figure>
+  </section>
+  <hr class="rule">
+
+  <!-- Duo 2 -->
+  <section class="plate wrap">
+    <div class="duo">
+      <figure>
+        <div class="plate-head"><h2 class="plate-title">Freckles &amp; Sun</h2><span class="plate-no">VI</span></div>
+        <div class="frame"><img src="../../assets/img/woman-portrait-freckles.jpg" alt="Close portrait of a freckled woman in warm sunlight"></div>
+        <figcaption><span class="loc">Studio</span><span class="spec">Kodak Portra 160 · Mamiya 645 · 2015</span></figcaption>
+      </figure>
+      <figure>
+        <div class="plate-head"><h2 class="plate-title">October Road</h2><span class="plate-no">VII</span></div>
+        <div class="frame"><img src="../../assets/img/autumn-forest-road.jpg" alt="A road winding through autumn forest in Vermont"></div>
+        <figcaption><span class="loc">Vermont, USA</span><span class="spec">Kodak Portra 400 · Leica M7 · 2007</span></figcaption>
+      </figure>
+    </div>
+  </section>
+  <hr class="rule">
+
+  <!-- Feature 3 -->
+  <section class="plate feature wrap">
+    <div class="plate-head">
+      <h2 class="plate-title">Goodnight</h2>
+      <span class="plate-no">Plate VIII</span>
+    </div>
+    <figure class="frame">
+      <img src="../../assets/img/couple-silhouette-sunset.jpg" alt="A couple silhouetted against a glowing sunset in Santorini">
+      <figcaption><span class="loc">Santorini, Greece</span><span class="spec">Kodak Portra 800 · Canon EOS-1V · 2013</span></figcaption>
+    </figure>
+  </section>
+  <hr class="rule">
+
+  <!-- Narrow b&w -->
+  <section class="plate narrow wrap">
+    <div class="plate-head">
+      <h2 class="plate-title">Silence</h2>
+      <span class="plate-no">Plate IX</span>
+    </div>
+    <figure class="frame bw">
+      <img src="../../assets/img/misty-pine-forest.jpg" alt="Misty pine forest in black and white, Norway">
+      <figcaption><span class="loc">Norway</span><span class="spec">Ilford HP5 Plus · Leica M6 · 2003</span></figcaption>
+    </figure>
+  </section>
+  <hr class="rule">
+
+  <!-- Feature 4 -->
+  <section class="plate feature wrap">
+    <div class="plate-head">
+      <h2 class="plate-title">Home Light</h2>
+      <span class="plate-no">Plate X</span>
+    </div>
+    <figure class="frame">
+      <img src="../../assets/img/cozy-interior-window.jpg" alt="Warm interior light falling through a window in a Copenhagen home">
+      <figcaption><span class="loc">Copenhagen, Denmark</span><span class="spec">Kodak Portra 400 · Leica M6 · 2023</span></figcaption>
+    </figure>
+  </section>
+</main>
+
+<hr class="rule thick">
+<footer class="wrap">
+  <div class="sig">Tom Milton</div>
+  <div class="fine">Archive Catalogue · No. XIV · Printed on Cream Stock</div>
+</footer>
+</body>
+</html>

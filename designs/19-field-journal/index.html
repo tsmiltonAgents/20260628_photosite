@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Notes — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Kalam:wght@300;400;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f5f0e1;
+    --paper-shade:#efe7d2;
+    --line:#c9d6e3;
+    --margin-red:#d2655a;
+    --ink:#2b3a42;
+    --ink-soft:#4a5a62;
+    --pencil:#5b6b62;
+    --tape:#d9cda8;
+    --portra: saturate(1.06) contrast(1.02) sepia(0.10) brightness(1.03) hue-rotate(-4deg);
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    font-family:'Kalam',cursive;
+    color:var(--ink);
+    background:#3c352b;
+    background-image:
+      radial-gradient(circle at 20% 10%, #4a4234, transparent 60%),
+      radial-gradient(circle at 80% 90%, #312b22, transparent 55%);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+  }
+
+  /* grain overlay */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    opacity:.06;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  a{color:inherit;}
+
+  /* back link */
+  .backlink{
+    position:fixed;
+    top:14px;
+    left:14px;
+    z-index:10000;
+    font-family:'Courier Prime',monospace;
+    font-size:13px;
+    letter-spacing:.04em;
+    background:rgba(245,240,225,.92);
+    color:#3a3026;
+    padding:7px 12px;
+    border-radius:3px;
+    text-decoration:none;
+    box-shadow:0 2px 8px rgba(0,0,0,.35);
+    transform:rotate(-1.5deg);
+    transition:transform .2s ease, background .2s ease;
+  }
+  .backlink:hover{transform:rotate(0deg) scale(1.03);background:#fff;}
+
+  /* The journal book */
+  .journal{
+    max-width:920px;
+    margin:0 auto;
+    padding:46px 0 90px;
+  }
+
+  /* a journal page */
+  .page{
+    position:relative;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 33px,
+        var(--line) 33px,
+        var(--line) 34px
+      ),
+      linear-gradient(var(--paper),var(--paper));
+    background-color:var(--paper);
+    padding:54px 40px 60px 78px;
+    margin:0 18px 34px;
+    border-radius:3px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.5) inset,
+      0 14px 30px rgba(0,0,0,.45),
+      0 2px 4px rgba(0,0,0,.3);
+  }
+
+  /* punched holes feel + binding shadow on left */
+  .page::before{
+    content:"";
+    position:absolute;
+    top:0;bottom:0;
+    left:62px;
+    width:2px;
+    background:var(--margin-red);
+    opacity:.7;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0;bottom:0;left:0;
+    width:30px;
+    background:linear-gradient(to right, rgba(0,0,0,.10), transparent);
+    border-radius:3px 0 0 3px;
+  }
+
+  @media (max-width:560px){
+    .page{padding:42px 18px 48px 52px;}
+    .page::before{left:38px;}
+  }
+
+  /* cover / masthead */
+  .cover{
+    text-align:center;
+    padding:64px 40px 70px 78px;
+  }
+  .cover h1{
+    font-family:'Caveat',cursive;
+    font-size:clamp(54px,11vw,104px);
+    line-height:.95;
+    margin:0;
+    color:var(--ink);
+    font-weight:700;
+    transform:rotate(-2deg);
+    text-shadow:1px 1px 0 rgba(0,0,0,.06);
+  }
+  .cover .sub{
+    font-family:'Courier Prime',monospace;
+    font-size:14px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-top:18px;
+  }
+  .cover .byline{
+    font-family:'Caveat',cursive;
+    font-size:30px;
+    color:var(--margin-red);
+    margin-top:10px;
+    transform:rotate(-1deg);
+  }
+  .cover .stamp{
+    display:inline-block;
+    margin-top:30px;
+    font-family:'Courier Prime',monospace;
+    font-size:12px;
+    letter-spacing:.15em;
+    color:var(--margin-red);
+    border:2px solid var(--margin-red);
+    border-radius:6px;
+    padding:8px 14px;
+    transform:rotate(4deg);
+    opacity:.78;
+    text-transform:uppercase;
+  }
+  .cover .intro{
+    max-width:540px;
+    margin:34px auto 0;
+    font-size:19px;
+    color:var(--ink-soft);
+    text-align:left;
+    transform:rotate(-.4deg);
+  }
+
+  /* year divider tab */
+  .yeartab{
+    text-align:center;
+    margin:8px 0 26px;
+  }
+  .yeartab span{
+    display:inline-block;
+    font-family:'Courier Prime',monospace;
+    font-weight:700;
+    letter-spacing:.2em;
+    font-size:14px;
+    color:#f3ead3;
+    background:#7d6b4f;
+    padding:8px 24px;
+    border-radius:4px;
+    transform:rotate(-1.5deg);
+    box-shadow:0 6px 14px rgba(0,0,0,.4);
+  }
+
+  /* entry header (date) */
+  .entry{margin-bottom:38px;}
+  .entry-date{
+    font-family:'Caveat',cursive;
+    font-size:34px;
+    font-weight:700;
+    color:var(--margin-red);
+    line-height:1;
+    margin:0 0 4px;
+  }
+  .entry-place{
+    font-family:'Courier Prime',monospace;
+    font-size:12.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+  }
+  .entry-text{
+    font-size:20px;
+    color:var(--ink);
+    margin:0 0 8px;
+  }
+  .entry-text .doodle{color:var(--margin-red);font-weight:700;}
+
+  /* typed note block */
+  .typed{
+    font-family:'Courier Prime',monospace;
+    font-size:13.5px;
+    line-height:1.7;
+    color:var(--ink-soft);
+    background:rgba(255,255,255,.35);
+    border-left:3px solid var(--pencil);
+    padding:10px 14px;
+    margin:14px 0;
+    transform:rotate(-.3deg);
+  }
+
+  /* photo arrangement */
+  .photos{
+    display:flex;
+    flex-wrap:wrap;
+    gap:34px 30px;
+    justify-content:center;
+    margin:30px 0 8px;
+  }
+
+  figure.photo{
+    position:relative;
+    background:#fffdf6;
+    padding:12px 12px 14px;
+    margin:0;
+    box-shadow:0 10px 22px rgba(0,0,0,.30), 0 2px 4px rgba(0,0,0,.2);
+    width:300px;
+    max-width:100%;
+  }
+  figure.photo:nth-child(3n+1){transform:rotate(-2.4deg);}
+  figure.photo:nth-child(3n+2){transform:rotate(1.8deg);}
+  figure.photo:nth-child(3n+3){transform:rotate(-1deg);}
+  figure.photo.wide{width:420px;}
+
+  figure.photo img{
+    display:block;
+    width:100%;
+    height:auto;
+    filter:var(--portra);
+  }
+  figure.photo.bw img{
+    filter:grayscale(1) contrast(1.08) brightness(1.02);
+  }
+
+  /* washi tape */
+  .tape{
+    position:absolute;
+    width:96px;height:30px;
+    background:repeating-linear-gradient(
+      45deg,
+      rgba(217,205,168,.62),
+      rgba(217,205,168,.62) 8px,
+      rgba(201,188,150,.62) 8px,
+      rgba(201,188,150,.62) 16px);
+    box-shadow:0 2px 5px rgba(0,0,0,.15);
+    z-index:3;
+  }
+  .tape.tl{top:-14px;left:-12px;transform:rotate(-26deg);}
+  .tape.tr{top:-14px;right:-12px;transform:rotate(24deg);}
+  .tape.blue{
+    background:repeating-linear-gradient(
+      45deg,
+      rgba(150,178,196,.55),
+      rgba(150,178,196,.55) 8px,
+      rgba(122,156,178,.55) 8px,
+      rgba(122,156,178,.55) 16px);
+  }
+
+  /* paper photo-mount corners (CSS triangles) */
+  .corner{
+    position:absolute;
+    width:0;height:0;
+    z-index:3;
+    opacity:.85;
+  }
+  .corner.bl{
+    bottom:6px;left:6px;
+    border-bottom:22px solid rgba(60,50,40,.55);
+    border-right:22px solid transparent;
+  }
+  .corner.br{
+    bottom:6px;right:6px;
+    border-bottom:22px solid rgba(60,50,40,.55);
+    border-left:22px solid transparent;
+  }
+
+  /* caption strip — typed metadata */
+  figcaption{
+    margin-top:10px;
+    font-family:'Courier Prime',monospace;
+    font-size:11px;
+    color:var(--ink);
+    line-height:1.5;
+  }
+  figcaption .ttitle{
+    font-family:'Caveat',cursive;
+    font-size:23px;
+    font-weight:600;
+    color:var(--ink);
+    display:block;
+    line-height:1;
+    margin-bottom:3px;
+  }
+  figcaption .meta{
+    display:block;
+    letter-spacing:.03em;
+    color:var(--ink-soft);
+  }
+  figcaption .film{color:var(--margin-red);}
+
+  /* handwritten margin note under photo */
+  .handnote{
+    font-family:'Caveat',cursive;
+    font-size:21px;
+    color:var(--pencil);
+    margin-top:6px;
+    line-height:1.15;
+  }
+
+  /* coffee stain rings */
+  .stain{
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:1;
+    opacity:.5;
+    background:radial-gradient(circle,
+      transparent 56%,
+      rgba(120,80,40,.20) 57%,
+      rgba(120,80,40,.30) 66%,
+      rgba(140,95,50,.12) 72%,
+      transparent 78%);
+  }
+
+  /* paperclip / asterisk doodles in margin */
+  .margin-mark{
+    position:absolute;
+    left:18px;
+    font-family:'Caveat',cursive;
+    color:var(--margin-red);
+    font-size:30px;
+    transform:rotate(-12deg);
+    z-index:2;
+  }
+  @media (max-width:560px){.margin-mark{left:10px;font-size:22px;}}
+
+  /* arrow doodle */
+  .arrow{
+    display:inline-block;
+    width:54px;height:24px;
+    vertical-align:middle;
+    margin:0 4px;
+  }
+  .arrow path{stroke:var(--margin-red);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* fade-in */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1;transform:none;}
+
+  /* colophon */
+  .colophon{
+    text-align:center;
+    color:#e6dcc4;
+    font-family:'Courier Prime',monospace;
+    font-size:12.5px;
+    letter-spacing:.1em;
+    padding:10px 20px 0;
+    opacity:.8;
+  }
+  .colophon .big{
+    font-family:'Caveat',cursive;
+    font-size:30px;
+    letter-spacing:0;
+    display:block;
+    margin-bottom:6px;
+    color:#f1e7cf;
+  }
+</style>
+</head>
+<body>
+
+<a class="backlink" href="../../index.html">&larr; All designs</a>
+
+<div class="journal">
+
+  <!-- COVER -->
+  <section class="page cover reveal">
+    <div class="stain" style="width:120px;height:120px;top:30px;right:46px;"></div>
+    <h1>Field Notes</h1>
+    <div class="byline">— kept by Tom Milton</div>
+    <div class="sub">A travelling photographer&rsquo;s journal &middot; 1995&ndash;2020</div>
+    <span class="stamp">Property of T. Milton &middot; Return if found</span>
+    <p class="intro">
+      Twenty-five years, a duffel of film, and one stubborn rule: shoot what
+      stops you in the road. These pages are the bits I scribbled between frames &mdash;
+      where I stood, what light I was chasing, and the strangers kind enough to look back.
+      <span style="color:var(--margin-red);font-weight:700;"> Mind the coffee stains.</span>
+    </p>
+  </section>
+
+  <!-- 1995-1997 -->
+  <div class="yeartab reveal"><span>1995 &mdash; 1997 &middot; EARLY ROADS</span></div>
+
+  <section class="page reveal">
+    <span class="margin-mark" style="top:120px;">&#10022;</span>
+    <div class="stain" style="width:140px;height:140px;bottom:60px;left:120px;"></div>
+
+    <div class="entry">
+      <p class="entry-date">Spring &rsquo;95 — the Black Forest</p>
+      <p class="entry-place">Black Forest, Germany</p>
+      <p class="entry-text">
+        Got properly lost on the first morning, which turned out to be the whole point.
+        The light comes down through the pines in columns
+        <svg class="arrow" viewBox="0 0 54 24"><path d="M2 12 H46 M38 5 L48 12 L38 19"/></svg>
+        like something built rather than grown. Loaded the Rollei and just waited.
+      </p>
+      <div class="typed">
+        FILM LOG // Roll 03. Rolleiflex 2.8F. Portra 160, rated box speed.
+        Overcast then a 20-minute window of sun. Metered for the shadows and prayed.
+      </div>
+
+      <div class="photos">
+        <figure class="photo">
+          <span class="tape tl"></span><span class="tape tr blue"></span>
+          <img src="../../assets/img/forest-path-trees.jpg" alt="A narrow dirt path winding between tall straight pine trees in a dense German forest, soft diffused light filtering through the canopy">
+          <figcaption>
+            <span class="ttitle">Into the Woods</span>
+            <span class="meta film">Kodak Portra 160 &middot; Rolleiflex 2.8F</span>
+            <span class="meta">Black Forest, Germany &middot; 1995</span>
+          </figcaption>
+          <p class="handnote">followed this path till it forgot where it was going</p>
+        </figure>
+      </div>
+    </div>
+
+    <div class="entry">
+      <p class="entry-date">Autumn &rsquo;96 — Olympic NP</p>
+      <p class="entry-place">Olympic National Park, Washington, USA</p>
+      <p class="entry-text">
+        Rangers call it a temperate rainforest. I called it a cathedral and shut up.
+        Mounted the Hasselblad on the tripod, stood under the canopy for two hours,
+        and only tripped the shutter four times. <span class="doodle">*worth it.</span>
+      </p>
+
+      <div class="photos">
+        <figure class="photo wide">
+          <span class="tape tl"></span>
+          <span class="corner bl"></span><span class="corner br"></span>
+          <img src="../../assets/img/forest-sunlight.jpg" alt="Sunbeams streaming through a towering old-growth pine forest, golden light catching dust and mist between the trunks">
+          <figcaption>
+            <span class="ttitle">Cathedral of Pines</span>
+            <span class="meta film">Kodak Portra 160 &middot; Hasselblad 500CM</span>
+            <span class="meta">Olympic NP, USA &middot; 1996</span>
+          </figcaption>
+          <p class="handnote">stood here a long time. didn&rsquo;t want to leave.</p>
+        </figure>
+      </div>
+    </div>
+
+    <div class="entry">
+      <p class="entry-date">Late &rsquo;97 — Tuscan hills</p>
+      <p class="entry-place">Tuscany, Italy</p>
+      <p class="entry-text">
+        Drove the Pentax 645 up into the hills above Siena. The whole valley is stitched
+        together like a quilt somebody&rsquo;s grandmother made &mdash; greens and golds, all
+        seams and patches.
+      </p>
+      <div class="photos">
+        <figure class="photo">
+          <span class="tape tr"></span>
+          <img src="../../assets/img/rolling-green-hills.jpg" alt="Rolling green and gold Tuscan hills in soft afternoon light, rows of fields and scattered cypress trees fading into the distance">
+          <figcaption>
+            <span class="ttitle">Patchwork</span>
+            <span class="meta film">Fujifilm Pro 400H &middot; Pentax 645</span>
+            <span class="meta">Tuscany, Italy &middot; 1997</span>
+          </figcaption>
+          <p class="handnote">a quilt sewn by the whole valley</p>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1998-2000 -->
+  <div class="yeartab reveal"><span>1998 &mdash; 2000 &middot; CHASING LIGHT</span></div>
+
+  <section class="page reveal">
+    <span class="margin-mark" style="top:240px;">&#8594;</span>
+    <div class="stain" style="width:100px;height:100px;top:50px;right:70px;"></div>
+
+    <div class="entry">
+      <p class="entry-date">Harvest &rsquo;98 — wheat country</p>
+      <p class="entry-place">Tuscany, Italy</p>
+      <p class="entry-text">
+        Last good light of the day exploding through the heads of the wheat.
+        The M6 doesn&rsquo;t care that your hands are shaking &mdash; you just have to be
+        quicker than the sun.
+      </p>
+      <div class="photos">
+        <figure class="photo wide">
+          <span class="tape tl blue"></span><span class="tape tr"></span>
+          <img src="../../assets/img/golden-field-sunburst.jpg" alt="A golden wheat field at sunset with the sun bursting in a brilliant flare low over the horizon, warm amber tones across the whole frame">
+          <figcaption>
+            <span class="ttitle">Last Light, Wheat Country</span>
+            <span class="meta film">Kodak Portra 400 &middot; Leica M6</span>
+            <span class="meta">Tuscany, Italy &middot; 1998</span>
+          </figcaption>
+          <p class="handnote">had about 40 seconds. used all of them.</p>
+        </figure>
+      </div>
+    </div>
+
+    <div class="entry">
+      <p class="entry-date">Summer &rsquo;99 — Glencoe</p>
+      <p class="entry-place">Glencoe, Scottish Highlands</p>
+      <p class="entry-text">
+        Scotland gives you four seasons before lunch. Caught the river at the one
+        moment the clouds opened. Velvia made the greens almost dishonest &mdash;
+        but that&rsquo;s how it felt, so I&rsquo;ll allow it.
+      </p>
+      <div class="typed">
+        NOTE TO SELF // Velvia 50 has no patience for shadows. Bracket everything.
+        Bring more socks. The midges are not a myth.
+      </div>
+      <div class="photos">
+        <figure class="photo">
+          <span class="corner bl"></span><span class="corner br"></span>
+          <span class="tape tl"></span>
+          <img src="../../assets/img/valley-green-river.jpg" alt="A green Highland valley in spring with a river bending through it, steep grassy slopes rising on either side under a partly cloudy sky">
+          <figcaption>
+            <span class="ttitle">River Bend, Spring</span>
+            <span class="meta film">Fujifilm Velvia 50 &middot; Nikon F3</span>
+            <span class="meta">Glencoe, Scotland &middot; 1999</span>
+          </figcaption>
+          <p class="handnote">the greens were almost a lie. almost.</p>
+        </figure>
+        <figure class="photo">
+          <span class="tape tr blue"></span>
+          <img src="../../assets/img/lake-mountain-house.jpg" alt="A still alpine lake at dawn perfectly mirroring snow-streaked mountains and a small lakeside village at Hallstatt, Austria">
+          <figcaption>
+            <span class="ttitle">Reflections, Still Morning</span>
+            <span class="meta film">Kodak Ektar 100 &middot; Mamiya RZ67</span>
+            <span class="meta">Hallstatt, Austria &middot; 2000</span>
+          </figcaption>
+          <p class="handnote">not a breath of wind. the lake held its breath too.</p>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2001-2003 -->
+  <div class="yeartab reveal"><span>2001 &mdash; 2003 &middot; QUIET PLACES</span></div>
+
+  <section class="page reveal">
+    <span class="margin-mark" style="top:90px;">&#10022;</span>
+    <div class="stain" style="width:130px;height:130px;bottom:40px;right:90px;"></div>
+
+    <div class="entry">
+      <p class="entry-date">Oct &rsquo;01 — the Cascades</p>
+      <p class="entry-place">Washington, USA</p>
+      <p class="entry-text">
+        Up before the birds to beat the fog. Failed. The fog won, the fog always wins &mdash;
+        so I photographed the fog instead.
+        <svg class="arrow" viewBox="0 0 54 24"><path d="M2 19 C18 2, 36 2, 48 14 M40 7 L49 14 L39 17"/></svg>
+        The Pentax 67 negatives are the size of a postcard. Worth the weight.
+      </p>
+      <div class="photos">
+        <figure class="photo wide">
+          <span class="tape tl"></span><span class="tape tr"></span>
+          <img src="../../assets/img/landscape-misty-mountains.jpg" alt="Layers of misty blue mountain ridges in the Cascades fading into morning fog, soft cool light over forested slopes">
+          <figcaption>
+            <span class="ttitle">Morning Fog, Cascades</span>
+            <span class="meta film">Fujifilm Pro 400H &middot; Pentax 67</span>
+            <span class="meta">Washington, USA &middot; 2001</span>
+          </figcaption>
+          <p class="handnote">couldn&rsquo;t beat the fog. joined it.</p>
+        </figure>
+      </div>
+    </div>
+
+    <div class="entry">
+      <p class="entry-date">Spring &rsquo;03 — Banff &amp; Norway</p>
+      <p class="entry-place">Banff, Canada &middot; then north to Norway</p>
+      <p class="entry-text">
+        Two cold mornings, two continents. The cabin at Banff at first light, then weeks
+        later a pine forest in Norway so silent I could hear the film advance.
+        Shot the Norway frames on HP5 &mdash; some places only want to be remembered in
+        black and white.
+      </p>
+      <div class="photos">
+        <figure class="photo">
+          <span class="tape tr blue"></span>
+          <img src="../../assets/img/lake-cabin-dawn.jpg" alt="A small wooden cabin beside a calm mountain lake at dawn near Banff, warm pink and gold dawn light reflected in still water">
+          <figcaption>
+            <span class="ttitle">The Cabin at Dawn</span>
+            <span class="meta film">Kodak Ektar 100 &middot; Mamiya 7 II</span>
+            <span class="meta">Banff, Canada &middot; 2003</span>
+          </figcaption>
+          <p class="handnote">kettle on, shutter ready, sun arriving.</p>
+        </figure>
+        <figure class="photo bw">
+          <span class="corner bl"></span><span class="corner br"></span>
+          <span class="tape tl"></span>
+          <img src="../../assets/img/misty-pine-forest.jpg" alt="A misty pine forest in Norway rendered in black and white, tall dark trunks receding into pale fog, deep stillness">
+          <figcaption>
+            <span class="ttitle">Silence</span>
+            <span class="meta film">Ilford HP5 Plus &middot; Leica M6</span>
+            <span class="meta">Norway &middot; 2003</span>
+          </figcaption>
+          <p class="handnote">so quiet I could hear the film advance.</p>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2002-2005 coast & roads -->
+  <div class="yeartab reveal"><span>2002 &mdash; 2005 &middot; COASTS &amp; LONG ROADS</span></div>
+
+  <section class="page reveal">
+    <span class="margin-mark" style="top:300px;">&#8594;</span>
+    <div class="stain" style="width:110px;height:110px;top:60px;left:140px;"></div>
+
+    <div class="entry">
+      <p class="entry-date">Summer &rsquo;02 — Big Sur</p>
+      <p class="entry-place">Big Sur, California, USA</p>
+      <p class="entry-text">
+        Pulled the Contax out at the cliff edge where the Pacific just stops pretending
+        to be calm. You can taste the salt in the grain. <span class="doodle">*do not lean further.</span>
+      </p>
+      <div class="photos">
+        <figure class="photo">
+          <span class="tape tl"></span>
+          <img src="../../assets/img/cliff-coast-ocean.jpg" alt="Rugged Big Sur cliffs dropping into a deep blue ocean, waves breaking white against the rocks under a hazy coastal sky">
+          <figcaption>
+            <span class="ttitle">Edge of the World</span>
+            <span class="meta film">Kodak Portra 400 &middot; Contax G2</span>
+            <span class="meta">Big Sur, USA &middot; 2002</span>
+          </figcaption>
+          <p class="handnote">where the Pacific stops pretending to be calm</p>
+        </figure>
+        <figure class="photo">
+          <span class="tape tr"></span>
+          <img src="../../assets/img/sun-through-leaves.jpg" alt="Sunlight glowing through backlit green maple leaves in a Kyoto garden, warm dappled light and soft bokeh">
+          <figcaption>
+            <span class="ttitle">Backlit</span>
+            <span class="meta film">Kodak Portra 800 &middot; Leica M6</span>
+            <span class="meta">Kyoto, Japan &middot; 2004</span>
+          </figcaption>
+          <p class="handnote">Kyoto in spring is mostly looking up</p>
+        </figure>
+      </div>
+    </div>
+
+    <div class="entry">
+      <p class="entry-date">&rsquo;05 — over the Dolomites</p>
+      <p class="entry-place">Dolomites, Italy</p>
+      <p class="entry-text">
+        Tried the Cinestill 800T on the mountain pass at dusk, headlights coming on,
+        fog rolling over the road. Tungsten film makes the cold air go properly blue.
+        The long way home is always the better photograph.
+      </p>
+      <div class="typed">
+        FILM LOG // Cinestill 800T, pushed 1 stop. Canon AE-1, 50mm. The red halation
+        around the headlights &mdash; left it in. That&rsquo;s the whole mood.
+      </div>
+      <div class="photos">
+        <figure class="photo wide">
+          <span class="tape tl blue"></span><span class="tape tr"></span>
+          <img src="../../assets/img/mountain-road-fog.jpg" alt="A winding mountain road disappearing into fog in the Dolomites at dusk, cool blue tones with a faint glow of light through the mist">
+          <figcaption>
+            <span class="ttitle">The Long Way Home</span>
+            <span class="meta film">Cinestill 800T &middot; Canon AE-1</span>
+            <span class="meta">Dolomites, Italy &middot; 2005</span>
+          </figcaption>
+          <p class="handnote">the long way is always the better photograph</p>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2006-2010 -->
+  <div class="yeartab reveal"><span>2006 &mdash; 2010 &middot; FURTHER NORTH, FURTHER OUT</span></div>
+
+  <section class="page reveal">
+    <span class="margin-mark" style="top:160px;">&#10022;</span>
+    <div class="stain" style="width:120px;height:120px;bottom:50px;left:90px;"></div>
+
+    <div class="entry">
+      <p class="entry-date">Aug &rsquo;06 — Iceland</p>
+      <p class="entry-place">Somewhere off the Ring Road, Iceland</p>
+      <p class="entry-text">
+        Followed the sound of water for half a mile and found a falls nobody had bothered
+        to name. Velvia and a Nikon FM2 and a footbridge slick with spray.
+      </p>
+      <div class="photos">
+        <figure class="photo">
+          <span class="tape tr blue"></span>
+          <img src="../../assets/img/waterfall-bridge.jpg" alt="A tall waterfall tumbling into a gorge in Iceland with a small footbridge crossing the river below, lush wet green moss on the rocks">
+          <figcaption>
+            <span class="ttitle">Hidden Falls</span>
+            <span class="meta film">Fujifilm Velvia 50 &middot; Nikon FM2</span>
+            <span class="meta">Iceland &middot; 2006</span>
+          </figcaption>
+          <p class="handnote">no name on the map. ours for an afternoon.</p>
+        </figure>
+        <figure class="photo">
+          <span class="tape tl"></span>
+          <img src="../../assets/img/autumn-forest-road.jpg" alt="A country road running through a Vermont forest ablaze with orange and red autumn foliage, leaves scattered across the lane">
+          <figcaption>
+            <span class="ttitle">October Road</span>
+            <span class="meta film">Kodak Portra 400 &middot; Leica M7</span>
+            <span class="meta">Vermont, USA &middot; 2007</span>
+          </figcaption>
+          <p class="handnote">drove it twice just to do it again</p>
+        </figure>
+      </div>
+    </div>
+
+    <div class="entry">
+      <p class="entry-date">&rsquo;08 — Namibia</p>
+      <p class="entry-place">Namib Desert, Namibia</p>
+      <p class="entry-text">
+        The dunes don&rsquo;t hold still &mdash; the wind keeps redrawing them all day.
+        Ektar loves that orange sand almost as much as I do.
+        <svg class="arrow" viewBox="0 0 54 24"><path d="M2 12 H46 M38 5 L48 12 L38 19"/></svg>
+        Climbed one at 5am to get the shadow line. Got sand in the Hasselblad. Worth it.
+      </p>
+      <div class="photos">
+        <figure class="photo wide">
+          <span class="tape tl"></span><span class="tape tr blue"></span>
+          <img src="../../assets/img/desert-dunes.jpg" alt="Sculpted orange sand dunes in the Namib Desert with a sharp diagonal shadow line dividing sunlit and shaded sand, rippled wind patterns across the surface">
+          <figcaption>
+            <span class="ttitle">Wind Lines</span>
+            <span class="meta film">Kodak Ektar 100 &middot; Hasselblad 503CW</span>
+            <span class="meta">Namibia &middot; 2008</span>
+          </figcaption>
+          <p class="handnote">the wind redraws them every single day</p>
+        </figure>
+      </div>
+    </div>
+
+    <div class="entry">
+      <p class="entry-date">&rsquo;10 — Lake District</p>
+      <p class="entry-place">Lake District, England</p>
+      <p class="entry-text">
+        A foggy dock at the edge of a still lake. Cinestill 50D, slow and patient.
+        Some mornings the whole world is just a pier and the white nothing past it.
+      </p>
+      <div class="photos">
+        <figure class="photo">
+          <span class="corner bl"></span><span class="corner br"></span>
+          <span class="tape tr"></span>
+          <img src="../../assets/img/foggy-pier-lake.jpg" alt="A wooden pier extending into a calm lake swallowed by thick fog in the Lake District, muted grey-green tones and total stillness">
+          <figcaption>
+            <span class="ttitle">The Quiet Dock</span>
+            <span class="meta film">Cinestill 50D &middot; Contax T2</span>
+            <span class="meta">Lake District, UK &middot; 2010</span>
+          </figcaption>
+          <p class="handnote">a pier, and the white nothing past it</p>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2012-2020 people -->
+  <div class="yeartab reveal"><span>2012 &mdash; 2020 &middot; PEOPLE I MET ALONG THE WAY</span></div>
+
+  <section class="page reveal">
+    <span class="margin-mark" style="top:120px;">&#8594;</span>
+    <div class="stain" style="width:130px;height:130px;top:70px;right:60px;"></div>
+
+    <div class="entry">
+      <p class="entry-date">Winter &rsquo;12 — Havana</p>
+      <p class="entry-place">Havana, Cuba</p>
+      <p class="entry-text">
+        Number fourteen in a little series &mdash; strangers who said yes. He was leaning in a
+        doorway off the Malecón, cigar gone cold, and he held the look for exactly one frame.
+        Tri-X, available light, no second chance. <span class="doodle">*the best ones never need a second.</span>
+      </p>
+      <div class="typed">
+        SERIES // &ldquo;Strangers&rdquo; &mdash; one roll of Tri-X, one frame each, ask first, no setups.
+        No. 14: Havana. Leica M4, 35mm, f/2, 1/125. Thanked him in bad Spanish.
+      </div>
+      <div class="photos">
+        <figure class="photo bw">
+          <span class="tape tl"></span><span class="tape tr blue"></span>
+          <img src="../../assets/img/man-portrait-street.jpg" alt="A black and white portrait of an older man with a weathered, expressive face looking directly at the camera on a Havana street, strong natural light and deep shadows">
+          <figcaption>
+            <span class="ttitle">Stranger, No. 14</span>
+            <span class="meta film">Kodak Tri-X 400 &middot; Leica M4</span>
+            <span class="meta">Havana, Cuba &middot; 2012</span>
+          </figcaption>
+          <p class="handnote">held the look for exactly one frame</p>
+        </figure>
+      </div>
+    </div>
+
+    <div class="entry">
+      <p class="entry-date">Spring &rsquo;20 — Paris</p>
+      <p class="entry-place">Café de Flore, Paris, France</p>
+      <p class="entry-text">
+        Last entry, last roll before everything went quiet that year. A coffee at the Flore,
+        Gold 200 in the little Olympus, the whole café going about its small warm business.
+        A good place to leave the journal for now.
+      </p>
+      <div class="photos">
+        <figure class="photo wide">
+          <span class="tape tl"></span><span class="tape tr"></span>
+          <img src="../../assets/img/street-cafe-paris.jpg" alt="A classic Parisian café scene at Café de Flore with bistro tables and warm window light, people seated under the awning in soft golden tones">
+          <figcaption>
+            <span class="ttitle">Café de Flore</span>
+            <span class="meta film">Kodak Gold 200 &middot; Olympus OM-1</span>
+            <span class="meta">Paris, France &middot; 2020</span>
+          </figcaption>
+          <p class="handnote">a good place to leave the journal &mdash; for now.</p>
+        </figure>
+      </div>
+    </div>
+
+    <p class="entry-text" style="text-align:center;color:var(--margin-red);font-family:'Caveat',cursive;font-size:30px;margin-top:30px;">
+      &mdash; to be continued, somewhere down the road &mdash;
+    </p>
+  </section>
+
+  <div class="colophon reveal">
+    <span class="big">Field Notes</span>
+    Kept &amp; photographed by Tom Milton &middot; 1995&ndash;2020<br>
+    All frames shot on film. Coffee stains genuine. &copy; Tom Milton.
+  </div>
+
+</div>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){
+      els.forEach(function(e){e.classList.add('in');});
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          en.target.classList.add('in');
+          io.unobserve(en.target);
+        }
+      });
+    },{threshold:0.08, rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(e){io.observe(e);});
+  })();
+</script>
+
+</body>
+</html>

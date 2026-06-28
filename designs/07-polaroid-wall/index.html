@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tom Milton — The Wall</title>
+<meta name="description" content="A memory wall of film photographs by Tom Milton — polaroids, tape and handwritten notes." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     "The Wall" — Tom Milton scrapbook portfolio
+     ============================================================ */
+
+  :root {
+    --cork-1: #cda56b;
+    --cork-2: #b98a4e;
+    --cork-3: #a9783f;
+    --paper: #fbf7ee;
+    --paper-edge: #efe7d3;
+    --ink: #3a2f25;
+    --ink-soft: #6a5a48;
+    --pin-red: #c0392b;
+    --tape-cream: rgba(247, 240, 220, 0.62);
+    --tape-blue: rgba(186, 209, 222, 0.55);
+    --tape-kraft: rgba(206, 169, 117, 0.5);
+    --shadow-1: 0 1px 2px rgba(40, 28, 14, 0.28);
+    --shadow-2: 0 14px 26px -8px rgba(40, 25, 10, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--ink);
+    font-family: "Caveat", "Segoe Print", cursive;
+    /* ---- Cork-board / aged-paper texture, pure CSS ---- */
+    background-color: var(--cork-2);
+    background-image:
+      /* warm vignette */
+      radial-gradient(120% 80% at 50% 0%, rgba(255, 240, 210, 0.35), transparent 55%),
+      radial-gradient(140% 120% at 50% 120%, rgba(60, 35, 12, 0.45), transparent 60%),
+      /* cork speckle clusters */
+      radial-gradient(circle at 15% 22%, rgba(120, 80, 40, 0.35) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 42% 12%, rgba(150, 105, 55, 0.4) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 68% 30%, rgba(110, 72, 36, 0.35) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 85% 18%, rgba(150, 105, 55, 0.4) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 25% 55%, rgba(110, 72, 36, 0.3) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 55% 68%, rgba(150, 105, 55, 0.35) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 78% 60%, rgba(110, 72, 36, 0.3) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 35% 88%, rgba(150, 105, 55, 0.35) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 90% 82%, rgba(110, 72, 36, 0.3) 0 1.5px, transparent 2px),
+      /* base warm cork gradient */
+      linear-gradient(135deg, var(--cork-1), var(--cork-3));
+    background-size:
+      100% 100%, 100% 100%,
+      170px 170px, 190px 190px, 150px 150px, 210px 210px,
+      160px 160px, 180px 180px, 200px 200px, 170px 170px, 190px 190px,
+      100% 100%;
+    background-attachment: fixed;
+  }
+
+  /* SVG noise grain overlaid on the whole board */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Back link: little paper tape tab ---- */
+  .back-tab {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    z-index: 50;
+    display: inline-block;
+    padding: 7px 16px 9px;
+    font-size: 1.25rem;
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--tape-cream);
+    background-blend-mode: multiply;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 3px 7px rgba(40, 25, 10, 0.3);
+    transform: rotate(-3deg);
+    backdrop-filter: blur(0.5px);
+    transition: transform 0.25s ease, background 0.25s ease;
+  }
+  .back-tab::after {
+    /* torn-tape soft edges */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0.25), transparent 12%, transparent 88%, rgba(255,255,255,0.25));
+    pointer-events: none;
+  }
+  .back-tab:hover { transform: rotate(-1deg) scale(1.04); }
+
+  /* ============================================================
+     HEADER — title card pinned to the board
+     ============================================================ */
+  header {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(70px, 12vw, 110px) 20px 10px;
+    text-align: center;
+  }
+
+  .title {
+    font-family: "Permanent Marker", "Caveat", cursive;
+    font-weight: 400;
+    font-size: clamp(2.6rem, 9vw, 4.6rem);
+    line-height: 0.95;
+    margin: 0;
+    color: #2c2017;
+    text-shadow: 0 1px 0 rgba(255, 250, 240, 0.4);
+    transform: rotate(-1.5deg);
+  }
+  .title .amp { color: var(--pin-red); }
+
+  .subtitle {
+    font-size: clamp(1.3rem, 3.5vw, 1.7rem);
+    color: #4a3b2c;
+    margin: 6px 0 0;
+    transform: rotate(0.5deg);
+  }
+
+  /* The pinned intro note */
+  .intro-note {
+    position: relative;
+    max-width: 430px;
+    margin: 34px auto 8px;
+    padding: 26px 28px 30px;
+    background: linear-gradient(180deg, #fffdf6, #f6efdc);
+    color: #2f261c;
+    font-size: clamp(1.25rem, 3.5vw, 1.5rem);
+    line-height: 1.32;
+    text-align: left;
+    box-shadow: var(--shadow-1), 6px 10px 22px -6px rgba(40, 25, 10, 0.4);
+    transform: rotate(-1.2deg);
+    border: 1px solid #ece2c8;
+  }
+  /* faint ruled lines on the note */
+  .intro-note::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(180deg, transparent 0 33px, rgba(120, 150, 170, 0.18) 33px 34px);
+    pointer-events: none;
+  }
+  .intro-note .sig {
+    display: block;
+    margin-top: 12px;
+    text-align: right;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--pin-red);
+    transform: rotate(-2deg);
+  }
+  /* push-pin on the note */
+  .intro-note .pin {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    width: 22px;
+    height: 22px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff8a7a, var(--pin-red) 60%, #7d211a);
+    box-shadow: 0 4px 6px rgba(40, 25, 10, 0.45), inset 0 -2px 3px rgba(0,0,0,0.3);
+    z-index: 3;
+  }
+  .intro-note .pin::after {
+    content: "";
+    position: absolute;
+    top: 7px; left: 7px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  /* ============================================================
+     THE WALL — masonry via CSS columns
+     ============================================================ */
+  .wall {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 30px clamp(16px, 5vw, 60px) 90px;
+    column-count: 3;
+    column-gap: clamp(18px, 3vw, 42px);
+  }
+
+  /* ---- Polaroid ---- */
+  .polaroid {
+    --rot: 0deg;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin: 0 0 clamp(28px, 4vw, 52px);
+    padding: 14px 14px 0;
+    background:
+      linear-gradient(160deg, #ffffff 0%, #fbf6ec 55%, #f3ebd9 100%);
+    box-shadow:
+      0 1px 1px rgba(40, 28, 14, 0.25),       /* contact */
+      0 10px 22px -8px rgba(40, 25, 10, 0.42); /* soft cast */
+    transform: rotate(var(--rot));
+    transition:
+      transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.4s ease;
+    break-inside: avoid;
+    cursor: pointer;
+    border: 1px solid rgba(180, 165, 135, 0.35);
+  }
+
+  /* the image well */
+  .frame {
+    position: relative;
+    overflow: hidden;
+    background: #2a241d;
+    /* inner soft edge / vignette inside the print */
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+                inset 0 0 22px rgba(20, 12, 4, 0.22);
+    aspect-ratio: 1 / 1;
+  }
+  .frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* WARM KODAK PORTRA grade */
+    filter: saturate(1.05) contrast(0.96) brightness(1.02) sepia(0.08);
+  }
+  /* warm overlay + grain on every print */
+  .frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(255, 224, 178, 0.14), rgba(255, 180, 120, 0.05) 40%, rgba(60, 35, 15, 0.16)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.4'/%3E%3C/svg%3E");
+    background-blend-mode: soft-light, overlay;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+  }
+  /* B&W print — neutral, no sepia */
+  .polaroid.bw .frame img {
+    filter: grayscale(1) contrast(1.04) brightness(1.0);
+  }
+  .polaroid.bw .frame::after {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.06), rgba(20,20,20,0.18)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g2)' opacity='0.45'/%3E%3C/svg%3E");
+    background-blend-mode: overlay, overlay;
+  }
+
+  /* handwritten caption on bottom border (extra-thick) */
+  .caption {
+    padding: 13px 10px 20px;
+    text-align: center;
+    line-height: 1.05;
+  }
+  .caption .ttl {
+    display: block;
+    font-size: clamp(1.45rem, 2.4vw, 1.85rem);
+    font-weight: 600;
+    color: #28201a;
+    transform: rotate(-1deg);
+  }
+  .caption .meta {
+    display: block;
+    margin-top: 2px;
+    font-size: 1.05rem;
+    color: #7a6a55;
+    transform: rotate(0.6deg);
+  }
+  .caption .film {
+    display: block;
+    margin-top: 1px;
+    font-size: 0.92rem;
+    color: #9a8a72;
+    letter-spacing: 0.3px;
+  }
+
+  /* ---- Tape strips ---- */
+  .tape {
+    position: absolute;
+    width: 92px;
+    height: 30px;
+    z-index: 4;
+    box-shadow: 0 2px 5px rgba(40, 25, 10, 0.18);
+    /* subtle lengthwise texture + irregular feel */
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.16) 0 6px, rgba(255,255,255,0) 6px 12px);
+    /* torn-ish edges */
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6px, #000 calc(100% - 6px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 6px, #000 calc(100% - 6px), transparent 100%);
+    pointer-events: none;
+  }
+  .tape.cream { background-color: var(--tape-cream); }
+  .tape.blue  { background-color: var(--tape-blue); }
+  .tape.kraft { background-color: var(--tape-kraft); }
+
+  .tape.top {
+    top: -14px; left: 50%;
+    transform: translateX(-50%) rotate(-2.5deg);
+  }
+  .tape.tl {
+    top: -16px; left: -22px;
+    transform: rotate(-44deg);
+  }
+  .tape.tr {
+    top: -16px; right: -22px;
+    transform: rotate(44deg);
+  }
+
+  /* ---- Hover: straighten + lift ---- */
+  .polaroid:hover,
+  .polaroid:focus-visible {
+    transform: rotate(0deg) scale(1.045);
+    z-index: 30;
+    box-shadow:
+      0 2px 3px rgba(40, 28, 14, 0.3),
+      0 30px 44px -10px rgba(40, 22, 6, 0.55);
+    outline: none;
+  }
+
+  /* slight cluster overlap pulling adjacent prints together */
+  .polaroid.nudge-l { margin-left: -10px; }
+  .polaroid.nudge-r { margin-right: -10px; }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  footer {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 10px 20px 70px;
+    color: #4a3b2c;
+    font-size: 1.35rem;
+  }
+  footer .heart { color: var(--pin-red); }
+  footer a { color: #3a2c1d; text-decoration: underline wavy rgba(192,57,43,0.5); }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 900px) {
+    .wall { column-count: 2; }
+  }
+  @media (max-width: 560px) {
+    .wall {
+      column-count: 1;
+      max-width: 420px;
+      padding-bottom: 60px;
+    }
+    /* flatten rotations so nothing clips off-screen */
+    .polaroid { --rot: 0deg !important; transform: none; }
+    .polaroid.nudge-l, .polaroid.nudge-r { margin-left: 0; margin-right: 0; }
+    .title { transform: rotate(-1deg); }
+    .tape.tl { left: -10px; }
+    .tape.tr { right: -10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .polaroid, .back-tab { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+  <a class="back-tab" href="../../index.html">&larr; All designs</a>
+
+  <header>
+    <h1 class="title">The&nbsp;Wall</h1>
+    <p class="subtitle">a memory board kept by Tom Milton</p>
+
+    <div class="intro-note">
+      <span class="pin" aria-hidden="true"></span>
+      Thirty years of chasing light on film. These are the frames I keep
+      coming back to — pinned up where I can see them every morning. Pull up
+      a chair, have a wander.
+      <span class="sig">— Tom</span>
+    </div>
+  </header>
+
+  <main class="wall" aria-label="Wall of film photographs">
+
+    <!-- 1 -->
+    <figure class="polaroid nudge-r" style="--rot:-3deg" tabindex="0">
+      <span class="tape cream top" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/friends-golden-hour.jpg" alt="Friends gathered together in warm golden hour light, California" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">Golden Hour, Together</span>
+        <span class="meta">California &middot; 2016</span>
+        <span class="film">Portra 400 / Nikon F100</span>
+      </figcaption>
+    </figure>
+
+    <!-- 2 -->
+    <figure class="polaroid" style="--rot:2.5deg" tabindex="0">
+      <span class="tape blue tl" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/woman-portrait-freckles.jpg" alt="Studio portrait of a woman with freckles lit by soft sunlight" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">Freckles &amp; Sun</span>
+        <span class="meta">Studio &middot; 2015</span>
+        <span class="film">Portra 160 / Mamiya 645</span>
+      </figcaption>
+    </figure>
+
+    <!-- 3 -->
+    <figure class="polaroid nudge-l" style="--rot:-1.5deg" tabindex="0">
+      <span class="tape kraft top" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/couple-silhouette-sunset.jpg" alt="Silhouette of a couple against a glowing sunset in Santorini" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">Goodnight</span>
+        <span class="meta">Santorini &middot; 2013</span>
+        <span class="film">Portra 800 / Canon EOS-1V</span>
+      </figcaption>
+    </figure>
+
+    <!-- 4 -->
+    <figure class="polaroid" style="--rot:3.5deg" tabindex="0">
+      <span class="tape cream tr" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/golden-field-sunburst.jpg" alt="Sun bursting over a golden wheat field in Tuscany at last light" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">Last Light, Wheat Country</span>
+        <span class="meta">Tuscany &middot; 1998</span>
+        <span class="film">Portra 400 / Leica M6</span>
+      </figcaption>
+    </figure>
+
+    <!-- 5 -->
+    <figure class="polaroid nudge-r" style="--rot:-2.5deg" tabindex="0">
+      <span class="tape blue top" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/woman-laughing-portrait.jpg" alt="Portrait of a woman laughing openly, Mexico City" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">That Laugh</span>
+        <span class="meta">Mexico City &middot; 2021</span>
+        <span class="film">Portra 800 / Contax G2</span>
+      </figcaption>
+    </figure>
+
+    <!-- 6 -->
+    <figure class="polaroid" style="--rot:1.5deg" tabindex="0">
+      <span class="tape kraft tl" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/lake-cabin-dawn.jpg" alt="A quiet lakeside cabin at dawn in Banff, mist on the water" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">The Cabin at Dawn</span>
+        <span class="meta">Banff &middot; 2003</span>
+        <span class="film">Ektar 100 / Mamiya 7 II</span>
+      </figcaption>
+    </figure>
+
+    <!-- 7 -->
+    <figure class="polaroid nudge-l" style="--rot:-4deg" tabindex="0">
+      <span class="tape cream tr" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/woman-curly-portrait.jpg" alt="Portrait of a woman with curly hair under tungsten light, Brooklyn" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">Curls</span>
+        <span class="meta">Brooklyn &middot; 2017</span>
+        <span class="film">Cinestill 800T / Canon AE-1</span>
+      </figcaption>
+    </figure>
+
+    <!-- 8 -->
+    <figure class="polaroid" style="--rot:2deg" tabindex="0">
+      <span class="tape blue top" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/autumn-forest-road.jpg" alt="An empty road winding through autumn forest in Vermont" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">October Road</span>
+        <span class="meta">Vermont &middot; 2007</span>
+        <span class="film">Portra 400 / Leica M7</span>
+      </figcaption>
+    </figure>
+
+    <!-- 9 -->
+    <figure class="polaroid nudge-r" style="--rot:-1.5deg" tabindex="0">
+      <span class="tape kraft tl" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/street-cafe-paris.jpg" alt="A Parisian street cafe, Cafe de Flore, in soft morning light" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">Caf&eacute; de Flore</span>
+        <span class="meta">Paris &middot; 2020</span>
+        <span class="film">Gold 200 / Olympus OM-1</span>
+      </figcaption>
+    </figure>
+
+    <!-- 10 -->
+    <figure class="polaroid" style="--rot:3deg" tabindex="0">
+      <span class="tape cream top" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/cozy-interior-window.jpg" alt="A cozy interior with warm light falling through a window, Copenhagen" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">Home Light</span>
+        <span class="meta">Copenhagen &middot; 2023</span>
+        <span class="film">Portra 400 / Leica M6</span>
+      </figcaption>
+    </figure>
+
+    <!-- 11 -->
+    <figure class="polaroid nudge-l" style="--rot:-2.5deg" tabindex="0">
+      <span class="tape blue tr" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/sun-through-leaves.jpg" alt="Sunlight backlighting green leaves in Kyoto" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">Backlit</span>
+        <span class="meta">Kyoto &middot; 2004</span>
+        <span class="film">Portra 800 / Leica M6</span>
+      </figcaption>
+    </figure>
+
+    <!-- 12 — B&W -->
+    <figure class="polaroid bw" style="--rot:1.5deg" tabindex="0">
+      <span class="tape kraft top" aria-hidden="true"></span>
+      <div class="frame">
+        <img src="../../assets/img/misty-pine-forest.jpg" alt="Black and white misty pine forest, deep silence, Norway" loading="lazy" />
+      </div>
+      <figcaption class="caption">
+        <span class="ttl">Silence</span>
+        <span class="meta">Norway &middot; 2003</span>
+        <span class="film">Ilford HP5 Plus / Leica M6</span>
+      </figcaption>
+    </figure>
+
+  </main>
+
+  <footer>
+    Made on real film, with real patience, by Tom&nbsp;Milton.
+    <span class="heart">&hearts;</span><br />
+    <a href="../../index.html">&larr; back to all designs</a>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATELIER &middot; Tom Milton &middot; Photographic Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Poiret+One&family=Cormorant:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a1417;          /* deep teal-black */
+    --bg2:#0e1c20;
+    --panel:#0c181c;
+    --gold:#c8a951;
+    --gold-bright:#e7cd84;
+    --gold-dim:#8c7536;
+    --ink:#e8e1cf;
+    --ink-soft:#bcae8e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Cormorant',Georgia,serif;
+    font-size:18px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* subtle grain */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--gold);color:#0a1417}
+
+  .back{
+    position:fixed;top:18px;left:20px;z-index:50;
+    font-family:'Poiret One',sans-serif;font-size:13px;letter-spacing:.18em;
+    color:var(--gold);border:1px solid var(--gold-dim);
+    padding:6px 14px;background:rgba(10,20,23,.7);backdrop-filter:blur(4px);
+    transition:.25s;text-transform:uppercase;
+  }
+  .back:hover{background:var(--gold);color:#0a1417}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+
+  /* ===== HERO ===== */
+  header{
+    text-align:center;
+    padding:96px 20px 40px;
+    position:relative;
+  }
+  /* sunburst fan behind title */
+  .sunburst{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:min(680px,92vw);height:340px;
+    pointer-events:none;opacity:.55;
+    -webkit-mask-image:linear-gradient(to bottom,#000 30%,transparent 95%);
+            mask-image:linear-gradient(to bottom,#000 30%,transparent 95%);
+  }
+  .eyebrow{
+    font-family:'Poiret One',sans-serif;
+    letter-spacing:.5em;font-size:13px;
+    color:var(--gold);text-transform:uppercase;
+    margin-bottom:18px;padding-left:.5em;
+  }
+  h1.title{
+    font-family:'Marcellus',serif;
+    font-weight:400;
+    font-size:clamp(46px,11vw,118px);
+    letter-spacing:.16em;
+    line-height:.95;
+    color:var(--gold-bright);
+    text-transform:uppercase;
+    text-shadow:0 2px 30px rgba(200,169,81,.18);
+    padding-left:.16em;
+  }
+  .subname{
+    font-family:'Cormorant',serif;font-style:italic;
+    font-size:clamp(18px,3vw,26px);
+    color:var(--ink-soft);margin-top:14px;letter-spacing:.06em;
+  }
+  /* double rule deco divider */
+  .divider{
+    display:flex;align-items:center;justify-content:center;gap:16px;
+    margin:34px auto 0;max-width:520px;color:var(--gold);
+  }
+  .divider .ln{flex:1;height:0;border-top:1px solid var(--gold-dim);position:relative}
+  .divider .ln::after{content:"";position:absolute;left:0;right:0;top:3px;border-top:1px solid var(--gold-dim)}
+  .divider .dia{
+    width:11px;height:11px;background:var(--gold);transform:rotate(45deg);
+    box-shadow:0 0 0 4px var(--bg),0 0 0 5px var(--gold-dim);
+  }
+  .intro{
+    max-width:620px;margin:34px auto 0;text-align:center;
+    font-size:21px;color:var(--ink-soft);font-style:italic;line-height:1.7;
+  }
+
+  /* ===== SECTION TITLES ===== */
+  .section-head{
+    text-align:center;margin:84px 0 46px;
+  }
+  .section-head .num{
+    font-family:'Poiret One',sans-serif;font-size:12px;letter-spacing:.4em;
+    color:var(--gold-dim);text-transform:uppercase;display:block;margin-bottom:10px;
+  }
+  .section-head h2{
+    font-family:'Marcellus',serif;font-weight:400;
+    font-size:clamp(28px,5vw,46px);letter-spacing:.2em;
+    color:var(--gold-bright);text-transform:uppercase;
+  }
+  .section-head .stepframe{
+    display:inline-block;margin-top:14px;width:120px;height:14px;position:relative;
+  }
+  .section-head .stepframe::before,.section-head .stepframe::after{
+    content:"";position:absolute;top:50%;width:46px;border-top:1px solid var(--gold-dim);
+  }
+  .section-head .stepframe::before{left:0}
+  .section-head .stepframe::after{right:0}
+  .fanmark{display:block;width:30px;height:14px;margin:0 auto}
+
+  /* ===== GALLERY GRID ===== */
+  .gallery{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:56px 48px;
+  }
+  .gallery.three{grid-template-columns:repeat(3,1fr);gap:44px 38px}
+
+  figure.plate{
+    margin:0;text-align:center;
+  }
+  /* ornate gold geometric frame */
+  .framewrap{
+    position:relative;padding:14px;
+    background:
+      linear-gradient(var(--panel),var(--panel)) padding-box,
+      linear-gradient(160deg,var(--gold-bright),var(--gold-dim) 45%,var(--gold) 70%,var(--gold-dim)) border-box;
+    border:2px solid transparent;
+  }
+  /* inner stepped border */
+  .framewrap::before{
+    content:"";position:absolute;inset:6px;border:1px solid var(--gold-dim);pointer-events:none;
+  }
+  /* corner ornaments */
+  .framewrap .corner{
+    position:absolute;width:18px;height:18px;border:1.5px solid var(--gold);
+  }
+  .framewrap .c1{top:2px;left:2px;border-right:none;border-bottom:none}
+  .framewrap .c2{top:2px;right:2px;border-left:none;border-bottom:none}
+  .framewrap .c3{bottom:2px;left:2px;border-right:none;border-top:none}
+  .framewrap .c4{bottom:2px;right:2px;border-left:none;border-top:none}
+  /* top center fan ornament */
+  .framewrap .topfan{
+    position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+    width:54px;height:20px;background:var(--bg);padding:0 6px;
+  }
+  .imgholder{overflow:hidden;position:relative;background:#000;border:1px solid var(--gold-dim)}
+  .imgholder img{
+    width:100%;display:block;
+    filter:saturate(1.05) contrast(1.04) brightness(1.02) sepia(.16) hue-rotate(-8deg);
+    transition:transform 1.2s cubic-bezier(.2,.8,.2,1),filter .6s;
+  }
+  .imgholder.bw img{filter:grayscale(1) contrast(1.08) sepia(.05)}
+  figure.plate:hover .imgholder img{transform:scale(1.04)}
+  /* warm wash overlay */
+  .imgholder::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(40,20,5,.22) 100%);
+    mix-blend-mode:multiply;
+  }
+
+  figcaption{margin-top:20px}
+  .plate .ptitle{
+    font-family:'Marcellus',serif;font-size:23px;letter-spacing:.07em;
+    color:var(--gold-bright);text-transform:uppercase;line-height:1.2;
+  }
+  .plate .place{
+    font-style:italic;font-size:18px;color:var(--ink-soft);margin-top:3px;
+  }
+  .capdiv{
+    width:40px;height:0;border-top:1px solid var(--gold-dim);margin:11px auto;position:relative;
+  }
+  .capdiv::after{content:"";position:absolute;left:50%;top:-3px;transform:translateX(-50%) rotate(45deg);width:5px;height:5px;background:var(--gold)}
+  .plate .specs{
+    font-family:'Poiret One',sans-serif;font-size:12px;letter-spacing:.16em;
+    color:var(--gold);text-transform:uppercase;
+  }
+  .plate .specs .dot{color:var(--gold-dim);margin:0 7px}
+  .plate .year{
+    font-family:'Poiret One',sans-serif;color:var(--ink-soft);
+    font-size:12px;letter-spacing:.2em;margin-top:6px;
+  }
+
+  /* ===== FOOTER ===== */
+  footer{
+    text-align:center;margin-top:120px;padding:60px 20px 70px;
+    border-top:1px solid var(--gold-dim);position:relative;
+  }
+  footer .monogram{
+    font-family:'Marcellus',serif;font-size:40px;letter-spacing:.18em;
+    color:var(--gold-bright);
+  }
+  footer .ft-sub{
+    font-family:'Poiret One',sans-serif;letter-spacing:.36em;font-size:12px;
+    text-transform:uppercase;color:var(--ink-soft);margin-top:12px;
+  }
+  footer .est{font-style:italic;color:var(--gold-dim);margin-top:18px;font-size:16px}
+
+  @media(max-width:820px){
+    .gallery,.gallery.three{grid-template-columns:1fr;gap:46px}
+    header{padding-top:80px}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">&larr; All Designs</a>
+
+<header>
+  <!-- sunburst fan -->
+  <svg class="sunburst" viewBox="0 0 680 340" aria-hidden="true">
+    <g stroke="#c8a951" stroke-width="1.1" fill="none">
+      <g id="rays"></g>
+    </g>
+  </svg>
+
+  <div class="eyebrow">Photographic Works &middot; Established MCMXCV</div>
+  <h1 class="title">Atelier</h1>
+  <div class="subname">a film gallery by Tom Milton</div>
+
+  <div class="divider"><span class="ln"></span><span class="dia"></span><span class="ln"></span></div>
+
+  <p class="intro">Three decades of light gathered on silver and dye &mdash; landscapes, portraits, and quiet rooms, each made on film and printed by hand.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- LANDSCAPES -->
+  <div class="section-head">
+    <span class="num">No. I &middot; The Wide World</span>
+    <h2>Landscapes</h2>
+    <svg class="fanmark" viewBox="0 0 30 14" aria-hidden="true"><g stroke="#c8a951" fill="none" stroke-width="1"><path d="M15 13 L4 3"/><path d="M15 13 L10 2"/><path d="M15 13 L15 1"/><path d="M15 13 L20 2"/><path d="M15 13 L26 3"/></g></svg>
+  </div>
+  <div class="gallery" id="g-landscape"></div>
+
+  <!-- PORTRAITS -->
+  <div class="section-head">
+    <span class="num">No. II &middot; The Human Hour</span>
+    <h2>Portraits</h2>
+    <svg class="fanmark" viewBox="0 0 30 14" aria-hidden="true"><g stroke="#c8a951" fill="none" stroke-width="1"><path d="M15 13 L4 3"/><path d="M15 13 L10 2"/><path d="M15 13 L15 1"/><path d="M15 13 L20 2"/><path d="M15 13 L26 3"/></g></svg>
+  </div>
+  <div class="gallery three" id="g-portrait"></div>
+
+  <!-- NATURE & STILL -->
+  <div class="section-head">
+    <span class="num">No. III &middot; Closer Still</span>
+    <h2>Nature &amp; Quiet</h2>
+    <svg class="fanmark" viewBox="0 0 30 14" aria-hidden="true"><g stroke="#c8a951" fill="none" stroke-width="1"><path d="M15 13 L4 3"/><path d="M15 13 L10 2"/><path d="M15 13 L15 1"/><path d="M15 13 L20 2"/><path d="M15 13 L26 3"/></g></svg>
+  </div>
+  <div class="gallery" id="g-nature"></div>
+
+</div>
+
+<footer>
+  <div class="monogram">T &middot; M</div>
+  <div class="ft-sub">Tom Milton &middot; Photographic Atelier</div>
+  <div class="est">Made on film. Printed by hand. &mdash; MCMXCV &ndash; MMXXVI</div>
+</footer>
+
+<script>
+const PHOTOS=[
+  {f:"golden-field-sunburst.jpg",t:"Last Light, Wheat Country",loc:"Tuscany, Italy",film:"Kodak Portra 400",cam:"Leica M6",y:1998,k:"landscape"},
+  {f:"lake-mountain-house.jpg",t:"Reflections, Still Morning",loc:"Hallstatt, Austria",film:"Kodak Ektar 100",cam:"Mamiya RZ67",y:2000,k:"landscape"},
+  {f:"cliff-coast-ocean.jpg",t:"Edge of the World",loc:"Big Sur, USA",film:"Kodak Portra 400",cam:"Contax G2",y:2002,k:"landscape"},
+  {f:"desert-dunes.jpg",t:"Wind Lines",loc:"Namibia",film:"Kodak Ektar 100",cam:"Hasselblad 503CW",y:2008,k:"landscape"},
+  {f:"mountain-road-fog.jpg",t:"The Long Way Home",loc:"Dolomites, Italy",film:"Cinestill 800T",cam:"Canon AE-1",y:2005,k:"landscape"},
+  {f:"autumn-forest-road.jpg",t:"October Road",loc:"Vermont, USA",film:"Kodak Portra 400",cam:"Leica M7",y:2007,k:"landscape"},
+
+  {f:"woman-portrait-window.jpg",t:"By the Window",loc:"Lisbon, Portugal",film:"Kodak Portra 400",cam:"Pentax 67",y:2011,k:"portrait"},
+  {f:"woman-fashion-portrait.jpg",t:"The Red Wall",loc:"Marrakesh, Morocco",film:"Kodak Portra 400",cam:"Pentax 67",y:2019,k:"portrait"},
+  {f:"man-bw-portrait.jpg",t:"Portrait in Shadow",loc:"Berlin, Germany",film:"Ilford Delta 3200",cam:"Leica M6",y:2018,k:"portrait",bw:true},
+  {f:"woman-portrait-freckles.jpg",t:"Freckles & Sun",loc:"Studio",film:"Kodak Portra 160",cam:"Mamiya 645",y:2015,k:"portrait"},
+  {f:"man-portrait-street.jpg",t:"Stranger, No. 14",loc:"Havana, Cuba",film:"Kodak Tri-X 400",cam:"Leica M4",y:2012,k:"portrait",bw:true},
+  {f:"woman-portrait-soft.jpg",t:"Soft Hour",loc:"Paris, France",film:"Fujifilm Pro 400H",cam:"Contax 645",y:2014,k:"portrait"},
+
+  {f:"forest-sunlight.jpg",t:"Cathedral of Pines",loc:"Olympic NP, USA",film:"Kodak Portra 160",cam:"Hasselblad 500CM",y:1996,k:"nature"},
+  {f:"sun-through-leaves.jpg",t:"Backlit",loc:"Kyoto, Japan",film:"Kodak Portra 800",cam:"Leica M6",y:2004,k:"nature"},
+  {f:"succulent-closeup.jpg",t:"Geometry of Growth",loc:"Studio",film:"Kodak Portra 160",cam:"Hasselblad 500CM",y:2009,k:"nature"},
+  {f:"waterfall-bridge.jpg",t:"Hidden Falls",loc:"Iceland",film:"Fujifilm Velvia 50",cam:"Nikon FM2",y:2006,k:"nature"},
+  {f:"cozy-interior-window.jpg",t:"Home Light",loc:"Copenhagen, Denmark",film:"Kodak Portra 400",cam:"Leica M6",y:2023,k:"nature"},
+  {f:"misty-pine-forest.jpg",t:"Silence",loc:"Norway",film:"Ilford HP5 Plus",cam:"Leica M6",y:2003,k:"nature",bw:true}
+];
+
+function plate(p){
+  return `<figure class="plate">
+    <div class="framewrap">
+      <span class="corner c1"></span><span class="corner c2"></span>
+      <span class="corner c3"></span><span class="corner c4"></span>
+      <span class="topfan">
+        <svg viewBox="0 0 54 20" width="54" height="20" aria-hidden="true"><g stroke="#c8a951" fill="none" stroke-width="1"><path d="M27 19 L8 5"/><path d="M27 19 L17 3"/><path d="M27 19 L27 1"/><path d="M27 19 L37 3"/><path d="M27 19 L46 5"/></g></svg>
+      </span>
+      <div class="imgholder${p.bw?' bw':''}">
+        <img src="../../assets/img/${p.f}" alt="${p.t} — ${p.loc}, ${p.film}" loading="lazy">
+      </div>
+    </div>
+    <figcaption>
+      <div class="ptitle">${p.t}</div>
+      <div class="place">${p.loc}</div>
+      <div class="capdiv"></div>
+      <div class="specs">${p.film}<span class="dot">&#9670;</span>${p.cam}</div>
+      <div class="year">${roman(p.y)}</div>
+    </figcaption>
+  </figure>`;
+}
+
+function roman(n){
+  const m=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+  let r='';for(const[v,s]of m){while(n>=v){r+=s;n-=v}}return r;
+}
+
+['landscape','portrait','nature'].forEach(k=>{
+  document.getElementById('g-'+k).innerHTML = PHOTOS.filter(p=>p.k===k).map(plate).join('');
+});
+
+// build sunburst rays
+(function(){
+  const rays=document.getElementById('rays');
+  if(!rays) return;
+  rays.innerHTML='';
+  const cx=340, cy=14, len=330;
+  for(let a=-82;a<=82;a+=5){
+    const rad=a*Math.PI/180;
+    const x2=cx+len*Math.sin(rad);
+    const y2=cy+len*Math.cos(rad);
+    rays.innerHTML+=`<line x1="${cx}" y1="${cy}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" opacity="${(0.25+0.6*(1-Math.abs(a)/82)).toFixed(2)}"/>`;
+  }
+})();
+</script>
+</body>
+</html>

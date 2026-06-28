@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>間 — Tom Milton</title>
+<meta name="description" content="間 / Ma — quiet film photography by Tom Milton. The space between." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Shippori+Mincho:wght@400;500;600&family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --paper:    #f7f5f0;   /* warm off-white */
+    --paper-2:  #f2efe8;   /* faint deeper paper */
+    --ink:      #1a1a1a;   /* near-black */
+    --ink-soft: #4a4744;   /* soft warm gray */
+    --gray:     #8c8780;   /* muted gray */
+    --gray-2:   #b8b3aa;   /* lighter gray, hairlines */
+    --clay:     #b0654a;   /* the single restrained warm tone */
+
+    --serif-latin: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
+    --serif-display: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+    --serif-jp: 'Shippori Mincho', 'Noto Serif JP', serif;
+
+    /* vertical rhythm — generous */
+    --space-section: clamp(11rem, 26vh, 22rem);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif-latin);
+    font-weight: 400;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* ---- the faint grain overlay (whisper quiet) ---- */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.035;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection { background: rgba(176, 101, 74, 0.18); }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- the quiet "all designs" link ---------- */
+  .back {
+    position: fixed;
+    top: clamp(1.4rem, 2.5vw, 2.4rem);
+    left: clamp(1.4rem, 2.5vw, 2.4rem);
+    z-index: 50;
+    font-family: var(--serif-latin);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gray);
+    transition: color 0.6s ease;
+  }
+  .back:hover { color: var(--ink); }
+
+  /* ---------- vertical masthead ---------- */
+  .masthead {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    position: relative;
+    padding: 6rem 0;
+  }
+
+  .masthead__center {
+    grid-column: 2;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(2rem, 6vw, 5rem);
+  }
+
+  /* the huge 間 */
+  .ma-glyph {
+    writing-mode: vertical-rl;
+    font-family: var(--serif-jp);
+    font-weight: 400;
+    font-size: clamp(7rem, 22vw, 17rem);
+    line-height: 0.9;
+    color: var(--ink);
+    letter-spacing: 0;
+    user-select: none;
+  }
+
+  /* the vertical title + name column */
+  .masthead__text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: clamp(1.6rem, 4vw, 3rem);
+    height: clamp(20rem, 50vh, 34rem);
+  }
+
+  .vtitle {
+    font-family: var(--serif-jp);
+    font-weight: 500;
+    font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+    letter-spacing: 0.5em;
+    color: var(--ink);
+  }
+
+  .vsub {
+    font-family: var(--serif-latin);
+    font-style: italic;
+    font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+    letter-spacing: 0.32em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+
+  .vname {
+    font-family: var(--serif-latin);
+    font-size: clamp(0.82rem, 1.2vw, 0.98rem);
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+
+  /* the single clay accent dot in the masthead */
+  .accent-dot {
+    align-self: center;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--clay);
+    margin-top: 0.5em;
+  }
+
+  /* scroll cue */
+  .scrollcue {
+    position: absolute;
+    bottom: clamp(2rem, 5vh, 4rem);
+    left: 50%;
+    transform: translateX(-50%);
+    writing-mode: vertical-rl;
+    font-family: var(--serif-latin);
+    font-size: 0.68rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gray-2);
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .scrollcue::after {
+    content: "";
+    width: 1px;
+    height: 3.2rem;
+    background: linear-gradient(to bottom, var(--gray-2), transparent);
+    animation: drift 3.4s ease-in-out infinite;
+  }
+  @keyframes drift {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.7); transform-origin: top; }
+    50%      { opacity: 1;   transform: scaleY(1);   transform-origin: top; }
+  }
+
+  /* ---------- intro statement ---------- */
+  .statement {
+    max-width: 34rem;
+    margin: var(--space-section) auto;
+    padding: 0 2rem;
+    text-align: center;
+  }
+  .statement p {
+    font-family: var(--serif-display);
+    font-weight: 300;
+    font-size: clamp(1.25rem, 2.4vw, 1.7rem);
+    line-height: 1.9;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .statement .ma-inline {
+    font-family: var(--serif-jp);
+    color: var(--clay);
+    font-style: normal;
+  }
+
+  /* ---------- a photo plate ---------- */
+  .plate {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: grid;
+    grid-template-columns: 1fr;
+    place-items: center;
+    padding: var(--space-section) clamp(1.5rem, 6vw, 6rem);
+    position: relative;
+  }
+
+  .plate__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1.6rem, 4vw, 3.4rem);
+  }
+
+  /* vertical section marker — kanji number + clay hairline */
+  .marker {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.4rem;
+    align-self: stretch;
+    padding-top: 0.5rem;
+  }
+  .marker__num {
+    font-family: var(--serif-jp);
+    font-size: 1.15rem;
+    color: var(--gray);
+    letter-spacing: 0.2em;
+  }
+  .marker__line {
+    flex: 1;
+    width: 1px;
+    background: var(--gray-2);
+    min-height: 4rem;
+  }
+  .marker__dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--clay);
+  }
+
+  figure {
+    margin: 0;
+    max-width: min(46vw, 480px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* photos are modest in size, restrained, with a hair of frame */
+  .frame {
+    position: relative;
+    overflow: hidden;
+    background: var(--paper-2);
+  }
+  .frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* warm Kodak Portra grade — whisper quiet */
+    filter: sepia(0.10) saturate(0.94) contrast(0.99) brightness(1.01);
+  }
+  .frame--bw img {
+    filter: grayscale(1) contrast(1.02) brightness(1.01);
+  }
+  /* faint warm wash to unify color frames */
+  .frame--color::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(176, 101, 74, 0.05);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  /* ---------- the tiny caption ---------- */
+  figcaption {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+  }
+  .cap__jp {
+    writing-mode: vertical-rl;
+    font-family: var(--serif-jp);
+    font-size: 0.78rem;
+    letter-spacing: 0.3em;
+    color: var(--clay);
+    line-height: 1;
+    height: 3.4rem;
+    align-self: flex-start;
+  }
+  .cap__body { flex: 1; }
+  .cap__title {
+    font-family: var(--serif-display);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1.18rem;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    margin: 0 0 0.55rem;
+  }
+  .cap__meta {
+    font-family: var(--serif-latin);
+    font-size: 0.66rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray);
+    line-height: 1.9;
+    margin: 0;
+  }
+  .cap__meta .sep {
+    color: var(--gray-2);
+    padding: 0 0.5em;
+  }
+  .cap__loc { color: var(--ink-soft); }
+
+  /* ---------- gentle entrance ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 1.8s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ---------- closing ---------- */
+  .colophon {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.4rem;
+    padding: var(--space-section) 2rem calc(var(--space-section) / 1.6);
+    text-align: center;
+  }
+  .colophon .ma-glyph {
+    font-size: clamp(4rem, 9vw, 7rem);
+    color: var(--ink);
+  }
+  .colophon__line {
+    width: 1px;
+    height: 5rem;
+    background: var(--gray-2);
+  }
+  .colophon__line .mid {
+    display: block;
+  }
+  .colophon p {
+    font-family: var(--serif-display);
+    font-weight: 300;
+    font-style: italic;
+    font-size: 1.2rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin: 0;
+    max-width: 26rem;
+  }
+  .colophon__name {
+    font-family: var(--serif-latin);
+    font-size: 0.74rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+  .colophon__name b { color: var(--clay); font-weight: 400; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 820px) {
+    :root { --space-section: clamp(6rem, 16vh, 10rem); }
+
+    .masthead { grid-template-columns: 1fr; padding: 5rem 1.5rem; }
+    .masthead__center { grid-column: 1; gap: clamp(1.2rem, 6vw, 2.4rem); }
+    .ma-glyph { font-size: clamp(6rem, 38vw, 12rem); }
+    .masthead__text { height: clamp(15rem, 42vh, 22rem); }
+
+    .plate { padding: var(--space-section) 1.4rem; }
+    .plate__inner { gap: 1.1rem; }
+    figure { max-width: min(82vw, 430px); }
+
+    .marker__line { min-height: 2.5rem; }
+
+    figcaption { gap: 0.8rem; }
+    .cap__jp { height: 2.8rem; font-size: 0.72rem; }
+  }
+
+  @media (max-width: 480px) {
+    .ma-glyph { font-size: clamp(5rem, 42vw, 9rem); }
+    .vtitle { letter-spacing: 0.35em; }
+    .statement p { font-size: 1.15rem; line-height: 1.8; }
+    .cap__title { font-size: 1.05rem; }
+    figure { max-width: 88vw; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .scrollcue::after { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <a class="back" href="../../index.html">&larr; All designs</a>
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="masthead">
+    <div class="masthead__center">
+      <div class="ma-glyph" aria-hidden="true">間</div>
+      <div class="masthead__text">
+        <div class="vtitle">間</div>
+        <div class="vsub">The Space Between</div>
+        <div class="accent-dot" aria-hidden="true"></div>
+        <div class="vname">Tom Milton &middot; 写真</div>
+      </div>
+    </div>
+    <div class="scrollcue" aria-hidden="true">Scroll</div>
+  </header>
+
+  <!-- ============ STATEMENT ============ -->
+  <section class="statement reveal">
+    <p>
+      <span class="ma-inline">間</span> — the interval. The pause held
+      between two notes, the emptiness that gives a room its shape.
+      Twelve quiet exposures, made on film, across thirty years of standing still.
+    </p>
+  </section>
+
+  <!-- ============ PLATES ============ -->
+
+  <!-- 一 — Backlit / Kyoto — Japanese-theme hero -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">一</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--color">
+          <img src="../../assets/img/sun-through-leaves.jpg"
+               alt="Sunlight filtering through translucent green maple leaves in a Kyoto garden, backlit and glowing." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">写真 一</div>
+          <div class="cap__body">
+            <p class="cap__title">Backlit</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Kyoto, Japan</span><span class="sep">/</span>2004<br />
+              Kodak Portra 800<span class="sep">&middot;</span>Leica M6
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 二 — Silence / Norway — b&w -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">二</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--bw">
+          <img src="../../assets/img/misty-pine-forest.jpg"
+               alt="Tall pine trees dissolving into thick fog, rendered in soft black and white, deep silence." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">静寂</div>
+          <div class="cap__body">
+            <p class="cap__title">Silence</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Norway</span><span class="sep">/</span>2003<br />
+              Ilford HP5 Plus<span class="sep">&middot;</span>Leica M6
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 三 — Morning Fog, Cascades -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">三</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--color">
+          <img src="../../assets/img/landscape-misty-mountains.jpg"
+               alt="Layered mountain ridges of the Cascades fading into pale morning fog." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">朝霧</div>
+          <div class="cap__body">
+            <p class="cap__title">Morning Fog, Cascades</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Washington, USA</span><span class="sep">/</span>2001<br />
+              Fujifilm Pro 400H<span class="sep">&middot;</span>Pentax 67
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 四 — The Quiet Dock -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">四</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--color">
+          <img src="../../assets/img/foggy-pier-lake.jpg"
+               alt="A wooden pier reaching into still water, vanishing into soft lake fog." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">桟橋</div>
+          <div class="cap__body">
+            <p class="cap__title">The Quiet Dock</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Lake District, UK</span><span class="sep">/</span>2010<br />
+              Cinestill 50D<span class="sep">&middot;</span>Contax T2
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 五 — Reflections, Still Morning -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">五</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--color">
+          <img src="../../assets/img/lake-mountain-house.jpg"
+               alt="A lakeside house mirrored perfectly in glassy still water beneath quiet mountains." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">静水</div>
+          <div class="cap__body">
+            <p class="cap__title">Reflections, Still Morning</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Hallstatt, Austria</span><span class="sep">/</span>2000<br />
+              Kodak Ektar 100<span class="sep">&middot;</span>Mamiya RZ67
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 六 — Into the Woods -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">六</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--color">
+          <img src="../../assets/img/forest-path-trees.jpg"
+               alt="A narrow path leading between tall trees into the depth of the Black Forest." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">森の道</div>
+          <div class="cap__body">
+            <p class="cap__title">Into the Woods</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Black Forest, Germany</span><span class="sep">/</span>1995<br />
+              Kodak Portra 160<span class="sep">&middot;</span>Rolleiflex 2.8F
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 七 — By the Window -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">七</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--color">
+          <img src="../../assets/img/woman-portrait-window.jpg"
+               alt="A woman seated by a window in soft daylight, turned quietly toward the glass." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">窓辺</div>
+          <div class="cap__body">
+            <p class="cap__title">By the Window</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Lisbon, Portugal</span><span class="sep">/</span>2011<br />
+              Kodak Portra 400<span class="sep">&middot;</span>Pentax 67
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 八 — Soft Hour -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">八</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--color">
+          <img src="../../assets/img/woman-portrait-soft.jpg"
+               alt="A softly lit portrait of a woman in gentle, diffuse evening light." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">夕暮</div>
+          <div class="cap__body">
+            <p class="cap__title">Soft Hour</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Paris, France</span><span class="sep">/</span>2014<br />
+              Fujifilm Pro 400H<span class="sep">&middot;</span>Contax 645
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 九 — Geometry of Growth -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">九</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--color">
+          <img src="../../assets/img/succulent-closeup.jpg"
+               alt="A close study of a succulent, its leaves spiralling in quiet geometric order." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">生長</div>
+          <div class="cap__body">
+            <p class="cap__title">Geometry of Growth</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Studio</span><span class="sep">/</span>2009<br />
+              Kodak Portra 160<span class="sep">&middot;</span>Hasselblad 500CM
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 十 — The Cabin at Dawn -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">十</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--color">
+          <img src="../../assets/img/lake-cabin-dawn.jpg"
+               alt="A small cabin beside a still lake at dawn, mountains soft in the early blue light." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">暁</div>
+          <div class="cap__body">
+            <p class="cap__title">The Cabin at Dawn</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Banff, Canada</span><span class="sep">/</span>2003<br />
+              Kodak Ektar 100<span class="sep">&middot;</span>Mamiya 7 II
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 十一 — Home Light -->
+  <section class="plate">
+    <div class="plate__inner reveal">
+      <div class="marker" aria-hidden="true">
+        <span class="marker__num">十一</span>
+        <span class="marker__line"></span>
+        <span class="marker__dot"></span>
+      </div>
+      <figure>
+        <div class="frame frame--color">
+          <img src="../../assets/img/cozy-interior-window.jpg"
+               alt="A warm domestic interior with soft light spilling through a window onto quiet furnishings." loading="lazy" />
+        </div>
+        <figcaption>
+          <div class="cap__jp">家の灯</div>
+          <div class="cap__body">
+            <p class="cap__title">Home Light</p>
+            <p class="cap__meta">
+              <span class="cap__loc">Copenhagen, Denmark</span><span class="sep">/</span>2023<br />
+              Kodak Portra 400<span class="sep">&middot;</span>Leica M6
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ COLOPHON ============ -->
+  <footer class="colophon reveal">
+    <div class="ma-glyph" aria-hidden="true">間</div>
+    <div class="colophon__line" aria-hidden="true"></div>
+    <p>Eleven photographs, and the quiet around them.</p>
+    <div class="colophon__name">Tom Milton &middot; <b>写真</b></div>
+  </footer>
+
+  <script>
+    // gentle, calm entrance — minimal IntersectionObserver
+    (function () {
+      var els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window) ||
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        els.forEach(function (el) { el.classList.add('is-in'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+      els.forEach(function (el) { io.observe(el); });
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Daily Exposure — Tom Milton, Proprietor &amp; Photographer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Pirata+One&family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,500;1,700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#1c1813;
+    --ink-soft:#36302a;
+    --paper:#efe7d4;
+    --paper-2:#e9dfc8;
+    --paper-edge:#ddd0b3;
+    --rule:#2a241d;
+    --hair:rgba(28,24,19,.55);
+    --accent:#5a2418;
+    --maxw:1200px;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    margin:0;
+    background:#cdbf9e;
+    color:var(--ink);
+    font-family:"PT Serif", Georgia, serif;
+    font-size:17px;
+    line-height:1.5;
+    font-feature-settings:"liga" 1,"dlig" 1,"onum" 1,"kern" 1;
+    text-rendering:optimizeLegibility;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Paper sheet ---------- */
+  .sheet{
+    position:relative;
+    max-width:var(--maxw);
+    margin:26px auto;
+    padding:34px 40px 64px;
+    background:
+      radial-gradient(120% 80% at 15% -5%, rgba(255,250,235,.55), transparent 55%),
+      radial-gradient(120% 90% at 90% 110%, rgba(120,95,55,.10), transparent 55%),
+      linear-gradient(180deg,var(--paper) 0%, var(--paper-2) 60%, var(--paper-edge) 100%);
+    box-shadow:0 1px 0 rgba(255,255,255,.4) inset,
+               0 0 0 1px rgba(60,45,25,.18),
+               0 26px 60px rgba(40,30,15,.45),
+               0 4px 14px rgba(40,30,15,.35);
+  }
+
+  /* faint paper texture + grain via layered overlays */
+  .sheet::before{
+    content:"";
+    position:absolute; inset:0; pointer-events:none; z-index:2; mix-blend-mode:multiply; opacity:.5;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/></svg>");
+    background-size:200px 200px;
+  }
+  .sheet::after{
+    content:"";
+    position:absolute; inset:0; pointer-events:none; z-index:2; opacity:.35; mix-blend-mode:multiply;
+    background:
+      repeating-linear-gradient(0deg, rgba(90,70,40,.05) 0 2px, transparent 2px 4px),
+      radial-gradient(80% 120% at 50% 50%, transparent 60%, rgba(70,55,30,.18) 100%);
+  }
+  .sheet > *{ position:relative; z-index:3; }
+
+  /* ---------- Back link ---------- */
+  .backlink{
+    position:absolute; top:10px; left:14px; z-index:6;
+    font-family:"PT Serif",serif; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--ink-soft); text-decoration:none;
+    border-bottom:1px solid var(--hair); padding-bottom:1px;
+    opacity:.8;
+  }
+  .backlink:hover{ opacity:1; color:var(--accent); }
+
+  /* ---------- Masthead ---------- */
+  .masthead{ text-align:center; padding-top:14px; }
+
+  .pre-mast{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    font-family:"Old Standard TT",serif; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--ink-soft);
+    border-bottom:1px solid var(--rule); padding-bottom:6px; margin-bottom:14px;
+  }
+  .pre-mast span{ flex:1; }
+  .pre-mast .mid{ text-align:center; font-style:italic; letter-spacing:.05em; text-transform:none; font-size:12px;}
+  .pre-mast .right{ text-align:right; }
+
+  .mast-title{
+    font-family:"UnifrakturMaguntia", serif;
+    font-weight:400;
+    font-size:clamp(48px, 11vw, 132px);
+    line-height:.92;
+    margin:6px 0 4px;
+    letter-spacing:.01em;
+    color:var(--ink);
+    text-shadow:0 1px 0 rgba(255,250,235,.4);
+  }
+
+  .mast-flank{
+    display:flex; align-items:center; justify-content:center; gap:18px;
+    font-family:"Pirata One", serif; font-size:clamp(14px,2vw,20px);
+    letter-spacing:.04em; color:var(--accent); margin:2px 0 10px;
+  }
+  .mast-flank .orn{ font-family:"PT Serif",serif; color:var(--ink); }
+
+  .dateline{
+    border-top:3px double var(--rule);
+    border-bottom:3px double var(--rule);
+    padding:7px 4px;
+    margin-top:6px;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 18px;
+    font-family:"Old Standard TT",serif;
+    font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);
+  }
+  .dateline b{ color:var(--ink); font-weight:700; }
+  .dateline .sc{ font-variant:small-caps; letter-spacing:.12em; }
+  .dateline .item{ white-space:nowrap; }
+  .dateline .star{ color:var(--accent); }
+
+  /* ---------- Headlines ---------- */
+  .kicker{
+    text-align:center;
+    font-family:"Old Standard TT",serif;
+    font-variant:small-caps; letter-spacing:.34em; text-transform:uppercase;
+    font-size:13px; color:var(--accent); margin:26px 0 4px;
+  }
+  .lead-head{
+    font-family:"Playfair Display",serif; font-weight:900;
+    text-align:center; line-height:1.02;
+    font-size:clamp(40px, 8.5vw, 96px);
+    margin:.1em auto .12em; max-width:14ch;
+    letter-spacing:-.01em;
+  }
+  .deck{
+    font-family:"Playfair Display",serif; font-style:italic; font-weight:500;
+    text-align:center; font-size:clamp(18px,2.6vw,26px); color:var(--ink-soft);
+    max-width:46ch; margin:0 auto 4px; line-height:1.32;
+  }
+  .byline{
+    text-align:center; font-family:"Old Standard TT",serif;
+    font-variant:small-caps; letter-spacing:.18em; font-size:13px;
+    color:var(--ink-soft); margin:10px 0 6px;
+  }
+  .byline b{ color:var(--ink); letter-spacing:.2em; }
+
+  .rule-thick{ border:0; border-top:3px solid var(--rule); margin:14px 0; }
+  .rule-thin{ border:0; border-top:1px solid var(--hair); margin:14px 0; }
+  .rule-double{ border:0; border-top:3px double var(--rule); margin:18px 0; }
+
+  /* ---------- Columns ---------- */
+  .columns{
+    column-count:4;
+    column-gap:30px;
+    column-rule:1px solid var(--hair);
+    text-align:justify;
+    hyphens:auto;
+    -webkit-hyphens:auto;
+    margin-top:8px;
+  }
+  .columns.cols-3{ column-count:3; }
+  .columns p{ margin:0 0 .55em; }
+  .columns p + p{ text-indent:1.3em; }
+
+  .col-head{
+    column-span:all;
+    font-family:"Playfair Display",serif; font-weight:800;
+    font-size:clamp(22px,3vw,30px); text-align:center;
+    margin:6px 0 2px; line-height:1.1;
+  }
+  .col-sub{
+    column-span:all; text-align:center; font-style:italic; color:var(--ink-soft);
+    font-family:"Playfair Display",serif; font-size:16px; margin:0 0 10px;
+  }
+
+  /* Drop cap */
+  .dropcap::first-letter{
+    font-family:"Playfair Display",serif; font-weight:900;
+    float:left; font-size:5.4em; line-height:.74; padding:.04em .08em 0 0;
+    margin:.02em .04em 0 0; color:var(--accent);
+  }
+  .dropcap::first-line{ font-variant:small-caps; letter-spacing:.04em; }
+
+  /* ---------- Figures (halftone photos) ---------- */
+  figure{ margin:6px 0 14px; break-inside:avoid; }
+  figure.span-all{ column-span:all; margin:18px 0; }
+
+  .photo{
+    position:relative; overflow:hidden;
+    border:1px solid var(--rule);
+    box-shadow:0 0 0 4px var(--paper), 0 0 0 5px rgba(40,30,15,.35);
+    background:#cabfa3;
+  }
+  .photo img{
+    display:block; width:100%; height:100%; object-fit:cover;
+    filter:sepia(.32) saturate(.78) contrast(1.06) brightness(1.02);
+    mix-blend-mode:multiply;
+  }
+  /* halftone dot overlay */
+  .photo::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background-image:radial-gradient(rgba(20,16,12,.9) 30%, transparent 33%);
+    background-size:4px 4px;
+    mix-blend-mode:soft-light; opacity:.30;
+  }
+  /* subtle ink fade vignette */
+  .photo::before{
+    content:""; position:absolute; inset:0; pointer-events:none; z-index:1;
+    background:radial-gradient(120% 120% at 50% 30%, transparent 62%, rgba(30,20,10,.22) 100%);
+    mix-blend-mode:multiply;
+  }
+  .photo.bw img{ filter:grayscale(1) contrast(1.12) brightness(1.02); }
+  .photo.tall{ aspect-ratio:3/4; }
+  .photo.wide{ aspect-ratio:16/9; }
+  .photo.box{ aspect-ratio:4/5; }
+  .photo.pano{ aspect-ratio:21/9; }
+
+  figcaption{
+    font-family:"PT Serif",serif; font-style:italic; font-size:13px;
+    line-height:1.4; color:var(--ink-soft);
+    margin-top:7px; padding-top:5px; border-top:1px solid var(--hair);
+    text-align:left;
+  }
+  figcaption b{ font-style:normal; font-variant:small-caps; letter-spacing:.06em; color:var(--ink); }
+  figcaption .credit{ display:block; margin-top:2px; font-size:12px; }
+
+  /* ---------- Ornamental divider ---------- */
+  .ornament{
+    column-span:all; text-align:center; color:var(--accent);
+    font-size:18px; letter-spacing:1em; margin:8px 0 6px;
+  }
+  .ornament::before, .ornament::after{
+    content:""; display:inline-block; width:90px; height:0;
+    border-top:1px solid var(--hair); vertical-align:middle; margin:0 14px;
+  }
+
+  /* ---------- Second section layout ---------- */
+  .spread{
+    display:grid;
+    grid-template-columns:1fr 300px;
+    gap:34px;
+    margin-top:10px;
+    align-items:start;
+  }
+
+  /* Sidebar / classifieds */
+  aside.rail{
+    border:1px solid var(--rule);
+    padding:0;
+    background:linear-gradient(180deg, rgba(255,250,235,.4), rgba(120,95,55,.06));
+  }
+  .rail-box{ padding:16px 18px; border-bottom:1px solid var(--hair); }
+  .rail-box:last-child{ border-bottom:0; }
+  .rail-title{
+    font-family:"Old Standard TT",serif; text-align:center;
+    font-variant:small-caps; letter-spacing:.22em; font-size:14px;
+    border-bottom:2px solid var(--rule); padding-bottom:6px; margin:0 0 10px;
+  }
+  .index-list{ list-style:none; margin:0; padding:0; font-size:14px; }
+  .index-list li{
+    display:flex; justify-content:space-between; gap:10px;
+    padding:4px 0; border-bottom:1px dotted var(--hair);
+  }
+  .index-list li:last-child{ border-bottom:0; }
+  .index-list .pg{ font-variant:small-caps; letter-spacing:.1em; color:var(--accent); white-space:nowrap; }
+
+  .classified{ font-size:13.5px; line-height:1.5; }
+  .classified p{ margin:0 0 9px; padding-bottom:9px; border-bottom:1px dotted var(--hair); }
+  .classified p:last-child{ border-bottom:0; }
+  .classified b{ font-variant:small-caps; letter-spacing:.08em; }
+
+  .weather{ text-align:center; font-family:"Old Standard TT",serif; }
+  .weather .big{ font-size:30px; font-weight:700; margin:4px 0; }
+  .weather .sym{ font-size:34px; color:var(--accent); }
+
+  /* ---------- Continued / footer ---------- */
+  .continued{
+    column-span:all; text-align:right; font-style:italic; color:var(--accent);
+    font-family:"Playfair Display",serif; font-size:15px; margin-top:6px;
+  }
+  .colophon{
+    margin-top:34px; padding-top:14px; border-top:3px double var(--rule);
+    text-align:center; font-family:"Old Standard TT",serif;
+    font-size:12px; letter-spacing:.12em; color:var(--ink-soft); text-transform:uppercase;
+  }
+  .colophon .star{ color:var(--accent); margin:0 8px; }
+
+  .pull{
+    font-family:"Playfair Display",serif; font-style:italic; font-weight:500;
+    font-size:21px; line-height:1.3; text-align:center; color:var(--ink);
+    border-top:1px solid var(--hair); border-bottom:1px solid var(--hair);
+    padding:12px 6px; margin:4px 0 10px;
+    break-inside:avoid;
+  }
+
+  .first-folio{
+    font-variant:small-caps; letter-spacing:.1em; color:var(--accent);
+    font-family:"Old Standard TT",serif;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:1000px){
+    .columns{ column-count:3; }
+    .spread{ grid-template-columns:1fr 260px; }
+  }
+  @media (max-width:760px){
+    .sheet{ padding:24px 20px 48px; margin:12px; }
+    .columns{ column-count:2; column-gap:22px; }
+    .columns.cols-3{ column-count:2; }
+    .pre-mast{ font-size:9.5px; letter-spacing:.08em; }
+    .spread{ grid-template-columns:1fr; }
+    .dateline{ font-size:11px; letter-spacing:.05em; justify-content:center; text-align:center; }
+  }
+  @media (max-width:480px){
+    body{ font-size:16px; }
+    .columns{ column-count:1; }
+    .columns.cols-3{ column-count:1; }
+    .pre-mast{ display:none; }
+    .mast-flank{ flex-direction:column; gap:4px; }
+  }
+</style>
+</head>
+<body>
+<main class="sheet" role="main">
+  <a class="backlink" href="../../index.html">&larr; All designs</a>
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="masthead">
+    <div class="pre-mast">
+      <span>Printed upon Fibre &amp; Silver</span>
+      <span class="mid">&#10087; A Journal of Light &amp; Travel &#10087;</span>
+      <span class="right">Established MCMXCII</span>
+    </div>
+
+    <h1 class="mast-title">The Daily Exposure</h1>
+
+    <div class="mast-flank">
+      <span>Aperture</span>
+      <span class="orn">&#10087;</span>
+      <span>Latitude of Light</span>
+      <span class="orn">&#10087;</span>
+      <span>Grain</span>
+    </div>
+
+    <div class="dateline">
+      <span class="item"><b>VOL. XXIV</b> &mdash; No. 7</span>
+      <span class="item sc">Tom Milton, Proprietor &amp; Photographer</span>
+      <span class="item"><b>SATURDAY, JUNE 28, 2026</b></span>
+      <span class="item sc">Weather: Soft &amp; Golden, Wind from the West</span>
+      <span class="item star">&#10087;</span>
+      <span class="item">Price: <b>One Exposure</b></span>
+    </div>
+  </header>
+
+  <!-- ============ LEAD STORY ============ -->
+  <section aria-labelledby="lead">
+    <p class="kicker">From Our Wandering Correspondent &mdash; Filed by Hand</p>
+    <h2 class="lead-head" id="lead">A Life Measured in Frames of Light</h2>
+    <p class="deck">Across thirty years and forty borders, Tom Milton has carried nothing heavier than a rangefinder and a satchel of film &mdash; trading speed for patience, and pixels for the slow alchemy of silver.</p>
+    <p class="byline">By the Editorial Desk &nbsp;&#10087;&nbsp; Photographs by <b>Tom&nbsp;Milton</b></p>
+
+    <hr class="rule-thick" />
+
+    <!-- spanning lead photo -->
+    <figure class="span-all">
+      <div class="photo pano">
+        <img src="../../assets/img/golden-field-sunburst.jpg" alt="Sunburst breaking over a golden wheat field at dusk, Tuscany" loading="lazy" />
+      </div>
+      <figcaption>
+        <b>Last Light, Wheat Country.</b> The sun lowers itself into the grain like a coin dropped into water, gilding a hillside that has not changed its mind in a thousand summers.
+        <span class="credit">&mdash; Tuscany, Italy. Kodak Portra 400, Leica M6, 1998. Photograph by Tom Milton.</span>
+      </figcaption>
+    </figure>
+
+    <div class="columns">
+      <p class="dropcap">There is a particular hour, Tom Milton will tell you, when the world holds its breath and the light turns to honey &mdash; and it is for that hour, and that hour alone, that he has spent a working life walking. He does not chase it with the modern instruments of haste. He carries instead a battered Leica, a fistful of canisters wrapped against the damp, and a notebook in which exposures are recorded in a hand grown small with practice.</p>
+
+      <p>&ldquo;Film teaches you to wait,&rdquo; he says, settling into a cafe chair somewhere between two assignments, the table marked with rings from other men's coffee. &ldquo;You cannot fire a hundred frames and hope. You have thirty-six chances, perhaps fewer, and the cost of each one keeps you honest. So you learn to feel the picture arriving before it has fully formed. You learn to stand still.&rdquo;</p>
+
+      <p>It is a philosophy at odds with the age, and Mr. Milton knows it. While the world has migrated wholesale to the instant and the infinite, he has remained stubbornly, gloriously analogue. His darkroom &mdash; a converted scullery behind a rented house on the Atlantic coast &mdash; smells of fixer and old wood, and it is here, under the amber safelight, that the journeys of a year are finally made visible.</p>
+
+      <figure>
+        <div class="photo tall">
+          <img src="../../assets/img/landscape-misty-mountains.jpg" alt="Misty layered mountain ridges at dawn in the Cascades, Washington" loading="lazy" />
+        </div>
+        <figcaption>
+          <b>Morning Fog, Cascades.</b> Ridge behind ridge, the mountains arrange themselves like pages of a closing book.
+          <span class="credit">&mdash; Washington, USA. Fujifilm Pro 400H, Pentax 67, 2001.</span>
+        </figcaption>
+      </figure>
+
+      <p>His education, if it can be called that, was a geography lesson conducted on foot. The wheat country of Tuscany came first, in the autumn of 1998, where he stood for three evenings running waiting for a sky that would not commit. On the fourth, it gave him everything at once. There is a lesson in that, he maintains &mdash; the reward is rarely on the schedule of the photographer, and never on the schedule of the impatient.</p>
+
+      <p class="pull">&ldquo;A photograph is a promise you make to a moment that you will not let it be forgotten.&rdquo;</p>
+
+      <p>From Italy the road bent north and west. The Cascades of Washington gave him fog stacked like sediment; the Olympic rainforest gave him pillars of fir lit as if from within. He speaks of these places not as destinations but as collaborators, each with a temperament to be learned. &ldquo;Iceland is generous and cruel in the same hour,&rdquo; he says. &ldquo;Norway keeps its secrets. The American West simply dares you to do it justice.&rdquo;</p>
+
+      <figure>
+        <div class="photo box">
+          <img src="../../assets/img/forest-sunlight.jpg" alt="Sunlight streaming through tall pines in an old-growth forest" loading="lazy" />
+        </div>
+        <figcaption>
+          <b>Cathedral of Pines.</b> Light falls through the canopy in slow columns, and the forest keeps its long, green silence.
+          <span class="credit">&mdash; Olympic NP, USA. Kodak Portra 160, Hasselblad 500CM, 1996.</span>
+        </figcaption>
+      </figure>
+
+      <p>If the landscapes made his name, it is the portraits that betray his heart. In Havana he made a series of strangers &mdash; numbered rather than named, photographed on Tri-X in the failing light of side streets &mdash; that he regards as the truest work of his life. &ldquo;A landscape will forgive you a great deal,&rdquo; he says. &ldquo;A face forgives nothing. You either meet a person or you do not, and the film knows which it was.&rdquo;</p>
+
+      <p>He works alone, almost always. No assistant, no lighting, no second body slung across the shoulder as insurance against failure. The discipline is total and, he insists, freeing. &ldquo;When you cannot review the frame, you must trust yourself. And trusting yourself, it turns out, is most of the art.&rdquo;</p>
+
+      <p class="continued">Continued on Page&nbsp;2, Column&nbsp;1 &#10087;</p>
+    </div>
+  </section>
+
+  <hr class="rule-double" />
+
+  <!-- ============ INNER SPREAD ============ -->
+  <section class="spread" aria-label="Inner spread">
+    <div>
+      <p class="kicker first-folio">Page Two &mdash; The Travelling Eye</p>
+      <h3 class="lead-head" style="font-size:clamp(30px,5vw,58px);max-width:20ch;">The Roads That Photograph You Back</h3>
+      <p class="deck">On coastlines, deserts and rain-dark passes, the camera becomes a kind of compass &mdash; pointing always toward the next failing light.</p>
+
+      <hr class="rule-thin" />
+
+      <figure class="span-all">
+        <div class="photo wide">
+          <img src="../../assets/img/cliff-coast-ocean.jpg" alt="Dramatic cliffs meeting the ocean at Big Sur under soft light" loading="lazy" />
+        </div>
+        <figcaption>
+          <b>Edge of the World.</b> Where the continent loses its argument with the sea, Mr. Milton found a horizon worth the long drive south.
+          <span class="credit">&mdash; Big Sur, USA. Kodak Portra 400, Contax G2, 2002.</span>
+        </figcaption>
+      </figure>
+
+      <div class="columns cols-3">
+        <p class="dropcap">Driving, for Tom Milton, is not transit but reconnaissance. The Dolomites came to him through a windscreen streaked with rain, the road unspooling into fog until the mountains arrived without announcement. He pulled over, loaded a roll of tungsten stock meant for the night, and let the cold blue of the afternoon do what it wished. The result, he says, is one of the few frames he would not change.</p>
+
+        <p>Iceland tested him differently. At a waterfall whose name he never learned, he stood waist-deep in spray for the better part of an hour, the Velvia in his Nikon hungry for the impossible saturation of the place. &ldquo;You do not photograph Iceland,&rdquo; he says. &ldquo;You negotiate with it, and you usually lose, and the losing is the best part.&rdquo;</p>
+
+        <figure>
+          <div class="photo box">
+            <img src="../../assets/img/mountain-road-fog.jpg" alt="A winding mountain road disappearing into fog in the Dolomites" loading="lazy" />
+          </div>
+          <figcaption>
+            <b>The Long Way Home.</b> The pass surrenders only as much road as the fog permits.
+            <span class="credit">&mdash; Dolomites, Italy. Cinestill 800T, Canon AE-1, 2005.</span>
+          </figcaption>
+        </figure>
+
+        <p>The desert taught him subtraction. In Namibia, where the dunes rearrange themselves nightly by the patient hand of the wind, he learned to wait for the single shadow that would give a thousand acres their shape. &ldquo;In the desert there is nothing to hide behind,&rdquo; he says, &ldquo;and so there is nothing to hide.&rdquo;</p>
+
+        <figure>
+          <div class="photo wide">
+            <img src="../../assets/img/desert-dunes.jpg" alt="Wind-carved ridge lines across red desert dunes in Namibia" loading="lazy" />
+          </div>
+          <figcaption>
+            <b>Wind Lines.</b> The dunes keep a diary of every gust in ridges fine as script.
+            <span class="credit">&mdash; Namibia. Kodak Ektar 100, Hasselblad 503CW, 2008.</span>
+          </figcaption>
+        </figure>
+
+        <p>And then there is Vermont in October, the road he returns to most: a tunnel of fire that lasts a fortnight and asks for nothing but that you arrive on time. He has photographed it eleven autumns running. &ldquo;Some pictures you take once,&rdquo; he says. &ldquo;Others you visit, like an old friend, to see how the year has treated them.&rdquo;</p>
+
+        <figure>
+          <div class="photo tall">
+            <img src="../../assets/img/autumn-forest-road.jpg" alt="A country road lined with blazing autumn foliage in Vermont" loading="lazy" />
+          </div>
+          <figcaption>
+            <b>October Road.</b> A fortnight of fire, kept in a single careful frame.
+            <span class="credit">&mdash; Vermont, USA. Kodak Portra 400, Leica M7, 2007.</span>
+          </figcaption>
+        </figure>
+
+        <div class="ornament">&#10087;</div>
+
+        <h4 class="col-head">Faces Found Along the Way</h4>
+        <p class="col-sub">Portraiture, in monochrome and otherwise</p>
+
+        <p>The black-and-white work belongs to a different chamber of the heart. In Norway he made <em>Silence</em> &mdash; a stand of pines half-dissolved in mist, exposed on Ilford HP5 and developed by feel in a borrowed kitchen. It is, he says, the closest film has ever come to recording the inside of a quiet mind.</p>
+
+        <figure>
+          <div class="photo bw box">
+            <img src="../../assets/img/misty-pine-forest.jpg" alt="Pine trees fading into thick mist, rendered in black and white" loading="lazy" />
+          </div>
+          <figcaption>
+            <b>Silence.</b> The forest withdraws into fog until only the suggestion of trees remains.
+            <span class="credit">&mdash; Norway. Ilford HP5 Plus, Leica M6, 2003. Rendered in monochrome.</span>
+          </figcaption>
+        </figure>
+
+        <p>In Havana, the strangers came one by one. Number fourteen &mdash; a man whose name Mr. Milton never asked and never regretted &mdash; gave him thirty seconds and a gaze that has outlasted a decade of louder pictures. &ldquo;He looked at the lens as though it owed him an explanation,&rdquo; Tom recalls. &ldquo;I think perhaps it did.&rdquo;</p>
+
+        <figure>
+          <div class="photo bw tall">
+            <img src="../../assets/img/man-portrait-street.jpg" alt="A weathered man gazing directly at the camera on a Havana street, black and white" loading="lazy" />
+          </div>
+          <figcaption>
+            <b>Stranger, No. 14.</b> Thirty seconds of trust, exposed on Tri-X and never returned.
+            <span class="credit">&mdash; Havana, Cuba. Kodak Tri-X 400, Leica M4, 2012. Rendered in monochrome.</span>
+          </figcaption>
+        </figure>
+
+        <p>Not all his portraits demand the gravity of monochrome. By a window in Lisbon, the afternoon arranged a sitter for him so gently that he claims to have done nothing but press the shutter and apologise for the interruption. The Portra held the warmth exactly as the room had offered it.</p>
+
+        <figure>
+          <div class="photo box">
+            <img src="../../assets/img/woman-portrait-window.jpg" alt="A woman lit by soft window light in a Lisbon room" loading="lazy" />
+          </div>
+          <figcaption>
+            <b>By the Window.</b> The afternoon did the lighting; the photographer merely kept out of its way.
+            <span class="credit">&mdash; Lisbon, Portugal. Kodak Portra 400, Pentax 67, 2011.</span>
+          </figcaption>
+        </figure>
+
+        <div class="ornament">&#10087;</div>
+
+        <p>Lately the streets have called him back. A vintage Chevrolet caught mid-Sunday in Havana; the marble tables of the Cafe de Flore in a Parisian drizzle. &ldquo;Cities are landscapes that talk back,&rdquo; he says, and there is, in the saying, the satisfaction of a man who has finally stopped trying to keep them quiet.</p>
+
+        <figure>
+          <div class="photo wide">
+            <img src="../../assets/img/vintage-car-street.jpg" alt="A classic American car parked on a sunlit Havana street" loading="lazy" />
+          </div>
+          <figcaption>
+            <b>Sunday Drive.</b> Chrome and patience, idling in the long Caribbean afternoon.
+            <span class="credit">&mdash; Havana, Cuba. Kodak Ektar 100, Nikon FE, 2022.</span>
+          </figcaption>
+        </figure>
+
+        <figure>
+          <div class="photo wide">
+            <img src="../../assets/img/street-cafe-paris.jpg" alt="Tables and awning of a classic Paris cafe on a grey morning" loading="lazy" />
+          </div>
+          <figcaption>
+            <b>Cafe de Flore.</b> A grey Parisian morning, served with two sugars and a roll of Gold 200.
+            <span class="credit">&mdash; Paris, France. Kodak Gold 200, Olympus OM-1, 2020.</span>
+          </figcaption>
+        </figure>
+
+        <p>Asked where the road leads next, Mr. Milton only smiles and taps the satchel at his feet, heavy with unexposed film. &ldquo;Wherever the light is going,&rdquo; he says, &ldquo;I expect to be a little behind it. That has always been the best place to stand.&rdquo;</p>
+
+        <p class="continued">&#10087; The End &#10087;</p>
+      </div>
+    </div>
+
+    <!-- ============ RAIL / SIDEBAR ============ -->
+    <aside class="rail" aria-label="Notices and index">
+      <div class="rail-box weather">
+        <p class="rail-title">Latitude of Light</p>
+        <div class="sym">&#9728;</div>
+        <p class="big">Golden Hour</p>
+        <p style="margin:0;font-size:13px;letter-spacing:.06em;">High silver, soft contrast.<br />Sunset 9:14 &middot; Wind W.<br />Ideal for Portra; mind the shadows.</p>
+      </div>
+
+      <div class="rail-box">
+        <p class="rail-title">Index</p>
+        <ul class="index-list">
+          <li><span>A Life in Frames</span><span class="pg">Pg. I</span></li>
+          <li><span>The Travelling Eye</span><span class="pg">Pg. II</span></li>
+          <li><span>Faces &amp; Strangers</span><span class="pg">Pg. II</span></li>
+          <li><span>The Darkroom Diary</span><span class="pg">Pg. III</span></li>
+          <li><span>Notices &amp; Plates</span><span class="pg">Pg. IV</span></li>
+          <li><span>Correspondence</span><span class="pg">Pg. V</span></li>
+        </ul>
+      </div>
+
+      <div class="rail-box">
+        <p class="rail-title">Plate Reflections</p>
+        <figure style="margin:0;">
+          <div class="photo box">
+            <img src="../../assets/img/lake-mountain-house.jpg" alt="A lakeside village mirrored in still water at Hallstatt, Austria" loading="lazy" />
+          </div>
+          <figcaption>
+            <b>Reflections, Still Morning.</b> The lake holds the village twice and keeps both copies honest.
+            <span class="credit">&mdash; Hallstatt, Austria. Kodak Ektar 100, Mamiya RZ67, 2000.</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="rail-box">
+        <p class="rail-title">The Kit Bag</p>
+        <div class="classified">
+          <p><b>Bodies.</b> Leica M6, M7 &amp; M4 rangefinders; Pentax 67 &amp; Mamiya RZ67 for the slow days; Hasselblad 500CM and 503CW; Contax G2; Nikon FM2 &amp; FE; Canon AE-1; Olympus OM-1.</p>
+          <p><b>Emulsions.</b> Kodak Portra 160 &amp; 400 for skin and grain; Ektar 100 for the bite of colour; Tri-X &amp; Ilford HP5 for the truth; Velvia 50 where the world overstates itself; Cinestill 800T after dark.</p>
+          <p><b>Wanted.</b> A clean, calm half-hour of evening light, anywhere on the earth. Will travel. Apply within these pages.</p>
+        </div>
+      </div>
+
+      <div class="rail-box">
+        <p class="rail-title">Terms</p>
+        <div class="classified">
+          <p><b>Commissions</b> undertaken for landscape, portrait and the patient documentary. Hand-printed silver gelatin and archival pigment editions available upon enquiry.</p>
+          <p><b>Correspondence</b> to the Proprietor, care of this journal. All replies written by hand and posted with the next fair wind.</p>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ============ COLOPHON ============ -->
+  <footer class="colophon">
+    <span class="star">&#10087;</span> The Daily Exposure <span class="star">&#10087;</span> Tom Milton, Proprietor &amp; Photographer
+    <span class="star">&#10087;</span> Set in Playfair, Old Standard &amp; PT Serif <span class="star">&#10087;</span> Printed on Silver &amp; Light, MMXXVI <span class="star">&#10087;</span>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marginalia — Notes on Light and Film · Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#fffff8;
+    --ink:#111111;
+    --ink-soft:#3a382f;
+    --muted:#6b6757;
+    --rule:#d9d6c4;
+    --accent:#7c2d12;
+    --measure:62ch;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'EB Garamond', Georgia, 'Times New Roman', serif;
+    font-size:clamp(1.05rem, 0.95rem + 0.45vw, 1.28rem);
+    line-height:1.55;
+    font-feature-settings:"liga" 1,"onum" 1,"kern" 1;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    position:relative;
+  }
+
+  /* faint film grain overlay */
+  .grain{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9;
+    opacity:0.035;
+    mix-blend-mode:multiply;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  /* ---------- top back link ---------- */
+  .topbar{
+    max-width:1320px;
+    margin:0 auto;
+    padding:1.6rem clamp(1.1rem, 4vw, 3.2rem) 0;
+  }
+  .backlink{
+    font-variant:small-caps;
+    letter-spacing:0.08em;
+    font-size:0.82rem;
+    color:var(--muted);
+    border-bottom:1px solid transparent;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .backlink:hover{ color:var(--ink); border-bottom-color:var(--rule); }
+
+  /* ---------- page frame ---------- */
+  .page{
+    max-width:1320px;
+    margin:0 auto;
+    padding:2.2rem clamp(1.1rem, 4vw, 3.2rem) 6rem;
+  }
+
+  /* ---------- masthead ---------- */
+  header.masthead{
+    margin:2.2rem 0 3.2rem;
+    max-width:var(--measure);
+  }
+  .kicker{
+    font-variant:small-caps;
+    letter-spacing:0.16em;
+    font-size:0.86rem;
+    color:var(--accent);
+    margin:0 0 0.5rem;
+  }
+  h1.title{
+    font-weight:500;
+    font-size:clamp(2.4rem, 1.6rem + 3.6vw, 4.3rem);
+    line-height:1.04;
+    letter-spacing:-0.012em;
+    margin:0 0 0.7rem;
+  }
+  h1.title em{ font-style:italic; color:var(--ink-soft); }
+  .subtitle{
+    font-size:clamp(1.05rem, 1rem + 0.3vw, 1.32rem);
+    font-style:italic;
+    color:var(--muted);
+    margin:0 0 1.4rem;
+    max-width:52ch;
+  }
+  .byline{
+    font-variant:small-caps;
+    letter-spacing:0.06em;
+    font-size:0.92rem;
+    color:var(--ink-soft);
+    border-top:1px solid var(--rule);
+    border-bottom:1px solid var(--rule);
+    padding:0.55rem 0;
+    display:inline-block;
+  }
+  .byline .nm{ color:var(--ink); }
+
+  /* ---------- the tufte grid ----------
+     main column on the left, sidenote margin on the right */
+  section.movement{
+    display:grid;
+    grid-template-columns: minmax(0, 60%) minmax(0, 35%);
+    column-gap:5%;
+    align-items:start;
+    margin-bottom:1rem;
+  }
+  /* everything that's "body flow" lives in column 1 */
+  .movement > *:not(.sidenote):not(figure.fullwidth){
+    grid-column:1;
+  }
+  /* sidenotes sit in column 2, aligned to their row */
+  .sidenote{
+    grid-column:2;
+    font-size:0.86rem;
+    line-height:1.4;
+    color:var(--ink-soft);
+    padding-top:0.35rem;
+  }
+  .sidenote .sn-num{
+    color:var(--accent);
+    font-style:italic;
+    margin-right:0.35em;
+  }
+  .sidenote .sn-title{
+    font-style:italic;
+    color:var(--ink);
+  }
+  .sidenote .sn-meta{
+    display:block;
+    margin-top:0.3rem;
+    font-variant-numeric:oldstyle-nums;
+  }
+  .sidenote .sn-tech{
+    display:block;
+    margin-top:0.15rem;
+    color:var(--muted);
+    font-variant:small-caps;
+    letter-spacing:0.03em;
+    font-size:0.95em;
+  }
+
+  /* a figure that spills across both columns for emphasis */
+  figure.fullwidth{
+    grid-column:1 / -1;
+    margin:2.4rem 0 0.6rem;
+  }
+
+  h2.section{
+    grid-column:1;
+    font-weight:500;
+    font-style:italic;
+    font-size:clamp(1.5rem,1.2rem+1.2vw,2.15rem);
+    letter-spacing:-0.01em;
+    margin:2.8rem 0 0.4rem;
+    color:var(--ink);
+  }
+  h2.section .marker{
+    font-style:normal;
+    font-variant:small-caps;
+    font-size:0.62em;
+    letter-spacing:0.12em;
+    color:var(--accent);
+    margin-right:0.6em;
+    vertical-align:0.15em;
+  }
+
+  p{ margin:0 0 1.15rem; max-width:var(--measure); }
+  p.lead{ font-size:1.08em; }
+  p.lead::first-letter{
+    initial-letter:2;
+    -webkit-initial-letter:2;
+    font-weight:500;
+    margin-right:0.6rem;
+    color:var(--accent);
+  }
+
+  /* superscript reference */
+  sup.ref{
+    font-size:0.62em;
+    line-height:0;
+    vertical-align:super;
+    color:var(--accent);
+    font-style:italic;
+    padding:0 0.05em;
+    cursor:default;
+  }
+
+  /* inline figures within the reading column */
+  figure{ margin:2.2rem 0; }
+  figure img{
+    width:100%;
+    height:auto;
+    display:block;
+    border-radius:1px;
+    box-shadow:0 1px 0 rgba(17,17,17,0.05), 0 18px 40px -28px rgba(17,17,17,0.4);
+    transition:transform .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s ease;
+  }
+  /* Kodak Portra warm grade for colour photos */
+  img.color{ filter:sepia(0.12) saturate(1.05) contrast(0.96) brightness(1.02); }
+  img.bw{ filter:grayscale(1) contrast(1.05) brightness(1.0); }
+  figure:hover img{
+    transform:translateY(-2px);
+    box-shadow:0 1px 0 rgba(17,17,17,0.05), 0 26px 54px -28px rgba(17,17,17,0.5);
+  }
+  figcaption{
+    font-style:italic;
+    font-size:0.88rem;
+    color:var(--muted);
+    margin-top:0.7rem;
+    max-width:var(--measure);
+  }
+  figcaption .figno{
+    font-variant:small-caps;
+    font-style:normal;
+    letter-spacing:0.08em;
+    color:var(--accent);
+    margin-right:0.5em;
+  }
+
+  blockquote{
+    margin:2rem 0;
+    padding-left:1.3rem;
+    border-left:2px solid var(--rule);
+    font-style:italic;
+    color:var(--ink-soft);
+    max-width:54ch;
+  }
+
+  hr.div{
+    border:0;
+    border-top:1px solid var(--rule);
+    max-width:var(--measure);
+    margin:3rem 0 2.4rem;
+  }
+
+  /* colophon */
+  footer.colophon{
+    max-width:var(--measure);
+    margin-top:4rem;
+    padding-top:1.4rem;
+    border-top:1px solid var(--rule);
+    font-size:0.86rem;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  footer.colophon .sig{
+    font-style:italic;
+    font-size:1.05rem;
+    color:var(--ink-soft);
+    display:block;
+    margin-bottom:0.6rem;
+  }
+
+  /* ---------- mobile: collapse sidenotes inline ---------- */
+  @media (max-width:760px){
+    section.movement{
+      display:block;
+    }
+    .movement > *{ grid-column:auto !important; }
+    figure.fullwidth{ margin:1.8rem 0 0.4rem; }
+    p, figcaption, h2.section, blockquote, .subtitle, footer.colophon{ max-width:none; }
+
+    .sidenote{
+      margin:0.4rem 0 1.4rem;
+      padding:0.7rem 0.9rem;
+      background:rgba(124,45,18,0.04);
+      border-left:2px solid var(--rule);
+      font-style:italic;
+      font-size:0.92rem;
+    }
+    .sidenote .sn-tech{ font-style:normal; }
+    h1.title{ font-size:clamp(2.1rem,1.4rem+5vw,3rem); }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- faint film grain -->
+<svg class="grain" xmlns="http://www.w3.org/2000/svg">
+  <filter id="filmGrain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#filmGrain)"/>
+</svg>
+
+<div class="topbar">
+  <a class="backlink" href="../../index.html">← All designs</a>
+</div>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="kicker">Marginalia · No. IV</p>
+    <h1 class="title">Notes on Light <em>&amp;</em> the Slow Frame</h1>
+    <p class="subtitle">A scholarly essay on the discipline of film photography — what the negative remembers, and what the margins have to say about it.</p>
+    <p class="byline">Essay &amp; photographs by <span class="nm">Tom Milton</span> · 1996–2012</p>
+  </header>
+
+  <!-- ============ MOVEMENT 1 : ON LIGHT ============ -->
+  <section class="movement">
+    <h2 class="section"><span class="marker">i</span>On Light</h2>
+
+    <p class="lead">I have spent thirty years learning to wait for light rather than to chase it. The chase belongs to a younger man, one who believed a photograph could be taken; the waiting belongs to whoever I have since become, who suspects a photograph can only be received. Light is not a resource you spend. It is a guest who arrives on its own schedule, lingers exactly as long as it pleases, and is gone before you have decided what to make of it.<sup class="ref">1</sup></p>
+
+    <p>The first time this truth arrived with any force was on a hillside in Tuscany, late in a September that had already begun to turn the wheat to brass. I had set up the tripod an hour early — habit, superstition, patience masquerading as both — and for fifty-eight of those sixty minutes there was nothing to photograph but a flat, ordinary field. Then the sun dropped low enough to rake across the stubble, every stalk threw a shadow as long as a sentence, and the whole hill ignited. I made one frame. The sunburst, when I had it printed months later, looked less like a record of the field than like a memory of having stood there.</p>
+
+    <p>That is the strange economy of the medium. Digital sensors are generous; they will give you a hundred frames of the same indifferent field and let you sort the question out at home. Film is miserly, and its meanness is a kind of instruction. With thirty-six exposures and no screen on the back to reassure you, the camera stops being a net you cast and becomes a question you must answer before you press the shutter: <em>is this the light, or only some light?</em><sup class="ref">2</sup></p>
+
+    <figure class="fullwidth">
+      <img class="color" src="../../assets/img/golden-field-sunburst.jpg" alt="A field of golden wheat at sunset, the low sun bursting in a star of light across the stubble in the Tuscan hills." loading="lazy">
+      <figcaption><span class="figno">Fig. 1</span> <em>Last Light, Wheat Country.</em> One exposure, made in the final minute the hill was lit. The negative still smells faintly of dust to me.</figcaption>
+    </figure>
+
+    <!-- sidenotes for movement 1 -->
+    <aside class="sidenote">
+      <span class="sn-num">1.</span><span class="sn-title">Last Light, Wheat Country</span>
+      <span class="sn-meta">Tuscany, Italy · 1998</span>
+      <span class="sn-tech">Leica M6 · Kodak Portra 400 · f/8, 1/250s, ISO 400</span>
+    </aside>
+    <aside class="sidenote">
+      <span class="sn-num">2.</span><span class="sn-title">Morning Fog, Cascades</span>
+      <span class="sn-meta">Washington, USA · 2001</span>
+      <span class="sn-tech">Pentax 67 · Fujifilm Pro 400H · f/11, 1/60s, ISO 400</span>
+    </aside>
+  </section>
+
+  <!-- ============ MOVEMENT 2 : THE SLOW FRAME ============ -->
+  <section class="movement">
+    <h2 class="section"><span class="marker">ii</span>The Slow Frame</h2>
+
+    <p>There is a fog that settles in the Cascades on certain autumn mornings, so total that the mountains seem to have agreed, overnight, to be rumours of themselves.<sup class="ref">2</sup> I drove four hours for that fog and was rewarded with the privilege of standing in it, half-blind, for the better part of a dawn. The Pentax 67 is a heavy, deliberate machine — a camera that does not let you forget you are carrying it — and there is a wisdom encoded in its weight. You do not raise such a thing casually. You raise it when you mean it.</p>
+
+    <p>I think often about the difference between speed and haste. A fast shutter is not the same as a hurried mind. The slow frame I am defending is not slow on the negative — some of my favourite exposures are a thousandth of a second — but slow in the approach to it: the long arithmetic of standing still, reading the meter, doubting the meter, trusting the eye.<sup class="ref">3</sup> In the forest the Hasselblad taught me this most plainly. Among the old growth of the Olympic peninsula the light comes down in shafts, as through the clerestory of a cathedral, and it will not be rushed into a frame any more than the trees themselves will.</p>
+
+    <figure>
+      <img class="color" src="../../assets/img/forest-sunlight.jpg" alt="Sunlight breaking through tall pines in an old-growth forest, shafts of warm light falling between the trunks." loading="lazy">
+      <figcaption><span class="figno">Fig. 2</span> <em>Cathedral of Pines.</em> The square format of the Hasselblad makes a window of the forest rather than a corridor.</figcaption>
+    </figure>
+
+    <p>The coast taught the opposite lesson. At Big Sur the light is never still; it is weather as much as illumination, scudding and reforming, and the only patience that serves you there is the patience to keep the camera ready and accept that the photograph will choose its own instant.<sup class="ref">4</sup> The Contax in my hands felt almost weightless after the Pentax, and I made the frame at the edge of the cliff in a single breath, the way you catch a falling cup — not by deciding to, but by already having decided.</p>
+
+    <figure class="fullwidth">
+      <img class="color" src="../../assets/img/cliff-coast-ocean.jpg" alt="A rugged coastal cliff dropping to the Pacific Ocean at Big Sur, with mist over the water and afternoon light on the headland." loading="lazy">
+      <figcaption><span class="figno">Fig. 3</span> <em>Edge of the World.</em> Big Sur, where the land seems to be considering whether to go on.</figcaption>
+    </figure>
+
+    <blockquote>The negative does not remember what you intended. It remembers only what was true of the light in the instant the shutter was open. That honesty is the whole of the discipline.</blockquote>
+
+    <!-- sidenotes for movement 2 -->
+    <aside class="sidenote">
+      <span class="sn-num">3.</span><span class="sn-title">Cathedral of Pines</span>
+      <span class="sn-meta">Olympic NP, USA · 1996</span>
+      <span class="sn-tech">Hasselblad 500CM · Kodak Portra 160 · f/16, 1/30s, ISO 160</span>
+    </aside>
+    <aside class="sidenote">
+      <span class="sn-num">4.</span><span class="sn-title">Edge of the World</span>
+      <span class="sn-meta">Big Sur, USA · 2002</span>
+      <span class="sn-tech">Contax G2 · Kodak Portra 400 · f/8, 1/500s, ISO 400</span>
+    </aside>
+  </section>
+
+  <!-- ============ MOVEMENT 3 : SILENCE & WATER ============ -->
+  <section class="movement">
+    <h2 class="section"><span class="marker">iii</span>Silence &amp; Water</h2>
+
+    <p>Not all of my negatives are warm. There are days the world withholds its colour, and the only honest answer is black-and-white film, which is not the absence of colour but the presence of structure — light reduced to its grammar of tone. In a stand of pines in Norway, in a silence so complete it had texture, I loaded a roll of HP5 and exposed for the shadows, knowing the fog would take care of the rest.<sup class="ref">5</sup> Some photographs are about what is there. That one is about how much can be left out.</p>
+
+    <figure>
+      <img class="bw" src="../../assets/img/misty-pine-forest.jpg" alt="A misty pine forest rendered in black and white, the pale fog dissolving the rows of trees into soft grey silence." loading="lazy">
+      <figcaption><span class="figno">Fig. 4</span> <em>Silence.</em> Ilford HP5, developed by hand. The grain here is not a flaw; it is the snow of the image.</figcaption>
+    </figure>
+
+    <p>Water has been my most patient teacher of exposure. In Iceland the falls run all day and ask nothing of you, which means the photograph is entirely your responsibility — there is no decisive moment to excuse a lazy frame. I metered for the spray and let the slow film draw the white of the water into a single continuous gesture.<sup class="ref">6</sup> Velvia is an unforgiving stock, saturated to the edge of honesty, and it rewards only the photographer who has already made every other decision correctly.</p>
+
+    <figure>
+      <img class="color" src="../../assets/img/waterfall-bridge.jpg" alt="A waterfall in Iceland viewed from a small bridge, the water falling in a long soft white veil between mossy basalt walls." loading="lazy">
+      <figcaption><span class="figno">Fig. 5</span> <em>Hidden Falls.</em> Velvia 50 — a film that does not flatter, and is therefore worth trusting.</figcaption>
+    </figure>
+
+    <p>And then there is the hour before all of this, the dawn, when the lake at Banff lay so still that the cabin was published twice, once in timber and once in water.<sup class="ref">7</sup> Ektar holds a blue like no other emulsion I know; it gave the cold of that morning a body. I have come to believe that the calmest photographs are the most demanding, because there is nothing dramatic to hide behind. Stillness audits you.</p>
+
+    <figure class="fullwidth">
+      <img class="color" src="../../assets/img/lake-cabin-dawn.jpg" alt="A wooden cabin beside a perfectly still lake at dawn in Banff, the cabin and mountains reflected cleanly in the calm water." loading="lazy">
+      <figcaption><span class="figno">Fig. 6</span> <em>The Cabin at Dawn.</em> Mamiya 7 · the reflection was sharper than the thing it reflected.</figcaption>
+    </figure>
+
+    <!-- sidenotes for movement 3 -->
+    <aside class="sidenote">
+      <span class="sn-num">5.</span><span class="sn-title">Silence</span>
+      <span class="sn-meta">Norway · 2003</span>
+      <span class="sn-tech">Leica M6 · Ilford HP5 Plus · f/5.6, 1/125s, ISO 400</span>
+    </aside>
+    <aside class="sidenote">
+      <span class="sn-num">6.</span><span class="sn-title">Hidden Falls</span>
+      <span class="sn-meta">Iceland · 2006</span>
+      <span class="sn-tech">Nikon FM2 · Fujifilm Velvia 50 · f/16, 1/15s, ISO 50</span>
+    </aside>
+    <aside class="sidenote">
+      <span class="sn-num">7.</span><span class="sn-title">The Cabin at Dawn</span>
+      <span class="sn-meta">Banff, Canada · 2003</span>
+      <span class="sn-tech">Mamiya 7 II · Kodak Ektar 100 · f/11, 1/125s, ISO 100</span>
+    </aside>
+  </section>
+
+  <!-- ============ MOVEMENT 4 : PORTRAITS OF STRANGERS ============ -->
+  <section class="movement">
+    <h2 class="section"><span class="marker">iv</span>Portraits of Strangers</h2>
+
+    <p>To photograph a landscape you need only patience. To photograph a stranger you need a kind of nerve that is closer to courtesy than to courage — the willingness to ask, with the camera, for a moment of someone's life, and the grace to accept it if they decline. In Havana I made a habit of it: a small project I kept, with no great ambition, called simply <em>Strangers</em>, each frame numbered as I made it. Number fourteen was a man on a doorstep who looked at the Leica for exactly as long as it took, and not one second more.<sup class="ref">8</sup></p>
+
+    <figure>
+      <img class="bw" src="../../assets/img/man-portrait-street.jpg" alt="A black-and-white street portrait of an older man in Havana looking directly at the camera, strong window light across his face." loading="lazy">
+      <figcaption><span class="figno">Fig. 7</span> <em>Stranger, No. 14.</em> Tri-X at 400, rated honestly. He never told me his name; I never asked.</figcaption>
+    </figure>
+
+    <p>The window is the portraitist's oldest collaborator, and the most reliable. In Lisbon a woman sat in the soft fall of north light from a tall casement, and the Pentax — that same deliberate weight I carry into forests — slowed the encounter to the pace of a conversation.<sup class="ref">9</sup> Portra renders skin the way memory does: a little warmer than the truth, forgiving in the highlights, kind. I have never wanted my portraits to be accurate. I have wanted them to be fair.</p>
+
+    <figure class="fullwidth">
+      <img class="color" src="../../assets/img/woman-portrait-window.jpg" alt="A woman seated by a tall window in Lisbon, soft daylight falling across her face and shoulder, a quiet contemplative expression." loading="lazy">
+      <figcaption><span class="figno">Fig. 8</span> <em>By the Window.</em> Lisbon · the light did most of the work, as it always does.</figcaption>
+    </figure>
+
+    <p>If there is a thread that runs through all of it — the field, the fog, the falls, the faces — it is this: the photograph is not the thing I saw. It is the residue of my attention to the thing I saw. The road in Vermont that October was beautiful before I arrived and remained beautiful after I left; what the negative holds is the particular quality of my looking, on that afternoon, with that film, in that light that I had finally, after all these years, simply waited for.<sup class="ref">10</sup></p>
+
+    <figure class="fullwidth">
+      <img class="color" src="../../assets/img/autumn-forest-road.jpg" alt="A road curving through a forest of autumn trees in Vermont, the canopy in full red and gold over the empty lane." loading="lazy">
+      <figcaption><span class="figno">Fig. 9</span> <em>October Road.</em> The last frame in this essay, and the one I would keep if I could keep only one.</figcaption>
+    </figure>
+
+    <hr class="div">
+
+    <p>I leave the margins to do what margins do best: to hold the facts — the camera, the film, the place, the year, the small arithmetic of aperture and time — so that the body of the page is free to hold something harder to measure. Read the notes if you are curious how a photograph was made. Read the photographs if you want to know why.</p>
+
+    <!-- sidenotes for movement 4 -->
+    <aside class="sidenote">
+      <span class="sn-num">8.</span><span class="sn-title">Stranger, No. 14</span>
+      <span class="sn-meta">Havana, Cuba · 2012</span>
+      <span class="sn-tech">Leica M4 · Kodak Tri-X 400 · f/4, 1/125s, ISO 400</span>
+    </aside>
+    <aside class="sidenote">
+      <span class="sn-num">9.</span><span class="sn-title">By the Window</span>
+      <span class="sn-meta">Lisbon, Portugal · 2011</span>
+      <span class="sn-tech">Pentax 67 · Kodak Portra 400 · f/2.8, 1/125s, ISO 400</span>
+    </aside>
+    <aside class="sidenote">
+      <span class="sn-num">10.</span><span class="sn-title">October Road</span>
+      <span class="sn-meta">Vermont, USA · 2007</span>
+      <span class="sn-tech">Leica M7 · Kodak Portra 400 · f/8, 1/250s, ISO 400</span>
+    </aside>
+  </section>
+
+  <footer class="colophon">
+    <span class="sig">— Tom Milton</span>
+    <em>Marginalia</em> is set in EB Garamond on a paper of #fffff8. All photographs were made on film between 1996 and 2012 and scanned from the original negatives; the warm grade approximates a Kodak Portra print, and the monochrome frames are left as they were exposed. Camera and exposure details appear in the margins beside each reference. No frame in this essay was cropped after the fact.
+  </footer>
+
+</div>
+
+</body>
+</html>

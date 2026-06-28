@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Darkroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0c0b0a;
+    --panel:#141210;
+    --panel-2:#1b1815;
+    --ash:#9a9189;
+    --ash-dim:#6a635c;
+    --bone:#e9e3da;
+    --red:#d3342a;
+    --red-glow:rgba(211,52,42,.55);
+    --line:#2a2723;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, #1a1410 0%, var(--black) 55%) fixed,
+      var(--black);
+    color:var(--bone);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;line-height:1.6;overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:300;pointer-events:none;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;opacity:.06;
+  }
+  /* safelight vignette */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(140% 100% at 50% 120%, rgba(211,52,42,.10), transparent 50%);
+  }
+  ::selection{background:var(--red);color:#fff}
+  a{color:inherit;text-decoration:none}
+
+  .back{
+    position:fixed;top:1rem;left:1rem;z-index:320;
+    font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ash);
+    padding:.4rem .7rem;border:1px solid var(--line);background:rgba(12,11,10,.7);
+    backdrop-filter:blur(4px);transition:.25s;
+  }
+  .back:hover{color:var(--red);border-color:var(--red);box-shadow:0 0 18px -4px var(--red-glow)}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 clamp(1rem,4vw,3rem);position:relative;z-index:2}
+
+  /* ---- header ---- */
+  header{padding:clamp(4.5rem,12vh,8rem) 0 clamp(2.5rem,6vh,4rem);position:relative;z-index:2}
+  .lamp{
+    display:inline-flex;align-items:center;gap:.6rem;margin-bottom:2rem;
+    font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ash);
+  }
+  .lamp .dot{
+    width:9px;height:9px;border-radius:50%;background:var(--red);
+    box-shadow:0 0 12px 2px var(--red-glow);animation:pulse 3.2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1;box-shadow:0 0 18px 4px var(--red-glow)}}
+  h1{
+    font-family:'Fraunces',serif;font-weight:400;
+    font-size:clamp(3rem,12vw,9rem);line-height:.86;letter-spacing:-.02em;color:var(--bone);
+  }
+  h1 .red{color:var(--red);font-style:italic;font-weight:500;
+    text-shadow:0 0 30px var(--red-glow)}
+  .sub{
+    margin-top:1.8rem;max-width:46ch;color:var(--ash);font-size:.92rem;line-height:1.7;
+  }
+  .stat-bar{
+    margin-top:2.4rem;display:flex;flex-wrap:wrap;gap:.6rem 2rem;
+    padding-top:1.4rem;border-top:1px solid var(--line);
+    font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ash-dim);
+  }
+  .stat-bar b{color:var(--bone);font-weight:500}
+
+  /* ---- contact sheet grid ---- */
+  .sheet-label{
+    display:flex;align-items:baseline;gap:1rem;margin:0 0 1.4rem;
+    font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red);
+  }
+  .sheet-label::after{content:"";flex:1;height:1px;background:var(--line)}
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:clamp(.9rem,2vw,1.6rem);padding-bottom:clamp(4rem,9vh,7rem);
+  }
+  figure.cell{
+    position:relative;background:var(--panel);border:1px solid var(--line);
+    padding:10px 10px 0;cursor:pointer;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1),border-color .4s,box-shadow .4s;
+  }
+  figure.cell:hover{
+    transform:translateY(-4px);border-color:rgba(211,52,42,.55);
+    box-shadow:0 0 0 1px rgba(211,52,42,.25),0 14px 40px -12px rgba(0,0,0,.8),0 0 50px -16px var(--red-glow);
+    z-index:5;
+  }
+  .imgbox{position:relative;overflow:hidden;aspect-ratio:1/1;background:#000}
+  .imgbox img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:saturate(.92) contrast(1.06) brightness(.82) sepia(.08);
+    transition:filter .6s ease, transform .9s ease;
+  }
+  figure.cell:hover .imgbox img{
+    filter:saturate(1.08) contrast(1.05) brightness(1.02) sepia(.04);transform:scale(1.04);
+  }
+  figure.cell.bw .imgbox img{filter:grayscale(1) contrast(1.12) brightness(.82)}
+  figure.cell.bw:hover .imgbox img{filter:grayscale(1) contrast(1.16) brightness(1)}
+  /* frame number tab in corner */
+  .frameno{
+    position:absolute;top:10px;left:10px;z-index:3;
+    font-size:.62rem;letter-spacing:.12em;color:var(--red);
+    background:rgba(12,11,10,.78);padding:.18rem .4rem;border:1px solid rgba(211,52,42,.4);
+  }
+  figcaption{padding:.7rem 2px .85rem}
+  .c-title{font-family:'Fraunces',serif;font-size:1.05rem;color:var(--bone);line-height:1.15;font-weight:500}
+  .c-loc{font-size:.72rem;color:var(--ash);margin-top:.2rem;font-style:italic;font-family:'Fraunces',serif}
+  .c-spec{
+    margin-top:.55rem;display:flex;flex-wrap:wrap;gap:.2rem .9rem;
+    font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ash-dim);
+  }
+  .c-spec .film{color:var(--red)}
+
+  footer{
+    border-top:1px solid var(--line);padding:clamp(3rem,8vh,5rem) 0 4rem;
+    display:flex;flex-wrap:wrap;justify-content:space-between;gap:1.4rem;align-items:flex-end;
+  }
+  footer .name{font-family:'Fraunces',serif;font-size:clamp(1.8rem,5vw,3rem);color:var(--bone)}
+  footer .name em{color:var(--red);font-style:italic}
+  footer .fine{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ash-dim);text-align:right}
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">&larr; All designs</a>
+
+<header class="wrap">
+  <div class="lamp"><span class="dot"></span> Safelight on — do not open door</div>
+  <h1>The<br><span class="red">Darkroom</span></h1>
+  <p class="sub">Wet prints, drying on the line. A working contact sheet from the negatives of Tom Milton — thirty years of light, developed by hand under the red lamp. Hover a frame to bring it up out of the dark.</p>
+  <div class="stat-bar">
+    <span><b>14</b> Frames</span>
+    <span><b>Stop:</b> f/8 &middot; <b>1/125</b></span>
+    <span><b>Developer:</b> D-76 1+1</span>
+    <span><b>Paper:</b> Ilford Multigrade</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="sheet-label">Roll 14 — Selected Frames</div>
+  <div class="grid">
+
+    <figure class="cell">
+      <span class="frameno">01</span>
+      <div class="imgbox"><img src="../../assets/img/mountain-road-fog.jpg" alt="A foggy mountain road winding through the Dolomites at night"></div>
+      <figcaption>
+        <div class="c-title">The Long Way Home</div>
+        <div class="c-loc">Dolomites, Italy</div>
+        <div class="c-spec"><span class="film">Cinestill 800T</span><span>Canon AE-1</span><span>2005</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell">
+      <span class="frameno">02</span>
+      <div class="imgbox"><img src="../../assets/img/cliff-coast-ocean.jpg" alt="Dramatic ocean cliffs at the edge of Big Sur"></div>
+      <figcaption>
+        <div class="c-title">Edge of the World</div>
+        <div class="c-loc">Big Sur, USA</div>
+        <div class="c-spec"><span class="film">Kodak Portra 400</span><span>Contax G2</span><span>2002</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell bw">
+      <span class="frameno">03</span>
+      <div class="imgbox"><img src="../../assets/img/man-portrait-street.jpg" alt="Black and white street portrait of a man in Havana"></div>
+      <figcaption>
+        <div class="c-title">Stranger, No. 14</div>
+        <div class="c-loc">Havana, Cuba</div>
+        <div class="c-spec"><span class="film">Kodak Tri-X 400</span><span>Leica M4</span><span>2012</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell">
+      <span class="frameno">04</span>
+      <div class="imgbox"><img src="../../assets/img/sun-through-leaves.jpg" alt="Sun backlighting green leaves in Kyoto"></div>
+      <figcaption>
+        <div class="c-title">Backlit</div>
+        <div class="c-loc">Kyoto, Japan</div>
+        <div class="c-spec"><span class="film">Kodak Portra 800</span><span>Leica M6</span><span>2004</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell">
+      <span class="frameno">05</span>
+      <div class="imgbox"><img src="../../assets/img/waterfall-bridge.jpg" alt="A hidden waterfall beneath a bridge in Iceland"></div>
+      <figcaption>
+        <div class="c-title">Hidden Falls</div>
+        <div class="c-loc">Iceland</div>
+        <div class="c-spec"><span class="film">Fuji Velvia 50</span><span>Nikon FM2</span><span>2006</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell bw">
+      <span class="frameno">06</span>
+      <div class="imgbox"><img src="../../assets/img/man-bw-portrait.jpg" alt="High-contrast black and white portrait of a man in shadow, Berlin"></div>
+      <figcaption>
+        <div class="c-title">Portrait in Shadow</div>
+        <div class="c-loc">Berlin, Germany</div>
+        <div class="c-spec"><span class="film">Ilford Delta 3200</span><span>Leica M6</span><span>2018</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell">
+      <span class="frameno">07</span>
+      <div class="imgbox"><img src="../../assets/img/vintage-car-street.jpg" alt="A vintage car on a sunlit street in Havana"></div>
+      <figcaption>
+        <div class="c-title">Sunday Drive</div>
+        <div class="c-loc">Havana, Cuba</div>
+        <div class="c-spec"><span class="film">Kodak Ektar 100</span><span>Nikon FE</span><span>2022</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell">
+      <span class="frameno">08</span>
+      <div class="imgbox"><img src="../../assets/img/foggy-pier-lake.jpg" alt="A quiet dock vanishing into fog on a lake in the Lake District"></div>
+      <figcaption>
+        <div class="c-title">The Quiet Dock</div>
+        <div class="c-loc">Lake District, UK</div>
+        <div class="c-spec"><span class="film">Cinestill 50D</span><span>Contax T2</span><span>2010</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell">
+      <span class="frameno">09</span>
+      <div class="imgbox"><img src="../../assets/img/woman-fashion-portrait.jpg" alt="Fashion portrait of a woman against a red wall in Marrakesh"></div>
+      <figcaption>
+        <div class="c-title">The Red Wall</div>
+        <div class="c-loc">Marrakesh, Morocco</div>
+        <div class="c-spec"><span class="film">Kodak Portra 400</span><span>Pentax 67</span><span>2019</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell">
+      <span class="frameno">10</span>
+      <div class="imgbox"><img src="../../assets/img/desert-dunes.jpg" alt="Wind-sculpted desert dunes in Namibia"></div>
+      <figcaption>
+        <div class="c-title">Wind Lines</div>
+        <div class="c-loc">Namibia</div>
+        <div class="c-spec"><span class="film">Kodak Ektar 100</span><span>Hasselblad 503CW</span><span>2008</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell">
+      <span class="frameno">11</span>
+      <div class="imgbox"><img src="../../assets/img/street-cafe-paris.jpg" alt="A Parisian street cafe, Cafe de Flore"></div>
+      <figcaption>
+        <div class="c-title">Caf&eacute; de Flore</div>
+        <div class="c-loc">Paris, France</div>
+        <div class="c-spec"><span class="film">Kodak Gold 200</span><span>Olympus OM-1</span><span>2020</span></div>
+      </figcaption>
+    </figure>
+
+    <figure class="cell">
+      <span class="frameno">12</span>
+      <div class="imgbox"><img src="../../assets/img/woman-curly-portrait.jpg" alt="Portrait of a woman with curly hair lit by tungsten light in Brooklyn"></div>
+      <figcaption>
+        <div class="c-title">Curls</div>
+        <div class="c-loc">Brooklyn, USA</div>
+        <div class="c-spec"><span class="film">Cinestill 800T</span><span>Canon AE-1</span><span>2017</span></div>
+      </figcaption>
+    </figure>
+
+  </div>
+</main>
+
+<footer class="wrap">
+  <div class="name">Tom <em>Milton</em></div>
+  <div class="fine">Hand-developed &middot; Roll 14 of the Archive<br>Printed under safelight &middot; &copy; 1995&ndash;2023</div>
+</footer>
+</body>
+</html>

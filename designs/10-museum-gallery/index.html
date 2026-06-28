@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — A Retrospective · The Exhibition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ============ GALLERY: THE EXHIBITION ============ */
+  :root{
+    --wall:#ece7df;
+    --wall-2:#e6e0d6;
+    --mat:#f7f3ea;
+    --mat-shadow:#cfc7b8;
+    --frame-dark:#1b1814;
+    --frame-wood:#2c241c;
+    --ink:#1f1b16;
+    --ink-soft:#6b6258;
+    --ink-faint:#9a9082;
+    --rule:#c9c0b2;
+    --accent:#7a5c3e;
+    --serif:'Cormorant Garamond',Georgia,serif;
+    --body:'EB Garamond',Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--body);
+    color:var(--ink);
+    background-color:var(--wall);
+    /* subtle plaster/paper noise via SVG data-URI */
+    background-image:
+      radial-gradient(120% 80% at 50% -10%, rgba(255,252,245,.85), rgba(236,231,223,0) 55%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-attachment:fixed,scroll;
+    background-blend-mode:multiply;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* faint plaster shading via overlay layer */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.18), rgba(0,0,0,.04) 60%, rgba(0,0,0,.08));
+    mix-blend-mode:multiply;
+  }
+  /* site-wide film grain */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size:200px 200px;
+  }
+
+  a{color:inherit}
+
+  /* ---- top-left back link ---- */
+  .back{
+    position:fixed;top:20px;left:24px;z-index:80;
+    font-family:var(--body);font-size:.82rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ink-soft);text-decoration:none;
+    padding:.4em .85em;border:1px solid var(--rule);border-radius:2px;
+    background:rgba(247,243,234,.7);backdrop-filter:blur(4px);
+    transition:color .3s,border-color .3s,background .3s;
+  }
+  .back:hover{color:var(--ink);border-color:var(--ink-soft);background:rgba(247,243,234,.95)}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 120px;position:relative;z-index:2}
+
+  /* ============ MASTHEAD / INTRO WALL TEXT ============ */
+  header.show{
+    text-align:center;padding:118px 0 30px;
+  }
+  .show .kicker{
+    font-family:var(--body);text-transform:uppercase;letter-spacing:.42em;
+    font-size:.72rem;color:var(--ink-faint);margin-bottom:26px;
+    padding-left:.42em;
+  }
+  .show h1{
+    font-family:var(--serif);font-weight:500;letter-spacing:.01em;
+    font-size:clamp(2.7rem,7vw,5.4rem);line-height:1.02;color:var(--ink);
+  }
+  .show h1 em{font-style:italic;font-weight:400;color:var(--accent)}
+  .show .subtitle{
+    font-family:var(--serif);font-style:italic;font-weight:400;
+    font-size:clamp(1.1rem,2.4vw,1.6rem);color:var(--ink-soft);margin-top:14px;
+  }
+  .show .dates{
+    margin-top:30px;font-family:var(--body);text-transform:uppercase;
+    letter-spacing:.2em;font-size:.74rem;color:var(--ink-faint);
+  }
+
+  /* curatorial blurb panel — pinned wall text */
+  .walltext{
+    max-width:560px;margin:54px auto 0;
+    background:var(--mat);
+    border:1px solid var(--rule);
+    padding:34px 38px 32px;
+    box-shadow:0 14px 34px -22px rgba(40,30,20,.5), 0 1px 0 rgba(255,255,255,.7) inset;
+    position:relative;text-align:left;
+  }
+  .walltext::before{
+    content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+    width:8px;height:8px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#5a5048,#241f19);
+    box-shadow:0 2px 3px rgba(0,0,0,.4);
+  }
+  .walltext h2{
+    font-family:var(--body);text-transform:uppercase;letter-spacing:.24em;
+    font-size:.72rem;color:var(--ink-faint);font-weight:500;margin-bottom:16px;
+  }
+  .walltext p{
+    font-family:var(--serif);font-size:1.18rem;line-height:1.62;color:var(--ink);
+  }
+  .walltext p + p{margin-top:14px}
+  .walltext .sign{
+    margin-top:20px;font-family:var(--body);font-style:italic;
+    font-size:.92rem;color:var(--ink-soft);
+  }
+
+  /* ============ ROOM DIVIDERS ============ */
+  .room{
+    text-align:center;margin:120px 0 64px;position:relative;
+  }
+  .room .num{
+    font-family:var(--serif);font-style:italic;font-size:1.15rem;
+    color:var(--accent);letter-spacing:.04em;margin-bottom:6px;
+  }
+  .room h3{
+    font-family:var(--serif);font-weight:500;
+    font-size:clamp(1.7rem,4vw,2.7rem);letter-spacing:.02em;color:var(--ink);
+  }
+  .room .rule{
+    width:64px;height:1px;background:var(--rule);margin:22px auto 0;
+  }
+  .room .note{
+    max-width:480px;margin:18px auto 0;font-style:italic;
+    font-family:var(--serif);font-size:1.05rem;color:var(--ink-soft);
+  }
+
+  /* ============ THE WALL — hung frames ============ */
+  .hang{
+    display:flex;flex-wrap:wrap;justify-content:center;
+    align-items:flex-start;
+    gap:56px 64px;
+  }
+  .piece{
+    display:flex;flex-direction:column;align-items:center;
+    width:var(--w,300px);
+    /* spotlight wash down each artwork */
+    position:relative;
+  }
+  .piece::before{
+    content:"";position:absolute;left:50%;top:-46px;transform:translateX(-50%);
+    width:150%;height:140%;pointer-events:none;z-index:0;
+    background:radial-gradient(120% 70% at 50% 0%, rgba(255,250,238,.55), rgba(255,250,238,0) 62%);
+    filter:blur(6px);
+  }
+  /* alignment offsets so the wall doesn't read like a grid */
+  .piece.high{align-self:flex-start;margin-top:-26px}
+  .piece.low{margin-top:42px}
+
+  /* ---- the frame ---- */
+  .frame{
+    position:relative;z-index:1;
+    background:
+      linear-gradient(135deg,#372d22,#1a140e 40%,#241c14 70%,#0f0b07);
+    padding:14px;
+    border-radius:2px;
+    box-shadow:
+      /* outer wall shadow — soft, cast down-right */
+      0 26px 40px -18px rgba(36,26,16,.55),
+      0 8px 16px -8px rgba(36,26,16,.4),
+      /* thin highlight on top edge (light from above) */
+      0 1px 0 rgba(255,245,225,.16) inset,
+      0 -2px 4px rgba(0,0,0,.5) inset;
+  }
+  .frame.wood{
+    background:
+      repeating-linear-gradient(92deg, #4a3927 0 2px, #3c2e1f 2px 5px, #463320 5px 8px),
+      linear-gradient(140deg,#523f2a,#2c2014 55%,#3a2c1c);
+    background-blend-mode:soft-light,normal;
+  }
+  /* inner gold/bevel line of frame */
+  .frame::after{
+    content:"";position:absolute;inset:9px;border-radius:1px;pointer-events:none;
+    box-shadow:0 0 0 1px rgba(0,0,0,.5), 0 0 0 2px rgba(180,150,110,.18);
+  }
+
+  /* ---- the mat (matting) ---- */
+  .mat{
+    background:var(--mat);
+    padding:var(--mat-pad,30px);
+    position:relative;
+    box-shadow:0 0 0 1px rgba(0,0,0,.06) inset;
+  }
+  /* bevel where mat meets print */
+  .mat::after{
+    content:"";position:absolute;
+    inset:var(--mat-pad,30px);
+    pointer-events:none;
+    box-shadow:
+      0 0 0 1px rgba(120,108,90,.5),
+      2px 3px 5px -1px rgba(60,50,38,.45) inset,
+      -1px -1px 2px rgba(255,255,255,.6);
+  }
+
+  /* ---- the print ---- */
+  .print{
+    display:block;width:100%;height:auto;
+    position:relative;z-index:1;
+    /* warm Kodak Portra grade for colour prints */
+    filter:saturate(1.06) contrast(.96) brightness(1.02) sepia(.08);
+  }
+  .print.bw{
+    filter:grayscale(1) contrast(1.04) brightness(1.0);
+  }
+  /* warm overlay tint + a soft top spotlight on the image itself */
+  .imgwrap{position:relative;line-height:0}
+  .imgwrap::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(255,238,210,.10), rgba(120,90,60,0) 38%),
+      linear-gradient(0deg, rgba(60,40,24,.10), rgba(60,40,24,0) 30%);
+    mix-blend-mode:multiply;
+  }
+  .imgwrap.bw::after{
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.08));
+    mix-blend-mode:normal;
+  }
+
+  /* ---- museum wall label / plaque ---- */
+  .label{
+    margin-top:22px;width:min(280px,86%);text-align:center;position:relative;z-index:1;
+  }
+  .label .title{
+    font-family:var(--serif);font-style:italic;font-weight:500;
+    font-size:1.34rem;line-height:1.2;color:var(--ink);
+  }
+  .label .year{font-style:normal;color:var(--ink-faint);font-size:1.05rem}
+  .label .meta{
+    margin-top:9px;font-family:var(--body);font-size:.82rem;
+    color:var(--ink-soft);line-height:1.55;letter-spacing:.01em;
+  }
+  .label .dims{
+    margin-top:9px;font-family:var(--body);font-size:.72rem;
+    text-transform:uppercase;letter-spacing:.16em;color:var(--ink-faint);
+  }
+  .label .ll{display:block}
+
+  /* ---- closing colophon ---- */
+  footer.colophon{
+    margin-top:130px;text-align:center;padding-top:46px;
+    border-top:1px solid var(--rule);
+  }
+  footer .mark{
+    font-family:var(--serif);font-size:2rem;font-style:italic;color:var(--ink);
+  }
+  footer .small{
+    margin-top:14px;font-family:var(--body);text-transform:uppercase;
+    letter-spacing:.22em;font-size:.7rem;color:var(--ink-faint);
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:760px){
+    .back{top:14px;left:14px;font-size:.74rem}
+    .wrap{padding:0 18px 80px}
+    header.show{padding:96px 0 20px}
+    .walltext{padding:26px 24px}
+    .hang{gap:48px 0;flex-direction:column;align-items:center}
+    .piece{width:min(360px,90vw)!important;margin-top:0!important;align-self:center!important}
+    .piece.high,.piece.low{margin-top:0!important}
+    .frame{padding:11px}
+    .mat{--mat-pad:20px!important}
+    .room{margin:80px 0 48px}
+  }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">← All designs</a>
+
+<div class="wrap">
+
+  <!-- ======= MASTHEAD ======= -->
+  <header class="show">
+    <div class="kicker">A Retrospective Exhibition · Halls of Light</div>
+    <h1>Tom Milton<br><em>Twenty-Five Years on Film</em></h1>
+    <div class="subtitle">photographs, 1996 – 2019</div>
+    <div class="dates">On view · 12 March – 28 June 2026 · Gallery East</div>
+
+    <section class="walltext">
+      <h2>Curator's Note</h2>
+      <p>Across a quarter-century, Tom Milton carried the same patient eye from Tuscan
+      wheatfields to the back streets of Havana. Working only in film, he waited for the
+      hour the light turned generous.</p>
+      <p>These prints — gathered here for the first time — trace a slow conversation
+      between place and portrait, between the silver of black and white and the warm,
+      forgiving grain of Kodak Portra.</p>
+      <div class="sign">— The Curatorial Department</div>
+    </section>
+  </header>
+
+  <!-- ======= GALLERY I — LANDSCAPES ======= -->
+  <section class="room">
+    <div class="num">Gallery I</div>
+    <h3>The Wide Country</h3>
+    <div class="rule"></div>
+    <p class="note">Horizons held at the edge of daylight — large-format land studies from two decades of travel.</p>
+  </section>
+
+  <div class="hang">
+
+    <figure class="piece high" style="--w:380px;--mat-pad:34px">
+      <div class="frame wood">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/golden-field-sunburst.jpg"
+              alt="A golden Tuscan wheat field glowing under a low sunburst at dusk, stalks lit warmly against a hazy sky." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Last Light, Wheat Country <span class="year">1998</span></div>
+        <div class="meta">Tuscany, Italy<br>Kodak Portra 400 · Leica M6</div>
+        <div class="dims">Archival pigment print · 50 × 75 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece low" style="--w:300px;--mat-pad:30px">
+      <div class="frame">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/lake-cabin-dawn.jpg"
+              alt="A small lakeside cabin at dawn in Banff, still water reflecting pale pink mountains and mist." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">The Cabin at Dawn <span class="year">2003</span></div>
+        <div class="meta">Banff, Canada<br>Kodak Ektar 100 · Mamiya 7 II</div>
+        <div class="dims">Archival pigment print · 40 × 50 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece" style="--w:330px;--mat-pad:32px">
+      <div class="frame wood">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/cliff-coast-ocean.jpg"
+              alt="Rugged cliffs meeting the Pacific at Big Sur, ocean haze softening the distant headlands at golden hour." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Edge of the World <span class="year">2002</span></div>
+        <div class="meta">Big Sur, USA<br>Kodak Portra 400 · Contax G2</div>
+        <div class="dims">Archival pigment print · 45 × 60 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece high" style="--w:300px;--mat-pad:30px">
+      <div class="frame">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/lake-mountain-house.jpg"
+              alt="A lakeside house in Hallstatt mirrored perfectly in still morning water beneath alpine peaks." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Reflections, Still Morning <span class="year">2000</span></div>
+        <div class="meta">Hallstatt, Austria<br>Kodak Ektar 100 · Mamiya RZ67</div>
+        <div class="dims">Archival pigment print · 40 × 50 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece low" style="--w:360px;--mat-pad:32px">
+      <div class="frame wood">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/desert-dunes.jpg"
+              alt="Wind-sculpted red dunes in Namibia, sharp shadow lines dividing sunlit crests from cool valleys." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Wind Lines <span class="year">2008</span></div>
+        <div class="meta">Namibia<br>Kodak Ektar 100 · Hasselblad 503CW</div>
+        <div class="dims">Archival pigment print · 50 × 75 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece" style="--w:300px;--mat-pad:30px">
+      <div class="frame">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/landscape-misty-mountains.jpg"
+              alt="Layers of fog drifting between forested Cascade ridgelines in the cool light of early morning." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Morning Fog, Cascades <span class="year">2001</span></div>
+        <div class="meta">Washington, USA<br>Fujifilm Pro 400H · Pentax 67</div>
+        <div class="dims">Archival pigment print · 45 × 55 cm</div>
+      </figcaption>
+    </figure>
+
+  </div>
+
+  <!-- ======= GALLERY II — PORTRAITS ======= -->
+  <section class="room">
+    <div class="num">Gallery II</div>
+    <h3>The Human Hour</h3>
+    <div class="rule"></div>
+    <p class="note">Strangers and sitters met on the road — half in colour, half in the silver of black and white.</p>
+  </section>
+
+  <div class="hang">
+
+    <figure class="piece high" style="--w:300px;--mat-pad:34px">
+      <div class="frame wood">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/woman-portrait-window.jpg"
+              alt="A woman seated by a window in Lisbon, soft daylight falling across her face and shoulder." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">By the Window <span class="year">2011</span></div>
+        <div class="meta">Lisbon, Portugal<br>Kodak Portra 400 · Pentax 67</div>
+        <div class="dims">Archival pigment print · 40 × 50 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece low" style="--w:310px;--mat-pad:34px">
+      <div class="frame">
+        <div class="mat">
+          <div class="imgwrap bw">
+            <img class="print bw" src="../../assets/img/man-portrait-street.jpg"
+              alt="Black-and-white portrait of a weathered man on a Havana street, deep tonal contrast across his face." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Stranger, No. 14 <span class="year">2012</span></div>
+        <div class="meta">Havana, Cuba<br>Kodak Tri-X 400 · Leica M4</div>
+        <div class="dims">Gelatin silver print · 40 × 50 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece" style="--w:300px;--mat-pad:32px">
+      <div class="frame wood">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/woman-portrait-soft.jpg"
+              alt="A softly lit portrait of a woman in Paris, gentle pastel tones and a tender, faraway gaze." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Soft Hour <span class="year">2014</span></div>
+        <div class="meta">Paris, France<br>Fujifilm Pro 400H · Contax 645</div>
+        <div class="dims">Archival pigment print · 40 × 50 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece high" style="--w:300px;--mat-pad:34px">
+      <div class="frame">
+        <div class="mat">
+          <div class="imgwrap bw">
+            <img class="print bw" src="../../assets/img/man-bw-portrait.jpg"
+              alt="A dramatic black-and-white portrait of a man in Berlin, half his face emerging from deep shadow." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Portrait in Shadow <span class="year">2018</span></div>
+        <div class="meta">Berlin, Germany<br>Ilford Delta 3200 · Leica M6</div>
+        <div class="dims">Gelatin silver print · 40 × 50 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece low" style="--w:330px;--mat-pad:32px">
+      <div class="frame wood">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/woman-fashion-portrait.jpg"
+              alt="A striking portrait of a woman against a saturated red wall in Marrakesh, warm light raking across the surface." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">The Red Wall <span class="year">2019</span></div>
+        <div class="meta">Marrakesh, Morocco<br>Kodak Portra 400 · Pentax 67</div>
+        <div class="dims">Archival pigment print · 50 × 60 cm</div>
+      </figcaption>
+    </figure>
+
+  </div>
+
+  <!-- ======= GALLERY III — NATURE / SILENCE ======= -->
+  <section class="room">
+    <div class="num">Gallery III</div>
+    <h3>The Quiet Wild</h3>
+    <div class="rule"></div>
+    <p class="note">Forests, falling water, and the hush between the trees — where the photographer waited longest.</p>
+  </section>
+
+  <div class="hang">
+
+    <figure class="piece" style="--w:330px;--mat-pad:32px">
+      <div class="frame wood">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/forest-sunlight.jpg"
+              alt="Tall pines in the Olympic forest, shafts of warm sunlight cutting through the canopy onto the floor." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Cathedral of Pines <span class="year">1996</span></div>
+        <div class="meta">Olympic NP, USA<br>Kodak Portra 160 · Hasselblad 500CM</div>
+        <div class="dims">Archival pigment print · 45 × 55 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece high" style="--w:300px;--mat-pad:34px">
+      <div class="frame">
+        <div class="mat">
+          <div class="imgwrap bw">
+            <img class="print bw" src="../../assets/img/misty-pine-forest.jpg"
+              alt="Black-and-white study of pine trees fading into thick fog in Norway, a hushed and weightless silence." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Silence <span class="year">2003</span></div>
+        <div class="meta">Norway<br>Ilford HP5 Plus · Leica M6</div>
+        <div class="dims">Gelatin silver print · 40 × 50 cm</div>
+      </figcaption>
+    </figure>
+
+    <figure class="piece low" style="--w:320px;--mat-pad:32px">
+      <div class="frame wood">
+        <div class="mat">
+          <div class="imgwrap">
+            <img class="print" src="../../assets/img/waterfall-bridge.jpg"
+              alt="A hidden Icelandic waterfall seen from a small footbridge, vivid green moss framing the rushing water." loading="lazy">
+          </div>
+        </div>
+      </div>
+      <figcaption class="label">
+        <div class="title">Hidden Falls <span class="year">2006</span></div>
+        <div class="meta">Iceland<br>Fujifilm Velvia 50 · Nikon FM2</div>
+        <div class="dims">Archival pigment print · 50 × 60 cm</div>
+      </figcaption>
+    </figure>
+
+  </div>
+
+  <!-- ======= COLOPHON ======= -->
+  <footer class="colophon">
+    <div class="mark">Tom Milton</div>
+    <div class="small">A Retrospective · Halls of Light · 2026</div>
+    <div class="small" style="margin-top:8px">All works on film · Curatorial Department, Gallery East</div>
+  </footer>
+
+</div>
+</body>
+</html>

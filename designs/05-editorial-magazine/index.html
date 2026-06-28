@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PORTRA — The Magazine · Issue 14 · Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f1ea;
+    --paper-2:#ece7db;
+    --ink:#15120e;
+    --ink-soft:#3a342b;
+    --muted:#8a8170;
+    --accent:#c8442b;        /* Portra warm red/orange */
+    --accent-deep:#8f2c1c;
+    --line:#cabfa8;
+    --display:'Anton', sans-serif;
+    --condensed:'Bebas Neue', sans-serif;
+    --serif:'Playfair Display', serif;
+    --body:'Spectral', Georgia, serif;
+    --portra:sepia(0.12) saturate(1.06) contrast(0.97) brightness(1.02);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--body);
+    font-weight:400;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  /* faint paper texture via gradients */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(0,0,0,0.025), transparent 60%),
+      radial-gradient(circle at 85% 90%, rgba(0,0,0,0.03), transparent 60%);
+    mix-blend-mode:multiply;
+  }
+
+  /* SVG grain overlay */
+  .grain{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:2;
+    opacity:0.06;
+    mix-blend-mode:multiply;
+  }
+
+  img{display:block;max-width:100%;}
+
+  .wrap{
+    position:relative;
+    z-index:3;
+    max-width:1320px;
+    margin:0 auto;
+    padding:0 clamp(1.1rem, 4vw, 3.5rem);
+  }
+
+  /* ---------- shared editorial bits ---------- */
+  .label{
+    font-family:var(--condensed);
+    letter-spacing:0.42em;
+    text-transform:uppercase;
+    font-size:clamp(.7rem,1.1vw,.86rem);
+    color:var(--accent);
+  }
+  .folio{
+    font-family:var(--condensed);
+    letter-spacing:0.3em;
+    font-size:.95rem;
+    color:var(--muted);
+  }
+  .rule{height:2px;background:var(--ink);border:0;}
+  .rule-thin{height:1px;background:var(--line);border:0;}
+
+  figure{margin:0;}
+  .cap{
+    margin-top:.7rem;
+    font-family:var(--condensed);
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    font-size:.72rem;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .cap .ttl{color:var(--accent-deep);}
+  .photo{position:relative;overflow:hidden;background:var(--paper-2);}
+  .photo img{
+    width:100%;height:100%;object-fit:cover;
+    filter:var(--portra);
+    transition:transform 1.1s cubic-bezier(.2,.7,.2,1), filter .7s ease;
+  }
+  .photo.bw img{filter:grayscale(1) contrast(1.04) brightness(1.02);}
+  .photo:hover img{transform:scale(1.045);}
+  .photo.bw:hover img{filter:grayscale(1) contrast(1.08) brightness(1.07);}
+  /* caption reveal overlay variant */
+  .photo .over{
+    position:absolute;left:0;right:0;bottom:0;
+    padding:1rem 1.1rem .9rem;
+    color:#f7f3ea;
+    font-family:var(--condensed);
+    letter-spacing:0.16em;text-transform:uppercase;font-size:.72rem;
+    background:linear-gradient(to top, rgba(10,8,6,.78), rgba(10,8,6,0));
+    transform:translateY(110%);
+    opacity:0;
+    transition:transform .55s cubic-bezier(.2,.7,.2,1), opacity .45s ease;
+  }
+  .photo .over .ttl{color:#ffcaba;}
+  .photo:hover .over{transform:translateY(0);opacity:1;}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:relative;z-index:4;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:1rem clamp(1.1rem,4vw,3.5rem);
+    border-bottom:1px solid var(--line);
+    background:var(--paper);
+  }
+  .back{
+    font-family:var(--condensed);
+    letter-spacing:0.28em;text-transform:uppercase;
+    font-size:.8rem;color:var(--ink);text-decoration:none;
+    display:inline-flex;align-items:center;gap:.5rem;
+    transition:color .3s ease;
+  }
+  .back:hover{color:var(--accent);}
+  .topbar .meta{
+    font-family:var(--condensed);letter-spacing:0.28em;text-transform:uppercase;
+    font-size:.8rem;color:var(--muted);
+  }
+
+  /* ================= COVER ================= */
+  .cover{
+    position:relative;
+    padding:clamp(1.4rem,3vw,2.4rem) 0 clamp(2rem,5vw,4rem);
+  }
+  .masthead{
+    font-family:var(--display);
+    font-size:clamp(4.6rem,28vw,22rem);
+    line-height:.8;
+    margin:0;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+    text-align:center;
+    position:relative;
+    z-index:5;
+    mix-blend-mode:multiply;
+  }
+  .masthead .dot{color:var(--accent);}
+  .cover-top{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    gap:1rem;flex-wrap:wrap;
+    margin-bottom:.4rem;
+  }
+  .cover-top .tagline{
+    font-family:var(--body);font-style:italic;font-size:clamp(.85rem,1.6vw,1.05rem);
+    color:var(--ink-soft);max-width:24ch;
+  }
+  .cover-top .issue{
+    font-family:var(--condensed);letter-spacing:0.3em;text-transform:uppercase;
+    font-size:clamp(.78rem,1.4vw,1rem);color:var(--accent);text-align:right;
+  }
+
+  .cover-stage{
+    position:relative;
+    margin-top:clamp(-1rem,-2vw,-2rem);
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    grid-auto-rows:minmax(10px,auto);
+    align-items:end;
+  }
+  .cover-hero{
+    grid-column:4 / 11;
+    grid-row:1;
+    aspect-ratio:3/4;
+    z-index:4;
+    box-shadow:0 30px 70px -30px rgba(20,14,8,.5);
+  }
+  .cover-side{
+    grid-column:1 / 5;
+    grid-row:1;
+    align-self:start;
+    margin-top:14%;
+    aspect-ratio:4/5;
+    z-index:6;
+    box-shadow:0 24px 50px -28px rgba(20,14,8,.55);
+  }
+  .cover-side-2{
+    grid-column:10 / 13;
+    grid-row:1;
+    align-self:end;
+    margin-bottom:-6%;
+    aspect-ratio:3/4;
+    z-index:6;
+    box-shadow:0 24px 50px -28px rgba(20,14,8,.55);
+  }
+  .cover-lines{
+    grid-column:1 / 5;grid-row:1;align-self:end;
+    z-index:7;
+    margin-bottom:8%;
+  }
+  .cover-lines .kicker{
+    font-family:var(--condensed);letter-spacing:0.3em;text-transform:uppercase;
+    font-size:.8rem;color:var(--accent);margin-bottom:.4rem;
+  }
+  .cover-lines .feature{
+    font-family:var(--serif);font-weight:900;font-size:clamp(1.4rem,3.2vw,2.4rem);
+    line-height:1.02;color:var(--ink);
+  }
+  .cover-lines .byline{
+    margin-top:.6rem;font-style:italic;color:var(--ink-soft);font-size:1rem;
+  }
+  .cover-foot{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:clamp(1.4rem,3vw,2.4rem);
+    padding-top:1rem;border-top:2px solid var(--ink);
+  }
+  .cover-foot .barcode{
+    font-family:var(--condensed);letter-spacing:0.05em;color:var(--ink-soft);font-size:.85rem;
+  }
+
+  /* ================= CONTENTS STRIP ================= */
+  .contents{
+    margin:clamp(3rem,7vw,6rem) 0;
+    display:grid;grid-template-columns:1fr 2.4fr;gap:clamp(1.5rem,4vw,3.5rem);
+    align-items:start;
+  }
+  .contents h2{
+    font-family:var(--display);font-size:clamp(2.6rem,9vw,6rem);line-height:.85;
+    margin:0;color:var(--ink);
+  }
+  .contents h2 small{display:block;font-family:var(--condensed);letter-spacing:0.3em;font-size:.9rem;color:var(--accent);margin-top:.6rem;}
+  .toc{display:grid;grid-template-columns:repeat(2,1fr);gap:.1rem 2.5rem;}
+  .toc .row{
+    display:flex;gap:1rem;align-items:baseline;
+    padding:.7rem 0;border-bottom:1px solid var(--line);
+  }
+  .toc .num{font-family:var(--condensed);color:var(--accent);font-size:1.1rem;letter-spacing:.1em;min-width:2.4ch;}
+  .toc .t{font-family:var(--serif);font-weight:600;font-size:1.05rem;flex:1;}
+  .toc .pg{font-family:var(--condensed);color:var(--muted);letter-spacing:.2em;font-size:.85rem;}
+
+  /* ================= SPREAD SHELL ================= */
+  .spread{position:relative;padding:clamp(2.5rem,6vw,5.5rem) 0;}
+  .spread-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:clamp(1.4rem,3vw,2.4rem);
+    gap:1rem;flex-wrap:wrap;
+  }
+
+  /* FEATURE SPREAD: big portrait + pull quote */
+  .feature{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:clamp(1rem,2.5vw,2rem);
+    align-items:center;
+  }
+  .feature .portrait{
+    grid-column:1 / 7;
+    grid-row:1;
+    aspect-ratio:4/5;
+    z-index:3;
+    box-shadow:0 30px 60px -34px rgba(20,14,8,.5);
+  }
+  .feature .txt{
+    grid-column:6 / 13;
+    grid-row:1;
+    z-index:4;
+    background:var(--paper);
+    padding:clamp(1.4rem,3vw,2.6rem);
+    margin-left:-3%;
+    box-shadow:0 24px 60px -40px rgba(20,14,8,.4);
+  }
+  .feature .drop{
+    font-family:var(--serif);font-size:1.06rem;line-height:1.7;color:var(--ink-soft);
+    max-width:46ch;
+  }
+  .feature .drop::first-letter{
+    font-family:var(--display);
+    float:left;font-size:4.6rem;line-height:.7;
+    padding:.18em .12em 0 0;color:var(--accent);
+  }
+  .pullquote{
+    font-family:var(--serif);font-style:italic;font-weight:600;
+    font-size:clamp(1.6rem,3.6vw,2.9rem);
+    line-height:1.12;color:var(--ink);
+    margin:0 0 1.4rem;
+    text-indent:-0.4em;
+  }
+  .pullquote .mark{color:var(--accent);}
+  .sig{margin-top:1.4rem;font-family:var(--condensed);letter-spacing:0.26em;text-transform:uppercase;font-size:.8rem;color:var(--muted);}
+  .sig b{color:var(--ink);font-weight:400;}
+
+  /* LANDSCAPE full-bleed spread */
+  .bleed{
+    position:relative;
+    width:100vw;
+    left:50%;transform:translateX(-50%);
+    margin:clamp(2.5rem,6vw,5rem) 0;
+  }
+  .bleed .photo{aspect-ratio:21/9;}
+  .bleed .credit{
+    max-width:1320px;margin:0 auto;padding:.9rem clamp(1.1rem,4vw,3.5rem) 0;
+    display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  }
+  .bleed .big{
+    position:absolute;left:50%;transform:translateX(-50%);
+    bottom:clamp(1rem,4vw,3rem);
+    width:100%;max-width:1320px;
+    padding:0 clamp(1.1rem,4vw,3.5rem);
+    pointer-events:none;
+  }
+  .bleed .big h3{
+    font-family:var(--display);font-size:clamp(2.4rem,10vw,8rem);line-height:.82;
+    margin:0;color:#f7f3ea;mix-blend-mode:screen;
+    text-shadow:0 4px 30px rgba(0,0,0,.4);
+  }
+
+  /* GRID spread of smaller images */
+  .gridspread{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:clamp(.9rem,2vw,1.6rem);
+  }
+  .gridspread .g{position:relative;}
+  .g1{grid-column:1 / 5;aspect-ratio:3/4;}
+  .g2{grid-column:5 / 9;aspect-ratio:3/4;margin-top:14%;}
+  .g3{grid-column:9 / 13;aspect-ratio:3/4;}
+  .g4{grid-column:1 / 6;aspect-ratio:4/3;margin-top:-6%;}
+  .g5{grid-column:6 / 13;aspect-ratio:16/9;}
+  .gridspread .g .photo{height:100%;}
+
+  .sidenote{
+    grid-column:1 / 13;
+    margin-top:1rem;
+    columns:2;column-gap:clamp(1.5rem,4vw,3rem);
+    font-family:var(--body);font-size:1.02rem;line-height:1.75;color:var(--ink-soft);
+  }
+  .sidenote p{margin:0 0 1rem;}
+
+  /* DUO portrait spread */
+  .duo{
+    display:grid;grid-template-columns:repeat(12,1fr);
+    gap:clamp(1rem,2.5vw,2rem);align-items:start;
+  }
+  .duo .a{grid-column:1 / 6;aspect-ratio:4/5;}
+  .duo .mid{grid-column:6 / 9;align-self:center;padding:1rem 0;}
+  .duo .b{grid-column:9 / 13;aspect-ratio:4/5;margin-top:18%;}
+  .duo .mid blockquote{
+    margin:0;font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,2.4vw,1.7rem);
+    line-height:1.2;text-align:center;color:var(--ink);
+  }
+  .duo .mid cite{display:block;margin-top:1rem;font-style:normal;font-family:var(--condensed);letter-spacing:.26em;text-transform:uppercase;font-size:.78rem;color:var(--accent);}
+
+  /* CLOSING spread */
+  .closing{
+    position:relative;
+    text-align:center;
+    padding:clamp(3rem,8vw,7rem) 0 clamp(2rem,5vw,4rem);
+  }
+  .closing .endmark{font-family:var(--condensed);letter-spacing:0.4em;text-transform:uppercase;color:var(--accent);font-size:.85rem;}
+  .closing h2{
+    font-family:var(--display);font-size:clamp(3rem,15vw,12rem);line-height:.82;margin:.6rem 0;color:var(--ink);
+  }
+  .closing .by{font-family:var(--serif);font-style:italic;font-size:clamp(1.1rem,2.4vw,1.6rem);color:var(--ink-soft);}
+  .closing .by b{font-style:normal;font-weight:700;color:var(--accent-deep);}
+  .closing-strip{
+    margin-top:clamp(2rem,5vw,3.5rem);
+    display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.7rem,2vw,1.4rem);
+  }
+  .closing-strip .photo{aspect-ratio:1/1;}
+
+  /* ================= COLOPHON / FOOTER ================= */
+  footer{
+    border-top:2px solid var(--ink);
+    margin-top:clamp(3rem,7vw,6rem);
+    padding:clamp(2rem,5vw,3.5rem) 0 clamp(3rem,6vw,4rem);
+  }
+  .colophon{
+    display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:2rem;
+    font-family:var(--condensed);letter-spacing:0.14em;text-transform:uppercase;font-size:.78rem;
+    color:var(--ink-soft);
+  }
+  .colophon h4{font-family:var(--display);font-size:1.6rem;letter-spacing:0;margin:0 0 .6rem;color:var(--ink);text-transform:none;}
+  .colophon a{color:var(--accent);text-decoration:none;}
+  .colophon .big-name{font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:0;font-size:1.05rem;color:var(--ink);}
+
+  /* ===== reveal on scroll ===== */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in{opacity:1;transform:none;}
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width:880px){
+    .masthead{font-size:clamp(4rem,30vw,9rem);}
+    .cover-stage{display:block;margin-top:1.4rem;}
+    .cover-hero,.cover-side,.cover-side-2{margin:0 0 1rem;width:100%;box-shadow:0 18px 40px -26px rgba(20,14,8,.5);}
+    .cover-side{margin-top:0;}
+    .cover-lines{margin:0 0 1.4rem;}
+
+    .contents{grid-template-columns:1fr;gap:1.6rem;}
+    .toc{grid-template-columns:1fr;}
+
+    .feature{display:block;}
+    .feature .portrait{margin-bottom:1.2rem;}
+    .feature .txt{margin-left:0;box-shadow:none;padding:0;}
+
+    .gridspread{display:block;}
+    .gridspread .g{margin:0 0 1.1rem !important;aspect-ratio:4/5;}
+    .g5{aspect-ratio:16/9;}
+    .sidenote{columns:1;}
+
+    .duo{display:block;}
+    .duo .a,.duo .b{margin:0 0 1.2rem !important;width:100%;}
+    .duo .mid{padding:1.4rem 0;}
+
+    .bleed .photo{aspect-ratio:4/5;}
+    .bleed .big h3{font-size:clamp(2.2rem,14vw,5rem);}
+
+    .closing-strip{grid-template-columns:1fr;}
+    .colophon{grid-template-columns:1fr;gap:1.4rem;}
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG grain -->
+<svg class="grain" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grainf">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#grainf)"/>
+</svg>
+
+<!-- ======= TOP BAR ======= -->
+<div class="topbar">
+  <a class="back" href="../../index.html">&larr; All designs</a>
+  <span class="meta">PORTRA · Issue 14 · Summer 2026</span>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ COVER SPREAD ============ -->
+  <section class="cover" id="cover">
+    <div class="cover-top">
+      <p class="tagline">A quarterly study of light, grain &amp; the people in front of the lens.</p>
+      <p class="issue">Issue 14 &mdash; Summer 2026<br>£18 · The Portrait Issue</p>
+    </div>
+
+    <h1 class="masthead">PORTR<span class="dot">A</span></h1>
+
+    <div class="cover-stage">
+      <figure class="photo cover-hero reveal">
+        <img src="../../assets/img/woman-fashion-portrait.jpg" alt="Portrait of a woman against a deep red wall in Marrakesh, photographed on Kodak Portra 400">
+        <figcaption class="over">PLATE 01 · <span class="ttl">The Red Wall</span> · Marrakesh · Pentax 67 · 2019</figcaption>
+      </figure>
+      <figure class="photo cover-side reveal">
+        <img src="../../assets/img/woman-laughing-portrait.jpg" alt="A woman laughing in warm light, Mexico City">
+        <figcaption class="over">PLATE 02 · <span class="ttl">That Laugh</span> · Mexico City</figcaption>
+      </figure>
+      <figure class="photo cover-side-2 reveal">
+        <img src="../../assets/img/couple-silhouette-sunset.jpg" alt="Couple silhouetted against a Santorini sunset">
+        <figcaption class="over">PLATE 03 · <span class="ttl">Goodnight</span> · Santorini</figcaption>
+      </figure>
+      <div class="cover-lines reveal">
+        <p class="kicker">The Cover Story</p>
+        <p class="feature">Twenty-five years<br>chasing the<br>last good light.</p>
+        <p class="byline">Photographs by Tom Milton</p>
+      </div>
+    </div>
+
+    <div class="cover-foot">
+      <span class="folio">014</span>
+      <span class="barcode">▌▌ ▌ ▌▌▌ ▌ ▌▌ ▌▌▌ ▌ &nbsp; 9 771463 14<b>014</b></span>
+      <span class="label">On Film, Always</span>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ CONTENTS ============ -->
+  <section class="contents reveal" id="contents">
+    <div>
+      <h2>In<br>This<br>Issue<small>Contents · No. 14</small></h2>
+    </div>
+    <div class="toc">
+      <div class="row"><span class="num">01</span><span class="t">The Red Wall &mdash; a cover study</span><span class="pg">014</span></div>
+      <div class="row"><span class="num">02</span><span class="t">An Interview With the Light</span><span class="pg">016</span></div>
+      <div class="row"><span class="num">03</span><span class="t">Edge of the World</span><span class="pg">020</span></div>
+      <div class="row"><span class="num">04</span><span class="t">Faces, Kept on Grain</span><span class="pg">024</span></div>
+      <div class="row"><span class="num">05</span><span class="t">Two Portraits, One Hour</span><span class="pg">028</span></div>
+      <div class="row"><span class="num">06</span><span class="t">Streets at Gold &amp; Dusk</span><span class="pg">030</span></div>
+      <div class="row"><span class="num">07</span><span class="t">Colophon &amp; Plates</span><span class="pg">034</span></div>
+      <div class="row"><span class="num">08</span><span class="t">The Long Way Home</span><span class="pg">036</span></div>
+    </div>
+  </section>
+
+  <hr class="rule-thin">
+
+  <!-- ============ FEATURE SPREAD ============ -->
+  <section class="spread" id="feature">
+    <div class="spread-head">
+      <span class="label">Feature · The Interview</span>
+      <span class="folio">016 — 017</span>
+    </div>
+
+    <div class="feature">
+      <figure class="photo portrait reveal">
+        <img src="../../assets/img/woman-portrait-soft.jpg" alt="Soft, warm-toned portrait of a woman in Paris on Fujifilm Pro 400H">
+      </figure>
+      <div class="txt reveal">
+        <p class="pullquote"><span class="mark">&ldquo;</span>I never wait for the perfect moment. I wait for the perfect <em>light</em> &mdash; the moment will arrive inside it.<span class="mark">&rdquo;</span></p>
+        <p class="drop">For twenty-five years Tom Milton has refused to leave film behind. His negatives travel from a Marrakesh courtyard to a Paris café, from the cliffs of Big Sur to a studio with one north-facing window. What binds them is not a place but a temperature &mdash; that warm, forgiving Portra glow he chases like a season. We sat with him between rolls.</p>
+        <p class="sig"><b>Tom Milton</b> · in conversation, Lisbon · May 2026</p>
+        <figcaption class="cap">PLATE 04 · <span class="ttl">Soft Hour</span> · Paris, France · Fujifilm Pro 400H · Contax 645 · 2014</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FULL-BLEED LANDSCAPE ============ -->
+  <div class="bleed" id="bleed">
+    <figure class="photo reveal">
+      <img src="../../assets/img/cliff-coast-ocean.jpg" alt="Rugged cliff coastline meeting the ocean at Big Sur, California, on Kodak Portra 400">
+      <div class="big"><h3>EDGE OF<br>THE WORLD</h3></div>
+    </figure>
+    <div class="credit">
+      <figcaption class="cap">PLATE 05 · <span class="ttl">Edge of the World</span> · Big Sur, USA · Kodak Portra 400 · Contax G2 · 2002</figcaption>
+      <span class="folio">020 — 021</span>
+    </div>
+  </div>
+
+  <!-- ============ GRID SPREAD ============ -->
+  <section class="spread" id="grid">
+    <div class="spread-head">
+      <span class="label">Portfolio · Faces, Kept on Grain</span>
+      <span class="folio">024 — 025</span>
+    </div>
+
+    <div class="gridspread">
+      <figure class="g g1 reveal">
+        <div class="photo" style="height:100%">
+          <img src="../../assets/img/woman-portrait-freckles.jpg" alt="Studio portrait of a freckled woman in soft light on Kodak Portra 160">
+          <figcaption class="over">PLATE 06 · <span class="ttl">Freckles &amp; Sun</span> · Studio</figcaption>
+        </div>
+        <figcaption class="cap">PLATE 06 · <span class="ttl">Freckles &amp; Sun</span> · Studio · Portra 160 · Mamiya 645 · 2015</figcaption>
+      </figure>
+
+      <figure class="g g2 reveal">
+        <div class="photo" style="height:100%">
+          <img src="../../assets/img/woman-curly-portrait.jpg" alt="Portrait of a woman with curly hair in Brooklyn on Cinestill 800T">
+          <figcaption class="over">PLATE 07 · <span class="ttl">Curls</span> · Brooklyn</figcaption>
+        </div>
+        <figcaption class="cap">PLATE 07 · <span class="ttl">Curls</span> · Brooklyn, USA · Cinestill 800T · Canon AE-1 · 2017</figcaption>
+      </figure>
+
+      <figure class="g g3 reveal">
+        <div class="photo bw" style="height:100%">
+          <img src="../../assets/img/man-bw-portrait.jpg" alt="Black and white portrait of a man in shadow, Berlin, on Ilford Delta 3200">
+          <figcaption class="over">PLATE 08 · <span class="ttl">Portrait in Shadow</span> · Berlin</figcaption>
+        </div>
+        <figcaption class="cap">PLATE 08 · <span class="ttl">Portrait in Shadow</span> · Berlin · Ilford Delta 3200 · Leica M6 · 2018</figcaption>
+      </figure>
+
+      <figure class="g g4 reveal">
+        <div class="photo" style="height:100%">
+          <img src="../../assets/img/friends-golden-hour.jpg" alt="Friends laughing together at golden hour in California on Kodak Portra 400">
+          <figcaption class="over">PLATE 09 · <span class="ttl">Golden Hour, Together</span> · California</figcaption>
+        </div>
+        <figcaption class="cap">PLATE 09 · <span class="ttl">Golden Hour, Together</span> · California, USA · Portra 400 · Nikon F100 · 2016</figcaption>
+      </figure>
+
+      <figure class="g g5 reveal">
+        <div class="photo" style="height:100%">
+          <img src="../../assets/img/golden-field-sunburst.jpg" alt="Sunburst over a golden wheat field in Tuscany on Kodak Portra 400">
+          <figcaption class="over">PLATE 10 · <span class="ttl">Last Light, Wheat Country</span> · Tuscany</figcaption>
+        </div>
+        <figcaption class="cap">PLATE 10 · <span class="ttl">Last Light, Wheat Country</span> · Tuscany, Italy · Portra 400 · Leica M6 · 1998</figcaption>
+      </figure>
+
+      <div class="sidenote reveal">
+        <p>There is a softness to the way Milton renders skin that no sensor has matched for him &mdash; a grain that flatters rather than describes. He shoots wide open, meters for shadow, and lets the highlights breathe until they nearly blow. &ldquo;A face on Portra is a kindness,&rdquo; he says. &ldquo;The film forgives, the way you hope a person will.&rdquo;</p>
+        <p>These five frames span two decades and four films, yet they hold a single mood. Whether a stranger's laugh in Mexico City or a freckled study under north light, the constant is patience &mdash; and a refusal to interrupt the moment with anything louder than a shutter.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule-thin">
+
+  <!-- ============ DUO SPREAD ============ -->
+  <section class="spread" id="duo">
+    <div class="spread-head">
+      <span class="label">Two Portraits, One Hour</span>
+      <span class="folio">028 — 029</span>
+    </div>
+
+    <div class="duo">
+      <figure class="photo a reveal">
+        <img src="../../assets/img/desert-dunes.jpg" alt="Wind-carved desert dunes in Namibia on Kodak Ektar 100">
+        <figcaption class="over">PLATE 11 · <span class="ttl">Wind Lines</span> · Namibia</figcaption>
+      </figure>
+      <div class="mid reveal">
+        <blockquote>&ldquo;The desert taught me to stop posing the world. You arrive, you wait, the wind writes the picture for you.&rdquo;<cite>— Tom Milton</cite></blockquote>
+      </div>
+      <figure class="photo b reveal">
+        <img src="../../assets/img/mountain-road-fog.jpg" alt="A foggy mountain road winding through the Dolomites on Cinestill 800T">
+        <figcaption class="over">PLATE 12 · <span class="ttl">The Long Way Home</span> · Dolomites</figcaption>
+      </figure>
+    </div>
+    <div class="spread-head" style="margin-top:1.4rem;">
+      <figcaption class="cap">PLATE 11 · <span class="ttl">Wind Lines</span> · Namibia · Kodak Ektar 100 · Hasselblad 503CW · 2008 &nbsp;&nbsp;//&nbsp;&nbsp; PLATE 12 · <span class="ttl">The Long Way Home</span> · Dolomites, Italy · Cinestill 800T · Canon AE-1 · 2005</figcaption>
+    </div>
+  </section>
+
+  <!-- ============ STREET SPREAD ============ -->
+  <section class="spread" id="street">
+    <div class="spread-head">
+      <span class="label">Streets at Gold &amp; Dusk</span>
+      <span class="folio">030 — 031</span>
+    </div>
+    <div class="gridspread">
+      <figure class="g g1 reveal" style="grid-column:1 / 7;aspect-ratio:3/2;">
+        <div class="photo" style="height:100%">
+          <img src="../../assets/img/street-cafe-paris.jpg" alt="Café de Flore terrace in Paris on Kodak Gold 200">
+          <figcaption class="over">PLATE 13 · <span class="ttl">Café de Flore</span> · Paris</figcaption>
+        </div>
+        <figcaption class="cap">PLATE 13 · <span class="ttl">Café de Flore</span> · Paris, France · Kodak Gold 200 · Olympus OM-1 · 2020</figcaption>
+      </figure>
+      <figure class="g g3 reveal" style="grid-column:7 / 13;aspect-ratio:3/2;margin-top:8%;">
+        <div class="photo" style="height:100%">
+          <img src="../../assets/img/vintage-car-street.jpg" alt="Vintage car on a Havana street on Kodak Ektar 100">
+          <figcaption class="over">PLATE 14 · <span class="ttl">Sunday Drive</span> · Havana</figcaption>
+        </div>
+        <figcaption class="cap">PLATE 14 · <span class="ttl">Sunday Drive</span> · Havana, Cuba · Kodak Ektar 100 · Nikon FE · 2022</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ CLOSING SPREAD ============ -->
+  <section class="closing reveal" id="closing">
+    <p class="endmark">— End of Feature —</p>
+    <h2>STAY ON<br>FILM<span class="masthead" style="display:none"></span></h2>
+    <p class="by">Photographs &amp; words by <b>Tom Milton</b> · PORTRA Issue 14</p>
+    <div class="closing-strip">
+      <figure class="photo reveal"><img src="../../assets/img/woman-laughing-portrait.jpg" alt="A woman laughing, Mexico City, on Kodak Portra 800"></figure>
+      <figure class="photo bw reveal"><img src="../../assets/img/man-bw-portrait.jpg" alt="Black and white portrait of a man in shadow, Berlin"></figure>
+      <figure class="photo reveal"><img src="../../assets/img/couple-silhouette-sunset.jpg" alt="Couple silhouetted at sunset in Santorini"></figure>
+    </div>
+  </section>
+
+</div><!-- /wrap -->
+
+<!-- ============ COLOPHON / FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="colophon">
+      <div>
+        <h4>PORTRA</h4>
+        <p class="big-name">Issue 14 — Summer 2026. The Portrait Issue. A magazine for people who still believe in grain.</p>
+      </div>
+      <div>
+        <p>Photography<br><span style="color:var(--ink)">Tom Milton</span></p>
+        <p>Editing &amp; Layout<br>The PORTRA Studio</p>
+      </div>
+      <div>
+        <p>Folios 014–037<br>14 Plates · On Film</p>
+        <p><a href="../../index.html">← All designs</a></p>
+        <p>© 2026 Tom Milton</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // scroll reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>

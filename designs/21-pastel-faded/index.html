@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soft Light — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f7f3ec;
+    --cream-2:#f1ebe1;
+    --ink:#5b544c;
+    --ink-soft:#8a8278;
+    --ink-faint:#a89f93;
+    --blush:#e7cdc8;
+    --sage:#cdd6c4;
+    --butter:#efe2c4;
+    --sky:#cdd9e0;
+    --line:#e3dccf;
+    --shadow:42px 42px 90px rgba(150,135,115,.18);
+    --shadow-soft:24px 28px 60px rgba(150,135,115,.16);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 15% -5%, rgba(231,205,200,.30), transparent 60%),
+      radial-gradient(1100px 700px at 95% 12%, rgba(205,217,196,.28), transparent 55%),
+      radial-gradient(1000px 700px at 50% 110%, rgba(205,217,224,.25), transparent 60%),
+      var(--cream);
+    color:var(--ink);
+    font-family:'Quicksand',system-ui,sans-serif;
+    font-weight:300;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    letter-spacing:.2px;
+  }
+  ::selection{background:var(--blush);color:#fff;}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  /* top bar */
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:34px 0 0;
+  }
+  .back{
+    color:var(--ink-soft);text-decoration:none;font-size:.78rem;
+    letter-spacing:1.6px;text-transform:uppercase;font-weight:400;
+    padding:9px 16px;border-radius:999px;border:1px solid var(--line);
+    background:rgba(255,255,255,.4);transition:.5s ease;
+  }
+  .back:hover{color:var(--ink);background:rgba(255,255,255,.85);box-shadow:0 10px 30px rgba(150,135,115,.12);}
+  .mark{
+    font-family:'Cormorant',serif;font-weight:400;font-style:italic;
+    font-size:1.05rem;color:var(--ink-soft);letter-spacing:.5px;
+  }
+
+  /* hero */
+  header.hero{padding:14vh 0 12vh;text-align:center;}
+  .hero .eyebrow{
+    font-size:.72rem;letter-spacing:5px;text-transform:uppercase;
+    color:var(--ink-faint);font-weight:400;margin-bottom:30px;
+  }
+  .hero h1{
+    font-family:'Cormorant',serif;font-weight:300;
+    font-size:clamp(3.4rem,11vw,8.2rem);
+    line-height:.96;margin:0;color:var(--ink);letter-spacing:0;
+  }
+  .hero h1 em{font-style:italic;color:#c9a9a2;font-weight:300;}
+  .hero .sub{
+    margin:38px auto 0;max-width:540px;
+    font-size:1.06rem;color:var(--ink-soft);font-weight:300;line-height:1.85;
+  }
+  .hero .name{
+    margin-top:42px;font-size:.8rem;letter-spacing:3px;text-transform:uppercase;
+    color:var(--ink-faint);font-weight:400;
+  }
+  .scrollcue{
+    margin-top:64px;display:inline-flex;flex-direction:column;align-items:center;gap:14px;
+    color:var(--ink-faint);font-size:.68rem;letter-spacing:2.5px;text-transform:uppercase;
+  }
+  .scrollcue .dot{
+    width:1px;height:54px;background:linear-gradient(var(--ink-faint),transparent);
+    animation:drift 3.2s ease-in-out infinite;
+  }
+  @keyframes drift{0%,100%{opacity:.35;transform:translateY(0);}50%{opacity:.9;transform:translateY(6px);}}
+
+  /* gallery */
+  .gallery{padding:2vh 0 8vh;}
+  figure.shot{
+    margin:0 auto;max-width:1180px;
+    padding:7vh 0;
+    display:grid;gap:38px;align-items:center;
+  }
+  figure.shot.wide{grid-template-columns:1fr;max-width:980px;}
+  figure.shot.left{grid-template-columns:1.45fr 1fr;}
+  figure.shot.right{grid-template-columns:1fr 1.45fr;}
+  figure.shot.right .meta{order:-1;}
+
+  .frame{
+    position:relative;border-radius:22px;overflow:hidden;
+    box-shadow:var(--shadow);background:var(--cream-2);
+  }
+  figure.shot.wide .frame{box-shadow:var(--shadow);}
+  .frame::after{
+    /* soft white lift to fade the blacks */
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(160deg, rgba(255,251,242,.22), rgba(255,247,236,.05) 45%, rgba(231,205,200,.10)),
+      radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.16), transparent 60%);
+    mix-blend-mode:screen;
+    border-radius:inherit;
+  }
+  .frame img{
+    display:block;width:100%;height:100%;object-fit:cover;
+    /* pastel matte grade: lifted, low contrast, gentle warmth */
+    filter:contrast(.9) saturate(.82) brightness(1.07) sepia(.07) hue-rotate(-4deg);
+    transition:transform 1.6s cubic-bezier(.2,.7,.2,1), filter 1.2s ease;
+  }
+  figure.shot.wide .frame img{aspect-ratio:16/10;}
+  figure.shot.left .frame img,
+  figure.shot.right .frame img{aspect-ratio:4/5;}
+  .frame:hover img{transform:scale(1.035);filter:contrast(.93) saturate(.9) brightness(1.04) sepia(.05);}
+
+  /* black & white */
+  .frame.bw img{filter:grayscale(1) contrast(.85) brightness(1.12);}
+  .frame.bw:hover img{filter:grayscale(1) contrast(.9) brightness(1.06);}
+  .frame.bw::after{background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,.04));}
+
+  /* caption / meta */
+  .meta{padding:6px 4px;}
+  figure.shot.wide .meta{
+    max-width:980px;margin:30px auto 0;display:flex;flex-wrap:wrap;
+    justify-content:space-between;align-items:baseline;gap:14px 32px;text-align:left;
+  }
+  .meta .title{
+    font-family:'Cormorant',serif;font-weight:400;font-style:italic;
+    font-size:2rem;line-height:1.15;color:var(--ink);margin:0 0 14px;
+  }
+  figure.shot.wide .meta .title{margin:0;font-size:1.9rem;}
+  .meta .loc{
+    font-size:.84rem;letter-spacing:2px;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:400;margin-bottom:20px;
+  }
+  figure.shot.wide .meta .loc{margin:0;}
+  .specs{
+    list-style:none;margin:0;padding:18px 0 0;border-top:1px solid var(--line);
+    display:grid;gap:7px;font-size:.82rem;color:var(--ink-soft);max-width:280px;
+  }
+  figure.shot.wide .specs{
+    border-top:none;padding:0;grid-template-columns:repeat(3,auto);gap:4px 26px;max-width:none;
+  }
+  .specs li{display:flex;flex-direction:column;}
+  .specs .k{
+    font-size:.6rem;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink-faint);font-weight:500;
+  }
+  .specs .v{color:var(--ink);font-weight:300;}
+
+  /* index chip */
+  .idx{
+    font-family:'Cormorant',serif;font-style:italic;font-size:1rem;
+    color:var(--ink-faint);margin-bottom:12px;display:block;
+  }
+
+  /* section breath */
+  .interlude{
+    text-align:center;padding:10vh 0 6vh;
+    font-family:'Cormorant',serif;font-style:italic;font-weight:300;
+    font-size:clamp(1.7rem,4.5vw,3rem);color:#c0a59e;line-height:1.4;
+    max-width:760px;margin:0 auto;
+  }
+
+  /* footer */
+  footer{
+    text-align:center;padding:12vh 0 9vh;border-top:1px solid var(--line);margin-top:6vh;
+  }
+  footer .ft-title{
+    font-family:'Cormorant',serif;font-weight:300;font-size:clamp(2.4rem,7vw,4.4rem);
+    color:var(--ink);margin:0 0 24px;line-height:1;
+  }
+  footer .ft-title em{font-style:italic;color:#c9a9a2;}
+  footer p{color:var(--ink-soft);font-size:.95rem;max-width:440px;margin:0 auto 8px;}
+  footer .mailto{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--blush);padding-bottom:2px;transition:.4s;}
+  footer .mailto:hover{color:#c9a9a2;border-color:#c9a9a2;}
+  footer .fine{margin-top:46px;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--ink-faint);}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(34px);transition:opacity 1.3s ease, transform 1.3s cubic-bezier(.16,.8,.3,1);}
+  .reveal.in{opacity:1;transform:none;}
+  @media(prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none;}
+    .scrollcue .dot{animation:none;}
+  }
+
+  /* mobile */
+  @media(max-width:760px){
+    .wrap{padding:0 20px;}
+    figure.shot.left,figure.shot.right{grid-template-columns:1fr;gap:26px;}
+    figure.shot.right .meta{order:0;}
+    figure.shot{padding:5vh 0;}
+    figure.shot.left .frame img,figure.shot.right .frame img{aspect-ratio:4/5;}
+    .meta{text-align:left;}
+    figure.shot.wide .meta{flex-direction:column;gap:18px;}
+    figure.shot.wide .specs{grid-template-columns:repeat(2,1fr);}
+    .specs{max-width:none;}
+    header.hero{padding:9vh 0 8vh;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="topbar">
+    <a class="back" href="../../index.html">&larr; All designs</a>
+    <span class="mark">Tom Milton</span>
+  </nav>
+</div>
+
+<header class="hero wrap">
+  <div class="eyebrow">Film Photography</div>
+  <h1>Soft <em>Light</em></h1>
+  <p class="sub">A quiet collection of overexposed afternoons and tender faces — golden hour held gently, the way film remembers it.</p>
+  <div class="name">Tom Milton · Portraits &amp; Landscapes</div>
+  <div class="scrollcue"><span>scroll</span><span class="dot"></span></div>
+</header>
+
+<main class="gallery wrap">
+
+  <!-- 1 -->
+  <figure class="shot left reveal">
+    <div class="frame">
+      <img src="../../assets/img/woman-portrait-window.jpg" alt="A woman bathed in soft daylight beside a window, her expression calm and contemplative">
+    </div>
+    <figcaption class="meta">
+      <span class="idx">i.</span>
+      <h2 class="title">By the Window</h2>
+      <div class="loc">Lisbon, Portugal</div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Kodak Portra 400</span></li>
+        <li><span class="k">Camera</span><span class="v">Pentax 67</span></li>
+        <li><span class="k">Year</span><span class="v">2011</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 2 wide -->
+  <figure class="shot wide reveal">
+    <div class="frame">
+      <img src="../../assets/img/couple-silhouette-sunset.jpg" alt="A couple silhouetted against a glowing pastel sunset sky">
+    </div>
+    <figcaption class="meta">
+      <div>
+        <h2 class="title">Goodnight</h2>
+        <div class="loc">Santorini, Greece · 2013</div>
+      </div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Kodak Portra 800</span></li>
+        <li><span class="k">Camera</span><span class="v">Canon EOS-1V</span></li>
+        <li><span class="k">Frame</span><span class="v">No. ii</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 3 -->
+  <figure class="shot right reveal">
+    <div class="frame">
+      <img src="../../assets/img/woman-portrait-soft.jpg" alt="A softly lit portrait of a woman, the light diffuse and dreamy across her face">
+    </div>
+    <figcaption class="meta">
+      <span class="idx">iii.</span>
+      <h2 class="title">Soft Hour</h2>
+      <div class="loc">Paris, France</div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Fujifilm Pro 400H</span></li>
+        <li><span class="k">Camera</span><span class="v">Contax 645</span></li>
+        <li><span class="k">Year</span><span class="v">2014</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 4 -->
+  <figure class="shot left reveal">
+    <div class="frame">
+      <img src="../../assets/img/woman-portrait-freckles.jpg" alt="Close portrait of a woman with freckles, sunlight warming her skin">
+    </div>
+    <figcaption class="meta">
+      <span class="idx">iv.</span>
+      <h2 class="title">Freckles &amp; Sun</h2>
+      <div class="loc">Studio</div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Kodak Portra 160</span></li>
+        <li><span class="k">Camera</span><span class="v">Mamiya 645</span></li>
+        <li><span class="k">Year</span><span class="v">2015</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <p class="interlude reveal">"The light was never harsh — it only ever asked to be remembered softly."</p>
+
+  <!-- 5 wide -->
+  <figure class="shot wide reveal">
+    <div class="frame">
+      <img src="../../assets/img/friends-golden-hour.jpg" alt="A group of friends laughing together in warm golden-hour light">
+    </div>
+    <figcaption class="meta">
+      <div>
+        <h2 class="title">Golden Hour, Together</h2>
+        <div class="loc">California, USA · 2016</div>
+      </div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Kodak Portra 400</span></li>
+        <li><span class="k">Camera</span><span class="v">Nikon F100</span></li>
+        <li><span class="k">Frame</span><span class="v">No. v</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 6 -->
+  <figure class="shot right reveal">
+    <div class="frame">
+      <img src="../../assets/img/woman-laughing-portrait.jpg" alt="A woman caught mid-laugh, joyful and unguarded in soft light">
+    </div>
+    <figcaption class="meta">
+      <span class="idx">vi.</span>
+      <h2 class="title">That Laugh</h2>
+      <div class="loc">Mexico City, Mexico</div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Kodak Portra 800</span></li>
+        <li><span class="k">Camera</span><span class="v">Contax G2</span></li>
+        <li><span class="k">Year</span><span class="v">2021</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 7 wide -->
+  <figure class="shot wide reveal">
+    <div class="frame">
+      <img src="../../assets/img/golden-field-sunburst.jpg" alt="Last light bursting across a golden wheat field at sunset">
+    </div>
+    <figcaption class="meta">
+      <div>
+        <h2 class="title">Last Light, Wheat Country</h2>
+        <div class="loc">Tuscany, Italy · 1998</div>
+      </div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Kodak Portra 400</span></li>
+        <li><span class="k">Camera</span><span class="v">Leica M6</span></li>
+        <li><span class="k">Frame</span><span class="v">No. vii</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 8 -->
+  <figure class="shot left reveal">
+    <div class="frame">
+      <img src="../../assets/img/sun-through-leaves.jpg" alt="Sunlight filtering through backlit green leaves, glowing and soft">
+    </div>
+    <figcaption class="meta">
+      <span class="idx">viii.</span>
+      <h2 class="title">Backlit</h2>
+      <div class="loc">Kyoto, Japan</div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Kodak Portra 800</span></li>
+        <li><span class="k">Camera</span><span class="v">Leica M6</span></li>
+        <li><span class="k">Year</span><span class="v">2004</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 9 wide -->
+  <figure class="shot wide reveal">
+    <div class="frame">
+      <img src="../../assets/img/lake-cabin-dawn.jpg" alt="A lakeside cabin at dawn, still water reflecting pale morning light">
+    </div>
+    <figcaption class="meta">
+      <div>
+        <h2 class="title">The Cabin at Dawn</h2>
+        <div class="loc">Banff, Canada · 2003</div>
+      </div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Kodak Ektar 100</span></li>
+        <li><span class="k">Camera</span><span class="v">Mamiya 7 II</span></li>
+        <li><span class="k">Frame</span><span class="v">No. ix</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 10 -->
+  <figure class="shot right reveal">
+    <div class="frame">
+      <img src="../../assets/img/cozy-interior-window.jpg" alt="A cozy interior softly lit by daylight through a window">
+    </div>
+    <figcaption class="meta">
+      <span class="idx">x.</span>
+      <h2 class="title">Home Light</h2>
+      <div class="loc">Copenhagen, Denmark</div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Kodak Portra 400</span></li>
+        <li><span class="k">Camera</span><span class="v">Leica M6</span></li>
+        <li><span class="k">Year</span><span class="v">2023</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <p class="interlude reveal">"Everything tender keeps a little of the light it was made in."</p>
+
+  <!-- 11 wide -->
+  <figure class="shot wide reveal">
+    <div class="frame">
+      <img src="../../assets/img/foggy-pier-lake.jpg" alt="A quiet dock reaching into a misty, fog-covered lake">
+    </div>
+    <figcaption class="meta">
+      <div>
+        <h2 class="title">The Quiet Dock</h2>
+        <div class="loc">Lake District, UK · 2010</div>
+      </div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Cinestill 50D</span></li>
+        <li><span class="k">Camera</span><span class="v">Contax T2</span></li>
+        <li><span class="k">Frame</span><span class="v">No. xi</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 12 -->
+  <figure class="shot left reveal">
+    <div class="frame">
+      <img src="../../assets/img/succulent-closeup.jpg" alt="A close-up of a succulent showing its soft geometric pattern of leaves">
+    </div>
+    <figcaption class="meta">
+      <span class="idx">xii.</span>
+      <h2 class="title">Geometry of Growth</h2>
+      <div class="loc">Studio</div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Kodak Portra 160</span></li>
+        <li><span class="k">Camera</span><span class="v">Hasselblad 500CM</span></li>
+        <li><span class="k">Year</span><span class="v">2009</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 13 -->
+  <figure class="shot right reveal">
+    <div class="frame">
+      <img src="../../assets/img/woman-curly-portrait.jpg" alt="A portrait of a woman with curly hair, lit in warm soft tones">
+    </div>
+    <figcaption class="meta">
+      <span class="idx">xiii.</span>
+      <h2 class="title">Curls</h2>
+      <div class="loc">Brooklyn, USA</div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Cinestill 800T</span></li>
+        <li><span class="k">Camera</span><span class="v">Canon AE-1</span></li>
+        <li><span class="k">Year</span><span class="v">2017</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+  <!-- 14 wide b&w -->
+  <figure class="shot wide reveal">
+    <div class="frame bw">
+      <img src="../../assets/img/misty-pine-forest.jpg" alt="A misty pine forest rendered in soft black and white, hushed and still">
+    </div>
+    <figcaption class="meta">
+      <div>
+        <h2 class="title">Silence</h2>
+        <div class="loc">Norway · 2003</div>
+      </div>
+      <ul class="specs">
+        <li><span class="k">Film</span><span class="v">Ilford HP5 Plus</span></li>
+        <li><span class="k">Camera</span><span class="v">Leica M6</span></li>
+        <li><span class="k">Frame</span><span class="v">No. xiv</span></li>
+      </ul>
+    </figcaption>
+  </figure>
+
+</main>
+
+<footer class="wrap">
+  <h2 class="ft-title">Let's make something <em>soft</em>.</h2>
+  <p>Available for portraits, weddings, and unhurried wandering. Shot entirely on film, developed by hand.</p>
+  <p><a class="mailto" href="mailto:tom.milton@amododesign.com">tom.milton@amododesign.com</a></p>
+  <div class="fine">Soft Light — Tom Milton · © 2026</div>
+</footer>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){
+      els.forEach(function(e){e.classList.add('in');});
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          en.target.classList.add('in');
+          io.unobserve(en.target);
+        }
+      });
+    }, {rootMargin:'0px 0px -10% 0px', threshold:0.08});
+    els.forEach(function(e){io.observe(e);});
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOMACOLOR 400 — Tom Milton, Film Photographer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Narrow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --kodak-yellow:#ffb500;
+    --kodak-yellow-deep:#f7a400;
+    --kodak-red:#ed1c24;
+    --kodak-red-deep:#c8141b;
+    --ink:#191207;
+    --ink-soft:#4a3a1c;
+    --cream:#fff7e6;
+    --paper:#fffdf6;
+    --black:#0e0b06;
+    --grain:.05;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--kodak-yellow);
+    color:var(--ink);
+    font-family:'Archivo',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* film grain overlay */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9000;
+    opacity:var(--grain);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode:multiply;
+  }
+  a{color:inherit;}
+  img{display:block;max-width:100%;}
+
+  /* ===== utility motifs ===== */
+  .stripes-h{
+    background:repeating-linear-gradient(180deg,
+      var(--kodak-red) 0 9px,
+      var(--kodak-yellow) 9px 18px);
+  }
+  .stripes-diag{
+    background:repeating-linear-gradient(135deg,
+      var(--kodak-red) 0 14px,
+      var(--kodak-yellow) 14px 28px);
+  }
+  .barcode{
+    height:48px;width:120px;
+    background:
+      repeating-linear-gradient(90deg,
+      var(--black) 0 2px, transparent 2px 4px,
+      var(--black) 4px 5px, transparent 5px 9px,
+      var(--black) 9px 12px, transparent 12px 13px,
+      var(--black) 13px 14px, transparent 14px 18px);
+    background-color:#fff;
+    border:2px solid var(--black);
+    padding:0;
+  }
+
+  /* ===== top bar ===== */
+  .topbar{
+    position:relative;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:11px 22px;
+    background:var(--black);
+    color:var(--kodak-yellow);
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;letter-spacing:.14em;
+    font-size:13px;font-weight:600;
+  }
+  .topbar a.back{
+    text-decoration:none;color:var(--kodak-yellow);
+    display:inline-flex;align-items:center;gap:7px;
+    transition:color .2s;
+  }
+  .topbar a.back:hover{color:#fff;}
+  .topbar .topbar-right{color:#fff7e6aa;letter-spacing:.22em;}
+
+  /* ===== BOX FRONT / HERO ===== */
+  .box{
+    position:relative;
+    max-width:1180px;
+    margin:0 auto;
+    border-left:14px solid var(--black);
+    border-right:14px solid var(--black);
+    background:var(--kodak-yellow);
+  }
+  .hero{
+    position:relative;
+    padding:0 0 0;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #ffce4d 0%, var(--kodak-yellow) 55%, var(--kodak-yellow-deep) 100%);
+    overflow:hidden;
+  }
+  .hero-stripes-top{height:26px;}
+  .hero-inner{
+    padding:46px 40px 54px;
+    position:relative;
+    text-align:center;
+  }
+  .pro-tag{
+    display:inline-flex;align-items:center;gap:9px;
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;letter-spacing:.34em;
+    font-weight:700;font-size:15px;
+    color:var(--kodak-red-deep);
+    margin-bottom:18px;
+  }
+  .pro-tag::before,.pro-tag::after{
+    content:"";width:34px;height:3px;background:var(--kodak-red);
+  }
+  /* the red pill wordmark */
+  .wordmark{
+    display:inline-block;
+    background:var(--kodak-red);
+    color:var(--kodak-yellow);
+    border-radius:90px;
+    padding:18px 54px 22px;
+    box-shadow:0 14px 0 rgba(0,0,0,.12), inset 0 0 0 5px rgba(255,255,255,.07);
+    transform:rotate(-1.2deg);
+  }
+  .wordmark .mk{
+    font-family:'Archivo',sans-serif;
+    font-weight:900;
+    font-size:clamp(48px,11vw,118px);
+    line-height:.82;
+    letter-spacing:-.02em;
+    text-transform:uppercase;
+    display:block;
+    text-shadow:0 3px 0 rgba(0,0,0,.18);
+  }
+  .wordmark .mk small{
+    display:block;
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;
+    font-size:clamp(15px,3.4vw,26px);
+    letter-spacing:.42em;
+    color:var(--cream);
+    margin-top:10px;
+    text-shadow:none;
+    padding-left:.42em;
+  }
+  .iso-blob{
+    position:absolute;top:38px;right:26px;
+    width:118px;height:118px;border-radius:50%;
+    background:var(--black);color:var(--kodak-yellow);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transform:rotate(8deg);
+    font-family:'Oswald',sans-serif;
+    box-shadow:0 8px 18px rgba(0,0,0,.25);
+    z-index:5;
+  }
+  .iso-blob b{font-size:40px;font-weight:700;line-height:.9;}
+  .iso-blob span{font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-top:3px;}
+  .iso-blob em{font-size:10px;font-style:normal;letter-spacing:.14em;color:#ffce4d;}
+
+  .seal{
+    position:absolute;top:54px;left:24px;
+    width:96px;height:96px;border-radius:50%;
+    background:var(--kodak-red);color:#fff;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    transform:rotate(-12deg);
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+    font-size:13px;line-height:1.02;
+    border:3px dashed #fff;
+    box-shadow:0 8px 16px rgba(0,0,0,.22);
+    z-index:5;
+  }
+
+  .filmtype{
+    margin:30px auto 0;
+    max-width:760px;
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+  .filmtype .big{
+    font-weight:800;font-size:clamp(20px,4.6vw,38px);
+    letter-spacing:.04em;line-height:1;
+  }
+  .filmtype .sub{
+    font-weight:600;font-size:clamp(13px,2.6vw,18px);
+    letter-spacing:.28em;color:var(--ink-soft);margin-top:8px;
+  }
+
+  .badge-row{
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+    margin:30px auto 6px;
+  }
+  .badge{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+    font-size:14px;
+    padding:8px 16px;border-radius:4px;
+    border:2.5px solid var(--black);
+    background:var(--paper);color:var(--ink);
+  }
+  .badge.red{background:var(--kodak-red);color:#fff;border-color:var(--black);}
+  .badge.black{background:var(--black);color:var(--kodak-yellow);}
+
+  .hero-stripes-bot{height:34px;margin-top:42px;}
+
+  /* maker line */
+  .maker{
+    background:var(--black);color:var(--cream);
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;letter-spacing:.28em;
+    font-size:13px;font-weight:500;
+    text-align:center;padding:13px 16px;
+  }
+  .maker b{color:var(--kodak-yellow);letter-spacing:.18em;}
+
+  /* ===== FILM STRIP ===== */
+  .strip-wrap{
+    background:var(--black);
+    padding:26px 0 30px;
+  }
+  .strip-label{
+    text-align:center;color:var(--kodak-yellow);
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;letter-spacing:.36em;font-weight:600;
+    font-size:13px;margin-bottom:18px;
+  }
+  .strip{
+    display:flex;gap:0;
+    overflow-x:auto;
+    padding:0 22px 8px;
+    scrollbar-width:thin;scrollbar-color:var(--kodak-red) #000;
+  }
+  .strip-frame{
+    flex:0 0 auto;
+    width:200px;
+    background:#111;
+    border-left:1px solid #2a2a2a;border-right:1px solid #2a2a2a;
+    position:relative;
+    padding:18px 8px;
+  }
+  .sprockets{
+    position:absolute;left:0;right:0;height:10px;
+    display:flex;gap:9px;justify-content:center;
+    padding:0 6px;
+  }
+  .sprockets.top{top:4px;}
+  .sprockets.bot{bottom:4px;}
+  .sprockets span{
+    width:13px;height:9px;border-radius:2px;
+    background:var(--kodak-yellow);
+    flex:0 0 auto;
+  }
+  .strip-frame img{
+    width:100%;height:120px;object-fit:cover;
+  }
+  .strip-num{
+    position:absolute;top:14px;left:10px;
+    font-family:'Oswald',sans-serif;font-size:11px;
+    color:var(--kodak-yellow);background:#000a;
+    padding:1px 5px;border-radius:2px;letter-spacing:.08em;
+  }
+  /* warm Portra grade */
+  .portra{
+    filter:saturate(1.08) contrast(.97) brightness(1.02) sepia(.06);
+  }
+  .portra-wrap{position:relative;}
+  .portra-wrap::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg, rgba(255,180,80,.10), rgba(255,120,60,.06));
+    mix-blend-mode:soft-light;
+  }
+  .bw{filter:grayscale(1) contrast(1.02) brightness(1.02);}
+
+  /* ===== GALLERY ===== */
+  .gallery-head{
+    background:var(--paper);
+    padding:48px 32px 10px;
+    text-align:center;
+    border-top:6px solid var(--black);
+  }
+  .gallery-head .kicker{
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;letter-spacing:.4em;
+    color:var(--kodak-red);font-weight:700;font-size:14px;
+  }
+  .gallery-head h2{
+    font-family:'Archivo',sans-serif;font-weight:900;
+    font-size:clamp(30px,6vw,58px);
+    text-transform:uppercase;letter-spacing:-.01em;
+    margin:8px 0 6px;color:var(--ink);
+  }
+  .gallery-head p{
+    max-width:620px;margin:0 auto;
+    font-family:'Archivo Narrow',sans-serif;
+    color:var(--ink-soft);font-size:16px;line-height:1.5;
+  }
+
+  .gallery{
+    background:var(--paper);
+    padding:36px 32px 56px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:34px 30px;
+  }
+  .frame-card{position:relative;}
+  /* 35mm sample frame */
+  .neg{
+    background:#0e0b06;
+    padding:22px 12px;
+    position:relative;
+    border-radius:3px;
+    box-shadow:0 10px 30px rgba(40,25,0,.18);
+  }
+  .neg .sprockets span{background:#e9e3d2;}
+  .neg .photo{
+    position:relative;overflow:hidden;
+    background:#000;
+  }
+  .neg .photo img{
+    width:100%;height:300px;object-fit:cover;
+    display:block;
+  }
+  .neg-num{
+    position:absolute;top:6px;left:12px;z-index:3;
+    font-family:'Oswald',sans-serif;font-weight:600;
+    color:var(--kodak-yellow);font-size:13px;letter-spacing:.1em;
+  }
+  .neg-num.r{left:auto;right:12px;color:#ff8a36;}
+  .neg-edge{
+    position:absolute;bottom:6px;right:12px;z-index:3;
+    font-family:'Oswald',sans-serif;
+    color:#c9c2ad;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  }
+  .caption{
+    padding:16px 4px 2px;
+  }
+  .caption h3{
+    font-family:'Archivo',sans-serif;font-weight:800;
+    font-size:21px;margin:0 0 4px;color:var(--ink);letter-spacing:-.01em;
+  }
+  .caption .loc{
+    font-family:'Archivo Narrow',sans-serif;
+    color:var(--kodak-red-deep);font-weight:700;
+    text-transform:uppercase;letter-spacing:.12em;font-size:12px;
+    margin-bottom:10px;
+  }
+  .meta{
+    display:flex;flex-wrap:wrap;gap:6px 8px;
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;letter-spacing:.06em;font-size:12px;font-weight:600;
+  }
+  .meta span{
+    background:#fff;border:1.5px solid #e3d8bd;
+    color:var(--ink-soft);padding:3px 9px;border-radius:3px;
+  }
+  .meta span.stock{background:var(--kodak-yellow);border-color:var(--kodak-yellow-deep);color:var(--ink);}
+  .meta span.bwtag{background:#222;color:#fff;border-color:#000;}
+
+  /* ===== DX / TECH STRIP ===== */
+  .tech{
+    background:var(--black);color:var(--cream);
+    padding:40px 32px;
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:30px;align-items:center;
+    border-top:6px solid var(--kodak-red);
+  }
+  .tech h4{
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;letter-spacing:.28em;
+    color:var(--kodak-yellow);font-size:13px;margin:0 0 14px;
+  }
+  .dx{
+    display:grid;grid-template-columns:repeat(6,1fr);
+    gap:4px;width:170px;
+  }
+  .dx i{height:18px;background:#3a3a3a;border-radius:1px;}
+  .dx i.on{background:#e9e3d2;}
+  .tech p{
+    font-family:'Archivo Narrow',sans-serif;
+    font-size:13px;line-height:1.55;color:#d8cdb2;margin:8px 0 0;
+  }
+  .emul{
+    font-family:'Oswald',sans-serif;color:var(--kodak-yellow);
+    font-size:15px;letter-spacing:.16em;margin-top:10px;
+  }
+  .tech .barcode{margin-top:6px;}
+  .barlabel{
+    font-family:'Oswald',sans-serif;font-size:11px;
+    letter-spacing:.3em;color:#d8cdb2;margin-top:7px;
+  }
+  .c41{
+    display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+    width:96px;height:96px;border-radius:50%;
+    background:var(--kodak-red);color:#fff;
+    border:3px solid #fff;font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;font-weight:700;letter-spacing:.1em;line-height:1;
+  }
+  .c41 b{font-size:30px;}
+  .c41 span{font-size:11px;letter-spacing:.22em;margin-top:5px;}
+
+  /* ===== FOOTER ===== */
+  .foot{
+    background:var(--kodak-yellow);
+    padding:0;
+  }
+  .foot-stripes{height:30px;}
+  .foot-inner{
+    padding:44px 32px 30px;text-align:center;
+  }
+  .foot-inner .wordmark{transform:rotate(-1deg);padding:12px 36px 14px;box-shadow:0 9px 0 rgba(0,0,0,.12);}
+  .foot-inner .wordmark .mk{font-size:clamp(34px,7vw,64px);}
+  .foot-contact{
+    margin-top:26px;
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;letter-spacing:.16em;font-weight:600;
+    color:var(--ink);font-size:15px;
+  }
+  .foot-contact a{color:var(--kodak-red-deep);text-decoration:none;}
+  .foot-contact a:hover{text-decoration:underline;}
+  .fineprint{
+    max-width:760px;margin:22px auto 0;
+    font-family:'Archivo Narrow',sans-serif;
+    font-size:10.5px;line-height:1.5;color:var(--ink-soft);
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .foot-bottom{
+    background:var(--black);color:#bfa86b;
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;letter-spacing:.2em;font-size:11px;
+    text-align:center;padding:14px 16px;
+  }
+
+  /* ===== responsive ===== */
+  @media (max-width:760px){
+    .box{border-left-width:8px;border-right-width:8px;}
+    .hero-inner{padding:34px 18px 38px;}
+    .iso-blob{width:84px;height:84px;top:16px;right:10px;}
+    .iso-blob b{font-size:28px;}
+    .seal{width:74px;height:74px;top:18px;left:10px;font-size:11px;}
+    .gallery{grid-template-columns:1fr;padding:28px 18px 44px;gap:30px;}
+    .neg .photo img{height:260px;}
+    .tech{grid-template-columns:1fr;gap:26px;text-align:center;justify-items:center;}
+    .gallery-head{padding:38px 18px 8px;}
+  }
+  @media (max-width:420px){
+    .iso-blob,.seal{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="../../index.html">&larr; All designs</a>
+  <span class="topbar-right">Eastman-style Pro Film &middot; Est. 1992</span>
+</div>
+
+<div class="box">
+
+  <!-- ===================== HERO / BOX FRONT ===================== -->
+  <header class="hero">
+    <div class="stripes-diag hero-stripes-top"></div>
+
+    <div class="hero-inner">
+      <div class="seal">Genuine<br>Pro<br>Stock</div>
+      <div class="iso-blob">
+        <b>400</b>
+        <span>ISO</span>
+        <em>Daylight</em>
+      </div>
+
+      <div class="pro-tag">Professional</div>
+
+      <div class="wordmark">
+        <span class="mk">Tomacolor<small>by Tom Milton</small></span>
+      </div>
+
+      <div class="filmtype">
+        <div class="big">Portra &middot; 400</div>
+        <div class="sub">36 Exposures &mdash; Color Negative Film</div>
+      </div>
+
+      <div class="badge-row">
+        <span class="badge red">35mm / 36 EXP</span>
+        <span class="badge">ISO 400 / DAYLIGHT</span>
+        <span class="badge black">PROCESS C-41</span>
+        <span class="badge">FINE GRAIN</span>
+      </div>
+    </div>
+
+    <div class="stripes-h hero-stripes-bot"></div>
+  </header>
+
+  <div class="maker">
+    Manufactured for the love of light by <b>Tom Milton</b> &middot; Sample Frames Enclosed
+  </div>
+
+  <!-- ===================== FILM STRIP ===================== -->
+  <section class="strip-wrap" aria-label="Film strip preview">
+    <div class="strip-label">— Develop &amp; Print — Sample Roll No. 0407 —</div>
+    <div class="strip">
+      <div class="strip-frame">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="strip-num">01</span>
+        <div class="portra-wrap"><img class="portra" src="../../assets/img/golden-field-sunburst.jpg" alt="Sun bursting over a golden wheat field at last light in Tuscany"></div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="strip-frame">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="strip-num">02</span>
+        <div class="portra-wrap"><img class="portra" src="../../assets/img/autumn-forest-road.jpg" alt="A road winding through an autumn forest of orange leaves in Vermont"></div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="strip-frame">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="strip-num">03</span>
+        <div class="portra-wrap"><img class="portra" src="../../assets/img/woman-laughing-portrait.jpg" alt="A woman laughing warmly in Mexico City"></div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="strip-frame">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="strip-num">04</span>
+        <div class="portra-wrap"><img class="portra" src="../../assets/img/desert-dunes.jpg" alt="Wind-sculpted desert dunes in Namibia"></div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="strip-frame">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="strip-num">05</span>
+        <div class="portra-wrap"><img class="portra" src="../../assets/img/vintage-car-street.jpg" alt="A vintage car parked on a colorful street in Havana"></div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="strip-frame">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="strip-num">06</span>
+        <div class="portra-wrap"><img class="portra" src="../../assets/img/cliff-coast-ocean.jpg" alt="Cliffs meeting the ocean at the edge of Big Sur"></div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== GALLERY ===================== -->
+  <section class="gallery-head">
+    <div class="kicker">The Sample Images</div>
+    <h2>Frames Worth Keeping</h2>
+    <p>Twelve exposures pulled from the archive of Tom Milton &mdash; shot on real film, graded warm, printed by hand. Each frame below is reproduced as it left the negative.</p>
+  </section>
+
+  <main class="gallery">
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">12A &gt;</span>
+          <span class="neg-edge">Kodak Portra 400</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/golden-field-sunburst.jpg" alt="Sun bursting low over a golden wheat field at last light in Tuscany"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>Last Light, Wheat Country</h3>
+        <div class="loc">Tuscany, Italy &middot; 1998</div>
+        <div class="meta">
+          <span class="stock">Kodak Portra 400</span>
+          <span>Leica M6</span>
+          <span>Landscape</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">14 &gt;</span>
+          <span class="neg-edge">Kodak Ektar 100</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/lake-cabin-dawn.jpg" alt="A small cabin reflected in a still lake at dawn in Banff"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>The Cabin at Dawn</h3>
+        <div class="loc">Banff, Canada &middot; 2003</div>
+        <div class="meta">
+          <span class="stock">Kodak Ektar 100</span>
+          <span>Mamiya 7 II</span>
+          <span>Landscape</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">07A &gt;</span>
+          <span class="neg-edge">Kodak Portra 160</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/woman-portrait-freckles.jpg" alt="Close portrait of a woman with freckles lit by soft sun"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>Freckles &amp; Sun</h3>
+        <div class="loc">Studio &middot; 2015</div>
+        <div class="meta">
+          <span class="stock">Kodak Portra 160</span>
+          <span>Mamiya 645</span>
+          <span>Portrait</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">21 &gt;</span>
+          <span class="neg-edge">Kodak Portra 400</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/autumn-forest-road.jpg" alt="A quiet road winding through an autumn forest of orange leaves in Vermont"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>October Road</h3>
+        <div class="loc">Vermont, USA &middot; 2007</div>
+        <div class="meta">
+          <span class="stock">Kodak Portra 400</span>
+          <span>Leica M7</span>
+          <span>Landscape</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">09A &gt;</span>
+          <span class="neg-edge">Kodak Portra 800</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/woman-laughing-portrait.jpg" alt="A woman laughing warmly with a soft glow in Mexico City"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>That Laugh</h3>
+        <div class="loc">Mexico City, Mexico &middot; 2021</div>
+        <div class="meta">
+          <span class="stock">Kodak Portra 800</span>
+          <span>Contax G2</span>
+          <span>Portrait</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">18 &gt;</span>
+          <span class="neg-edge">Kodak Ektar 100</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/vintage-car-street.jpg" alt="A vintage car parked on a sun-washed colorful street in Havana"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>Sunday Drive</h3>
+        <div class="loc">Havana, Cuba &middot; 2022</div>
+        <div class="meta">
+          <span class="stock">Kodak Ektar 100</span>
+          <span>Nikon FE</span>
+          <span>Street</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">03A &gt;</span>
+          <span class="neg-edge">Kodak Portra 400</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/cliff-coast-ocean.jpg" alt="Rugged cliffs meeting the open ocean at the edge of Big Sur"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>Edge of the World</h3>
+        <div class="loc">Big Sur, USA &middot; 2002</div>
+        <div class="meta">
+          <span class="stock">Kodak Portra 400</span>
+          <span>Contax G2</span>
+          <span>Landscape</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">11 &gt;</span>
+          <span class="neg-edge">Kodak Portra 400</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/friends-golden-hour.jpg" alt="Friends gathered together in warm golden-hour light in California"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>Golden Hour, Together</h3>
+        <div class="loc">California, USA &middot; 2016</div>
+        <div class="meta">
+          <span class="stock">Kodak Portra 400</span>
+          <span>Nikon F100</span>
+          <span>Portrait</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">22A &gt;</span>
+          <span class="neg-edge">Kodak Ektar 100</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/desert-dunes.jpg" alt="Wind-sculpted ridgelines across desert dunes in Namibia"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>Wind Lines</h3>
+        <div class="loc">Namibia &middot; 2008</div>
+        <div class="meta">
+          <span class="stock">Kodak Ektar 100</span>
+          <span>Hasselblad 503CW</span>
+          <span>Landscape</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">06 &gt;</span>
+          <span class="neg-edge">Cinestill 800T</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/mountain-road-fog.jpg" alt="A mountain road disappearing into fog in the Dolomites"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>The Long Way Home</h3>
+        <div class="loc">Dolomites, Italy &middot; 2005</div>
+        <div class="meta">
+          <span class="stock">Cinestill 800T</span>
+          <span>Canon AE-1</span>
+          <span>Landscape</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">15A &gt;</span>
+          <span class="neg-edge">Kodak Portra 400</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/cozy-interior-window.jpg" alt="Soft daylight falling through a window into a cozy interior in Copenhagen"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>Home Light</h3>
+        <div class="loc">Copenhagen, Denmark &middot; 2023</div>
+        <div class="meta">
+          <span class="stock">Kodak Portra 400</span>
+          <span>Leica M6</span>
+          <span>Interior</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="frame-card">
+      <div class="neg">
+        <div class="sprockets top"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="photo">
+          <span class="neg-num">19 &gt;</span>
+          <span class="neg-edge">Fuji Pro 400H</span>
+          <div class="portra-wrap"><img class="portra" src="../../assets/img/rolling-green-hills.jpg" alt="A patchwork of rolling green hills in Tuscany"></div>
+        </div>
+        <div class="sprockets bot"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="caption">
+        <h3>Patchwork</h3>
+        <div class="loc">Tuscany, Italy &middot; 1997</div>
+        <div class="meta">
+          <span class="stock">Fujifilm Pro 400H</span>
+          <span>Pentax 645</span>
+          <span>Landscape</span>
+        </div>
+      </div>
+    </article>
+
+  </main>
+
+  <!-- ===================== TECH / DX STRIP ===================== -->
+  <section class="tech">
+    <div>
+      <h4>DX Encoding</h4>
+      <div class="dx" aria-hidden="true">
+        <i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i>
+        <i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i><i></i>
+      </div>
+      <div class="emul">EMULSION No. 6301-0407</div>
+      <p>ISO 400 / 27&deg; &middot; Daylight balanced. Exposes for skin. Store below 21&deg;C, away from sunlight. Process promptly after exposure for best results.</p>
+    </div>
+
+    <div style="text-align:center;">
+      <h4>Process</h4>
+      <div class="c41"><b>C-41</b><span>Process</span></div>
+      <p>Develop in standard C-41 chemistry. Push &amp; pull tolerant to &plusmn;2 stops. Hand-printed on lustre paper.</p>
+    </div>
+
+    <div>
+      <h4>Product Code</h4>
+      <div class="barcode" aria-hidden="true"></div>
+      <div class="barlabel">8 41887 00407 2</div>
+      <p>TOMACOLOR&trade; is the personal film line of photographer Tom Milton. Not affiliated with any manufacturer. Sample frames for portfolio display only.</p>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="foot">
+    <div class="stripes-diag foot-stripes"></div>
+    <div class="foot-inner">
+      <div class="wordmark">
+        <span class="mk">Tomacolor<small>Portra 400</small></span>
+      </div>
+      <div class="foot-contact">
+        Commissions &amp; Prints &middot; <a href="mailto:tom.milton@amododesign.com">tom.milton@amododesign.com</a>
+      </div>
+      <p class="fineprint">
+        Caution: photographs may cause nostalgia. This package contains 36 exposures of color negative film, lovingly graded warm in the spirit of Kodak Portra. All images &copy; Tom Milton, shot 1997&ndash;2023 on assorted 35mm and medium-format cameras. Keep dry. Do not expose to fluorescent thinking. Made for the love of light.
+      </p>
+    </div>
+    <div class="foot-bottom">Tomacolor 400 &middot; A Tom Milton Film Line &middot; 35mm &middot; 36 EXP &middot; ISO 400</div>
+  </footer>
+
+</div>
+</body>
+</html>
