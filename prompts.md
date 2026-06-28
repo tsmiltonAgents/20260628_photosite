@@ -94,4 +94,4 @@ A running record of every prompt given for this project, in order, so we can tra
 - Found and fixed **Liquid (80)**: it spun up ~30 WebGL contexts (browsers evict beyond ~16) which blanked most tiles — capped live contexts to 12 with a guaranteed `<img>` fallback so every photo shows.
 - Regenerated thumbnails over http and rebuilt the hub into **three sections** — "Twenty-five still", "Ten that move", and "Fifty more explorations" (interactive cards badged). Hero now reads "Eighty-five ways"; 36 interactive in total.
 
-**Commit:** [`PENDING`](https://github.com/tsmiltonAgents/20260628_photosite) — recorded below after commit.
+**Commit:** [`af762a0`](https://github.com/tsmiltonAgents/20260628_photosite/commit/af762a0) — "Add 50 more designs (36-85)"
