@@ -69,4 +69,4 @@ A running record of every prompt given for this project, in order, so we can tra
 - Caught and fixed **35 In Type**, whose giant letters were sampling a near-black band of the photo and reading as invisible — added a warm text-stroke outline + brightness so the type always reads.
 - Regenerated all thumbnails over http (so the WebGL/canvas designs capture truthfully) and rebuilt the hub `index.html` into two sections — "Twenty-five still designs" and "Ten that move" (interactive cards carry a pulsing badge). Hero now reads "Thirty-five ways".
 
-**Commit:** [`PENDING`](https://github.com/tsmiltonAgents/20260628_photosite) — recorded below after commit.
+**Commit:** [`d741559`](https://github.com/tsmiltonAgents/20260628_photosite/commit/d741559) — "Add a Motion wing: 10 boundary-pushing interactive designs (26-35)"
