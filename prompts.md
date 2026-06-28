@@ -44,4 +44,4 @@ A running record of every prompt given for this project, in order, so we can tra
 - Generated a real rendered **screenshot of each of the 25 design pages** (top viewport, 4:3) with Playwright (`gen-thumbs.js`), downscaled to 900×675 JPEGs in `assets/thumbs/`.
 - Rewired the hub `index.html` so every card now shows the actual design screenshot instead of a single photograph, removing the photo-grade CSS filters (each screenshot already carries its design's own grade). The hub is now a true visual contact sheet of the 25 designs.
 
-**Commit:** [`PENDING`](https://github.com/tsmiltonAgents/20260628_photosite) — recorded below after commit.
+**Commit:** [`e794c0f`](https://github.com/tsmiltonAgents/20260628_photosite/commit/e794c0f) — "Index hub: show a screenshot of each design instead of a photo"
