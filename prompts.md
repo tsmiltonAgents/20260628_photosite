@@ -28,4 +28,8 @@ A running record of every prompt given for this project, in order, so we can tra
 - Shared assets: a curated pool of 30 film-aesthetic photographs (`assets/img/`) and a metadata file (`assets/photos.json`) giving each photo a title, location, film stock, camera, lens and year — so "Tufte-style" metadata designs have real data to show.
 - Deployed to GitHub Pages.
 
-**Commit:** _(see git history — referenced after commit)_
+**Commit:** [`f7d93c7`](https://github.com/tsmiltonAgents/20260628_photosite/commit/f7d93c7) — "Build film-photography portfolio: 25 design concepts + hub"
+
+**Live site:** https://tsmiltonagents.github.io/20260628_photosite/
+
+**Repo:** https://github.com/tsmiltonAgents/20260628_photosite
