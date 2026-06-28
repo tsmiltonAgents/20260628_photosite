@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Develop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0d0f;
+    --bg2:#141417;
+    --ink:#ece5d6;
+    --dim:#857f72;
+    --amber:#e08a3c;
+    --amber-l:#f6b76a;
+    --orange:#c2611a;
+    --serif:'Fraunces',Georgia,serif;
+    --sans:'Space Grotesk',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--ink);font-family:var(--sans);
+    overflow-x:hidden;line-height:1.5;
+  }
+  /* film-base orange glow scene */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(120% 70% at 50% -5%, rgba(224,138,60,.16), transparent 55%),
+      radial-gradient(100% 60% at 50% 110%, rgba(194,97,26,.10), transparent 60%),
+      var(--bg);
+  }
+  /* grain */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:60;pointer-events:none;mix-blend-mode:overlay;opacity:.06;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  ::selection{background:var(--amber);color:#190d02}
+  a{color:inherit}
+
+  .back{
+    position:fixed;top:1rem;left:1rem;z-index:120;
+    font-family:var(--sans);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+    text-decoration:none;color:var(--dim);padding:.5rem .7rem;border:1px solid #26272b;
+    background:rgba(12,13,15,.78);backdrop-filter:blur(6px);transition:.2s;
+  }
+  .back:hover{color:var(--amber-l);border-color:var(--orange)}
+
+  /* dev progress bar (top) */
+  .devbar{position:fixed;top:0;left:0;height:3px;z-index:130;width:0%;
+    background:linear-gradient(90deg,var(--orange),var(--amber-l));box-shadow:0 0 12px rgba(246,183,106,.6)}
+
+  header.hero{
+    min-height:92vh;display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(4rem,9vw,7rem) clamp(1.2rem,6vw,5rem) 4rem;max-width:1100px;margin:0 auto;
+  }
+  .kick{font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;color:var(--amber);margin-bottom:1.4rem}
+  header.hero h1{
+    font-family:var(--serif);font-weight:600;font-size:clamp(3.2rem,15vw,9.5rem);line-height:.9;
+    letter-spacing:-.02em;
+  }
+  header.hero h1 em{font-style:italic;color:var(--amber-l)}
+  header.hero .lede{max-width:48ch;margin-top:1.6rem;color:var(--dim);font-size:clamp(1rem,2.4vw,1.18rem);line-height:1.7}
+  header.hero .lede b{color:var(--ink);font-weight:500}
+  .byline{margin-top:1.4rem;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+  .scrollcue{margin-top:3rem;display:inline-flex;align-items:center;gap:.7rem;font-size:.72rem;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--amber-l)}
+  .scrollcue .dot{width:9px;height:9px;border-radius:50%;background:var(--amber-l);animation:pulse 1.8s ease infinite}
+  @keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
+
+  /* the developing reel */
+  .reel{max-width:1180px;margin:0 auto;padding:0 clamp(.8rem,4vw,3rem) 14vh}
+
+  figure.frame{
+    position:relative;margin:0 0 clamp(7rem,16vh,13rem);
+    /* the film rebate: orange-base border with codes */
+    background:linear-gradient(180deg,#cf6c1e,#a8511180 60%,#8a410f);
+    padding:clamp(2.4rem,5vw,3.4rem) clamp(.7rem,2vw,1.2rem);
+    border-radius:4px;
+    box-shadow:0 40px 80px -40px rgba(0,0,0,.9), inset 0 0 0 1px rgba(0,0,0,.25);
+  }
+  figure.frame:nth-child(even){margin-left:auto;max-width:86%}
+  figure.frame:nth-child(odd){margin-right:auto;max-width:86%}
+  @media(max-width:680px){figure.frame:nth-child(odd),figure.frame:nth-child(even){max-width:100%}}
+
+  /* sprocket rows */
+  .frame::before,.frame::after{
+    content:"";position:absolute;left:0;right:0;height:14px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='14'%3E%3Crect x='5' y='3' width='20' height='8' rx='2' fill='%230c0d0f'/%3E%3C/svg%3E");
+    background-size:30px 14px;background-repeat:repeat-x;opacity:.85;
+  }
+  .frame::before{top:6px}
+  .frame::after{bottom:6px}
+
+  .win{position:relative;overflow:hidden;background:#000;border-radius:1px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.5)}
+  .win img{
+    display:block;width:100%;aspect-ratio:4/3;object-fit:cover;
+    /* JS sets --d (0 neg → 1 positive); start as negative */
+    filter:invert(1) hue-rotate(185deg) sepia(.45) saturate(.62) contrast(.78) brightness(1.18);
+    will-change:filter;
+  }
+  /* chemical bath wash that clears as it develops */
+  .win::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 100% at 50% 50%, rgba(224,138,60,.0), rgba(120,55,12,.55));
+    mix-blend-mode:multiply;opacity:var(--wash,.85);transition:opacity .15s linear;
+  }
+
+  /* rebate code text */
+  .codes{position:absolute;left:0;right:0;display:flex;justify-content:space-between;
+    font-family:var(--sans);font-size:.6rem;letter-spacing:.22em;color:#1c0c02;font-weight:500;
+    padding:0 clamp(1rem,3vw,2rem);text-transform:uppercase;mix-blend-mode:multiply;opacity:.7}
+  .codes.top{top:.7rem}
+  .codes.bot{bottom:.7rem}
+
+  /* caption */
+  figcaption{margin-top:1.3rem;display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;align-items:flex-end;
+    color:#1c0c02;mix-blend-mode:multiply}
+  figcaption .t{font-family:var(--serif);font-size:clamp(1.3rem,3.6vw,2rem);font-weight:600;line-height:1.05;letter-spacing:-.01em}
+  figcaption .meta{font-family:var(--sans);font-size:.72rem;letter-spacing:.04em;text-align:right;line-height:1.6;opacity:.85}
+  figcaption .meta b{font-weight:500}
+
+  /* per-frame develop status chip */
+  .status{position:absolute;top:50%;right:clamp(.4rem,1.4vw,1rem);transform:translateY(-50%);z-index:5;
+    writing-mode:vertical-rl;font-family:var(--sans);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;
+    color:#1c0c02;mix-blend-mode:multiply;opacity:.55}
+
+  footer{padding:8vh 1.5rem 12vh;text-align:center;color:var(--dim);font-size:.75rem;letter-spacing:.2em;text-transform:uppercase}
+  footer b{color:var(--amber-l);font-weight:500}
+
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .scrollcue .dot{animation:none}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">&larr; All designs</a>
+<div class="devbar" id="devbar" aria-hidden="true"></div>
+
+<header class="hero">
+  <div class="kick">Tom Milton · Process No. 73</div>
+  <h1>De<em>velop</em></h1>
+  <p class="lede">Every frame begins life as an orange-base colour <b>negative</b>. Scroll, and the latent image surfaces &mdash; inversion clearing, colour blooming &mdash; until each photograph stands fully <b>developed</b> at the centre of the light table.</p>
+  <div class="byline">Film &amp; landscape · 1995&ndash;2023</div>
+  <div class="scrollcue"><span class="dot"></span> Scroll to develop</div>
+</header>
+
+<main class="reel" id="reel" aria-label="Developing reel of photographs"></main>
+
+<footer>Tom Milton &mdash; <b>shot on film, developed by scroll</b></footer>
+
+<script>
+(function(){
+  "use strict";
+  var DATA=[
+    ["golden-field-sunburst.jpg","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",0],
+    ["forest-sunlight.jpg","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",0],
+    ["landscape-misty-mountains.jpg","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001",0],
+    ["lake-cabin-dawn.jpg","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003",0],
+    ["misty-pine-forest.jpg","Silence","Norway","Ilford HP5 Plus","Leica M6","2003",1],
+    ["cliff-coast-ocean.jpg","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002",0],
+    ["mountain-road-fog.jpg","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005",0],
+    ["waterfall-bridge.jpg","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006",0],
+    ["woman-portrait-window.jpg","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",0],
+    ["man-portrait-street.jpg","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400","Leica M4","2012",1],
+    ["desert-dunes.jpg","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",0],
+    ["autumn-forest-road.jpg","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",0],
+    ["woman-fashion-portrait.jpg","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67","2019",0],
+    ["lake-mountain-house.jpg","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000",0],
+    ["woman-laughing-portrait.jpg","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2","2021",0]
+  ];
+
+  var reel=document.getElementById("reel");
+  var devbar=document.getElementById("devbar");
+  var reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  function code(){var n="0123456789ABCDEFGHJKLMN";var s="";for(var i=0;i<2;i++)s+=n[Math.floor(Math.random()*n.length)];return s;}
+
+  var frames=[];
+  DATA.forEach(function(d,i){
+    var bw=d[6]===1;
+    var fig=document.createElement("figure");
+    fig.className="frame";
+    var fnum=(i+1);
+    var frameId=String(fnum).padStart(2,"0")+code();
+    fig.innerHTML=
+      '<div class="codes top"><span>KODAK '+(bw?'5063 TX':'PORTRA')+'</span><span>&rsaquo; '+frameId+'A</span></div>'+
+      '<div class="win">'+
+        '<img alt="'+d[1].replace(/"/g,'')+' — '+d[2]+', shot on '+d[3]+'" src="../../assets/img/'+d[0]+'" loading="lazy">'+
+      '</div>'+
+      '<div class="status" aria-hidden="true">Negative</div>'+
+      '<div class="codes bot"><span>'+fnum+' &rarr; '+(fnum+1)+'</span><span>'+d[5]+' · '+d[4]+'</span></div>'+
+      '<figcaption>'+
+        '<div class="t">'+d[1]+'</div>'+
+        '<div class="meta"><b>'+d[2]+'</b><br>'+d[3]+' · '+d[4]+' · '+d[5]+'</div>'+
+      '</figcaption>';
+    reel.appendChild(fig);
+    frames.push({fig:fig,img:fig.querySelector("img"),win:fig.querySelector(".win"),status:fig.querySelector(".status"),bw:bw,d:-1});
+  });
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+
+  function applyFilter(f,d){
+    // d: 0 = full negative, 1 = full positive (warm Portra / bw grade)
+    var inv=(1-d);
+    var s;
+    if(f.bw){
+      s="invert("+inv.toFixed(3)+") grayscale(1) contrast("+lerp(0.8,1.12,d).toFixed(3)+
+        ") brightness("+lerp(1.16,1.0,d).toFixed(3)+")";
+    }else{
+      s="invert("+inv.toFixed(3)+") hue-rotate("+(inv*185).toFixed(1)+"deg) sepia("+
+        lerp(0.45,0.12,d).toFixed(3)+") saturate("+lerp(0.62,1.08,d).toFixed(3)+
+        ") contrast("+lerp(0.78,1.04,d).toFixed(3)+") brightness("+lerp(1.18,1.02,d).toFixed(3)+")";
+    }
+    f.img.style.filter=s;
+    f.win.style.setProperty("--wash",(0.78*(1-d)).toFixed(3));
+    if(d>0.85)f.status.textContent="Developed";
+    else if(d>0.35)f.status.textContent="Developing";
+    else f.status.textContent="Negative";
+  }
+
+  if(reduce){
+    frames.forEach(function(f){applyFilter(f,1);});
+    return;
+  }
+
+  var ticking=false, vh=window.innerHeight;
+  function update(){
+    ticking=false;
+    var center=vh*0.5;
+    frames.forEach(function(f){
+      var r=f.win.getBoundingClientRect();
+      var fc=r.top+r.height*0.5;
+      // distance from viewport center, normalised by a develop window
+      var win=vh*0.62;
+      var dist=Math.abs(fc-center);
+      var d=1-Math.min(1,dist/win);
+      d=d*d*(3-2*d); // smoothstep
+      // round to reduce style thrash
+      var dq=Math.round(d*40)/40;
+      if(dq!==f.d){f.d=dq;applyFilter(f,dq);}
+    });
+    // progress
+    var max=document.documentElement.scrollHeight-vh;
+    devbar.style.width=(max>0?(window.scrollY/max*100):0)+"%";
+  }
+  function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(update);}}
+
+  var active=true;
+  window.addEventListener("scroll",function(){if(active)onScroll();},{passive:true});
+  window.addEventListener("resize",function(){vh=window.innerHeight;onScroll();},{passive:true});
+  document.addEventListener("visibilitychange",function(){active=!document.hidden;if(active)onScroll();});
+  // init
+  frames.forEach(function(f){applyFilter(f,0);});
+  requestAnimationFrame(update);
+})();
+</script>
+</body>
+</html>

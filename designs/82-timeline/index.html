@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1995—2023 · Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Space+Grotesk:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#16130f;
+    --paper2:#1d1914;
+    --ink:#f3ead9;
+    --ink-dim:#b8a886;
+    --ink-faint:#7d6f57;
+    --accent:#e0913f;       /* warm portra amber */
+    --accent2:#c8603a;      /* burnt */
+    --line:#3a3127;
+    --line-bright:#5a4c38;
+    --grad-portra: saturate(1.06) contrast(1.03) brightness(1.03) sepia(0.16) hue-rotate(-7deg);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(1200px 700px at 50% -10%, #221c15 0%, transparent 60%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .grain{position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  /* ---- top bar ---- */
+  .topbar{position:fixed;top:0;left:0;right:0;height:58px;display:flex;align-items:center;
+    justify-content:space-between;padding:0 24px;z-index:40;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(to bottom,rgba(22,19,15,.92),rgba(22,19,15,.4));}
+  .back{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.06em;color:var(--ink-dim);
+    text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:color .2s}
+  .back:hover{color:var(--accent)}
+  .brand{font-family:'Fraunces',serif;font-weight:400;font-size:15px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-dim)}
+  .brand b{color:var(--ink);font-weight:500}
+
+  /* ---- stage ---- */
+  .stage{position:absolute;top:58px;left:0;right:0;bottom:200px;display:flex;
+    align-items:center;justify-content:center;overflow:hidden}
+  .reel{position:relative;width:100%;height:100%}
+
+  .card{position:absolute;top:50%;left:50%;will-change:transform,opacity;
+    transform:translate(-50%,-50%);transition:none;pointer-events:none}
+  .card .frame{position:relative;background:#0d0b08;padding:10px;
+    border:1px solid var(--line-bright);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.85), 0 0 0 1px rgba(0,0,0,.4);}
+  .card img{display:block;width:100%;height:100%;object-fit:cover;filter:var(--grad-portra)}
+  .card.bw img{filter:grayscale(1) contrast(1.08) brightness(1.02)}
+  .card .yr{position:absolute;left:10px;top:-30px;font-family:'Space Mono',monospace;
+    font-size:11px;letter-spacing:.1em;color:var(--accent);opacity:0}
+  .card .dot{display:none}
+
+  /* dot style for distant cards */
+  .card.dot .frame{padding:0;border:none;box-shadow:none;background:transparent}
+  .card.dot .frameimg{display:none}
+  .card.dot .pip{display:block}
+
+  /* center caption */
+  .caption{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);
+    text-align:center;width:min(560px,86vw);pointer-events:none;z-index:5}
+  .caption .ttl{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(22px,3.4vw,34px);
+    line-height:1.1;color:var(--ink);text-shadow:0 2px 20px rgba(0,0,0,.7)}
+  .caption .meta{margin-top:8px;font-family:'Space Mono',monospace;font-size:11.5px;
+    letter-spacing:.04em;color:var(--ink-dim);display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .caption .meta b{color:var(--accent);font-weight:400}
+  .caption.swap{animation:swap .42s ease}
+  @keyframes swap{0%{opacity:0;transform:translateX(-50%) translateY(10px)}100%{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+  /* ---- timeline axis ---- */
+  .axiswrap{position:fixed;left:0;right:0;bottom:0;height:200px;z-index:30;
+    padding:0 0 22px;
+    background:linear-gradient(to top,rgba(13,11,8,.96) 60%,rgba(13,11,8,0));}
+  .controls{display:flex;align-items:center;gap:18px;justify-content:center;padding:14px 0 16px}
+  .playbtn{width:46px;height:46px;border-radius:50%;border:1px solid var(--line-bright);
+    background:var(--paper2);color:var(--ink);cursor:pointer;display:flex;align-items:center;
+    justify-content:center;transition:.2s;flex:0 0 auto}
+  .playbtn:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 18px -4px var(--accent)}
+  .playbtn svg{width:18px;height:18px}
+  .readout{font-family:'Fraunces',serif;font-size:clamp(38px,6vw,64px);font-weight:300;
+    line-height:.9;color:var(--ink);min-width:3ch;text-align:center;letter-spacing:.01em}
+  .readout .small{font-family:'Space Mono',monospace;font-size:11px;color:var(--ink-faint);
+    letter-spacing:.18em;display:block;margin-top:2px;text-align:center}
+
+  .axis{position:relative;height:96px;margin:0 max(28px,5vw);cursor:pointer;touch-action:none}
+  .axisline{position:absolute;left:0;right:0;top:54px;height:1px;background:var(--line-bright)}
+  .axisline::before,.axisline::after{content:'';position:absolute;top:-3px;width:7px;height:7px;
+    border-top:1px solid var(--line-bright);border-right:1px solid var(--line-bright)}
+  .axisline::before{left:-1px;transform:rotate(225deg)}
+  .axisline::after{right:-1px;transform:rotate(45deg)}
+
+  .tick{position:absolute;top:54px;transform:translateX(-50%)}
+  .tick .bar{width:1px;height:8px;background:var(--line-bright);margin:0 auto}
+  .tick.major .bar{height:14px;background:var(--ink-faint)}
+  .tick .lab{position:absolute;top:18px;left:50%;transform:translateX(-50%);
+    font-family:'Space Mono',monospace;font-size:10px;color:var(--ink-faint);white-space:nowrap}
+  .tick:not(.major) .lab{display:none}
+
+  /* photo markers on axis */
+  .mark{position:absolute;top:54px;width:9px;height:9px;border-radius:50%;
+    transform:translate(-50%,-50%);background:var(--accent);cursor:pointer;
+    border:1.5px solid var(--paper);transition:transform .18s, background .18s;z-index:3;
+    box-shadow:0 0 0 0 rgba(224,145,63,.5)}
+  .mark[data-water="1"]{background:#5fa3c8}
+  .mark[data-bw="1"]{background:#cfc6b5}
+  .mark:hover{transform:translate(-50%,-50%) scale(1.55)}
+  .mark.active{transform:translate(-50%,-50%) scale(1.9);
+    box-shadow:0 0 14px 2px rgba(224,145,63,.7)}
+  .mark .pin{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);height:0;
+    width:1px;background:var(--line-bright);opacity:0}
+  .mark.active .pin{opacity:1;height:18px}
+
+  /* playhead */
+  .playhead{position:absolute;top:18px;bottom:8px;width:2px;background:var(--accent);
+    transform:translateX(-50%);z-index:4;pointer-events:none;box-shadow:0 0 12px 1px rgba(224,145,63,.6)}
+  .playhead::before{content:'';position:absolute;top:-2px;left:50%;transform:translateX(-50%) rotate(45deg);
+    width:11px;height:11px;background:var(--accent);box-shadow:0 0 10px rgba(224,145,63,.7)}
+  .playhead.grab::before{transform:translateX(-50%) rotate(45deg) scale(1.25)}
+
+  /* hint */
+  .hint{position:fixed;left:50%;bottom:210px;transform:translateX(-50%);z-index:35;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--ink-faint);
+    text-align:center;pointer-events:none;transition:opacity .6s}
+  .hint b{color:var(--accent)}
+  .hint.hidden{opacity:0}
+
+  .count{position:fixed;left:24px;top:74px;font-family:'Space Mono',monospace;font-size:11px;
+    color:var(--ink-faint);letter-spacing:.08em;z-index:20}
+  .count b{color:var(--accent)}
+
+  @media (max-width:680px){
+    .axiswrap{height:184px}
+    .stage{bottom:184px}
+    .caption{bottom:14px}
+    .readout{font-size:34px}
+    .count{display:none}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .caption.swap{animation:none}
+    .mark,.card{transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="topbar">
+  <a class="back" href="../../index.html" aria-label="Back to all designs">← All designs</a>
+  <div class="brand">Tom&nbsp;<b>Milton</b></div>
+  <div style="width:80px"></div>
+</div>
+
+<div class="count" aria-hidden="true"><b id="cIdx">01</b> / <span id="cTot">30</span></div>
+
+<main class="stage" aria-label="Photograph at the current year">
+  <div class="reel" id="reel"></div>
+  <div class="caption" id="caption" aria-live="polite"></div>
+</main>
+
+<div class="hint" id="hint">Drag the <b>playhead</b> · click a <b>year</b> or dot · <b>← →</b> keys · <b>play</b> to auto-advance</div>
+
+<section class="axiswrap" aria-label="Timeline controls">
+  <div class="controls">
+    <div class="readout" id="readout" aria-hidden="true">1995<span class="small">YEAR</span></div>
+    <button class="playbtn" id="play" aria-label="Play timeline" aria-pressed="false">
+      <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+  <div class="axis" id="axis" role="slider" tabindex="0" aria-label="Year scrubber, 1995 to 2023"
+       aria-valuemin="1995" aria-valuemax="2023" aria-valuenow="1995">
+    <div class="axisline"></div>
+    <div id="ticks"></div>
+    <div id="marks"></div>
+    <div class="playhead" id="playhead"></div>
+  </div>
+</section>
+
+<script>
+(function(){
+  "use strict";
+  const DATA = [
+    {f:"golden-field-sunburst.jpg",t:"Last Light, Wheat Country",loc:"Tuscany, Italy",film:"Kodak Portra 400",cam:"Leica M6",y:1998},
+    {f:"landscape-misty-mountains.jpg",t:"Morning Fog, Cascades",loc:"Washington, USA",film:"Fujifilm Pro 400H",cam:"Pentax 67",y:2001,water:1},
+    {f:"lake-cabin-dawn.jpg",t:"The Cabin at Dawn",loc:"Banff, Canada",film:"Kodak Ektar 100",cam:"Mamiya 7 II",y:2003,water:1},
+    {f:"forest-sunlight.jpg",t:"Cathedral of Pines",loc:"Olympic NP, USA",film:"Kodak Portra 160",cam:"Hasselblad 500CM",y:1996},
+    {f:"valley-green-river.jpg",t:"River Bend, Spring",loc:"Glencoe, Scotland",film:"Fujifilm Velvia 50",cam:"Nikon F3",y:1999,water:1},
+    {f:"cliff-coast-ocean.jpg",t:"Edge of the World",loc:"Big Sur, USA",film:"Kodak Portra 400",cam:"Contax G2",y:2002,water:1},
+    {f:"mountain-road-fog.jpg",t:"The Long Way Home",loc:"Dolomites, Italy",film:"Cinestill 800T",cam:"Canon AE-1",y:2005},
+    {f:"sun-through-leaves.jpg",t:"Backlit",loc:"Kyoto, Japan",film:"Kodak Portra 800",cam:"Leica M6",y:2004},
+    {f:"lake-mountain-house.jpg",t:"Reflections, Still Morning",loc:"Hallstatt, Austria",film:"Kodak Ektar 100",cam:"Mamiya RZ67",y:2000,water:1},
+    {f:"rolling-green-hills.jpg",t:"Patchwork",loc:"Tuscany, Italy",film:"Fujifilm Pro 400H",cam:"Pentax 645",y:1997},
+    {f:"forest-path-trees.jpg",t:"Into the Woods",loc:"Black Forest, Germany",film:"Kodak Portra 160",cam:"Rolleiflex 2.8F",y:1995},
+    {f:"waterfall-bridge.jpg",t:"Hidden Falls",loc:"Iceland",film:"Fujifilm Velvia 50",cam:"Nikon FM2",y:2006,water:1},
+    {f:"autumn-forest-road.jpg",t:"October Road",loc:"Vermont, USA",film:"Kodak Portra 400",cam:"Leica M7",y:2007},
+    {f:"desert-dunes.jpg",t:"Wind Lines",loc:"Namibia",film:"Kodak Ektar 100",cam:"Hasselblad 503CW",y:2008},
+    {f:"misty-pine-forest.jpg",t:"Silence",loc:"Norway",film:"Ilford HP5 Plus",cam:"Leica M6",y:2003,bw:1},
+    {f:"succulent-closeup.jpg",t:"Geometry of Growth",loc:"Studio",film:"Kodak Portra 160",cam:"Hasselblad 500CM",y:2009},
+    {f:"foggy-pier-lake.jpg",t:"The Quiet Dock",loc:"Lake District, UK",film:"Cinestill 50D",cam:"Contax T2",y:2010,water:1},
+    {f:"woman-portrait-window.jpg",t:"By the Window",loc:"Lisbon, Portugal",film:"Kodak Portra 400",cam:"Pentax 67",y:2011},
+    {f:"man-portrait-street.jpg",t:"Stranger, No. 14",loc:"Havana, Cuba",film:"Kodak Tri-X 400",cam:"Leica M4",y:2012,bw:1},
+    {f:"couple-silhouette-sunset.jpg",t:"Goodnight",loc:"Santorini, Greece",film:"Kodak Portra 800",cam:"Canon EOS-1V",y:2013,water:1},
+    {f:"woman-portrait-soft.jpg",t:"Soft Hour",loc:"Paris, France",film:"Fujifilm Pro 400H",cam:"Contax 645",y:2014},
+    {f:"woman-portrait-freckles.jpg",t:"Freckles & Sun",loc:"Studio",film:"Kodak Portra 160",cam:"Mamiya 645",y:2015},
+    {f:"friends-golden-hour.jpg",t:"Golden Hour, Together",loc:"California, USA",film:"Kodak Portra 400",cam:"Nikon F100",y:2016},
+    {f:"woman-curly-portrait.jpg",t:"Curls",loc:"Brooklyn, USA",film:"Cinestill 800T",cam:"Canon AE-1",y:2017},
+    {f:"man-bw-portrait.jpg",t:"Portrait in Shadow",loc:"Berlin, Germany",film:"Ilford Delta 3200",cam:"Leica M6",y:2018,bw:1},
+    {f:"woman-fashion-portrait.jpg",t:"The Red Wall",loc:"Marrakesh, Morocco",film:"Kodak Portra 400",cam:"Pentax 67",y:2019},
+    {f:"street-cafe-paris.jpg",t:"Café de Flore",loc:"Paris, France",film:"Kodak Gold 200",cam:"Olympus OM-1",y:2020},
+    {f:"woman-laughing-portrait.jpg",t:"That Laugh",loc:"Mexico City, Mexico",film:"Kodak Portra 800",cam:"Contax G2",y:2021},
+    {f:"vintage-car-street.jpg",t:"Sunday Drive",loc:"Havana, Cuba",film:"Kodak Ektar 100",cam:"Nikon FE",y:2022},
+    {f:"cozy-interior-window.jpg",t:"Home Light",loc:"Copenhagen, Denmark",film:"Kodak Portra 400",cam:"Leica M6",y:2023}
+  ];
+  const Y0=1995, Y1=2023, SPAN=Y1-Y0;
+  // sort by year (stable), assign sub-position for same-year items
+  DATA.sort((a,b)=>a.y-b.y);
+  // give each item a continuous time value t in [0,1]; spread same-year items slightly
+  const byYear={};
+  DATA.forEach(d=>{(byYear[d.y]=byYear[d.y]||[]).push(d)});
+  DATA.forEach(d=>{
+    const grp=byYear[d.y]; const i=grp.indexOf(d); const n=grp.length;
+    const off=n>1?(i-(n-1)/2)*0.28:0; // fraction of a year spread
+    d.tv=(d.y-Y0+off)/SPAN;
+    d.tv=Math.max(0,Math.min(1,d.tv));
+  });
+
+  const reel=document.getElementById('reel');
+  const captionEl=document.getElementById('caption');
+  const axis=document.getElementById('axis');
+  const playhead=document.getElementById('playhead');
+  const readout=document.getElementById('readout');
+  const ticksEl=document.getElementById('ticks');
+  const marksEl=document.getElementById('marks');
+  const playBtn=document.getElementById('play');
+  const playIcon=document.getElementById('playIcon');
+  const hint=document.getElementById('hint');
+  const cIdx=document.getElementById('cIdx');
+  document.getElementById('cTot').textContent=DATA.length;
+
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ----- build ticks -----
+  for(let y=Y0;y<=Y1;y++){
+    const t=(y-Y0)/SPAN;
+    const major=(y%5===0)||y===Y0||y===Y1;
+    const el=document.createElement('div');
+    el.className='tick'+(major?' major':'');
+    el.style.left=(t*100)+'%';
+    el.innerHTML='<div class="bar"></div>'+(major?'<div class="lab">'+y+'</div>':'');
+    ticksEl.appendChild(el);
+  }
+
+  // ----- build markers + cards -----
+  const cards=[];
+  DATA.forEach((d,i)=>{
+    const m=document.createElement('button');
+    m.className='mark';
+    m.style.left=(d.tv*100)+'%';
+    if(d.water)m.dataset.water='1';
+    if(d.bw)m.dataset.bw='1';
+    m.setAttribute('aria-label',d.t+', '+d.loc+', '+d.y);
+    m.innerHTML='<span class="pin"></span>';
+    m.addEventListener('click',(e)=>{e.stopPropagation();stopPlay();goTo(d.tv,true);});
+    marksEl.appendChild(m);
+    d.mark=m;
+
+    const card=document.createElement('div');
+    card.className='card'+(d.bw?' bw':'');
+    const img=document.createElement('img');
+    img.src='../../assets/img/'+d.f;
+    img.alt=d.t+' — '+d.loc+', '+d.y;
+    img.loading='lazy';
+    img.draggable=false;
+    const frame=document.createElement('div');
+    frame.className='frame';
+    frame.appendChild(img);
+    const yr=document.createElement('div');yr.className='yr';yr.textContent=d.y;
+    card.appendChild(yr);card.appendChild(frame);
+    reel.appendChild(card);
+    d.card=card;d.frame=frame;d.img=img;
+    cards.push(d);
+  });
+
+  // ----- state -----
+  let pos=0;          // current playhead position 0..1
+  let target=0;
+  let activeIdx=-1;
+  let playing=false;
+  let dragging=false;
+  let lastT=performance.now();
+  let hintShown=true;
+
+  function yearAt(t){return Math.round(Y0+t*SPAN);}
+
+  function nearestIdx(t){
+    let best=0,bd=Infinity;
+    for(let i=0;i<DATA.length;i++){const dd=Math.abs(DATA[i].tv-t);if(dd<bd){bd=dd;best=i;}}
+    return best;
+  }
+
+  function setCaption(d,i){
+    captionEl.innerHTML='<div class="ttl">'+d.t+'</div>'+
+      '<div class="meta"><span>'+d.loc+'</span><b>'+d.y+'</b><span>'+d.film+'</span><span>'+d.cam+'</span></div>';
+    if(!reduced){captionEl.classList.remove('swap');void captionEl.offsetWidth;captionEl.classList.add('swap');}
+    cIdx.textContent=String(i+1).padStart(2,'0');
+  }
+
+  // layout cards relative to playhead position
+  function layout(){
+    const stage=reel.getBoundingClientRect();
+    const W=stage.width,H=stage.height;
+    // center card size
+    const cw=Math.min(W*0.62, H*0.92*1.3, 640);
+    const active=nearestIdx(pos);
+    if(active!==activeIdx){activeIdx=active;setCaption(DATA[active],active);
+      DATA.forEach((d,i)=>d.mark.classList.toggle('active',i===active));
+      axis.setAttribute('aria-valuenow',yearAt(pos));
+      axis.setAttribute('aria-valuetext',DATA[active].t+', '+DATA[active].y);
+    }
+    for(let i=0;i<DATA.length;i++){
+      const d=DATA[i];
+      const dist=(d.tv-pos)*SPAN;          // distance in years from playhead
+      const ad=Math.abs(dist);
+      const isCenter=(i===active);
+      let scale, opacity, tx, ty, z;
+      if(isCenter){
+        // determine aspect from natural size if available
+        let ar=1.32;
+        if(d.img.naturalWidth)ar=d.img.naturalWidth/d.img.naturalHeight;
+        let w=cw, h=w/ar;
+        const maxH=H*0.86;
+        if(h>maxH){h=maxH;w=h*ar;}
+        d.frame.style.width=w+'px';d.frame.style.height=h+'px';
+        d.card.style.transform='translate(-50%,-50%) translateY(-6px)';
+        d.card.style.opacity='1';
+        d.card.style.zIndex=30;
+        d.card.classList.remove('dot');
+        d.card.querySelector('.yr').style.opacity='0';
+      } else {
+        // thumbnails fanning out by time distance
+        const sign=dist<0?-1:1;
+        const fall=Math.min(ad,SPAN);
+        // x position fans out from center, compressed
+        tx = sign*(cw*0.5*0.62 + Math.pow(fall,0.62)*W*0.052);
+        if(Math.abs(tx)>W*0.62)tx=sign*W*0.62;
+        scale=Math.max(0.06, 0.26 - fall*0.012);
+        const thumbW=Math.max(8, cw*0.5*scale);
+        let ar=1.32; if(d.img.naturalWidth)ar=d.img.naturalWidth/d.img.naturalHeight;
+        d.frame.style.width=thumbW+'px';
+        d.frame.style.height=(thumbW/ar)+'px';
+        ty=Math.sin(d.tv*40)*8 - 4;
+        opacity=Math.max(0.0, 0.85 - fall*0.085);
+        d.card.style.transform='translate(-50%,-50%) translate('+tx+'px,'+ty+'px)';
+        d.card.style.opacity=opacity;
+        d.card.style.zIndex=Math.round(20-fall);
+        d.card.querySelector('.yr').style.opacity='0';
+      }
+    }
+    playhead.style.left=(pos*100)+'%';
+    readout.firstChild.nodeValue=yearAt(pos);
+  }
+
+  // animation loop
+  function frame(now){
+    const dt=Math.min(0.05,(now-lastT)/1000);lastT=now;
+    if(playing){
+      target+= dt*(1/14); // ~14s full sweep
+      if(target>=1){target=1;stopPlay();}
+    }
+    // ease pos toward target
+    if(reduced){pos=target;}
+    else{const k=1-Math.pow(0.0015,dt);pos+=(target-pos)*Math.min(1,k*6);}
+    if(Math.abs(target-pos)<0.0002)pos=target;
+    layout();
+    raf=requestAnimationFrame(frame);
+  }
+  let raf=requestAnimationFrame(frame);
+
+  function goTo(t,user){
+    target=Math.max(0,Math.min(1,t));
+    if(reduced)pos=target;
+    if(user)hideHint();
+  }
+
+  // ----- axis interaction -----
+  function axisPosFromX(clientX){
+    const r=axis.getBoundingClientRect();
+    return Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+  }
+  axis.addEventListener('pointerdown',(e)=>{
+    stopPlay();
+    dragging=true;playhead.classList.add('grab');
+    axis.setPointerCapture(e.pointerId);
+    goTo(axisPosFromX(e.clientX),true);
+  });
+  axis.addEventListener('pointermove',(e)=>{
+    if(!dragging)return;
+    goTo(axisPosFromX(e.clientX),true);
+  });
+  function endDrag(e){if(dragging){dragging=false;playhead.classList.remove('grab');
+    // snap to nearest photo
+    const ni=nearestIdx(target);goTo(DATA[ni].tv);}}
+  axis.addEventListener('pointerup',endDrag);
+  axis.addEventListener('pointercancel',endDrag);
+
+  // keyboard
+  axis.addEventListener('keydown',(e)=>{
+    let ni=nearestIdx(pos);
+    if(e.key==='ArrowRight'||e.key==='ArrowUp'){stopPlay();ni=Math.min(DATA.length-1,ni+1);goTo(DATA[ni].tv,true);e.preventDefault();}
+    else if(e.key==='ArrowLeft'||e.key==='ArrowDown'){stopPlay();ni=Math.max(0,ni-1);goTo(DATA[ni].tv,true);e.preventDefault();}
+    else if(e.key==='Home'){stopPlay();goTo(0,true);e.preventDefault();}
+    else if(e.key==='End'){stopPlay();goTo(1,true);e.preventDefault();}
+    else if(e.key===' '||e.key==='Enter'){togglePlay();e.preventDefault();}
+  });
+  // global arrows too
+  window.addEventListener('keydown',(e)=>{
+    if(document.activeElement===axis)return;
+    if(e.key==='ArrowRight'){stopPlay();const ni=Math.min(DATA.length-1,nearestIdx(pos)+1);goTo(DATA[ni].tv,true);}
+    else if(e.key==='ArrowLeft'){stopPlay();const ni=Math.max(0,nearestIdx(pos)-1);goTo(DATA[ni].tv,true);}
+  });
+
+  // ----- play -----
+  function setIcon(p){
+    playIcon.innerHTML = p
+      ? '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>'
+      : '<path d="M8 5v14l11-7z"/>';
+  }
+  function togglePlay(){playing?stopPlay():startPlay();}
+  function startPlay(){
+    if(target>=0.999)target=0,pos=0;
+    playing=true;setIcon(true);playBtn.setAttribute('aria-pressed','true');
+    playBtn.setAttribute('aria-label','Pause timeline');hideHint();
+  }
+  function stopPlay(){if(!playing){return;}playing=false;setIcon(false);
+    playBtn.setAttribute('aria-pressed','false');playBtn.setAttribute('aria-label','Play timeline');
+    const ni=nearestIdx(target);target=DATA[ni].tv;}
+  playBtn.addEventListener('click',togglePlay);
+
+  function hideHint(){if(hintShown){hintShown=false;hint.classList.add('hidden');}}
+
+  // pause when hidden
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){if(raf)cancelAnimationFrame(raf);raf=null;if(playing){playing=false;setIcon(false);playBtn.setAttribute('aria-pressed','false');}}
+    else if(!raf){lastT=performance.now();raf=requestAnimationFrame(frame);}
+  });
+
+  window.addEventListener('resize',layout);
+  // recompute when first images load (for aspect ratios)
+  DATA.forEach(d=>d.img.addEventListener('load',()=>{if(d===DATA[activeIdx])layout();},{once:false}));
+
+  // initial state: start at first photo
+  pos=0;target=DATA[0].tv;
+  setTimeout(()=>{layout();},30);
+})();
+</script>
+</body>
+</html>

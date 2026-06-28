@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DATASHEET — Tom Milton, Photographs</title>
+<meta name="description" content="An engineering datasheet of the photographs of Tom Milton — technical annotations, dimension lines and exposure callouts drawn over each frame.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#eceef0;
+    --panel:#f6f7f8;
+    --ink:#1c2226;
+    --ink-60:#5c666d;
+    --ink-30:#9aa3a9;
+    --line:#c5ccd1;
+    --line-2:#dde2e6;
+    --cyan:#0090b8;
+    --cyan-ink:#006d8c;
+    --amber:#d8741a;
+    --grid:rgba(28,34,38,.05);
+    --pad:clamp(16px,3.2vw,48px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Mono','SFMono-Regular',Menlo,monospace;
+    font-size:14px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    font-feature-settings:"tnum" 1;
+    background-image:
+      linear-gradient(var(--grid) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:24px 24px;
+  }
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .cond{font-family:'IBM Plex Sans Condensed',sans-serif}
+
+  /* ---------- top bar ---------- */
+  .bar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(236,238,240,.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1.5px solid var(--ink);
+    display:flex;align-items:stretch;justify-content:space-between;
+    font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  }
+  .bar .cell{padding:9px var(--pad);display:flex;align-items:center;gap:.6em}
+  .bar .cell+.cell{border-left:1px solid var(--line)}
+  .bar .back{color:var(--ink-60);transition:color .15s}
+  .bar .back:hover{color:var(--cyan-ink)}
+  .bar .right{margin-left:auto;display:flex}
+  .blink{width:7px;height:7px;background:var(--cyan);border-radius:50%;animation:blink 1.6s steps(1) infinite}
+  @keyframes blink{50%{opacity:.2}}
+
+  .wrap{max-width:1500px;margin:0 auto;padding:0 var(--pad)}
+
+  /* ---------- title block ---------- */
+  .titleblock{
+    border:1.5px solid var(--ink);
+    background:var(--panel);
+    margin:var(--pad) 0;
+    display:grid;
+    grid-template-columns:1.6fr 1fr 1fr;
+  }
+  .titleblock>div{padding:14px 18px;border-right:1px solid var(--line)}
+  .titleblock>div:last-child{border-right:0}
+  .tb-k{font-size:10px;letter-spacing:.14em;color:var(--ink-30);text-transform:uppercase}
+  .tb-v{font-size:13px;margin-top:2px}
+  .titleblock .hero{grid-column:1 / -1;border-right:0;border-bottom:1px solid var(--line);padding:26px 18px 22px}
+  .hero h1{
+    font-family:'IBM Plex Sans Condensed',sans-serif;
+    font-weight:700;font-size:clamp(34px,7vw,82px);
+    line-height:.92;letter-spacing:-.01em;text-transform:uppercase;
+  }
+  .hero .sub{font-size:12px;letter-spacing:.1em;color:var(--ink-60);margin-top:12px;text-transform:uppercase}
+  .hero .em{color:var(--cyan-ink)}
+
+  .legend{
+    display:flex;flex-wrap:wrap;gap:6px 26px;
+    font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-60);
+    margin:0 0 calc(var(--pad)*1.2);padding:12px 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);
+  }
+  .legend b{color:var(--ink);font-weight:500}
+  .swatch{display:inline-block;width:18px;height:0;border-top:2px solid var(--cyan);vertical-align:middle;margin-right:4px}
+  .swatch.amb{border-top:2px solid var(--amber)}
+  .swatch.dash{border-top:1.5px dashed var(--ink)}
+
+  /* ---------- sheet (one photo entry) ---------- */
+  .sheet{
+    border:1.5px solid var(--ink);
+    background:var(--panel);
+    margin-bottom:calc(var(--pad)*1.4);
+    display:grid;
+    grid-template-columns:minmax(0,1.55fr) minmax(280px,.95fr);
+  }
+  .sheet .draw{position:relative;border-right:1px solid var(--line);min-width:0;padding:22px;display:flex;align-items:center;justify-content:center}
+  .figframe{position:relative;width:100%;line-height:0}
+  .figframe img{
+    width:100%;height:auto;
+    filter:sepia(.14) saturate(1.06) contrast(.97) brightness(1.02);
+  }
+  .figframe img.bw{filter:grayscale(1) contrast(1.06) brightness(1.0)}
+  .anno{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+
+  /* draw-on lines: pathLength normalised to 1 */
+  .anno [data-draw]{
+    stroke-dasharray:1;stroke-dashoffset:1;
+    transition:stroke-dashoffset 1.05s cubic-bezier(.55,.1,.2,1);
+  }
+  .sheet.in .anno [data-draw]{stroke-dashoffset:0}
+  .anno .dim{stroke:var(--cyan);stroke-width:1.1;fill:none}
+  .anno .tick{stroke:var(--ink);stroke-width:1.1}
+  .anno .crop{stroke:var(--ink);stroke-width:1;stroke-dasharray:5 4;fill:none;opacity:.55}
+  .anno .lead{stroke:var(--amber);stroke-width:1.1;fill:none}
+  .anno .focus{stroke:var(--amber);stroke-width:1.2;fill:none}
+  .anno text{font-family:'IBM Plex Mono',monospace;font-size:11px;fill:var(--cyan-ink);letter-spacing:.04em}
+  .anno text.amb{fill:var(--amber)}
+  .anno text.gr{fill:var(--ink)}
+  .anno .lbl-bg{fill:var(--panel);stroke:var(--amber);stroke-width:1}
+  .anno .opaco{opacity:0;transition:opacity .4s ease .6s}
+  .sheet.in .anno .opaco{opacity:1}
+  .anno rect.labelbg{fill:var(--panel)}
+
+  /* spec column */
+  .spec{padding:0;display:flex;flex-direction:column}
+  .spec .id{
+    display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+    padding:13px 18px;border-bottom:1.5px solid var(--ink);background:var(--ink);color:var(--paper);
+  }
+  .spec .id .no{font-size:11px;letter-spacing:.12em}
+  .spec .id .frame{font-size:11px;letter-spacing:.12em;color:var(--cyan)}
+  .spec h2{
+    font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;
+    font-size:clamp(20px,2.4vw,30px);line-height:1.02;text-transform:uppercase;letter-spacing:-.005em;
+    padding:16px 18px 6px;
+  }
+  .spec .loc{padding:0 18px 14px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60)}
+  table.params{width:100%;border-collapse:collapse;font-size:12px}
+  table.params th,table.params td{text-align:left;padding:8px 18px;border-top:1px solid var(--line-2);vertical-align:top}
+  table.params th{
+    width:42%;font-weight:400;color:var(--ink-60);text-transform:uppercase;
+    font-size:10px;letter-spacing:.1em;
+  }
+  table.params td{font-weight:500}
+  table.params td .num{color:var(--cyan-ink)}
+  .spec .foot{
+    margin-top:auto;padding:12px 18px;border-top:1.5px solid var(--ink);
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-30);
+  }
+  .barcode{display:flex;gap:1.5px;height:22px;align-items:stretch}
+  .barcode i{display:block;background:var(--ink)}
+
+  /* colophon */
+  .colophon{
+    border-top:1.5px solid var(--ink);margin:0 0 60px;padding:22px 0 0;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px 30px;
+    font-size:11px;color:var(--ink-60);
+  }
+  .colophon .tb-k{margin-bottom:4px}
+  .colophon p{max-width:46ch;line-height:1.7}
+
+  @media(max-width:880px){
+    .sheet{grid-template-columns:1fr}
+    .sheet .draw{border-right:0;border-bottom:1px solid var(--line)}
+    .titleblock{grid-template-columns:1fr 1fr}
+    .titleblock .hero{grid-column:1 / -1}
+  }
+  @media(max-width:520px){
+    .titleblock{grid-template-columns:1fr}
+    .titleblock>div{border-right:0;border-bottom:1px solid var(--line)}
+    .bar .hide-s{display:none}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .anno [data-draw]{transition:none;stroke-dashoffset:0}
+    .anno .opaco{transition:none;opacity:1}
+    .blink{animation:none}
+  }
+</style>
+</head>
+<body>
+  <nav class="bar" aria-label="Datasheet header">
+    <div class="cell"><a class="back" href="../../index.html">&larr; All designs</a></div>
+    <div class="cell hide-s">DOC&nbsp;·&nbsp;TM-PHOTO-0039</div>
+    <div class="right">
+      <div class="cell hide-s">REV&nbsp;C</div>
+      <div class="cell"><span class="blink" aria-hidden="true"></span>&nbsp;PLOTTING</div>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <section class="titleblock" aria-label="Title block">
+      <div class="hero">
+        <h1>Photographic<br>Datasheet</h1>
+        <div class="sub">Tom Milton — analog photographs, <span class="em">1995–2009</span> · scanned from original negatives · all dimensions in pixels unless noted</div>
+      </div>
+      <div><div class="tb-k">Drawn by</div><div class="tb-v">T. MILTON</div></div>
+      <div><div class="tb-k">Scale</div><div class="tb-v">NOT TO SCALE</div></div>
+      <div><div class="tb-k">Units</div><div class="tb-v">PX · MM · EV</div></div>
+      <div><div class="tb-k">Sheet</div><div class="tb-v" id="sheetcount">— OF —</div></div>
+      <div><div class="tb-k">Process</div><div class="tb-v">C-41 / B&amp;W</div></div>
+    </section>
+
+    <div class="legend" aria-label="Legend">
+      <span><span class="swatch"></span><b>Dimension line</b> — frame extent</span>
+      <span><span class="swatch dash"></span><b>Crop guide</b> — rule of thirds</span>
+      <span><span class="swatch amb"></span><b>Exposure callout</b> — focus &amp; metering</span>
+      <span><b>+</b> registration ticks</span>
+    </div>
+
+    <main id="sheets"></main>
+
+    <section class="colophon" aria-label="Notes">
+      <div>
+        <div class="tb-k">Notes — General</div>
+        <p>Each frame is annotated as it was scanned. Dimension lines report the true pixel extent of the negative scan; crop guides indicate the rule-of-thirds composition; the exposure callout marks the metered focal plane. No frame was cropped after exposure.</p>
+      </div>
+      <div>
+        <div class="tb-k">Tolerances</div>
+        <p>Linear ±2 px · Exposure ±⅓ EV · Colour graded to approximate a Kodak Portra print. Monochrome frames left as exposed on Ilford stock.</p>
+      </div>
+      <div>
+        <div class="tb-k">Revision history</div>
+        <p>A — first plot. B — added metering callouts. C — registration ticks &amp; thirds overlay. Current.</p>
+        <div style="margin-top:14px" class="tb-k">© Tom Milton</div>
+      </div>
+    </section>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var DATA = [
+    {f:'golden-field-sunburst.jpg', t:'Last Light, Wheat Country', loc:'Tuscany, Italy', film:'Kodak Portra 400', cam:'Leica M6', yr:1998, iso:400, ap:'f/8', sh:'1/250', fl:'50mm', ev:'+0.3', tags:[]},
+    {f:'forest-sunlight.jpg', t:'Cathedral of Pines', loc:'Olympic NP, USA', film:'Kodak Portra 160', cam:'Hasselblad 500CM', yr:1996, iso:160, ap:'f/16', sh:'1/30', fl:'80mm', ev:'-0.7', tags:[]},
+    {f:'cliff-coast-ocean.jpg', t:'Edge of the World', loc:'Big Sur, USA', film:'Kodak Portra 400', cam:'Contax G2', yr:2002, iso:400, ap:'f/11', sh:'1/500', fl:'45mm', ev:'+0.0', tags:['water']},
+    {f:'desert-dunes.jpg', t:'Wind Lines', loc:'Namibia', film:'Kodak Ektar 100', cam:'Hasselblad 503CW', yr:2008, iso:100, ap:'f/22', sh:'1/125', fl:'150mm', ev:'-0.3', tags:[]},
+    {f:'succulent-closeup.jpg', t:'Geometry of Growth', loc:'Studio', film:'Kodak Portra 160', cam:'Hasselblad 500CM', yr:2009, iso:160, ap:'f/5.6', sh:'1/60', fl:'120mm', ev:'+0.0', tags:[]},
+    {f:'misty-pine-forest.jpg', t:'Silence', loc:'Norway', film:'Ilford HP5 Plus', cam:'Leica M6', yr:2003, iso:400, ap:'f/8', sh:'1/125', fl:'35mm', ev:'+0.7', tags:['bw']},
+    {f:'waterfall-bridge.jpg', t:'Hidden Falls', loc:'Iceland', film:'Fujifilm Velvia 50', cam:'Nikon FM2', yr:2006, iso:50, ap:'f/16', sh:'1/4', fl:'24mm', ev:'-1.0', tags:['water']},
+    {f:'lake-mountain-house.jpg', t:'Reflections, Still Morning', loc:'Hallstatt, Austria', film:'Kodak Ektar 100', cam:'Mamiya RZ67', yr:2000, iso:100, ap:'f/11', sh:'1/60', fl:'110mm', ev:'+0.3', tags:['water']},
+    {f:'rolling-green-hills.jpg', t:'Patchwork', loc:'Tuscany, Italy', film:'Fujifilm Pro 400H', cam:'Pentax 645', yr:1997, iso:400, ap:'f/8', sh:'1/350', fl:'75mm', ev:'+0.0', tags:[]}
+  ];
+
+  var sheets = document.getElementById('sheets');
+  document.getElementById('sheetcount').textContent = '01 OF ' + (DATA.length<10?'0':'') + DATA.length;
+
+  function bars(seed){
+    var s='', r=seed*2654435761 % 2147483647;
+    for(var i=0;i<26;i++){ r=(r*48271)%2147483647; var w=1+(r%4); s+='<i style="width:'+w+'px"></i>'; }
+    return s;
+  }
+  function pad(n){return (n<10?'0':'')+n;}
+
+  DATA.forEach(function(d, idx){
+    var isBW = d.tags.indexOf('bw')>-1;
+    var sheet = document.createElement('section');
+    sheet.className='sheet';
+    sheet.setAttribute('aria-label', d.t);
+
+    var alt = d.t+', '+d.loc+'. Photograph on '+d.film+', '+d.cam+', '+d.yr+'.';
+    sheet.innerHTML =
+      '<div class="draw">'+
+        '<figure class="figframe">'+
+          '<img src="../../assets/img/'+d.f+'" class="'+(isBW?'bw':'')+'" alt="'+alt+'" loading="lazy" decoding="async">'+
+          svg(d, idx)+
+        '</figure>'+
+      '</div>'+
+      '<div class="spec">'+
+        '<div class="id"><span class="no">FIG. '+pad(idx+1)+'</span><span class="frame">FRAME '+(36-idx)+'A</span></div>'+
+        '<h2>'+d.t+'</h2>'+
+        '<div class="loc">'+d.loc+' · '+d.yr+'</div>'+
+        '<table class="params">'+
+          row('Camera body', d.cam)+
+          row('Emulsion', d.film)+
+          row('Rated ISO', '<span class="num">'+d.iso+'</span>')+
+          row('Aperture', '<span class="num">'+d.ap+'</span>')+
+          row('Shutter', '<span class="num">'+d.sh+' s</span>')+
+          row('Focal length', '<span class="num">'+d.fl+'</span>')+
+          row('Exposure comp', '<span class="num">'+d.ev+' EV</span>')+
+          row('Scan extent', '<span class="num dimnum" data-fig="'+idx+'">—— × —— px</span>')+
+        '</table>'+
+        '<div class="foot"><span>TM·'+d.yr+'·'+pad(idx+1)+'</span><span class="barcode" aria-hidden="true">'+bars(idx+7)+'</span></div>'+
+      '</div>';
+    sheets.appendChild(sheet);
+
+    var img = sheet.querySelector('img');
+    var dimnum = sheet.querySelector('.dimnum');
+    function setDims(){
+      var w = img.naturalWidth||4000, h = img.naturalHeight||3000;
+      sheet.dataset.w = w; sheet.dataset.h = h;
+      var wt = sheet.querySelector('[data-wtext]');
+      var ht = sheet.querySelector('[data-htext]');
+      if(wt) wt.dataset.target = w;
+      if(ht) ht.dataset.target = h;
+      if(dimnum) dimnum.dataset.w = w, dimnum.dataset.h = h;
+    }
+    if(img.complete && img.naturalWidth) setDims();
+    else img.addEventListener('load', setDims, {once:true});
+  });
+
+  function row(k,v){ return '<tr><th>'+k+'</th><td>'+v+'</td></tr>'; }
+
+  // Build SVG annotation overlay (viewBox 0..1000 x 0..680, preserveAspectRatio none)
+  function svg(d, idx){
+    var W=1000, H=680, m=8;          // margins handled in coords
+    var dimY=H-26;                    // bottom dimension line y
+    var dimX=30;                      // left dimension line x
+    // thirds
+    var x1=W/3, x2=2*W/3, y1=H/3, y2=2*H/3;
+    // focus point (amber) — vary per fig
+    var fx = 0.30 + ((idx*0.11)%0.4), fy = 0.34 + ((idx*0.07)%0.34);
+    var FX = Math.round(fx*W), FY = Math.round(fy*H);
+    var callX = (FX>W*0.5)? FX-250 : FX+90;
+    var callY = (FY>H*0.5)? FY-90 : FY+70;
+    var s='<svg class="anno" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-hidden="true">';
+    // corner registration ticks
+    [[14,14],[W-14,14],[14,H-14],[W-14,H-14]].forEach(function(p){
+      s+='<path class="tick" data-draw pathLength="1" d="M'+(p[0]-9)+' '+p[1]+' H'+(p[0]+9)+'"/>';
+      s+='<path class="tick" data-draw pathLength="1" d="M'+p[0]+' '+(p[1]-9)+' V'+(p[1]+9)+'"/>';
+    });
+    // crop guide rect + thirds
+    s+='<rect class="crop" data-draw pathLength="1" x="40" y="34" width="'+(W-80)+'" height="'+(H-68)+'"/>';
+    s+='<path class="crop" data-draw pathLength="1" d="M'+x1+' 34 V'+(H-34)+'"/>';
+    s+='<path class="crop" data-draw pathLength="1" d="M'+x2+' 34 V'+(H-34)+'"/>';
+    s+='<path class="crop" data-draw pathLength="1" d="M40 '+y1+' H'+(W-40)+'"/>';
+    s+='<path class="crop" data-draw pathLength="1" d="M40 '+y2+' H'+(W-40)+'"/>';
+    // bottom horizontal dimension line with arrowheads
+    s+='<path class="dim" data-draw pathLength="1" d="M40 '+dimY+' H'+(W-40)+'"/>';
+    s+='<path class="dim" data-draw pathLength="1" d="M40 '+(dimY-6)+' V'+(dimY+6)+'"/>';
+    s+='<path class="dim" data-draw pathLength="1" d="M'+(W-40)+' '+(dimY-6)+' V'+(dimY+6)+'"/>';
+    s+='<path class="dim" data-draw pathLength="1" d="M48 '+(dimY-5)+' L40 '+dimY+' L48 '+(dimY+5)+'"/>';
+    s+='<path class="dim" data-draw pathLength="1" d="M'+(W-48)+' '+(dimY-5)+' L'+(W-40)+' '+dimY+' L'+(W-48)+' '+(dimY+5)+'"/>';
+    s+='<rect class="opaco labelbg" x="'+(W/2-66)+'" y="'+(dimY-9)+'" width="132" height="18"/>';
+    s+='<text class="opaco" data-wtext data-target="6000" x="'+(W/2)+'" y="'+(dimY+4)+'" text-anchor="middle">W = ——— px</text>';
+    // left vertical dimension line
+    s+='<path class="dim" data-draw pathLength="1" d="M'+dimX+' 34 V'+(H-34)+'"/>';
+    s+='<path class="dim" data-draw pathLength="1" d="M'+(dimX-6)+' 34 H'+(dimX+6)+'"/>';
+    s+='<path class="dim" data-draw pathLength="1" d="M'+(dimX-6)+' '+(H-34)+' H'+(dimX+6)+'"/>';
+    s+='<path class="dim" data-draw pathLength="1" d="M'+(dimX-5)+' 42 L'+dimX+' 34 L'+(dimX+5)+' 42"/>';
+    s+='<path class="dim" data-draw pathLength="1" d="M'+(dimX-5)+' '+(H-42)+' L'+dimX+' '+(H-34)+' L'+(dimX+5)+' '+(H-42)+'"/>';
+    s+='<rect class="opaco labelbg" x="'+(dimX-9)+'" y="'+(H/2-66)+'" width="18" height="132"/>';
+    s+='<text class="opaco" data-htext data-target="4500" transform="rotate(-90 '+dimX+' '+(H/2)+')" x="'+dimX+'" y="'+(H/2+4)+'" text-anchor="middle">H = ——— px</text>';
+    // focus + leader + exposure callout
+    s+='<circle class="focus" data-draw pathLength="1" cx="'+FX+'" cy="'+FY+'" r="20"/>';
+    s+='<path class="focus" data-draw pathLength="1" d="M'+(FX-28)+' '+FY+' H'+(FX-12)+' M'+(FX+12)+' '+FY+' H'+(FX+28)+' M'+FX+' '+(FY-28)+' V'+(FY-12)+' M'+FX+' '+(FY+12)+' V'+(FY+28)+'"/>';
+    s+='<path class="lead" data-draw pathLength="1" d="M'+FX+' '+FY+' L'+callX+' '+callY+'"/>';
+    s+='<g class="opaco">';
+    s+='<rect class="lbl-bg" x="'+(callX- (callX<FX?170:0))+'" y="'+(callY-15)+'" width="170" height="30" rx="2"/>';
+    s+='<text class="amb" x="'+(callX-(callX<FX?160:-10))+'" y="'+(callY+4)+'">'+d.ap+' · '+d.sh+'s · ISO '+d.iso+'</text>';
+    s+='</g>';
+    s+='</svg>';
+    return s;
+  }
+
+  // ----- count-up & reveal on intersection -----
+  function animateNum(el, target, suffix, isPair){
+    var start=null, dur=1100;
+    var fmt = el.dataset.fmt;
+    function step(ts){
+      if(start===null) start=ts;
+      var p=Math.min(1,(ts-start)/dur);
+      var e=1-Math.pow(1-p,3);
+      var val=Math.round(e*target);
+      el.textContent = (el.dataset.prefix||'') + val.toLocaleString('en-US') + (suffix||'');
+      if(p<1) requestAnimationFrame(step);
+    }
+    if(REDUCED){ el.textContent=(el.dataset.prefix||'')+target.toLocaleString('en-US')+(suffix||''); return; }
+    requestAnimationFrame(step);
+  }
+
+  var seen = new WeakSet();
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting) return;
+      var sheet=en.target;
+      if(seen.has(sheet)) return;
+      seen.add(sheet);
+      sheet.classList.add('in');
+      var w=+sheet.dataset.w||6000, h=+sheet.dataset.h||4000;
+      var wt=sheet.querySelector('[data-wtext]'), ht=sheet.querySelector('[data-htext]');
+      var dn=sheet.querySelector('.dimnum');
+      setTimeout(function(){
+        if(wt){ wt.dataset.prefix='W = '; animateNum(wt, w, ' px'); }
+        if(ht){ ht.dataset.prefix='H = '; animateNum(ht, h, ' px'); }
+        if(dn){
+          var s=null;
+          function st(ts){ if(s===null)s=ts; var p=Math.min(1,(ts-s)/1100); var e=1-Math.pow(1-p,3);
+            dn.textContent=Math.round(e*w).toLocaleString('en-US')+' × '+Math.round(e*h).toLocaleString('en-US')+' px';
+            if(p<1)requestAnimationFrame(st);}
+          if(REDUCED) dn.textContent=w.toLocaleString('en-US')+' × '+h.toLocaleString('en-US')+' px';
+          else requestAnimationFrame(st);
+        }
+      }, REDUCED?0:500);
+    });
+  }, {threshold:0.28});
+
+  document.querySelectorAll('.sheet').forEach(function(s){ io.observe(s); });
+})();
+</script>
+</body>
+</html>

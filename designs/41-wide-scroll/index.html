@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lateral — Tom Milton, Photographs</title>
+<meta name="description" content="Lateral — a horizontal typographic journey through the film photographs of Tom Milton. Scroll, drag or use the arrow keys to travel sideways through place names and pictures.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Archivo+Expanded:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14110d;
+    --bg-2:#1c1813;
+    --cream:#f1e7d4;
+    --cream-60:#a89a82;
+    --cream-30:#5f5547;
+    --line:#352e25;
+    --accent:#d98a3d;     /* warm amber */
+    --accent-2:#c45a39;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--bg);
+    color:var(--cream);
+    font-family:'Archivo','Helvetica Neue',Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    overflow:hidden;
+  }
+  body.reduced{overflow:auto}
+  a{color:inherit;text-decoration:none}
+  img{display:block}
+  .mono{font-family:'Space Mono',monospace}
+
+  /* film-grain veil */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- fixed HUD ---------- */
+  .hud{position:fixed;inset:0;z-index:30;pointer-events:none;font-family:'Space Mono',monospace}
+  .hud .tl{position:absolute;top:20px;left:clamp(16px,3vw,40px);display:flex;gap:18px;align-items:center}
+  .hud a{pointer-events:auto;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-60);transition:color .2s}
+  .hud a:hover{color:var(--accent)}
+  .hud .tr{position:absolute;top:20px;right:clamp(16px,3vw,40px);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-30);text-align:right}
+  .hud .hint{
+    position:absolute;bottom:54px;right:clamp(16px,3vw,40px);
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cream-60);
+    display:flex;align-items:center;gap:10px;transition:opacity .6s;
+  }
+  .hud .hint .arrow{display:inline-block;animation:nudge 1.8s ease-in-out infinite}
+  @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+  .hud.scrolled .hint{opacity:0}
+
+  /* progress rail */
+  .rail{position:absolute;left:clamp(16px,3vw,40px);right:clamp(16px,3vw,40px);bottom:26px;height:1px;background:var(--line)}
+  .rail .fill{position:absolute;left:0;top:0;height:1px;background:var(--accent);width:0}
+  .rail .dot{position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%);left:0;box-shadow:0 0 12px var(--accent)}
+  .rail .tick{position:absolute;top:-4px;width:1px;height:9px;background:var(--cream-30)}
+  .rail .tick span{position:absolute;top:-18px;left:0;transform:translateX(-50%);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;color:var(--cream-30);white-space:nowrap;text-transform:uppercase}
+  .rail .tick.on span{color:var(--accent)}
+
+  /* ---------- horizontal track ---------- */
+  .viewport{position:fixed;inset:0;overflow:hidden;touch-action:none;cursor:grab}
+  .viewport.grabbing{cursor:grabbing}
+  .track{position:absolute;top:0;left:0;height:100%;display:flex;align-items:center;will-change:transform}
+  .panel{height:100%;display:flex;align-items:center;flex:0 0 auto;padding:0 clamp(28px,6vw,120px)}
+
+  /* intro / chapter title panels */
+  .intro{padding-left:clamp(28px,8vw,160px);padding-right:clamp(60px,12vw,240px)}
+  .intro .eyebrow{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);margin-bottom:24px}
+  .intro h1{
+    font-family:'Archivo Expanded',sans-serif;font-weight:800;
+    font-size:clamp(64px,20vh,220px);line-height:.86;letter-spacing:.01em;text-transform:uppercase;
+  }
+  .intro h1 .o{color:transparent;-webkit-text-stroke:2px var(--accent)}
+  .intro p{margin-top:30px;max-width:42ch;color:var(--cream-60);font-size:clamp(15px,1.4vw,19px);line-height:1.6}
+  .intro .keys{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap}
+  .intro .keys kbd{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    border:1px solid var(--line);padding:7px 11px;border-radius:3px;color:var(--cream-60);background:var(--bg-2);
+  }
+
+  .chapter{padding:0 clamp(40px,9vw,170px);position:relative}
+  .chapter .cinner{position:relative}
+  .chapter .meta{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;display:flex;gap:22px;flex-wrap:wrap}
+  .chapter .meta .coord{color:var(--cream-30)}
+  .chapter h2{
+    font-family:'Archivo Expanded',sans-serif;font-weight:700;
+    font-size:clamp(70px,26vh,300px);line-height:.84;text-transform:uppercase;
+    letter-spacing:.04em;white-space:nowrap;
+  }
+  .chapter h2 .stroke{color:transparent;-webkit-text-stroke:2px var(--cream)}
+  .chapter .tagline{margin-top:24px;max-width:46ch;color:var(--cream-60);font-size:clamp(15px,1.4vw,19px);line-height:1.6}
+  /* reveal */
+  .reveal{opacity:0;transform:translateX(40px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+  .reveal.seen{opacity:1;transform:none}
+
+  /* photo panels */
+  .plate{display:flex;align-items:center;gap:clamp(20px,3vw,46px)}
+  figure.shot{margin:0;position:relative;overflow:hidden;background:var(--bg-2);flex:0 0 auto;align-self:center}
+  figure.shot.top{align-self:flex-start;margin-top:14vh}
+  figure.shot.bottom{align-self:flex-end;margin-bottom:14vh}
+  figure.shot img{
+    height:100%;width:auto;object-fit:cover;will-change:transform;
+    transform:scale(1.14);
+    filter:sepia(.16) saturate(1.06) contrast(.98) brightness(1.02);
+  }
+  figure.shot img.bw{filter:grayscale(1) contrast(1.06) brightness(1.0)}
+  figure.shot figcaption{
+    position:absolute;left:0;bottom:0;right:0;padding:14px 16px 12px;
+    background:linear-gradient(transparent,rgba(20,17,13,.82));
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.04em;color:var(--cream);text-transform:uppercase;
+    display:flex;justify-content:space-between;gap:12px;align-items:flex-end;
+  }
+  figure.shot figcaption .ti{font-weight:700}
+  figure.shot figcaption .sub{color:var(--cream-60);text-align:right}
+  /* heights */
+  .h-xl{height:86vh} .h-l{height:72vh} .h-m{height:58vh} .h-s{height:46vh}
+  .num{font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:clamp(40px,12vh,120px);color:transparent;-webkit-text-stroke:1.5px var(--cream-30);line-height:1;writing-mode:vertical-rl}
+
+  .endcap{padding:0 clamp(40px,10vw,200px)}
+  .endcap h2{font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:clamp(40px,10vh,120px);line-height:.9;text-transform:uppercase;letter-spacing:.02em}
+  .endcap p{margin-top:24px;max-width:50ch;color:var(--cream-60);line-height:1.7;font-size:15px}
+  .endcap .colo{margin-top:26px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--cream-30);line-height:2}
+  .endcap a.big{display:inline-block;margin-top:20px;font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:4px}
+
+  /* ---------- reduced-motion vertical fallback ---------- */
+  body.reduced .viewport{position:static;overflow:visible;height:auto;cursor:auto;touch-action:auto}
+  body.reduced .track{position:static;height:auto;display:block;transform:none!important}
+  body.reduced .panel{height:auto;width:100%;padding:8vh clamp(20px,6vw,80px);justify-content:flex-start}
+  body.reduced .chapter h2,body.reduced .intro h1{white-space:normal;font-size:clamp(48px,12vw,120px)}
+  body.reduced figure.shot{width:100%!important;height:auto!important;max-width:880px}
+  body.reduced figure.shot img{width:100%;height:auto;transform:none}
+  body.reduced .plate{flex-direction:column;align-items:flex-start}
+  body.reduced figure.shot.top,body.reduced figure.shot.bottom{margin:0}
+  body.reduced .reveal{opacity:1;transform:none}
+  body.reduced .hud .hint{display:none}
+  body.reduced .rail{position:fixed}
+  body.reduced .num{writing-mode:horizontal-tb}
+
+  @media(max-width:680px){
+    .chapter h2{font-size:clamp(56px,18vh,140px)}
+  }
+</style>
+</head>
+<body>
+  <div class="hud" id="hud" aria-hidden="false">
+    <div class="tl"><a href="../../index.html">&larr; All designs</a><span class="mono" style="color:var(--cream-30);font-size:11px;letter-spacing:.14em">LATERAL</span></div>
+    <div class="tr">TOM MILTON<br>FILM · 1995–2022</div>
+    <div class="hint">Scroll · drag · arrows <span class="arrow">&rarr;</span></div>
+    <div class="rail" id="rail" aria-hidden="true"><div class="fill" id="fill"></div><div class="dot" id="dot"></div></div>
+  </div>
+
+  <main class="viewport" id="viewport" aria-label="Horizontal photo journey. Use arrow keys, scroll or drag to navigate.">
+    <div class="track" id="track">
+
+      <!-- intro -->
+      <section class="panel intro">
+        <div>
+          <div class="eyebrow">A journey, left to right</div>
+          <h1>Lat<span class="o">e</span>ral</h1>
+          <p>Twenty-eight years of film, unrolled into a single horizontal banner. Travel sideways through the places — and the faces — a Leica was pointed at, from a wheat field in Tuscany to a café table in Paris.</p>
+          <div class="keys"><kbd>scroll</kbd><kbd>drag</kbd><kbd>&larr; &rarr;</kbd><kbd>home / end</kbd></div>
+        </div>
+      </section>
+
+      <!-- TUSCANY -->
+      <section class="panel chapter" data-chapter="Tuscany">
+        <div class="cinner reveal">
+          <div class="meta"><span>01</span><span>Italy</span><span class="coord">43.3°N 11.3°E</span></div>
+          <h2>Tus<span class="stroke">ca</span>ny</h2>
+          <p class="tagline">Wheat and patchwork hills, and the four-minute hour when the whole country turns the colour of a struck match.</p>
+        </div>
+      </section>
+      <section class="panel plate">
+        <figure class="shot h-xl reveal"><img src="../../assets/img/golden-field-sunburst.jpg" data-px alt="A Tuscan wheat field set alight by a low sun, gold light bursting behind a tree line." loading="lazy" decoding="async"><figcaption><span class="ti">Last Light, Wheat Country</span><span class="sub">Portra 400 · M6<br>1998</span></figcaption></figure>
+        <figure class="shot h-m top reveal"><img src="../../assets/img/rolling-green-hills.jpg" data-px alt="Rolling patchwork hills of the Tuscan countryside under soft afternoon light." loading="lazy" decoding="async"><figcaption><span class="ti">Patchwork</span><span class="sub">Pro 400H · 645<br>1997</span></figcaption></figure>
+      </section>
+
+      <!-- THE PACIFIC -->
+      <section class="panel chapter" data-chapter="The Pacific">
+        <div class="cinner reveal">
+          <div class="meta"><span>02</span><span>USA</span><span class="coord">36.3°N 121.9°W</span></div>
+          <h2>The <span class="stroke">Pa</span>cific</h2>
+          <p class="tagline">Cold water before the world is awake. The surface is never the subject — only what it agrees, for a moment, to show you.</p>
+        </div>
+      </section>
+      <section class="panel plate">
+        <figure class="shot h-l reveal"><img src="../../assets/img/cliff-coast-ocean.jpg" data-px alt="The green cliffs of Big Sur meeting the open Pacific Ocean." loading="lazy" decoding="async"><figcaption><span class="ti">Edge of the World</span><span class="sub">Portra 400 · G2<br>2002</span></figcaption></figure>
+        <figure class="shot h-xl bottom reveal"><img src="../../assets/img/landscape-misty-mountains.jpg" data-px alt="Mist drifting between layered mountain ridges in the Cascades of Washington." loading="lazy" decoding="async"><figcaption><span class="ti">Morning Fog, Cascades</span><span class="sub">Pro 400H · Pentax 67<br>2001</span></figcaption></figure>
+      </section>
+
+      <!-- THE NORTH -->
+      <section class="panel chapter" data-chapter="The North">
+        <div class="cinner reveal">
+          <div class="meta"><span>03</span><span>Iceland · Norway · Canada</span><span class="coord">64°N</span></div>
+          <h2>The <span class="stroke">No</span>rth</h2>
+          <p class="tagline">Slow film and slower water. A quarter-second draws the falls into one continuous white gesture; silence does the rest.</p>
+        </div>
+      </section>
+      <section class="panel plate">
+        <figure class="shot h-l reveal"><img class="bw" src="../../assets/img/misty-pine-forest.jpg" data-px alt="A misty pine forest in Norway rendered in black and white, soft and silent." loading="lazy" decoding="async"><figcaption><span class="ti">Silence</span><span class="sub">HP5 Plus · M6<br>2003</span></figcaption></figure>
+        <figure class="shot h-xl top reveal"><img src="../../assets/img/waterfall-bridge.jpg" data-px alt="An Icelandic waterfall softened to a continuous white by a slow shutter, a small bridge in front." loading="lazy" decoding="async"><figcaption><span class="ti">Hidden Falls</span><span class="sub">Velvia 50 · FM2<br>2006</span></figcaption></figure>
+        <figure class="shot h-m bottom reveal"><img src="../../assets/img/lake-cabin-dawn.jpg" data-px alt="A still lake at dawn near Banff with a cabin and mountains reflected in the water." loading="lazy" decoding="async"><figcaption><span class="ti">The Cabin at Dawn</span><span class="sub">Ektar 100 · Mamiya 7<br>2003</span></figcaption></figure>
+      </section>
+
+      <!-- KYOTO -->
+      <section class="panel chapter" data-chapter="Kyoto">
+        <div class="cinner reveal">
+          <div class="meta"><span>04</span><span>Japan</span><span class="coord">35.0°N 135.8°E</span></div>
+          <h2>Ky<span class="stroke">o</span>to</h2>
+          <p class="tagline">One frame, backlit. The light does not arrive in Kyoto — it filters, already softened, through the leaves.</p>
+        </div>
+      </section>
+      <section class="panel plate">
+        <figure class="shot h-xl reveal"><img src="../../assets/img/sun-through-leaves.jpg" data-px alt="Sunlight glowing through translucent green leaves, backlit in Kyoto." loading="lazy" decoding="async"><figcaption><span class="ti">Backlit</span><span class="sub">Portra 800 · M6<br>2004</span></figcaption></figure>
+      </section>
+
+      <!-- PORTRAITS -->
+      <section class="panel chapter" data-chapter="Faces">
+        <div class="cinner reveal">
+          <div class="meta"><span>05</span><span>Lisbon · Havana · Marrakesh</span><span class="coord">PORTRAITS</span></div>
+          <h2>Fa<span class="stroke">c</span>es</h2>
+          <p class="tagline">A little warmer than the truth. I have never wanted my portraits to be accurate — only fair.</p>
+        </div>
+      </section>
+      <section class="panel plate">
+        <figure class="shot h-l top reveal"><img src="../../assets/img/woman-portrait-window.jpg" data-px alt="A woman seated by a tall window in Lisbon, soft daylight across her face." loading="lazy" decoding="async"><figcaption><span class="ti">By the Window</span><span class="sub">Portra 400 · 67<br>2011</span></figcaption></figure>
+        <figure class="shot h-xl reveal"><img class="bw" src="../../assets/img/man-portrait-street.jpg" data-px alt="A black and white street portrait of an older man in Havana looking into the camera." loading="lazy" decoding="async"><figcaption><span class="ti">Stranger, No. 14</span><span class="sub">Tri-X 400 · M4<br>2012</span></figcaption></figure>
+        <figure class="shot h-m bottom reveal"><img src="../../assets/img/woman-portrait-freckles.jpg" data-px alt="A close studio portrait of a woman with freckles in warm window light." loading="lazy" decoding="async"><figcaption><span class="ti">Freckles &amp; Sun</span><span class="sub">Portra 160 · 645<br>2015</span></figcaption></figure>
+        <figure class="shot h-l top reveal"><img src="../../assets/img/woman-fashion-portrait.jpg" data-px alt="A fashion portrait against a vivid red wall in Marrakesh." loading="lazy" decoding="async"><figcaption><span class="ti">The Red Wall</span><span class="sub">Portra 400 · 67<br>2019</span></figcaption></figure>
+      </section>
+
+      <!-- CITIES -->
+      <section class="panel chapter" data-chapter="Cities">
+        <div class="cinner reveal">
+          <div class="meta"><span>06</span><span>Paris · Havana</span><span class="coord">48.8°N 2.3°E</span></div>
+          <h2>Cit<span class="stroke">ie</span>s</h2>
+          <p class="tagline">Café tables and Sunday drives. The last light of the banner, where the road bends home.</p>
+        </div>
+      </section>
+      <section class="panel plate">
+        <figure class="shot h-l reveal"><img src="../../assets/img/street-cafe-paris.jpg" data-px alt="A classic Parisian café scene with bistro chairs and warm street light." loading="lazy" decoding="async"><figcaption><span class="ti">Café de Flore</span><span class="sub">Gold 200 · OM-1<br>2020</span></figcaption></figure>
+        <figure class="shot h-m bottom reveal"><img src="../../assets/img/vintage-car-street.jpg" data-px alt="A vintage car parked on a sunlit street in Havana." loading="lazy" decoding="async"><figcaption><span class="ti">Sunday Drive</span><span class="sub">Ektar 100 · FE<br>2022</span></figcaption></figure>
+      </section>
+
+      <!-- end -->
+      <section class="panel endcap">
+        <div class="reveal">
+          <h2>End of<br>the roll</h2>
+          <p>Every frame here was made on film and scanned from the original negative. Colour graded to approximate a Kodak Portra print; the black-and-white frames left as they were exposed.</p>
+          <div class="colo">No. 41 — Lateral<br>Set in Archivo Expanded &amp; Space Mono<br>© Tom Milton, MMXXVI</div>
+          <a class="big" href="../../index.html">&larr; Back to all designs</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var viewport = document.getElementById('viewport');
+  var track = document.getElementById('track');
+  var fill = document.getElementById('fill');
+  var dot = document.getElementById('dot');
+  var rail = document.getElementById('rail');
+  var hud = document.getElementById('hud');
+
+  // ---- reveal (works horizontally: IO uses viewport intersection) ----
+  var revs = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('seen'); io.unobserve(e.target);} });
+    }, {threshold:0.18});
+    revs.forEach(function(e){ io.observe(e); });
+  } else { revs.forEach(function(e){ e.classList.add('seen'); }); }
+
+  if(reduce){
+    document.body.classList.add('reduced');
+    // vertical fallback: drive rail from native scroll
+    var upd = function(){
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var p = max>0 ? window.scrollY/max : 0;
+      fill.style.width = (p*100)+'%'; dot.style.left = (p*100)+'%';
+    };
+    window.addEventListener('scroll', upd, {passive:true});
+    window.addEventListener('resize', upd);
+    upd();
+    buildTicks(true);
+    return;
+  }
+
+  // ---- horizontal engine ----
+  var target=0, current=0, max=0, running=true, panels=[], parallax=[];
+
+  function measure(){
+    max = Math.max(0, track.scrollWidth - window.innerWidth);
+    target = Math.min(target, max); current = Math.min(current, max);
+    parallax = Array.prototype.slice.call(track.querySelectorAll('figure.shot img'));
+    parallax.forEach(function(img){
+      var fg = img.parentElement;
+      img._cx = fg.offsetLeft + fg.offsetWidth/2;
+    });
+    buildTicks(false);
+  }
+
+  function buildTicks(vertical){
+    // remove old
+    Array.prototype.slice.call(rail.querySelectorAll('.tick')).forEach(function(t){t.remove();});
+    var chapters = Array.prototype.slice.call(track.querySelectorAll('.chapter'));
+    var total = vertical ? (document.documentElement.scrollHeight) : track.scrollWidth;
+    chapters.forEach(function(ch){
+      var name = ch.getAttribute('data-chapter');
+      var pos;
+      if(vertical){ pos = ch.offsetTop / Math.max(1,(document.documentElement.scrollHeight - window.innerHeight)); }
+      else { pos = max>0 ? Math.min(1, ch.offsetLeft / max) : 0; }
+      var t = document.createElement('div'); t.className='tick';
+      t.style.left = (pos*100)+'%';
+      t.innerHTML = '<span>'+name+'</span>';
+      t.dataset.pos = pos;
+      rail.appendChild(t);
+    });
+  }
+
+  function clamp(){ if(target<0)target=0; if(target>max)target=max; }
+
+  function onWheel(e){
+    e.preventDefault();
+    var d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    if(e.deltaMode===1) d *= 16; else if(e.deltaMode===2) d *= window.innerWidth;
+    target += d; clamp();
+    hud.classList.add('scrolled');
+  }
+  viewport.addEventListener('wheel', onWheel, {passive:false});
+
+  // keyboard
+  window.addEventListener('keydown', function(e){
+    var step = window.innerWidth*0.6;
+    if(e.key==='ArrowRight'||e.key==='PageDown'){ target+=step; clamp(); e.preventDefault(); hud.classList.add('scrolled'); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ target-=step; clamp(); e.preventDefault(); hud.classList.add('scrolled'); }
+    else if(e.key==='Home'){ target=0; clamp(); e.preventDefault(); }
+    else if(e.key==='End'){ target=max; clamp(); e.preventDefault(); }
+    else if(e.key===' '){ target+=step; clamp(); e.preventDefault(); }
+  });
+
+  // pointer drag
+  var dragging=false, startX=0, startTarget=0, moved=false;
+  viewport.addEventListener('pointerdown', function(e){
+    dragging=true; moved=false; startX=e.clientX; startTarget=target;
+    viewport.classList.add('grabbing');
+    viewport.setPointerCapture && viewport.setPointerCapture(e.pointerId);
+  });
+  viewport.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    var dx = e.clientX - startX;
+    if(Math.abs(dx)>3) moved=true;
+    target = startTarget - dx; clamp();
+    if(moved) hud.classList.add('scrolled');
+  });
+  function endDrag(e){ if(!dragging)return; dragging=false; viewport.classList.remove('grabbing'); }
+  viewport.addEventListener('pointerup', endDrag);
+  viewport.addEventListener('pointercancel', endDrag);
+  viewport.addEventListener('pointerleave', endDrag);
+  // prevent click navigation right after a drag
+  viewport.addEventListener('click', function(e){ if(moved){ e.preventDefault(); } }, true);
+
+  // rail click to jump
+  rail.addEventListener('click', function(e){
+    var r = rail.getBoundingClientRect();
+    var p = (e.clientX - r.left)/r.width;
+    target = Math.max(0, Math.min(1,p))*max;
+  });
+  rail.style.pointerEvents='auto';
+
+  // rAF loop
+  var ticks = null;
+  function frame(){
+    if(!running){ return; }
+    current += (target-current)*0.10;
+    if(Math.abs(target-current) < 0.4) current = target;
+    track.style.transform = 'translate3d('+(-current)+'px,0,0)';
+    var p = max>0 ? current/max : 0;
+    fill.style.width = (p*100)+'%';
+    dot.style.left = (p*100)+'%';
+    // parallax inner images (cinematic depth)
+    var cx0 = current + window.innerWidth/2;
+    for(var i=0;i<parallax.length;i++){
+      var img = parallax[i];
+      var rel = (img._cx - cx0)/window.innerWidth;   // -1..1 across screen
+      if(rel> -1.4 && rel<1.4){
+        img.style.transform = 'scale(1.14) translateX('+(rel*-3.2)+'%)';
+      }
+    }
+    // active tick
+    if(!ticks) ticks = rail.querySelectorAll('.tick');
+    for(var j=0;j<ticks.length;j++){
+      var tp = parseFloat(ticks[j].dataset.pos)||0;
+      var nextp = (j+1<ticks.length)? (parseFloat(ticks[j+1].dataset.pos)||1) : 1.01;
+      ticks[j].classList.toggle('on', p+0.001 >= tp && p < nextp);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function start(){ if(!running){ running=true; requestAnimationFrame(frame);} }
+  function stop(){ running=false; }
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden) stop(); else start();
+  });
+
+  // init after images settle
+  window.addEventListener('resize', function(){ measure(); ticks=null; });
+  function reMeasureOnLoad(){
+    var imgs = track.querySelectorAll('img');
+    var pending = imgs.length;
+    if(!pending){ measure(); return; }
+    Array.prototype.forEach.call(imgs, function(im){
+      if(im.complete){ if(--pending===0) measure(); }
+      else im.addEventListener('load', function(){ measure(); ticks=null; }, {once:true});
+    });
+    measure(); // initial estimate
+  }
+  reMeasureOnLoad();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

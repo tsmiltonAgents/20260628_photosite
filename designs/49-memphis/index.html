@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOM MILTON — Memphis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#fdf4e7;
+    --ink:#1a1714;
+    --mint:#5fd4b4;
+    --coral:#ff6f61;
+    --lav:#b69df0;
+    --yellow:#ffcf3f;
+    --blue:#3e7bff;
+    --pink:#ff8fc7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Fredoka',system-ui,sans-serif;
+    line-height:1.3;overflow-x:hidden;position:relative;
+  }
+  /* terrazzo speckle */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cg%3E%3Ccircle cx='30' cy='40' r='5' fill='%23ff6f61'/%3E%3Ccircle cx='160' cy='30' r='4' fill='%235fd4b4'/%3E%3Ccircle cx='90' cy='110' r='6' fill='%23b69df0'/%3E%3Ccircle cx='190' cy='150' r='5' fill='%23ffcf3f'/%3E%3Ccircle cx='50' cy='180' r='4' fill='%233e7bff'/%3E%3Crect x='120' y='80' width='9' height='9' fill='%23ff8fc7' transform='rotate(20 124 84)'/%3E%3Crect x='15' y='110' width='8' height='8' fill='%23ffcf3f'/%3E%3Cpath d='M170 200 l6 -10 6 10 z' fill='%235fd4b4'/%3E%3Ccircle cx='200' cy='90' r='3' fill='%231a1714'/%3E%3Ccircle cx='70' cy='60' r='3' fill='%231a1714'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none;}
+  img{display:block;max-width:100%;}
+
+  .backlink{
+    position:fixed;top:16px;left:16px;z-index:600;
+    font-family:'Space Mono',monospace;font-weight:700;font-size:12px;
+    letter-spacing:.04em;text-transform:uppercase;
+    background:var(--ink);color:var(--paper);padding:9px 14px;
+    border-radius:40px;border:3px solid var(--ink);
+    box-shadow:3px 3px 0 var(--coral);
+    transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s ease,background .2s ease;
+  }
+  .backlink:hover{transform:translate(-2px,-2px) rotate(-3deg);box-shadow:5px 5px 0 var(--blue);background:var(--lav);}
+
+  /* floating decorative shapes layer */
+  #deco{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
+  .ds{position:absolute;}
+  @keyframes drift1{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(26px,-34px) rotate(180deg)}}
+  @keyframes drift2{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-30px,28px) rotate(-160deg)}}
+  @keyframes drift3{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(18px,30px) rotate(90deg)}}
+  @keyframes bobf{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
+
+  .wrap{position:relative;z-index:2;}
+
+  /* ===== HERO ===== */
+  .hero{padding:14vh 6vw 7vh;position:relative;text-align:center;}
+  .kicker{display:inline-block;font-family:'Space Mono',monospace;font-weight:700;
+    font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+    background:var(--mint);color:var(--ink);padding:7px 16px;border-radius:30px;
+    border:3px solid var(--ink);transform:rotate(-2deg);box-shadow:3px 3px 0 var(--ink);}
+  .hero h1{
+    font-size:clamp(54px,15vw,180px);font-weight:700;line-height:.84;
+    letter-spacing:-.02em;margin:22px 0 6px;text-transform:uppercase;
+  }
+  .hero h1 .a{color:var(--coral);}
+  .hero h1 .b{color:var(--blue);}
+  .hero h1 .c{color:var(--lav);}
+  .hero h1 .d{color:var(--ink);}
+  .hero .sub{font-size:clamp(16px,2.4vw,24px);font-weight:500;max-width:560px;margin:14px auto 0;}
+  .hero .sub b{background:var(--yellow);padding:0 6px;border-radius:6px;}
+
+  .hint{margin-top:26px;display:inline-flex;gap:9px;align-items:center;
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink);opacity:.7;}
+  .hint .pin{width:11px;height:11px;border-radius:50%;background:var(--coral);
+    border:2px solid var(--ink);animation:bobf 1.6s ease-in-out infinite;}
+
+  /* squiggle divider */
+  .squig{display:block;width:min(560px,80vw);height:34px;margin:34px auto 0;}
+
+  /* ===== GRID ===== */
+  .grid{
+    max-width:1340px;margin:5vh auto 0;padding:0 5vw 12vh;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:46px 40px;
+  }
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr);gap:40px 30px;}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr;gap:46px;}}
+
+  .card{position:relative;perspective:900px;}
+  .card .tilt{
+    position:relative;transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.34,1.56,.64,1);
+    transform:rotate(var(--base,0deg));
+    will-change:transform;
+  }
+  .frame{
+    position:relative;overflow:hidden;background:var(--ink);
+    border:5px solid var(--ink);
+    box-shadow:8px 8px 0 var(--shadow,#ff6f61);
+    transition:box-shadow .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .card img{
+    width:100%;aspect-ratio:4/5;object-fit:cover;display:block;
+    filter:sepia(.12) saturate(1.08) contrast(1.0) brightness(1.02);
+  }
+  .card img.bw{filter:grayscale(1) contrast(1.05) brightness(1.0);}
+  .card:hover .frame{box-shadow:12px 12px 0 var(--shadow,#ff6f61);}
+
+  /* wonky frame shape variants */
+  .s0 .frame{border-radius:50% 50% 50% 50%/8% 8% 8% 8%;}
+  .s1 .frame{border-radius:26px;}
+  .s2 .frame{border-radius:50px 14px 50px 14px;}
+  .s3 .frame{border-radius:14px 50px 14px 50px;}
+  .s4 .frame{border-radius:50% 50% 12px 12px;}
+  .s5 .frame{border-radius:12px 12px 50% 50%;}
+
+  /* number chip + wobble shape */
+  .chip{
+    position:absolute;top:-16px;left:-14px;z-index:5;
+    font-family:'Space Mono',monospace;font-weight:700;font-size:13px;
+    width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+    background:var(--yellow);color:var(--ink);border:3px solid var(--ink);
+    box-shadow:2px 2px 0 var(--ink);
+  }
+  .card:hover .chip{animation:wobble .6s ease;}
+  @keyframes wobble{0%{transform:rotate(0)}25%{transform:rotate(-16deg) scale(1.12)}
+    50%{transform:rotate(12deg)}75%{transform:rotate(-7deg)}100%{transform:rotate(0)}}
+
+  .decoshape{position:absolute;z-index:4;}
+  .card:hover .decoshape{animation:wobble .7s ease;}
+
+  .meta{margin-top:16px;padding:0 4px;}
+  .meta h3{font-size:19px;font-weight:700;line-height:1.05;}
+  .meta .place{font-weight:500;color:var(--ink);opacity:.8;font-size:14px;margin-top:2px;}
+  .meta .tags{margin-top:9px;display:flex;flex-wrap:wrap;gap:6px;}
+  .tag{font-family:'Space Mono',monospace;font-size:10.5px;font-weight:700;
+    letter-spacing:.03em;padding:4px 9px;border-radius:20px;border:2px solid var(--ink);
+    text-transform:uppercase;}
+  .tag.film{background:var(--mint);}
+  .tag.cam{background:var(--pink);}
+  .tag.yr{background:var(--lav);}
+  .tag.water{background:var(--blue);color:#fff;}
+  .tag.bw{background:var(--ink);color:var(--paper);}
+
+  footer{position:relative;z-index:2;text-align:center;padding:8vh 6vw 12vh;}
+  footer .big{font-size:clamp(30px,7vw,72px);font-weight:700;text-transform:uppercase;
+    line-height:.9;letter-spacing:-.01em;}
+  footer .big span:nth-child(1){color:var(--coral);}
+  footer .big span:nth-child(2){color:var(--blue);}
+  footer .note{font-family:'Space Mono',monospace;font-size:12px;margin-top:14px;letter-spacing:.06em;opacity:.75;}
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    .ds{animation:none!important;}
+    .hint .pin{animation:none!important;}
+    .card .tilt{transition:none!important;}
+    .card:hover .chip,.card:hover .decoshape{animation:none!important;}
+  }
+</style>
+</head>
+<body>
+  <a class="backlink" href="../../index.html">&larr; All designs</a>
+
+  <div id="deco" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header class="hero">
+      <span class="kicker">Film Photography · 1995–2023</span>
+      <h1><span class="a">T</span><span class="d">OM</span> <span class="b">M</span><span class="c">IL</span><span class="d">TON</span></h1>
+      <p class="sub">Thirty frames on film, set loose in a <b>playground</b> of shape &amp; colour.</p>
+      <div class="hint"><span class="pin"></span> Hover a photo — it tilts &amp; the shapes wobble</div>
+      <svg class="squig" viewBox="0 0 560 34" fill="none" aria-hidden="true">
+        <path d="M2 17 C 40 -8, 80 42, 120 17 S 200 -8, 240 17 S 320 42, 360 17 S 440 -8, 480 17 S 558 42, 558 17"
+          stroke="#ff6f61" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+    </header>
+
+    <main class="grid" id="grid" aria-label="Photography portfolio of Tom Milton"></main>
+
+    <footer>
+      <div class="big"><span>SHOOT</span> <span>FILM</span></div>
+      <div class="note">TOM MILTON · ALL IMAGES SHOT ON ANALOGUE FILM · <span id="yr"></span></div>
+    </footer>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const finePointer = window.matchMedia('(pointer:fine)').matches;
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  const DATA = [
+    ["golden-field-sunburst.jpg","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998","",""],
+    ["landscape-misty-mountains.jpg","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001","water",""],
+    ["lake-cabin-dawn.jpg","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003","water",""],
+    ["forest-sunlight.jpg","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996","",""],
+    ["valley-green-river.jpg","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3","1999","water",""],
+    ["cliff-coast-ocean.jpg","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002","water",""],
+    ["mountain-road-fog.jpg","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005","",""],
+    ["sun-through-leaves.jpg","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004","",""],
+    ["lake-mountain-house.jpg","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000","water",""],
+    ["rolling-green-hills.jpg","Patchwork","Tuscany, Italy","Fujifilm Pro 400H","Pentax 645","1997","",""],
+    ["forest-path-trees.jpg","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F","1995","",""],
+    ["waterfall-bridge.jpg","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006","water",""],
+    ["autumn-forest-road.jpg","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007","",""],
+    ["desert-dunes.jpg","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008","",""],
+    ["misty-pine-forest.jpg","Silence","Norway","Ilford HP5 Plus","Leica M6","2003","","bw"],
+    ["succulent-closeup.jpg","Geometry of Growth","Studio","Kodak Portra 160","Hasselblad 500CM","2009","",""],
+    ["foggy-pier-lake.jpg","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2","2010","water",""],
+    ["woman-portrait-window.jpg","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011","",""],
+    ["man-portrait-street.jpg","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400","Leica M4","2012","","bw"],
+    ["couple-silhouette-sunset.jpg","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V","2013","water",""],
+    ["woman-portrait-soft.jpg","Soft Hour","Paris, France","Fujifilm Pro 400H","Contax 645","2014","",""],
+    ["woman-portrait-freckles.jpg","Freckles & Sun","Studio","Kodak Portra 160","Mamiya 645","2015","",""],
+    ["friends-golden-hour.jpg","Golden Hour, Together","California, USA","Kodak Portra 400","Nikon F100","2016","",""],
+    ["woman-curly-portrait.jpg","Curls","Brooklyn, USA","Cinestill 800T","Canon AE-1","2017","",""],
+    ["man-bw-portrait.jpg","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6","2018","","bw"],
+    ["woman-fashion-portrait.jpg","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67","2019","",""],
+    ["street-cafe-paris.jpg","Café de Flore","Paris, France","Kodak Gold 200","Olympus OM-1","2020","",""],
+    ["woman-laughing-portrait.jpg","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2","2021","",""],
+    ["vintage-car-street.jpg","Sunday Drive","Havana, Cuba","Kodak Ektar 100","Nikon FE","2022","",""],
+    ["cozy-interior-window.jpg","Home Light","Copenhagen, Denmark","Kodak Portra 400","Leica M6","2023","",""]
+  ];
+  const PATH = "../../assets/img/";
+  const SHADOWS = ['#ff6f61','#5fd4b4','#b69df0','#ffcf3f','#3e7bff','#ff8fc7'];
+  const ROT = [-2.5,-1.5,0,1.5,2.5,-1,2];
+
+  // little corner deco SVGs (Memphis motifs)
+  const MOTIFS = [
+    // triangle
+    '<svg width="40" height="40" viewBox="0 0 40 40"><path d="M20 4 L36 34 L4 34 Z" fill="#5fd4b4" stroke="#1a1714" stroke-width="3" stroke-linejoin="round"/></svg>',
+    // half circle
+    '<svg width="46" height="26" viewBox="0 0 46 26"><path d="M2 24 A21 21 0 0 1 44 24 Z" fill="#ff8fc7" stroke="#1a1714" stroke-width="3"/></svg>',
+    // plus
+    '<svg width="34" height="34" viewBox="0 0 34 34"><path d="M14 2 h6 v12 h12 v6 h-12 v12 h-6 v-12 h-12 v-6 h12 z" fill="#ffcf3f" stroke="#1a1714" stroke-width="2.5"/></svg>',
+    // zigzag
+    '<svg width="58" height="20" viewBox="0 0 58 20"><path d="M2 16 L12 4 L22 16 L32 4 L42 16 L52 4" fill="none" stroke="#3e7bff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    // donut
+    '<svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="#b69df0" stroke-width="7"/><circle cx="18" cy="18" r="16" fill="none" stroke="#1a1714" stroke-width="2"/></svg>',
+    // dots
+    '<svg width="44" height="20" viewBox="0 0 44 20"><circle cx="8" cy="10" r="5" fill="#ff6f61" stroke="#1a1714" stroke-width="2"/><circle cx="22" cy="10" r="5" fill="#5fd4b4" stroke="#1a1714" stroke-width="2"/><circle cx="36" cy="10" r="5" fill="#ffcf3f" stroke="#1a1714" stroke-width="2"/></svg>'
+  ];
+  const CORNERS = [
+    'top:-18px;right:-10px;','bottom:-16px;left:-12px;','bottom:-14px;right:-10px;','top:-20px;right:14px;'
+  ];
+
+  const grid = document.getElementById('grid');
+  DATA.forEach((d,i)=>{
+    const shadow = SHADOWS[i%SHADOWS.length];
+    const base = ROT[i%ROT.length];
+    const shape = 's'+(i%6);
+    const motif = MOTIFS[i%MOTIFS.length];
+    const corner = CORNERS[i%CORNERS.length];
+
+    const flags = (d[6]||'').split(' ').filter(Boolean);
+    let tags = '<span class="tag film">'+d[3]+'</span>'+
+               '<span class="tag cam">'+d[4]+'</span>'+
+               '<span class="tag yr">\''+d[5].slice(2)+'</span>';
+    if(d[6]==='water') tags += '<span class="tag water">water</span>';
+    if(d[7]==='bw') tags += '<span class="tag bw">B&amp;W</span>';
+
+    const card = document.createElement('article');
+    card.className = 'card '+shape;
+    card.style.setProperty('--shadow', shadow);
+    card.style.setProperty('--base', base+'deg');
+    card.innerHTML =
+      '<div class="tilt">'+
+        '<span class="chip">'+String(i+1).padStart(2,'0')+'</span>'+
+        '<span class="decoshape" style="'+corner+'">'+motif+'</span>'+
+        '<div class="frame">'+
+          '<img src="'+PATH+d[0]+'" alt="'+esc(d[1])+' — '+esc(d[2])+'"'+(d[7]==='bw'?' class="bw"':'')+' loading="lazy">'+
+        '</div>'+
+      '</div>'+
+      '<div class="meta">'+
+        '<h3>'+d[1]+'</h3>'+
+        '<div class="place">'+d[2]+'</div>'+
+        '<div class="tags">'+tags+'</div>'+
+      '</div>';
+    grid.appendChild(card);
+
+    // spring tilt toward pointer
+    if(finePointer && !reduce){
+      const tilt = card.querySelector('.tilt');
+      let raf=null, tx=0, ty=0;
+      card.addEventListener('pointermove', e=>{
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left)/r.width - 0.5;
+        const py = (e.clientY - r.top)/r.height - 0.5;
+        tx = py * -10; ty = px * 12;
+        if(!raf) raf = requestAnimationFrame(apply);
+      });
+      function apply(){
+        raf=null;
+        tilt.style.transform =
+          'rotate('+base+'deg) rotateX('+tx.toFixed(2)+'deg) rotateY('+ty.toFixed(2)+'deg) scale(1.04)';
+      }
+      card.addEventListener('pointerenter', ()=>{ tilt.style.transform='rotate('+base+'deg) scale(1.04)'; });
+      card.addEventListener('pointerleave', ()=>{
+        if(raf){cancelAnimationFrame(raf);raf=null;}
+        tilt.style.transform='rotate('+base+'deg)';
+      });
+    }
+  });
+
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;');}
+
+  // ===== floating decorative shapes =====
+  const deco = document.getElementById('deco');
+  const BIG = [
+    '<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="44" fill="none" stroke="#ff6f61" stroke-width="14"/></svg>',
+    '<svg width="110" height="110" viewBox="0 0 110 110"><path d="M55 8 L102 96 L8 96 Z" fill="none" stroke="#3e7bff" stroke-width="10" stroke-linejoin="round"/></svg>',
+    '<svg width="140" height="46" viewBox="0 0 140 46"><path d="M4 38 L24 10 L44 38 L64 10 L84 38 L104 10 L124 38" fill="none" stroke="#5fd4b4" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg width="100" height="100" viewBox="0 0 100 100"><path d="M50 6 L60 40 L94 50 L60 60 L50 94 L40 60 L6 50 L40 40 Z" fill="#ffcf3f" stroke="#1a1714" stroke-width="4"/></svg>',
+    '<svg width="120" height="60" viewBox="0 0 120 60"><path d="M4 56 A56 56 0 0 1 116 56 Z" fill="#b69df0" stroke="#1a1714" stroke-width="5"/></svg>',
+    '<svg width="90" height="90" viewBox="0 0 90 90"><rect x="10" y="10" width="70" height="70" rx="10" fill="none" stroke="#ff8fc7" stroke-width="11" transform="rotate(12 45 45)"/></svg>',
+    '<svg width="150" height="40" viewBox="0 0 150 40"><path d="M4 20 C30 -6 50 46 76 20 S122 -6 146 20" fill="none" stroke="#ff6f61" stroke-width="8" stroke-linecap="round"/></svg>'
+  ];
+  // positions (% of viewport) and animation choices
+  const SPOTS = [
+    [6,18,'drift1',13],[88,12,'drift2',16],[14,72,'drift3',15],[80,66,'drift1',18],
+    [50,8,'drift2',14],[92,40,'drift3',17],[4,46,'drift1',19],[60,88,'drift2',15],
+    [30,30,'drift3',16],[70,24,'drift1',20]
+  ];
+  SPOTS.forEach((s,i)=>{
+    const el = document.createElement('div');
+    el.className='ds';
+    el.style.left = s[0]+'%';
+    el.style.top = s[1]+'%';
+    el.style.opacity = .85;
+    el.innerHTML = BIG[i%BIG.length];
+    if(!reduce){
+      el.style.animation = s[2]+' '+s[3]+'s ease-in-out infinite';
+      el.style.animationDelay = (-i*1.3)+'s';
+    }
+    deco.appendChild(el);
+  });
+
+  // pause drift animations when tab hidden (save CPU)
+  document.addEventListener('visibilitychange', ()=>{
+    deco.style.animationPlayState = document.hidden?'paused':'running';
+    document.querySelectorAll('.ds').forEach(el=>{
+      el.style.animationPlayState = document.hidden ? 'paused':'running';
+    });
+  });
+})();
+</script>
+</body>
+</html>

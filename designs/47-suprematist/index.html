@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOM MILTON — Suprematist Field</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;500;700&family=Archivo:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efe9da;
+    --paper2:#e7e0cd;
+    --ink:#15110d;
+    --red:#d2261c;
+    --blue:#1b3a6b;
+    --ochre:#e0a615;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(120% 120% at 70% 20%, var(--paper) 0%, var(--paper2) 100%);
+    color:var(--ink);
+    font-family:'Archivo',system-ui,sans-serif;
+    overflow:hidden;
+    position:fixed;
+    inset:0;
+    -webkit-text-size-adjust:100%;
+  }
+  /* paper grain */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9000;
+    opacity:.07;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none;}
+
+  .backlink{
+    position:fixed;top:18px;left:18px;z-index:500;
+    font-family:'Oswald',sans-serif;font-weight:500;
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink);background:var(--paper);
+    padding:9px 14px;border:2px solid var(--ink);
+    transition:transform .18s ease,background .18s ease,color .18s ease;
+  }
+  .backlink:hover{background:var(--ink);color:var(--paper);transform:translate(-2px,-2px);}
+
+  .titlecard{
+    position:fixed;right:22px;top:20px;z-index:400;text-align:right;
+    mix-blend-mode:multiply;pointer-events:none;
+  }
+  .titlecard h1{
+    font-family:'Oswald',sans-serif;font-weight:700;
+    font-size:clamp(20px,3vw,34px);letter-spacing:.02em;line-height:.95;
+    text-transform:uppercase;
+  }
+  .titlecard p{
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    margin-top:6px;color:var(--red);font-weight:600;
+  }
+
+  #stage{position:fixed;inset:0;z-index:10;}
+
+  .form{
+    position:absolute;will-change:transform;
+    transform-origin:center center;
+    pointer-events:none;
+  }
+  .form .body{position:relative;}
+
+  /* abstract shapes */
+  .sq-black{width:min(34vw,300px);aspect-ratio:1;background:var(--ink);}
+  .rect-red{width:min(30vw,260px);height:min(9vw,80px);background:var(--red);}
+  .rect-red.tall{width:min(8vw,70px);height:min(30vw,260px);}
+  .bar{height:8px;width:min(38vw,340px);background:var(--ink);}
+  .bar.blue{background:var(--blue);height:14px;}
+  .circ-ochre{width:min(16vw,150px);aspect-ratio:1;border-radius:50%;background:var(--ochre);}
+  .ring{width:min(20vw,180px);aspect-ratio:1;border-radius:50%;border:10px solid var(--ink);}
+  .tri{width:0;height:0;border-left:min(13vw,120px) solid transparent;border-right:min(13vw,120px) solid transparent;border-bottom:min(22vw,200px) solid var(--blue);}
+
+  /* photo-masked forms */
+  .photoform{cursor:pointer;pointer-events:auto;}
+  .photoform .mask{
+    position:relative;overflow:hidden;background:var(--ink);
+    box-shadow:0 18px 50px -22px rgba(0,0,0,.55);
+  }
+  .photoform .mask.circle{border-radius:50%;}
+  .photoform img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:sepia(.16) saturate(1.05) contrast(.98) brightness(1.02);
+    transition:transform .9s cubic-bezier(.2,.8,.2,1),filter .4s ease;
+  }
+  .photoform img.bw{filter:grayscale(1) contrast(1.04) brightness(1.0);}
+  .photoform:hover img{transform:scale(1.06);}
+  .photoform:focus-visible{outline:none;}
+  .photoform:focus-visible .mask{box-shadow:0 0 0 4px var(--red),0 18px 50px -22px rgba(0,0,0,.55);}
+
+  .c-lg{width:min(38vw,330px);height:min(38vw,330px);}
+  .c-md{width:min(26vw,230px);height:min(26vw,230px);}
+  .s-md{width:min(24vw,210px);height:min(24vw,210px);}
+
+  .cap{
+    position:absolute;left:0;top:100%;margin-top:10px;width:max-content;max-width:230px;
+    font-size:10.5px;letter-spacing:.04em;line-height:1.35;color:var(--ink);
+    pointer-events:none;
+  }
+  .cap b{font-family:'Oswald',sans-serif;font-weight:500;font-size:12px;
+    letter-spacing:.06em;text-transform:uppercase;display:block;}
+  .cap span{opacity:.6;}
+  .photoform .tap{
+    position:absolute;right:8px;bottom:8px;z-index:3;
+    font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+    background:rgba(239,233,218,.9);color:var(--ink);padding:3px 6px;
+    opacity:0;transition:opacity .25s ease;font-weight:600;
+  }
+  .photoform:hover .tap,.photoform:focus-visible .tap{opacity:1;}
+
+  .hint{
+    position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:400;
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);
+    opacity:.55;display:flex;gap:8px;align-items:center;pointer-events:none;
+    transition:opacity .6s ease;
+  }
+  .hint.gone{opacity:0;}
+  .hint .dot{width:7px;height:7px;border-radius:50%;background:var(--red);
+    animation:pulse 1.8s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.7);opacity:.4}}
+
+  @media (max-width:680px){
+    .titlecard{top:auto;bottom:54px;right:14px;}
+    .cap{max-width:160px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hint .dot{animation:none;}
+  }
+</style>
+</head>
+<body>
+  <a class="backlink" href="../../index.html">&larr; All designs</a>
+  <div class="titlecard">
+    <h1>Suprematist<br>Field</h1>
+    <p>Tom Milton &middot; Film</p>
+  </div>
+
+  <main id="stage" aria-label="Suprematist composition of floating geometric forms, several masking photographs by Tom Milton"></main>
+
+  <div class="hint" id="hint"><span class="dot"></span> Move cursor &middot; tap a form to change the photo</div>
+
+<script>
+(function(){
+  "use strict";
+  const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const PORTRA = 'sepia(.16) saturate(1.05) contrast(.98) brightness(1.02)';
+
+  const PHOTOS = [
+    ["golden-field-sunburst.jpg","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400",false],
+    ["landscape-misty-mountains.jpg","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H",false],
+    ["lake-cabin-dawn.jpg","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100",false],
+    ["forest-sunlight.jpg","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160",false],
+    ["valley-green-river.jpg","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50",false],
+    ["cliff-coast-ocean.jpg","Edge of the World","Big Sur, USA","Kodak Portra 400",false],
+    ["mountain-road-fog.jpg","The Long Way Home","Dolomites, Italy","Cinestill 800T",false],
+    ["sun-through-leaves.jpg","Backlit","Kyoto, Japan","Kodak Portra 800",false],
+    ["lake-mountain-house.jpg","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100",false],
+    ["rolling-green-hills.jpg","Patchwork","Tuscany, Italy","Fujifilm Pro 400H",false],
+    ["forest-path-trees.jpg","Into the Woods","Black Forest, Germany","Kodak Portra 160",false],
+    ["waterfall-bridge.jpg","Hidden Falls","Iceland","Fujifilm Velvia 50",false],
+    ["autumn-forest-road.jpg","October Road","Vermont, USA","Kodak Portra 400",false],
+    ["desert-dunes.jpg","Wind Lines","Namibia","Kodak Ektar 100",false],
+    ["misty-pine-forest.jpg","Silence","Norway","Ilford HP5 Plus",true],
+    ["succulent-closeup.jpg","Geometry of Growth","Studio","Kodak Portra 160",false],
+    ["foggy-pier-lake.jpg","The Quiet Dock","Lake District, UK","Cinestill 50D",false],
+    ["woman-portrait-window.jpg","By the Window","Lisbon, Portugal","Kodak Portra 400",false],
+    ["man-portrait-street.jpg","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400",true],
+    ["couple-silhouette-sunset.jpg","Goodnight","Santorini, Greece","Kodak Portra 800",false],
+    ["woman-portrait-soft.jpg","Soft Hour","Paris, France","Fujifilm Pro 400H",false],
+    ["woman-portrait-freckles.jpg","Freckles & Sun","Studio","Kodak Portra 160",false],
+    ["friends-golden-hour.jpg","Golden Hour, Together","California, USA","Kodak Portra 400",false],
+    ["woman-curly-portrait.jpg","Curls","Brooklyn, USA","Cinestill 800T",false],
+    ["man-bw-portrait.jpg","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200",true],
+    ["woman-fashion-portrait.jpg","The Red Wall","Marrakesh, Morocco","Kodak Portra 400",false],
+    ["street-cafe-paris.jpg","Café de Flore","Paris, France","Kodak Gold 200",false],
+    ["woman-laughing-portrait.jpg","That Laugh","Mexico City, Mexico","Kodak Portra 800",false],
+    ["vintage-car-street.jpg","Sunday Drive","Havana, Cuba","Kodak Ektar 100",false],
+    ["cozy-interior-window.jpg","Home Light","Copenhagen, Denmark","Kodak Portra 400",false]
+  ];
+  const PATH = "../../assets/img/";
+
+  const stage = document.getElementById('stage');
+
+  // Composition: x,y in percent of viewport (anchor = element center)
+  // depth: parallax factor (bigger = moves more with pointer)
+  // r/ry: orbital radii (px-ish, scaled), w: angular speed, ph: phase, spin: deg/sec
+  const ABSTRACT = [
+    {cls:'sq-black',     x:50, y:52, depth:0.5, r:26, ry:18, w:0.10, ph:0.0, spin:2},
+    {cls:'rect-red',     x:24, y:30, depth:1.4, r:40, ry:24, w:0.14, ph:1.1, spin:-3,rot:-12},
+    {cls:'rect-red tall',x:78, y:64, depth:1.1, r:34, ry:40, w:0.12, ph:2.4, spin:4, rot:8},
+    {cls:'bar',          x:30, y:74, depth:0.8, r:30, ry:16, w:0.09, ph:3.3, spin:1, rot:-6},
+    {cls:'bar blue',     x:70, y:22, depth:1.7, r:46, ry:22, w:0.16, ph:0.6, spin:-2,rot:22},
+    {cls:'circ-ochre',   x:84, y:32, depth:2.2, r:50, ry:36, w:0.18, ph:4.0, spin:0},
+    {cls:'ring',         x:16, y:60, depth:2.4, r:54, ry:40, w:0.15, ph:5.1, spin:0},
+    {cls:'tri',          x:60, y:80, depth:1.9, r:42, ry:28, w:0.13, ph:1.8, spin:-2,rot:6}
+  ];
+
+  // photo-masked forms: each cycles through PHOTOS on tap, starting offset
+  const PHOTOFORMS = [
+    {shape:'circle',size:'c-lg',x:35, y:46, depth:0.9, r:24, ry:18, w:0.08, ph:0.4, spin:0, start:0},
+    {shape:'circle',size:'c-md',x:80, y:50, depth:2.0, r:48, ry:30, w:0.13, ph:2.0, spin:0, start:17},
+    {shape:'square',size:'s-md',x:20, y:38, depth:1.5, r:38, ry:26, w:0.11, ph:3.6, spin:0, start:24,rot:-4},
+    {shape:'circle',size:'c-md',x:64, y:70, depth:1.3, r:36, ry:24, w:0.10, ph:5.4, spin:0, start:5},
+    {shape:'square',size:'s-md',x:88, y:78, depth:2.3, r:52, ry:34, w:0.15, ph:0.9, spin:0, start:11,rot:5}
+  ];
+
+  const forms = [];
+
+  function makeForm(conf){
+    const el = document.createElement('div');
+    el.className = 'form';
+    forms.push(Object.assign({el}, conf));
+    stage.appendChild(el);
+    return el;
+  }
+
+  ABSTRACT.forEach(a=>{
+    const el = makeForm(a);
+    const b = document.createElement('div');
+    b.className = 'body ' + a.cls;
+    el.appendChild(b);
+  });
+
+  PHOTOFORMS.forEach((p,i)=>{
+    const el = makeForm(p);
+    el.tabIndex = 0;
+    el.setAttribute('role','button');
+    p.idx = p.start % PHOTOS.length;
+
+    const body = document.createElement('div');
+    body.className = 'body photoform';
+
+    const mask = document.createElement('div');
+    mask.className = 'mask ' + (p.shape==='circle'?'circle':'square') + ' ' + p.size;
+
+    const img = document.createElement('img');
+    const cap = document.createElement('div');
+    cap.className = 'cap';
+    const tap = document.createElement('div');
+    tap.className = 'tap';
+    tap.textContent = 'tap → next';
+
+    mask.appendChild(img);
+    mask.appendChild(tap);
+    body.appendChild(mask);
+    body.appendChild(cap);
+    el.appendChild(body);
+
+    p.img = img; p.cap = cap; p.label = el;
+    applyPhoto(p);
+
+    const advance = ()=>{ p.idx = (p.idx+1)%PHOTOS.length; applyPhoto(p,true); };
+    el.addEventListener('click', advance);
+    el.addEventListener('keydown', e=>{
+      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); advance(); }
+    });
+  });
+
+  function applyPhoto(p, animate){
+    const d = PHOTOS[p.idx];
+    p.img.src = PATH + d[0];
+    p.img.alt = d[1] + " — " + d[2];
+    p.img.classList.toggle('bw', d[4]);
+    p.cap.innerHTML = '<b>'+d[1]+'</b><span>'+d[2]+' &middot; '+d[3]+'</span>';
+    p.label.setAttribute('aria-label', 'Photograph: '+d[1]+', '+d[2]+'. Tap to view next photograph.');
+    if(animate){
+      p.img.style.transform='scale(1.12)';
+      requestAnimationFrame(()=>{ p.img.style.transform=''; });
+    }
+  }
+
+  // pointer parallax
+  let pxT=0,pyT=0,px=0,py=0;
+  function onMove(cx,cy){
+    pxT = (cx/window.innerWidth - 0.5);
+    pyT = (cy/window.innerHeight - 0.5);
+  }
+  window.addEventListener('pointermove', e=>onMove(e.clientX,e.clientY), {passive:true});
+  window.addEventListener('touchmove', e=>{
+    if(e.touches[0]) onMove(e.touches[0].clientX,e.touches[0].clientY);
+  }, {passive:true});
+
+  // hint fade
+  const hint = document.getElementById('hint');
+  let hid=false;
+  function killHint(){ if(!hid){hid=true; hint.classList.add('gone'); } }
+  window.addEventListener('pointermove', killHint, {once:true});
+  window.addEventListener('click', killHint, {once:true});
+  setTimeout(killHint, 7000);
+
+  function layout(t){
+    px += (pxT-px)*0.06;
+    py += (pyT-py)*0.06;
+    const W=window.innerWidth, H=window.innerHeight;
+    const scaleMin = Math.min(W,H)/900; // shrink orbits on small screens
+    for(const f of forms){
+      const ox = Math.cos(t*f.w + f.ph) * f.r * scaleMin;
+      const oy = Math.sin(t*f.w + f.ph) * f.ry * scaleMin;
+      const parX = -px * 26 * f.depth;
+      const parY = -py * 26 * f.depth;
+      const baseX = f.x/100*W;
+      const baseY = f.y/100*H;
+      const spin = (f.rot||0) + (f.spin?f.spin*t:0);
+      f.el.style.transform =
+        'translate('+(baseX+ox+parX)+'px,'+(baseY+oy+parY)+'px) '+
+        'translate(-50%,-50%) rotate('+spin+'deg)';
+    }
+  }
+
+  if(reduce){
+    layout(0);
+    // keep responsive on resize without animation
+    window.addEventListener('resize', ()=>layout(0));
+  } else {
+    let raf=null, start=null, running=true;
+    function frame(ts){
+      if(start===null) start=ts;
+      const t=(ts-start)/1000;
+      layout(t);
+      if(running) raf=requestAnimationFrame(frame);
+    }
+    function play(){ if(!running){running=true; raf=requestAnimationFrame(frame);} }
+    function stop(){ running=false; if(raf) cancelAnimationFrame(raf); raf=null; }
+    document.addEventListener('visibilitychange', ()=>{ document.hidden?stop():play(); });
+    raf=requestAnimationFrame(frame);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Still Water — Tom Milton, Film Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#f3ede4;
+    --paper-2:#ece4d8;
+    --ink:#24201b;
+    --ink-soft:#5b524704;
+    --muted:#7d7264;
+    --muted-2:#9a8f7f;
+    --line:#d8cdbc;
+    --accent:#3f6b6f;        /* still-water teal */
+    --accent-deep:#2a4d50;
+    --gold:#b08545;
+    --shadow:0 22px 50px -28px rgba(40,32,22,.55);
+    --maxw:1180px;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #f7f2ea 0%, var(--paper) 42%, var(--paper-2) 100%);
+    color:var(--ink);
+    font-family:"Work Sans",system-ui,sans-serif;
+    font-weight:400;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  a{color:inherit;}
+
+  .sr-only{
+    position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px clamp(18px,4vw,46px);
+    background:linear-gradient(to bottom, rgba(243,237,228,.92), rgba(243,237,228,.6) 70%, rgba(243,237,228,0));
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  .back-link{
+    display:inline-flex;align-items:center;gap:.5em;
+    text-decoration:none;font-size:.82rem;letter-spacing:.04em;
+    color:var(--muted);
+    padding:.45em .85em;border-radius:999px;
+    border:1px solid transparent;
+    transition:color .25s, border-color .25s, background .25s;
+  }
+  .back-link:hover,.back-link:focus-visible{
+    color:var(--accent-deep);border-color:var(--line);background:rgba(255,255,255,.45);outline:none;
+  }
+  .back-link .arr{font-size:1.05em;transition:transform .25s;}
+  .back-link:hover .arr{transform:translateX(-3px);}
+  .brand{
+    font-family:"Fraunces",serif;font-weight:500;font-size:.95rem;letter-spacing:.06em;
+    display:flex;align-items:center;gap:.55em;color:var(--ink);
+  }
+  .brand .glyph{color:var(--accent);font-size:1.1em;}
+
+  /* ---------- hero ---------- */
+  header.hero{
+    max-width:var(--maxw);margin:0 auto;
+    padding:clamp(38px,7vw,86px) clamp(20px,5vw,48px) clamp(20px,4vw,38px);
+    text-align:center;
+  }
+  .kicker{
+    font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;
+    color:var(--muted-2);margin:0 0 1.4em;
+    display:flex;align-items:center;justify-content:center;gap:1.1em;
+  }
+  .kicker::before,.kicker::after{
+    content:"";height:1px;width:clamp(28px,7vw,78px);background:var(--line);
+  }
+  .hero h1{
+    font-family:"Fraunces",serif;
+    font-weight:300;
+    font-size:clamp(3.1rem,11vw,7.4rem);
+    line-height:.92;
+    letter-spacing:-.01em;
+    margin:0;
+  }
+  .hero h1 em{font-style:italic;color:var(--accent-deep);font-weight:400;}
+  .hero .lede{
+    max-width:46ch;margin:1.5em auto 0;
+    font-size:clamp(1rem,2.1vw,1.16rem);color:var(--muted);font-weight:300;
+  }
+  .hero .signature{
+    margin-top:1.7em;font-size:.78rem;letter-spacing:.32em;text-transform:uppercase;color:var(--muted-2);
+  }
+  .legend{
+    display:inline-flex;flex-wrap:wrap;gap:.6em 1.4em;justify-content:center;
+    margin-top:2.2em;font-size:.78rem;color:var(--muted);
+  }
+  .legend span{display:inline-flex;align-items:center;gap:.5em;}
+  .legend .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .legend .water-dot{background:var(--accent);box-shadow:0 0 0 3px rgba(63,107,111,.16);}
+  .legend .land-dot{background:var(--gold);box-shadow:0 0 0 3px rgba(176,133,69,.16);}
+
+  /* ---------- gallery ---------- */
+  main{max-width:var(--maxw);margin:0 auto;padding:clamp(20px,4vw,40px) clamp(16px,5vw,48px) 60px;}
+  .gallery{display:flex;flex-direction:column;gap:clamp(74px,10vw,150px);}
+
+  figure{margin:0;}
+
+  /* shared photo treatment */
+  .photo-grade{filter:saturate(1.09) contrast(1.045) brightness(1.018) sepia(.1) hue-rotate(-6deg);}
+  .photo-bw{filter:grayscale(1) contrast(1.07) brightness(1.02);}
+
+  /* ===== WATER ITEM ===== */
+  .water-item{position:relative;}
+  .water-stage{
+    position:relative;margin:0 auto;max-width:920px;
+    border-radius:3px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    background:#0c1416;
+  }
+  .water-stage .photo-wrap{position:relative;display:block;line-height:0;}
+  .water-stage img.photo{
+    width:100%;height:auto;display:block;user-select:none;-webkit-user-drag:none;
+  }
+  .water-stage canvas.reflection{
+    display:block;width:100%;height:38%;
+    /* height set via aspect through inline style fallback */
+  }
+  .refl-holder{position:relative;line-height:0;}
+  /* waterline seam */
+  .refl-holder::before{
+    content:"";position:absolute;left:0;right:0;top:0;height:14px;z-index:3;pointer-events:none;
+    background:linear-gradient(to bottom, rgba(8,16,18,.55), rgba(8,16,18,0));
+  }
+  .refl-holder::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:46%;z-index:3;pointer-events:none;
+    background:linear-gradient(to bottom, rgba(12,20,22,0), rgba(12,20,22,.78));
+  }
+
+  .water-badge{
+    position:absolute;z-index:6;top:14px;left:14px;
+    display:inline-flex;align-items:center;gap:.5em;
+    padding:.4em .75em .4em .6em;
+    font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+    color:#eaf3f2;
+    background:rgba(20,40,42,.5);
+    border:1px solid rgba(180,215,212,.32);
+    border-radius:999px;
+    backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+  }
+  .water-badge .tri{font-size:.9em;color:#9fd0cc;transform:translateY(-1px);}
+
+  .ripple-hint{
+    position:absolute;z-index:6;left:50%;bottom:18px;transform:translateX(-50%);
+    display:inline-flex;align-items:center;gap:.55em;
+    padding:.5em 1.05em;
+    font-size:.74rem;letter-spacing:.1em;
+    color:#eef6f5;
+    background:rgba(14,26,28,.42);
+    border:1px solid rgba(190,222,219,.28);
+    border-radius:999px;
+    backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+    transition:opacity .8s ease, transform .8s ease;
+    pointer-events:none;white-space:nowrap;
+  }
+  .ripple-hint .wv{animation:bob 2.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+  .water-item.touched .ripple-hint{opacity:0;transform:translateX(-50%) translateY(8px);}
+
+  /* ===== LAND ITEM (matted) ===== */
+  .land-item{max-width:740px;margin:0 auto;}
+  .land-item.wide{max-width:860px;}
+  .mat{
+    position:relative;
+    background:linear-gradient(170deg,#fbf7f0,#efe7d9);
+    padding:clamp(20px,4.5vw,46px);
+    border-radius:2px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.7) inset,
+      var(--shadow);
+  }
+  .mat-inner{
+    position:relative;line-height:0;
+    box-shadow:0 0 0 1px rgba(40,32,22,.12), 0 14px 30px -18px rgba(40,32,22,.6);
+  }
+  .mat-inner img.photo{width:100%;height:auto;display:block;}
+  /* grain + vignette overlays on land photos */
+  .mat-inner .grain{
+    position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;opacity:.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .mat-inner .vignette{
+    position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 60px 6px rgba(20,14,6,.32), inset 0 0 22px 0 rgba(20,14,6,.2);
+  }
+
+  /* ---------- captions ---------- */
+  figcaption{
+    margin:1.4em auto 0;max-width:740px;text-align:center;padding:0 8px;
+  }
+  .cap-title{
+    font-family:"Fraunces",serif;font-weight:400;font-style:italic;
+    font-size:clamp(1.4rem,3.4vw,1.95rem);line-height:1.12;margin:0 0 .35em;color:var(--ink);
+  }
+  .cap-loc{
+    font-size:.92rem;color:var(--muted);margin:0 0 .85em;
+    letter-spacing:.02em;
+  }
+  .cap-meta{
+    display:inline-flex;flex-wrap:wrap;gap:.5em .9em;justify-content:center;
+    font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);
+  }
+  .cap-meta li{list-style:none;display:inline-flex;align-items:center;gap:.6em;}
+  .cap-meta li:not(:last-child)::after{content:"";width:3px;height:3px;border-radius:50%;background:var(--line);margin-left:.6em;}
+  .cap-meta ul{margin:0;padding:0;display:inline-flex;flex-wrap:wrap;gap:.5em .9em;justify-content:center;}
+  .cap-index{
+    font-family:"Fraunces",serif;font-size:.8rem;color:var(--muted-2);letter-spacing:.2em;
+    display:block;margin-bottom:.7em;
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    margin-top:30px;padding:46px clamp(20px,5vw,48px) 60px;text-align:center;
+    color:var(--muted);font-size:.82rem;
+  }
+  footer .f-mark{font-family:"Fraunces",serif;font-style:italic;font-size:1.1rem;color:var(--ink);display:block;margin-bottom:.5em;}
+
+  @media (max-width:640px){
+    .ripple-hint{font-size:.68rem;bottom:12px;}
+    .legend{font-size:.72rem;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .ripple-hint .wv{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back-link" href="../../index.html"><span class="arr">←</span><span>All designs</span></a>
+  <span class="brand"><span class="glyph">▽</span>Tom Milton</span>
+</div>
+
+<header class="hero">
+  <p class="kicker">Selected Works · 1996—2013</p>
+  <h1>Still <em>Water</em></h1>
+  <p class="lede">A collection in two voices — landscapes that hold their breath, and water that never quite does. Touch the water photographs to let them ripple.</p>
+  <p class="signature">Film photography by Tom Milton</p>
+  <div class="legend" aria-hidden="true">
+    <span><span class="dot water-dot"></span>▽ on water — live reflection</span>
+    <span><span class="dot land-dot"></span>matted print — still</span>
+  </div>
+</header>
+
+<!-- Visually hidden full listing for assistive tech -->
+<div class="sr-only">
+  <h2>Full list of photographs in this gallery</h2>
+  <ul id="srList"></ul>
+</div>
+
+<main>
+  <div class="gallery" id="gallery"></div>
+</main>
+
+<footer>
+  <span class="f-mark">Still Water</span>
+  Photographs © Tom Milton. Reflections rendered live in your browser — no two ripples alike.<br>
+  <a class="back-link" href="../../index.html" style="margin-top:14px;"><span class="arr">←</span><span>Back to all designs</span></a>
+</footer>
+
+<script>
+"use strict";
+(function(){
+  var IMG_BASE = "../../assets/img/";
+
+  // ---- data -------------------------------------------------------------
+  // grade: 'warm' (Portra) | 'bw'
+  var PHOTOS = [
+    {f:"landscape-misty-mountains.jpg", t:"Morning Fog, Cascades", loc:"Washington, USA", film:"Fujifilm Pro 400H", cam:"Pentax 67", yr:"2001", water:true, grade:"warm",
+     alt:"Layered mountain ridges fading into morning fog above still water in the Cascades."},
+    {f:"golden-field-sunburst.jpg", t:"Last Light, Wheat Country", loc:"Tuscany, Italy", film:"Kodak Portra 400", cam:"Leica M6", yr:"1998", water:false, grade:"warm",
+     alt:"A golden wheat field glowing under a low sunburst at last light in Tuscany."},
+    {f:"lake-cabin-dawn.jpg", t:"The Cabin at Dawn", loc:"Banff, Canada", film:"Kodak Ektar 100", cam:"Mamiya 7 II", yr:"2003", water:true, grade:"warm",
+     alt:"A lakeside cabin at dawn mirrored in calm water beneath mountains in Banff."},
+    {f:"forest-sunlight.jpg", t:"Cathedral of Pines", loc:"Olympic NP, USA", film:"Kodak Portra 160", cam:"Hasselblad 500CM", yr:"1996", water:false, grade:"warm",
+     alt:"Sunlight streaming through tall pine trunks in a green old-growth forest."},
+    {f:"valley-green-river.jpg", t:"River Bend, Spring", loc:"Glencoe, Scotland", film:"Fujifilm Velvia 50", cam:"Nikon F3", yr:"1999", water:true, grade:"warm",
+     alt:"A green river bending through a spring valley in the Scottish highlands of Glencoe."},
+    {f:"misty-pine-forest.jpg", t:"Silence", loc:"Norway", film:"Ilford HP5 Plus", cam:"Leica M6", yr:"2003", water:false, grade:"bw",
+     alt:"Black and white photograph of misty pine forest, trees fading into fog in Norway."},
+    {f:"cliff-coast-ocean.jpg", t:"Edge of the World", loc:"Big Sur, USA", film:"Kodak Portra 400", cam:"Contax G2", yr:"2002", water:true, grade:"warm",
+     alt:"Rugged coastal cliffs meeting the ocean along the dramatic Big Sur coastline."},
+    {f:"rolling-green-hills.jpg", t:"Patchwork", loc:"Tuscany, Italy", film:"Fujifilm Pro 400H", cam:"Pentax 645", yr:"1997", water:false, grade:"warm",
+     alt:"Rolling green hills laid out like patchwork under soft light in Tuscany."},
+    {f:"lake-mountain-house.jpg", t:"Reflections, Still Morning", loc:"Hallstatt, Austria", film:"Kodak Ektar 100", cam:"Mamiya RZ67", yr:"2000", water:true, grade:"warm",
+     alt:"Lakeside houses and mountains perfectly reflected in still morning water at Hallstatt."},
+    {f:"autumn-forest-road.jpg", t:"October Road", loc:"Vermont, USA", film:"Kodak Portra 400", cam:"Leica M7", yr:"2007", water:false, grade:"warm",
+     alt:"A road winding through autumn forest ablaze with orange and red foliage in Vermont."},
+    {f:"waterfall-bridge.jpg", t:"Hidden Falls", loc:"Iceland", film:"Fujifilm Velvia 50", cam:"Nikon FM2", yr:"2006", water:true, grade:"warm",
+     alt:"A waterfall pouring beside a small bridge over churning water in Iceland."},
+    {f:"woman-portrait-window.jpg", t:"By the Window", loc:"Lisbon, Portugal", film:"Kodak Portra 400", cam:"Pentax 67", yr:"2011", water:false, grade:"warm",
+     alt:"A woman lit by soft window light, looking quietly aside, in Lisbon."},
+    {f:"foggy-pier-lake.jpg", t:"The Quiet Dock", loc:"Lake District, UK", film:"Cinestill 50D", cam:"Contax T2", yr:"2010", water:true, grade:"warm",
+     alt:"A wooden pier extending into a fog-covered still lake in the Lake District."},
+    {f:"mountain-road-fog.jpg", t:"The Long Way Home", loc:"Dolomites, Italy", film:"Cinestill 800T", cam:"Canon AE-1", yr:"2005", water:false, grade:"warm",
+     alt:"A mountain road disappearing into fog among the jagged Dolomite peaks."},
+    {f:"couple-silhouette-sunset.jpg", t:"Goodnight", loc:"Santorini, Greece", film:"Kodak Portra 800", cam:"Canon EOS-1V", yr:"2013", water:true, grade:"warm",
+     alt:"A couple silhouetted against a glowing sunset over the sea in Santorini."},
+    {f:"succulent-closeup.jpg", t:"Geometry of Growth", loc:"Studio", film:"Kodak Portra 160", cam:"Hasselblad 500CM", yr:"2009", water:false, grade:"warm",
+     alt:"A close-up of a succulent's spiralling symmetrical leaves, studio lit."}
+  ];
+
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var gallery = document.getElementById("gallery");
+  var srList = document.getElementById("srList");
+
+  var reflectors = []; // active water reflection instances
+
+  // ---- build DOM --------------------------------------------------------
+  PHOTOS.forEach(function(p, i){
+    var idx = String(i+1).padStart(2,"0");
+
+    // sr-only listing
+    var li = document.createElement("li");
+    li.textContent = (i+1)+". " + p.t + " — " + p.loc + ". " +
+      p.film + ", " + p.cam + ", " + p.yr + ". " +
+      (p.water ? "Water photograph with live reflection. " : "Matted print. ") + p.alt;
+    srList.appendChild(li);
+
+    var fig = document.createElement("figure");
+
+    if(p.water){
+      fig.className = "water-item";
+      fig.innerHTML =
+        '<div class="water-stage">' +
+          '<span class="water-badge"><span class="tri">▽</span> on water</span>' +
+          '<div class="photo-wrap">' +
+            '<img class="photo photo-grade" alt="'+escapeAttr(p.alt)+'" loading="lazy" decoding="async">' +
+          '</div>' +
+          '<div class="refl-holder">' +
+            '<canvas class="reflection photo-grade" aria-hidden="true"></canvas>' +
+          '</div>' +
+          '<span class="ripple-hint"><span class="wv">≈</span> touch the water to make ripples</span>' +
+        '</div>' +
+        captionHTML(p, idx, true);
+
+      var img = fig.querySelector("img.photo");
+      var canvas = fig.querySelector("canvas.reflection");
+      img.src = IMG_BASE + p.f;
+
+      var inst = new WaterReflection(fig, img, canvas);
+      reflectors.push(inst);
+    } else {
+      fig.className = "land-item" + (i % 5 === 0 ? " wide" : "");
+      var gradeClass = p.grade === "bw" ? "photo-bw" : "photo-grade";
+      fig.innerHTML =
+        '<div class="mat">' +
+          '<div class="mat-inner">' +
+            '<img class="photo '+gradeClass+'" alt="'+escapeAttr(p.alt)+'" loading="lazy" decoding="async" src="'+IMG_BASE+p.f+'">' +
+            '<span class="grain"></span>' +
+            '<span class="vignette"></span>' +
+          '</div>' +
+        '</div>' +
+        captionHTML(p, idx, false);
+    }
+
+    gallery.appendChild(fig);
+  });
+
+  function captionHTML(p, idx, isWater){
+    return (
+      '<figcaption>' +
+        '<span class="cap-index">№ '+idx+'</span>' +
+        '<h3 class="cap-title">'+escapeHTML(p.t)+'</h3>' +
+        '<p class="cap-loc">'+escapeHTML(p.loc)+'</p>' +
+        '<div class="cap-meta"><ul>' +
+          '<li>'+escapeHTML(p.film)+'</li>' +
+          '<li>'+escapeHTML(p.cam)+'</li>' +
+          '<li>'+escapeHTML(p.yr)+'</li>' +
+        '</ul></div>' +
+      '</figcaption>'
+    );
+  }
+
+  function escapeHTML(s){return String(s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+  function escapeAttr(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+  // ---- Water reflection (slice-based height field, no getImageData) ------
+  function WaterReflection(fig, img, canvas){
+    this.fig = fig;
+    this.img = img;
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.ready = false;
+    this.visible = false;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.cssW = 0; this.cssH = 0;
+    this.rows = 0;
+    this.SLICE = 3;            // css px per slice
+    this.cur = null; this.prev = null; this.tmp = null;
+    this.maxOffset = 16;
+    this.touched = false;
+    this.lastT = 0;
+    this.staticDrawn = false;
+
+    var self = this;
+
+    function onImg(){
+      if(self.img.naturalWidth > 0){
+        self.ready = true;
+        self.resize();
+      }
+    }
+    if(img.complete && img.naturalWidth > 0){ onImg(); }
+    else {
+      img.addEventListener("load", onImg);
+      img.addEventListener("error", function(){
+        // image failed — hide reflection gracefully
+        self.canvas.style.display = "none";
+      });
+    }
+
+    window.addEventListener("resize", debounce(function(){ self.resize(); }, 150));
+
+    // pointer interaction (mouse + touch via pointer events)
+    var stage = fig.querySelector(".water-stage");
+    function poke(clientY, strength){
+      if(!self.ready || prefersReduced) return;
+      var rect = self.canvas.getBoundingClientRect();
+      var ry = clientY - rect.top;          // relative to reflection top
+      var t = ry / rect.height;             // can be <0 if over the photo
+      if(t < 0) t = 0; if(t > 1) t = 1;
+      var row = Math.round(t * (self.rows - 1));
+      self.disturb(row, strength);
+      if(!self.touched){
+        self.touched = true;
+        fig.classList.add("touched");
+      }
+    }
+    if(window.PointerEvent){
+      stage.addEventListener("pointermove", function(e){ poke(e.clientY, 8); }, {passive:true});
+      stage.addEventListener("pointerdown", function(e){ poke(e.clientY, 26); }, {passive:true});
+    } else {
+      stage.addEventListener("mousemove", function(e){ poke(e.clientY, 8); }, {passive:true});
+      stage.addEventListener("touchstart", function(e){ if(e.touches[0]) poke(e.touches[0].clientY, 26); }, {passive:true});
+      stage.addEventListener("touchmove", function(e){ if(e.touches[0]) poke(e.touches[0].clientY, 8); }, {passive:true});
+    }
+  }
+
+  WaterReflection.prototype.resize = function(){
+    if(!this.ready) return;
+    var iw = this.img.naturalWidth, ih = this.img.naturalHeight;
+    this.cssW = this.canvas.clientWidth || this.img.clientWidth;
+    if(!this.cssW){ return; }
+    // reflection height = 42% of the displayed photo height
+    var photoDispH = this.cssW * (ih / iw);
+    this.cssH = Math.round(photoDispH * 0.42);
+    this.canvas.style.height = this.cssH + "px";
+
+    this.canvas.width = Math.round(this.cssW * this.dpr);
+    this.canvas.height = Math.round(this.cssH * this.dpr);
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+
+    this.rows = Math.ceil(this.cssH / this.SLICE) + 1;
+    this.cur = new Float32Array(this.rows);
+    this.prev = new Float32Array(this.rows);
+    this.tmp = new Float32Array(this.rows);
+    this.maxOffset = Math.max(10, this.cssW * 0.022);
+
+    this.staticDrawn = false;
+    // draw once immediately (looks good before interaction / reduced motion)
+    this.render(performance.now());
+  };
+
+  WaterReflection.prototype.disturb = function(row, strength){
+    if(!this.cur) return;
+    var r = this.rows;
+    for(var k=-2;k<=2;k++){
+      var i = row + k;
+      if(i>=0 && i<r){
+        var w = (3 - Math.abs(k)) / 3;
+        this.cur[i] -= strength * w;
+      }
+    }
+  };
+
+  WaterReflection.prototype.step = function(){
+    // 1D wave equation with damping
+    var cur=this.cur, prev=this.prev, tmp=this.tmp, n=this.rows;
+    var damp = 0.992;
+    for(var i=0;i<n;i++){
+      var l = i>0 ? cur[i-1] : cur[i];
+      var rr = i<n-1 ? cur[i+1] : cur[i];
+      var v = (l + rr) - prev[i];
+      v *= damp;
+      tmp[i] = v;
+    }
+    // swap: prev<-cur, cur<-tmp
+    this.prev = cur;
+    this.cur = tmp;
+    this.tmp = prev;
+  };
+
+  WaterReflection.prototype.render = function(now){
+    if(!this.ready || !this.cssW) return;
+    var ctx=this.ctx, img=this.img;
+    var iw=img.naturalWidth, ih=img.naturalHeight;
+    var W=this.cssW, H=this.cssH, S=this.SLICE;
+    var ext=this.maxOffset;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle="#0b1315";
+    ctx.fillRect(0,0,W,H);
+
+    var ambient = prefersReduced ? 0 : 1;
+    var time = now * 0.001;
+
+    ctx.save();
+    try{
+      for(var yy=0; yy<H; yy+=S){
+        var t0 = yy / H;
+        var t1 = Math.min((yy + S) / H, 1);
+        // mirrored sampling: reflection top = image bottom
+        var srcTop = ih * (1 - t1);
+        var srcH = ih * (t1 - t0);
+        if(srcH <= 0) continue;
+        if(srcTop < 0) srcTop = 0;
+        if(srcTop + srcH > ih) srcH = ih - srcTop;
+        if(srcH <= 0) continue;
+
+        // wave value at this row (interpolate field)
+        var fi = (yy / H) * (this.rows - 1);
+        var i0 = fi | 0;
+        var frac = fi - i0;
+        var wv = 0;
+        if(this.cur){
+          var a = this.cur[i0] || 0;
+          var b = this.cur[Math.min(i0+1, this.rows-1)] || 0;
+          wv = a + (b - a) * frac;
+        }
+
+        // perspective: ripples bigger near the waterline (top of reflection)
+        var depth = 1 - t0 * 0.55;
+        // ambient idle shimmer
+        var amb = ambient * (Math.sin(time*1.3 + t0*16) * 0.9 + Math.sin(time*0.7 - t0*9) * 0.6);
+        var offX = (wv * 0.9 + amb) * depth;
+        if(offX > ext) offX = ext; else if(offX < -ext) offX = -ext;
+
+        // slight vertical wobble for richness
+        var vWob = ambient * Math.sin(time*1.1 + t0*22) * 0.4 * depth;
+
+        var dW = W + ext*2;
+        ctx.drawImage(
+          img,
+          0, srcTop, iw, srcH,
+          -ext + offX, yy + vWob, dW, S + 1
+        );
+      }
+    } catch(err){
+      // extremely defensive — fall back to a static CSS shimmer
+      this.canvas.style.display = "none";
+      this.fig.classList.add("refl-failed");
+      ctx.restore();
+      return;
+    }
+    ctx.restore();
+
+    // tint / depth gradient for "water" feel
+    var g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0, "rgba(20,40,44,0.10)");
+    g.addColorStop(0.55, "rgba(14,28,32,0.34)");
+    g.addColorStop(1, "rgba(8,16,20,0.72)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    // subtle horizontal highlight near waterline
+    var hl = ctx.createLinearGradient(0,0,0,Math.min(H*0.25,40));
+    hl.addColorStop(0,"rgba(230,245,243,0.10)");
+    hl.addColorStop(1,"rgba(230,245,243,0)");
+    ctx.fillStyle = hl;
+    ctx.fillRect(0,0,W,Math.min(H*0.25,40));
+
+    this.staticDrawn = true;
+  };
+
+  // ---- visibility management (IntersectionObserver) ---------------------
+  if("IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        var inst = en.target.__refl;
+        if(inst){ inst.visible = en.isIntersecting; }
+      });
+    }, {rootMargin:"120px 0px", threshold:0.01});
+    reflectors.forEach(function(inst){
+      inst.canvas.__refl = inst;
+      io.observe(inst.canvas);
+    });
+  } else {
+    reflectors.forEach(function(inst){ inst.visible = true; });
+  }
+
+  // ---- master animation loop -------------------------------------------
+  var pageHidden = false;
+  document.addEventListener("visibilitychange", function(){
+    pageHidden = document.hidden;
+    if(!pageHidden){ requestAnimationFrame(loop); }
+  });
+
+  var lastFrame = 0;
+  function loop(now){
+    if(pageHidden) return; // stop scheduling; resumes on visibilitychange
+    requestAnimationFrame(loop);
+
+    // throttle to ~60fps max (skip if too soon)
+    if(now - lastFrame < 15){ return; }
+    lastFrame = now;
+
+    for(var i=0;i<reflectors.length;i++){
+      var inst = reflectors[i];
+      if(!inst.ready || !inst.visible) continue;
+      if(prefersReduced){
+        // static: ensure drawn once, no simulation
+        if(!inst.staticDrawn) inst.render(now);
+        continue;
+      }
+      inst.step();
+      inst.render(now);
+    }
+  }
+  requestAnimationFrame(loop);
+
+  // ---- util -------------------------------------------------------------
+  function debounce(fn, ms){
+    var tid;
+    return function(){
+      var args=arguments, ctx=this;
+      clearTimeout(tid);
+      tid=setTimeout(function(){ fn.apply(ctx,args); }, ms);
+    };
+  }
+})();
+</script>
+</body>
+</html>

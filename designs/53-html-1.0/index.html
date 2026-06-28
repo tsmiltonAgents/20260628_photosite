@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton :: Film Photography :: HomePage</title>
+<meta name="description" content="The personal photography homepage of Tom Milton. Film. Light. Patience. Established 1996.">
+<style>
+/* ====================================================================
+   TOM MILTON'S HOMEPAGE -- hand-coded with love, est. 1996
+   "Best viewed in Netscape Navigator 3.0 at 800x600"
+   ==================================================================== */
+
+/* -- the classic grey-tile desktop look, but soft cream so photos breathe -- */
+html {
+  background-color: #c9c4b4;
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,0.18) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.04) 75%),
+    linear-gradient(45deg, rgba(255,255,255,0.18) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.04) 75%);
+  background-size: 14px 14px;
+  background-position: 0 0, 7px 7px;
+}
+body {
+  font-family: "Times New Roman", Times, Georgia, serif;
+  font-size: 17px;
+  line-height: 1.5;
+  color: #1a1208;
+  margin: 0;
+  padding: 18px 10px 40px;
+}
+.mono, code, kbd {
+  font-family: "Courier New", Courier, monospace;
+}
+
+/* -- the page sits in a "browser-window" paper card -- */
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  background: #fffdf6;
+  border: 2px solid #6b6450;
+  box-shadow:
+    inset 1px 1px 0 #ffffff,
+    4px 4px 0 rgba(60,52,30,0.35),
+    8px 8px 0 rgba(60,52,30,0.18);
+}
+
+/* -- top utility bar (the "← All designs" + status) -- */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  justify-content: space-between;
+  align-items: center;
+  background: #d8d2bf;
+  border-bottom: 2px solid #6b6450;
+  padding: 6px 12px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  color: #3a3320;
+}
+.topbar a.backlink {
+  font-weight: bold;
+}
+
+.inner { padding: 22px 26px 30px; }
+
+/* -- classic link styling: blue / purple visited / red active -- */
+a { color: #0000ee; text-decoration: underline; }
+a:visited { color: #551a8b; }
+a:active { color: #ee0000; }
+a:hover { color: #1a52d6; }
+
+/* -- masthead -- */
+.masthead { text-align: center; }
+.masthead h1 {
+  font-size: 40px;
+  letter-spacing: 1px;
+  margin: 4px 0 2px;
+  font-weight: bold;
+  color: #2a1d0a;
+  text-shadow: 1px 1px 0 #e7dcc0;
+}
+.masthead .sub {
+  font-style: italic;
+  font-size: 18px;
+  color: #5a4a2a;
+  margin: 0 0 6px;
+}
+.masthead .tag {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  color: #6b5a35;
+}
+
+/* -- retro engraved horizontal rules -- */
+hr.retro {
+  border: 0;
+  height: 0;
+  border-top: 1px solid #9a8f6f;
+  border-bottom: 1px solid #fffef8;
+  margin: 20px 0;
+}
+hr.thick {
+  border: 0; height: 4px;
+  background: linear-gradient(#b8ad8a, #7d7255);
+  border-top: 1px solid #fffef8;
+  border-bottom: 1px solid #5f5740;
+  margin: 18px 0;
+}
+
+/* -- the badge row (NEW!, Netscape, Under construction) -- */
+.badges {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+  align-items: center; margin: 6px 0 2px;
+}
+
+/* 88x31 button look */
+.btn88 {
+  width: 88px; height: 31px; box-sizing: border-box;
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 9px; line-height: 1.05; text-align: center;
+  border: 1px solid #000; text-decoration: none; color: #fff;
+  text-shadow: 1px 1px 0 #000; image-rendering: pixelated;
+}
+.btn-netscape {
+  background: linear-gradient(#3a3a8c, #14143f);
+  border: 1px outset #5a5ad0; color: #e9e9ff;
+}
+.btn-netscape b { color:#ffd34d; font-size:10px; }
+.btn-html {
+  background: linear-gradient(#7a1f1f, #3a0d0d);
+  border: 1px outset #c05a5a; color:#ffe0e0;
+}
+.btn-css {
+  background: linear-gradient(#1f5a2a, #0d2a14);
+  border: 1px outset #5ac075; color:#e0ffe6;
+}
+
+/* animated NEW! badge -- blink/pulse */
+.newbadge {
+  display:inline-block; font-family:"Courier New",monospace; font-weight:bold;
+  font-size:12px; color:#fff; background:#d40000; padding:3px 8px;
+  border:2px outset #ff7a7a; transform: rotate(-3deg);
+  animation: pulseNew 1s steps(2,end) infinite;
+}
+@keyframes pulseNew {
+  0%,49% { background:#d40000; color:#fff; }
+  50%,100% { background:#ffd000; color:#7a0000; }
+}
+
+/* under construction strip */
+.construction {
+  display:inline-block; font-family:"Courier New",monospace; font-size:11px;
+  font-weight:bold; color:#221a00; padding:3px 10px;
+  background: repeating-linear-gradient(45deg, #f4c20d 0 10px, #1a1a1a 10px 20px);
+  border:1px solid #000;
+  text-shadow: 0 0 2px #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+}
+
+/* -- scrolling marquee strip (CSS, not <marquee>) -- */
+.marquee {
+  overflow: hidden; white-space: nowrap;
+  background: #101820; color: #4cff7a;
+  border: 2px inset #3a4a3a; margin: 14px 0;
+  font-family:"Courier New",monospace; font-size:13px;
+  padding: 5px 0;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-track {
+  display: inline-block; padding-left: 100%;
+  animation: scrollLeft 26s linear infinite;
+}
+.marquee-track span { margin: 0 2.5em; }
+.marquee-track .star { color:#ffd34d; }
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+/* -- visitor counter / odometer -- */
+.counterbox {
+  text-align:center; font-family:"Courier New",monospace;
+  font-size:13px; color:#3a3320; margin: 4px 0;
+}
+.odometer {
+  display:inline-flex; gap:2px; vertical-align:middle; margin: 0 4px;
+  padding:3px; background:#0a0a0a; border:2px inset #555;
+}
+.odo-digit {
+  display:inline-block; width:16px; height:24px; line-height:24px;
+  text-align:center; color:#33ff66; background:#062006;
+  font-family:"Courier New",monospace; font-weight:bold; font-size:18px;
+  border:1px solid #0a3a0a;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.8);
+}
+.odo-comma {
+  display:inline-block; width:6px; color:#33ff66; font-weight:bold;
+  align-self:flex-end; font-family:"Courier New",monospace;
+}
+
+/* -- intro / about -- */
+.intro p { margin: 10px 0; }
+.intro .drop { font-size: 200%; float:left; line-height:0.8; padding:6px 6px 0 0; color:#7a2a12; font-weight:bold; }
+
+/* -- gallery: authentic <table> grid -- */
+.gallery-wrap { width:100%; }
+table.gallery {
+  width:100%; border-collapse: separate; border-spacing: 14px;
+  margin: 0 auto;
+}
+table.gallery td {
+  width: 33.33%; vertical-align: top; text-align:center;
+}
+.thumb {
+  display:block; text-decoration:none; color:#1a1208;
+  background:#fff; padding:6px; border:1px solid #6b6450;
+  box-shadow: 2px 2px 0 rgba(60,52,30,0.3);
+}
+.thumb:hover { box-shadow: 0 0 0 2px #c08a30, 2px 2px 0 rgba(60,52,30,0.3); }
+.thumb img {
+  display:block; width:100%; height:150px; object-fit:cover;
+  background:#e7e0cc;
+}
+/* Kodak Portra warm grade for colour */
+.colour { filter: saturate(1.07) contrast(1.02) sepia(0.06) brightness(1.01); }
+.bw { filter: grayscale(1) contrast(1.05) brightness(1.02); }
+.thumb .cap {
+  display:block; font-family:"Times New Roman",serif; font-size:13px;
+  margin-top:5px; font-style:italic; color:#2a1d0a; line-height:1.25;
+}
+.thumb .cap .loc {
+  display:block; font-family:"Courier New",monospace; font-style:normal;
+  font-size:10px; color:#6b5a35;
+}
+
+/* -- definition-list style caption block inside lightbox -- */
+dl.specs {
+  margin: 0; font-family:"Courier New",monospace; font-size:12px;
+  display:grid; grid-template-columns: auto 1fr; gap:2px 10px;
+}
+dl.specs dt { color:#8a7a4a; text-transform:uppercase; font-size:10px; letter-spacing:1px; padding-top:2px; }
+dl.specs dd { margin:0; color:#1a1208; }
+
+/* -- lightbox -- */
+.lightbox {
+  position: fixed; inset:0; background: rgba(20,16,8,0.88);
+  display:none; align-items:center; justify-content:center; z-index:1000;
+  padding: 20px;
+}
+.lightbox.open { display:flex; }
+.lb-card {
+  background:#fffdf6; border:2px solid #6b6450; max-width: 920px; width:100%;
+  max-height: 92vh; overflow:auto;
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.5);
+}
+.lb-titlebar {
+  display:flex; justify-content:space-between; align-items:center;
+  background: linear-gradient(#3a3a8c,#14143f); color:#fff;
+  font-family:"Courier New",monospace; font-size:12px; padding:5px 10px;
+}
+.lb-titlebar .x {
+  cursor:pointer; background:#d8d2bf; color:#000; border:1px outset #fff;
+  width:18px; height:18px; line-height:16px; text-align:center; font-weight:bold;
+  font-family:"Courier New",monospace;
+}
+.lb-body { padding: 14px; }
+.lb-body img { display:block; width:100%; max-height:64vh; object-fit:contain; background:#000; }
+.lb-meta { margin-top:12px; display:flex; flex-wrap:wrap; gap:14px 24px; align-items:flex-start; }
+.lb-meta h2 { font-size:24px; margin:0 0 2px; color:#2a1d0a; }
+.lb-meta .ph-loc { font-style:italic; color:#5a4a2a; margin:0 0 8px; }
+.lb-nav { display:flex; gap:10px; margin-top:12px; }
+.lb-nav button {
+  font-family:"Courier New",monospace; font-size:12px; cursor:pointer;
+  background:#d8d2bf; border:2px outset #fff; padding:4px 12px;
+}
+.lb-nav button:active { border-style:inset; }
+
+/* -- guestbook-ish / about table -- */
+.aboutgrid { width:100%; border-collapse:collapse; }
+.aboutgrid td { vertical-align:top; padding:0 14px 0 0; }
+
+/* -- footer / webring -- */
+.footer {
+  text-align:center; font-family:"Courier New",monospace; font-size:12px;
+  color:#3a3320; margin-top:6px;
+}
+.webring {
+  display:inline-block; border:1px solid #6b6450; background:#ece6d3;
+  padding:8px 14px; margin:10px 0;
+}
+.webring .ring-title { font-weight:bold; color:#5a2a8b; }
+.smallprint { font-size:11px; color:#6b5a35; }
+
+h2.section {
+  font-size:22px; color:#2a1d0a; margin:4px 0 2px; letter-spacing:0.5px;
+}
+.section-note { font-family:"Courier New",monospace; font-size:11px; color:#7a6a45; margin:0 0 6px; }
+
+/* -- responsive: let the gallery table reflow gracefully -- */
+@media (max-width: 680px) {
+  body { font-size:16px; }
+  .inner { padding: 16px 14px 24px; }
+  .masthead h1 { font-size: 30px; }
+  table.gallery, table.gallery tbody, table.gallery tr, table.gallery td {
+    display:block; width:100% !important; box-sizing:border-box;
+  }
+  table.gallery { border-spacing: 0; }
+  table.gallery td { margin-bottom:16px; }
+  .thumb img { height: 210px; }
+  .aboutgrid, .aboutgrid tbody, .aboutgrid tr, .aboutgrid td { display:block; width:100%; padding:0; }
+}
+
+/* -- reduced motion: calm everything -- */
+@media (prefers-reduced-motion: reduce) {
+  .newbadge { animation: none; background:#d40000; color:#fff; }
+  .marquee-track { animation: none; padding-left: 0; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <a class="backlink" href="../../index.html">&larr; All designs</a>
+    <span>file:///home/tom/public_html/index.html</span>
+    <span>Loaded&nbsp;OK</span>
+  </div>
+
+  <div class="inner">
+
+    <!-- ===================== MASTHEAD ===================== -->
+    <div class="masthead">
+      <p class="tag mono">~ * ~ welcome to the homepage of ~ * ~</p>
+      <h1>Tom Milton</h1>
+      <p class="sub">Film Photographs &amp; Wanderings, 1995&ndash;Present</p>
+      <p class="tag mono">light &middot; grain &middot; patience &nbsp;|&nbsp; shot on real film, scanned by hand</p>
+
+      <div class="badges">
+        <span class="newbadge">NEW! 6 photos</span>
+        <a class="btn88 btn-netscape" href="#" onclick="return false;">
+          Best viewed in<br><b>Netscape</b><br>Navigator 3.0
+        </a>
+        <span class="construction">&#9888; UNDER CONSTRUCTION &#9888;</span>
+        <span class="btn88 btn-html">Made with<br>NOTEPAD<br>&amp; coffee</span>
+        <span class="btn88 btn-css">Valid<br>HTML 3.2<br>(mostly)</span>
+      </div>
+    </div>
+
+    <hr class="thick">
+
+    <!-- ===================== MARQUEE ===================== -->
+    <div class="marquee" aria-label="Site announcements">
+      <div class="marquee-track">
+        <span class="star">&#9733;</span><span>Thanks for visiting my little corner of the World Wide Web!</span>
+        <span class="star">&#9733;</span><span>New darkroom scans added this month &mdash; 30 frames and counting.</span>
+        <span class="star">&#9733;</span><span>Sign my guestbook &middot; Email me &middot; Tell a friend!</span>
+        <span class="star">&#9733;</span><span>Currently developing: a roll of Portra 400 from Lisbon.</span>
+      </div>
+    </div>
+
+    <!-- ===================== INTRO ===================== -->
+    <table class="aboutgrid"><tr>
+      <td style="width:62%;">
+        <div class="intro">
+          <p><span class="drop">H</span>ello, and welcome. My name is <b>Tom Milton</b> and I make
+          photographs the old-fashioned way &mdash; on film, one frame at a time. I started carrying
+          a battered Leica around in 1995 and never really stopped. Everything you see here was shot
+          on emulsion, run through chemistry, and scanned in my kitchen.</p>
+          <p>This page is hand-coded, deliberately humble, and updated whenever a roll comes back
+          from the lab. Pour a coffee, click around, and please <a href="#guestbook">say hello</a>.</p>
+        </div>
+      </td>
+      <td style="width:38%;">
+        <div class="counterbox">
+          <p style="margin:0 0 4px;">You are visitor number:</p>
+          <span class="odometer" id="odometer" aria-label="visitor counter"></span>
+          <p class="mono" style="margin:6px 0 0;">since June&nbsp;14,&nbsp;1996</p>
+          <p class="mono smallprint" style="margin:8px 0 0;">Last updated: <b id="lastUpdated">June 28, 2026</b></p>
+        </div>
+      </td>
+    </tr></table>
+
+    <hr class="retro">
+
+    <!-- ===================== GALLERY ===================== -->
+    <h2 class="section">&#128247; The Photographs</h2>
+    <p class="section-note">click any frame to open the full picture &middot; <span id="photoCount">30</span> images &middot; colour graded for Portra warmth, B&amp;W where noted</p>
+
+    <div class="gallery-wrap">
+      <table class="gallery" id="galleryTable"><tbody id="galleryBody"></tbody></table>
+    </div>
+
+    <hr class="retro">
+
+    <!-- ===================== ABOUT THE GEAR ===================== -->
+    <h2 class="section">&#128296; The Kit</h2>
+    <p>I shoot a small, well-loved family of cameras &mdash; mostly a
+    <i>Leica M6</i>, a <i>Pentax 67</i> for the big landscapes, and a
+    <i>Hasselblad 500CM</i> when I want square frames and slow mornings. Favourite
+    stocks: <span class="mono">Kodak Portra 400</span> for skin and light,
+    <span class="mono">Fuji Velvia 50</span> for green valleys, and
+    <span class="mono">Ilford HP5</span> for the black-and-white days.</p>
+
+    <hr class="retro">
+
+    <!-- ===================== GUESTBOOK / CONTACT ===================== -->
+    <div id="guestbook">
+      <h2 class="section">&#9993; Drop me a line</h2>
+      <p>I'd love to know which photograph stopped you. The kettle is always on.</p>
+      <p>&raquo; <a href="mailto:tom.milton@amododesign.com?subject=Hello%20from%20your%20homepage">tom.milton@amododesign.com</a><br>
+         &raquo; <a href="#" onclick="alert('Guestbook is loading... (it is 1996, please be patient)'); return false;">Sign the Guestbook</a> &middot;
+         <a href="#" onclick="alert('You have 0 new messages.'); return false;">Read the Guestbook</a></p>
+    </div>
+
+    <hr class="thick">
+
+    <!-- ===================== FOOTER / WEBRING ===================== -->
+    <div class="footer">
+      <div class="webring">
+        <div class="ring-title">&#9901; The Film Photographers' WebRing &#9901;</div>
+        <a href="#" onclick="return false;">[ &laquo; Prev ]</a>
+        <a href="#" onclick="return false;">[ Random ]</a>
+        <a href="#" onclick="return false;">[ List ]</a>
+        <a href="#" onclick="return false;">[ Next &raquo; ]</a>
+      </div>
+      <p class="mono">&copy; 1996&ndash;2026 Tom Milton. All photographs my own. Please don't hotlink &mdash; just ask!</p>
+      <p class="smallprint mono">This page best viewed at 800&times;600 &middot; 256 colours &middot; with a generous heart.<br>
+      No cookies. No trackers. No JavaScript frameworks. Just HTML and patience.</p>
+    </div>
+
+  </div><!-- /inner -->
+</div><!-- /page -->
+
+<!-- ===================== LIGHTBOX ===================== -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photograph viewer">
+  <div class="lb-card">
+    <div class="lb-titlebar">
+      <span class="mono" id="lbWinTitle">photo.jpg</span>
+      <span class="x" id="lbClose" role="button" tabindex="0" aria-label="Close">&times;</span>
+    </div>
+    <div class="lb-body">
+      <img id="lbImg" src="" alt="">
+      <div class="lb-meta">
+        <div style="flex:1; min-width:240px;">
+          <h2 id="lbTitle"></h2>
+          <p class="ph-loc" id="lbLoc"></p>
+          <div class="lb-nav">
+            <button id="lbPrev" type="button">&laquo; Previous</button>
+            <button id="lbNext" type="button">Next &raquo;</button>
+          </div>
+        </div>
+        <dl class="specs" style="flex:1; min-width:220px;">
+          <dt>Title</dt><dd id="sTitle"></dd>
+          <dt>Location</dt><dd id="sLoc"></dd>
+          <dt>Film</dt><dd id="sFilm"></dd>
+          <dt>Camera</dt><dd id="sCam"></dd>
+          <dt>Year</dt><dd id="sYear"></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   Tom Milton's homepage -- vanilla JS, no frameworks, est. 1996
+   ===================================================================== */
+(function () {
+  "use strict";
+
+  /* ---- the photo manifest ---- */
+  var PHOTOS = [
+    ["golden-field-sunburst.jpg","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",""],
+    ["landscape-misty-mountains.jpg","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001","water"],
+    ["lake-cabin-dawn.jpg","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003","water"],
+    ["forest-sunlight.jpg","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",""],
+    ["valley-green-river.jpg","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3","1999","water"],
+    ["cliff-coast-ocean.jpg","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002","water"],
+    ["mountain-road-fog.jpg","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005",""],
+    ["sun-through-leaves.jpg","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004",""],
+    ["lake-mountain-house.jpg","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000","water"],
+    ["rolling-green-hills.jpg","Patchwork","Tuscany, Italy","Fujifilm Pro 400H","Pentax 645","1997",""],
+    ["forest-path-trees.jpg","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F","1995",""],
+    ["waterfall-bridge.jpg","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006","water"],
+    ["autumn-forest-road.jpg","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",""],
+    ["desert-dunes.jpg","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",""],
+    ["misty-pine-forest.jpg","Silence","Norway","Ilford HP5 Plus","Leica M6","2003","bw"],
+    ["succulent-closeup.jpg","Geometry of Growth","Studio","Kodak Portra 160","Hasselblad 500CM","2009",""],
+    ["foggy-pier-lake.jpg","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2","2010","water"],
+    ["woman-portrait-window.jpg","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",""],
+    ["man-portrait-street.jpg","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400","Leica M4","2012","bw"],
+    ["couple-silhouette-sunset.jpg","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V","2013","water"],
+    ["woman-portrait-soft.jpg","Soft Hour","Paris, France","Fujifilm Pro 400H","Contax 645","2014",""],
+    ["woman-portrait-freckles.jpg","Freckles & Sun","Studio","Kodak Portra 160","Mamiya 645","2015",""],
+    ["friends-golden-hour.jpg","Golden Hour, Together","California, USA","Kodak Portra 400","Nikon F100","2016",""],
+    ["woman-curly-portrait.jpg","Curls","Brooklyn, USA","Cinestill 800T","Canon AE-1","2017",""],
+    ["man-bw-portrait.jpg","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6","2018","bw"],
+    ["woman-fashion-portrait.jpg","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67","2019",""],
+    ["street-cafe-paris.jpg","Cafe de Flore","Paris, France","Kodak Gold 200","Olympus OM-1","2020",""],
+    ["woman-laughing-portrait.jpg","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2","2021",""],
+    ["vintage-car-street.jpg","Sunday Drive","Havana, Cuba","Kodak Ektar 100","Nikon FE","2022",""],
+    ["cozy-interior-window.jpg","Home Light","Copenhagen, Denmark","Kodak Portra 400","Leica M6","2023",""]
+  ];
+
+  function P(a){ return {file:a[0],title:a[1],loc:a[2],film:a[3],cam:a[4],year:a[5],flag:a[6]}; }
+  var photos = PHOTOS.map(P);
+  var IMG_BASE = "../../assets/img/";
+
+  /* ---- build the gallery table (3 columns, authentic <table>) ---- */
+  var body = document.getElementById("galleryBody");
+  var COLS = 3;
+  var row = null;
+  photos.forEach(function (p, i) {
+    if (i % COLS === 0) {
+      row = document.createElement("tr");
+      body.appendChild(row);
+    }
+    var td = document.createElement("td");
+    var a = document.createElement("a");
+    a.className = "thumb";
+    a.href = IMG_BASE + p.file;
+    a.setAttribute("data-index", i);
+    a.addEventListener("click", function (e) { e.preventDefault(); openLightbox(i); });
+
+    var img = document.createElement("img");
+    img.src = IMG_BASE + p.file;
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.alt = p.title + " — " + p.loc + " (" + p.year + "), " + p.film;
+    img.className = (p.flag === "bw") ? "bw" : "colour";
+
+    var cap = document.createElement("span");
+    cap.className = "cap";
+    cap.innerHTML = '“' + esc(p.title) + '”' +
+      '<span class="loc">' + esc(p.loc) + ' &middot; ' + esc(p.year) + '</span>';
+
+    a.appendChild(img);
+    a.appendChild(cap);
+    td.appendChild(a);
+    row.appendChild(td);
+  });
+  // pad final row so the table stays tidy
+  if (photos.length % COLS !== 0) {
+    var pad = COLS - (photos.length % COLS);
+    for (var k = 0; k < pad; k++) { row.appendChild(document.createElement("td")); }
+  }
+  document.getElementById("photoCount").textContent = photos.length;
+
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  /* ---- lightbox ---- */
+  var lb = document.getElementById("lightbox");
+  var lbImg = document.getElementById("lbImg");
+  var current = 0;
+
+  function openLightbox(i) {
+    current = i;
+    render();
+    lb.classList.add("open");
+    document.body.style.overflow = "hidden";
+    document.getElementById("lbClose").focus();
+  }
+  function closeLightbox() {
+    lb.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  function step(d) {
+    current = (current + d + photos.length) % photos.length;
+    render();
+  }
+  function render() {
+    var p = photos[current];
+    lbImg.src = IMG_BASE + p.file;
+    lbImg.alt = p.title + " — " + p.loc;
+    lbImg.className = (p.flag === "bw") ? "bw" : "colour";
+    document.getElementById("lbWinTitle").textContent = p.file;
+    document.getElementById("lbTitle").textContent = "“" + p.title + "”";
+    document.getElementById("lbLoc").textContent = p.loc + " · " + p.year;
+    document.getElementById("sTitle").textContent = p.title;
+    document.getElementById("sLoc").textContent = p.loc;
+    document.getElementById("sFilm").textContent = p.film;
+    document.getElementById("sCam").textContent = p.cam;
+    document.getElementById("sYear").textContent = p.year;
+  }
+
+  document.getElementById("lbClose").addEventListener("click", closeLightbox);
+  document.getElementById("lbClose").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); closeLightbox(); }
+  });
+  document.getElementById("lbPrev").addEventListener("click", function(){ step(-1); });
+  document.getElementById("lbNext").addEventListener("click", function(){ step(1); });
+  lb.addEventListener("click", function (e) { if (e.target === lb) closeLightbox(); });
+  document.addEventListener("keydown", function (e) {
+    if (!lb.classList.contains("open")) return;
+    if (e.key === "Escape") closeLightbox();
+    else if (e.key === "ArrowLeft") step(-1);
+    else if (e.key === "ArrowRight") step(1);
+  });
+
+  /* ---- odometer visitor counter ---- */
+  function renderOdometer(num) {
+    var box = document.getElementById("odometer");
+    box.innerHTML = "";
+    var s = String(num).padStart(6, "0"); // e.g. 014592
+    for (var i = 0; i < s.length; i++) {
+      // insert a comma every 3 from the right
+      var fromRight = s.length - i;
+      if (i > 0 && fromRight % 3 === 0) {
+        var comma = document.createElement("span");
+        comma.className = "odo-comma";
+        comma.textContent = ",";
+        box.appendChild(comma);
+      }
+      var d = document.createElement("span");
+      d.className = "odo-digit";
+      d.textContent = s.charAt(i);
+      box.appendChild(d);
+    }
+  }
+  // a believable, gently-incrementing number seeded by the date
+  var base = 14592;
+  var daysSince = Math.floor((Date.now() - Date.UTC(1996,5,14)) / 86400000);
+  var visitors = base + (daysSince % 9000); // stays comfortably under 6 digits-ish
+  renderOdometer(visitors);
+
+})();
+</script>
+</body>
+</html>

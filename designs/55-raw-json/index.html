@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GET /photos — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Tokyo-Night-ish refined editor palette */
+    --bg:#16161e;
+    --bg-editor:#1a1b26;
+    --bg-chrome:#1f2030;
+    --bg-statusbar:#16161e;
+    --bg-gutter:#1a1b26;
+    --border:#2a2c3d;
+    --border-soft:#23242f;
+    --fg:#c0caf5;
+    --fg-dim:#565f89;
+    --linenum:#3b4261;
+    --linenum-active:#737aa2;
+    /* syntax (all checked for contrast on #1a1b26) */
+    --tok-key:#7aa2f7;      /* keys - blue */
+    --tok-string:#9ece6a;   /* strings - green */
+    --tok-url:#73daca;      /* url string - teal, distinct */
+    --tok-number:#ff9e64;   /* numbers - orange */
+    --tok-bool:#bb9af7;     /* booleans - purple */
+    --tok-null:#f7768e;     /* null - red/pink */
+    --tok-punct:#89ddff;    /* punctuation - cyan */
+    --tok-brace:#a9b1d6;    /* braces/brackets */
+    --tok-comment:#565f89;  /* comments */
+    --accent:#7aa2f7;
+    --ok:#9ece6a;
+    --ok-bg:rgba(158,206,106,0.14);
+    --tl-red:#f7768e;
+    --tl-yellow:#e0af68;
+    --tl-green:#9ece6a;
+    --selection:rgba(122,162,247,0.22);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 20% -10%, #1d1f30 0%, transparent 60%),
+      var(--bg);
+    color:var(--fg);
+    font-family:'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    min-height:100vh;
+    padding:18px;
+    line-height:1.55;
+  }
+  ::selection{background:var(--selection);}
+
+  a.backlink{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'Inter', system-ui, sans-serif;
+    font-size:13px;
+    color:var(--fg-dim);
+    text-decoration:none;
+    padding:6px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:rgba(31,32,48,0.6);
+    margin-bottom:16px;
+    transition:color .18s ease, border-color .18s ease, background .18s ease;
+  }
+  a.backlink:hover, a.backlink:focus-visible{
+    color:var(--fg);
+    border-color:var(--accent);
+    background:rgba(122,162,247,0.10);
+    outline:none;
+  }
+
+  .wrap{
+    max-width:1040px;
+    margin:0 auto;
+  }
+
+  /* ---------- editor window ---------- */
+  .editor{
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    background:var(--bg-editor);
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02) inset;
+  }
+
+  /* title bar w/ traffic lights + tabs */
+  .titlebar{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:linear-gradient(180deg,#23243a 0%, var(--bg-chrome) 100%);
+    padding:0 14px;
+    border-bottom:1px solid var(--border);
+    height:42px;
+  }
+  .lights{display:flex; gap:8px; flex:0 0 auto;}
+  .light{width:12px;height:12px;border-radius:50%;}
+  .light.r{background:var(--tl-red);}
+  .light.y{background:var(--tl-yellow);}
+  .light.g{background:var(--tl-green);}
+  .tabs{display:flex; align-items:flex-end; height:100%; gap:2px; overflow:hidden;}
+  .tab{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    height:32px;
+    align-self:flex-end;
+    padding:0 14px;
+    font-size:12.5px;
+    color:var(--fg-dim);
+    border-top:2px solid transparent;
+    border-radius:6px 6px 0 0;
+    white-space:nowrap;
+  }
+  .tab.active{
+    color:var(--fg);
+    background:var(--bg-editor);
+    border-top:2px solid var(--accent);
+  }
+  .tab .dot{width:8px;height:8px;border-radius:50%;background:var(--tok-string);flex:0 0 auto;}
+  .tab .ext{color:var(--tok-key);}
+  .tab.muted{font-style:normal;}
+  .wintitle{
+    margin-left:auto;
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    color:var(--fg-dim);
+    flex:0 0 auto;
+    white-space:nowrap;
+  }
+  @media (max-width:640px){ .wintitle{display:none;} }
+
+  /* request / url bar */
+  .reqbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:10px 14px;
+    background:var(--bg-chrome);
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+  }
+  .method{
+    font-weight:700;
+    color:#1a1b26;
+    background:var(--tok-string);
+    padding:2px 9px;
+    border-radius:6px;
+    font-size:12px;
+    letter-spacing:.5px;
+    flex:0 0 auto;
+  }
+  .url{
+    color:var(--fg);
+    flex:1 1 220px;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .url .scheme{color:var(--fg-dim);}
+  .url .path{color:var(--tok-url);}
+  .url .q{color:var(--tok-number);}
+  .status-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    color:var(--ok);
+    background:var(--ok-bg);
+    border:1px solid rgba(158,206,106,0.35);
+    padding:3px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:500;
+    flex:0 0 auto;
+  }
+  .status-badge .pulse{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--ok);
+    box-shadow:0 0 0 0 rgba(158,206,106,0.6);
+    animation:pulse 2.2s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(158,206,106,0.5);}
+    70%{box-shadow:0 0 0 7px rgba(158,206,106,0);}
+    100%{box-shadow:0 0 0 0 rgba(158,206,106,0);}
+  }
+  .resp-meta{color:var(--fg-dim);font-size:12px;flex:0 0 auto;}
+  .resp-meta b{color:var(--tok-number);font-weight:500;}
+  @media (prefers-reduced-motion: reduce){ .status-badge .pulse{animation:none;} }
+
+  /* code body */
+  .codearea{
+    display:flex;
+    max-height:72vh;
+    overflow:auto;
+    background:var(--bg-editor);
+    font-size:13.5px;
+    scrollbar-width:thin;
+    scrollbar-color:#2a2c3d var(--bg-editor);
+  }
+  .codearea::-webkit-scrollbar{width:12px;height:12px;}
+  .codearea::-webkit-scrollbar-thumb{background:#2a2c3d;border-radius:8px;border:3px solid var(--bg-editor);}
+  .codearea::-webkit-scrollbar-track{background:transparent;}
+
+  .gutter{
+    flex:0 0 auto;
+    text-align:right;
+    padding:14px 12px 40px 14px;
+    color:var(--linenum);
+    background:var(--bg-gutter);
+    border-right:1px solid var(--border-soft);
+    user-select:none;
+    -webkit-user-select:none;
+    font-variant-numeric:tabular-nums;
+    line-height:1.55;
+    white-space:pre;
+  }
+  @media (max-width:540px){ .gutter{display:none;} }
+
+  .code{
+    flex:1 1 auto;
+    padding:14px 18px 44px 14px;
+    white-space:pre;
+    overflow-wrap:normal;
+    tab-size:2;
+    min-width:0;
+  }
+
+  /* token colours */
+  .t-key{color:var(--tok-key);}
+  .t-str{color:var(--tok-string);}
+  .t-num{color:var(--tok-number);}
+  .t-bool{color:var(--tok-bool);}
+  .t-null{color:var(--tok-null);}
+  .t-punct{color:var(--tok-punct);}
+  .t-brace{color:var(--tok-brace);}
+  .t-comment{color:var(--tok-comment);font-style:italic;}
+  .t-url{color:var(--tok-url);}
+
+  /* expandable url value */
+  .urlval{
+    color:var(--tok-url);
+    cursor:pointer;
+    border-bottom:1px dashed rgba(115,218,202,0.45);
+    border-radius:2px;
+    transition:background .15s ease;
+  }
+  .urlval:hover, .urlval:focus-visible{
+    background:rgba(115,218,202,0.10);
+    outline:none;
+  }
+  .urlval[aria-expanded="true"]{
+    background:rgba(115,218,202,0.10);
+  }
+
+  /* the inline image preview that pushes layout */
+  .preview{
+    display:block;
+    overflow:hidden;
+    height:0;
+    opacity:0;
+    transition:height .42s cubic-bezier(.22,.61,.36,1), opacity .3s ease;
+    will-change:height;
+  }
+  .preview.open{opacity:1;}
+  .preview-inner{
+    padding:10px 0 6px 0;
+    white-space:normal;
+  }
+  .preview figure{margin:0;display:inline-block;}
+  .preview img{
+    display:block;
+    width:280px;
+    max-width:100%;
+    height:auto;
+    border-radius:8px;
+    border:1px solid var(--border);
+    box-shadow:0 14px 30px -12px rgba(0,0,0,0.8);
+    background:#0d0e16;
+    /* Kodak Portra warm grade for colour photos */
+    filter:saturate(1.08) contrast(1.04) brightness(1.02) sepia(0.10) hue-rotate(-6deg);
+  }
+  .preview img.bw{
+    filter:grayscale(1) contrast(1.06) brightness(1.02);
+  }
+  .preview figcaption{
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    color:var(--fg-dim);
+    margin-top:6px;
+    max-width:280px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .preview{transition:none;}
+  }
+
+  /* collapse toggle */
+  .toggle{
+    cursor:pointer;
+    color:var(--fg-dim);
+    display:inline-block;
+    width:1ch;
+    text-align:center;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .toggle:hover{color:var(--accent);}
+  .collapsed-summary{color:var(--fg-dim);cursor:pointer;}
+  .collapsed-summary:hover{color:var(--fg);}
+
+  /* blinking cursor */
+  .cursor{
+    display:inline-block;
+    width:8px;
+    height:1.05em;
+    background:var(--accent);
+    margin-left:1px;
+    vertical-align:text-bottom;
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
+  .cursor.hidden{display:none;}
+
+  /* status bar */
+  .statusbar{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    background:var(--accent);
+    color:#16161e;
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:500;
+    padding:5px 14px;
+    flex-wrap:wrap;
+  }
+  .statusbar .sb-left{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+  .statusbar .sb-right{margin-left:auto;display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+  .statusbar .seg{display:inline-flex;align-items:center;gap:5px;opacity:.92;}
+  .statusbar .branch::before{content:"";}
+
+  .credit{
+    text-align:center;
+    margin:18px auto 6px;
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    color:var(--fg-dim);
+  }
+  .credit b{color:var(--fg);font-weight:600;}
+
+  /* noscript / pre-JS hint */
+  .hint{color:var(--tok-comment);font-style:italic;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="../../index.html" aria-label="Back to all designs">&larr; All designs</a>
+
+  <div class="editor" role="region" aria-label="API response viewer">
+    <!-- title bar -->
+    <div class="titlebar">
+      <div class="lights" aria-hidden="true">
+        <span class="light r"></span><span class="light y"></span><span class="light g"></span>
+      </div>
+      <div class="tabs">
+        <span class="tab active"><span class="dot"></span>photographs<span class="ext">.json</span></span>
+        <span class="tab muted">client<span class="ext">.http</span></span>
+      </div>
+      <div class="wintitle">~/portfolio/api &mdash; tom-milton</div>
+    </div>
+
+    <!-- request bar -->
+    <div class="reqbar">
+      <span class="method">GET</span>
+      <span class="url"><span class="scheme">https://api.tommilton.photo</span><span class="path">/v1/photographs</span><span class="q">?sort=year&amp;limit=30</span></span>
+      <span class="status-badge"><span class="pulse" aria-hidden="true"></span>200 OK</span>
+      <span class="resp-meta">in <b id="resp-time">142 ms</b></span>
+    </div>
+
+    <!-- code -->
+    <div class="codearea" id="codearea">
+      <div class="gutter" id="gutter" aria-hidden="true">1</div>
+      <div class="code" id="code"><span class="hint">// streaming response&hellip;</span></div>
+    </div>
+
+    <!-- status bar -->
+    <div class="statusbar">
+      <div class="sb-left">
+        <span class="seg branch" aria-label="git branch">&#x2387; main</span>
+        <span class="seg" id="problems">&#9888; 0 &nbsp; &#9432; 0</span>
+      </div>
+      <div class="sb-right">
+        <span class="seg" id="lncol">Ln 1, Col 1</span>
+        <span class="seg" id="filesize">&mdash; KB</span>
+        <span class="seg">Spaces: 2</span>
+        <span class="seg">UTF-8</span>
+        <span class="seg">LF</span>
+        <span class="seg">JSON</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="credit">Photographs by <b>Tom Milton</b> &middot; shot on film, served as JSON &middot; hover or tap any <span style="color:var(--tok-url)">"url"</span> to preview</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- data ----------
+  var PHOTOS = [
+    {file:"golden-field-sunburst.jpg",     title:"Last Light, Wheat Country",  location:"Tuscany, Italy",        film:"Kodak Portra 400",   camera:"Leica M6",        year:1998, bw:false, water:false},
+    {file:"landscape-misty-mountains.jpg", title:"Morning Fog, Cascades",      location:"Washington, USA",      film:"Fujifilm Pro 400H",  camera:"Pentax 67",       year:2001, bw:false, water:true},
+    {file:"lake-cabin-dawn.jpg",           title:"The Cabin at Dawn",          location:"Banff, Canada",        film:"Kodak Ektar 100",    camera:"Mamiya 7 II",     year:2003, bw:false, water:true},
+    {file:"forest-sunlight.jpg",           title:"Cathedral of Pines",         location:"Olympic NP, USA",      film:"Kodak Portra 160",   camera:"Hasselblad 500CM",year:1996, bw:false, water:false},
+    {file:"valley-green-river.jpg",        title:"River Bend, Spring",         location:"Glencoe, Scotland",    film:"Fujifilm Velvia 50", camera:"Nikon F3",        year:1999, bw:false, water:true},
+    {file:"cliff-coast-ocean.jpg",         title:"Edge of the World",          location:"Big Sur, USA",         film:"Kodak Portra 400",   camera:"Contax G2",       year:2002, bw:false, water:true},
+    {file:"mountain-road-fog.jpg",         title:"The Long Way Home",          location:"Dolomites, Italy",     film:"Cinestill 800T",     camera:"Canon AE-1",      year:2005, bw:false, water:false},
+    {file:"sun-through-leaves.jpg",        title:"Backlit",                    location:"Kyoto, Japan",         film:"Kodak Portra 800",   camera:"Leica M6",        year:2004, bw:false, water:false},
+    {file:"lake-mountain-house.jpg",       title:"Reflections, Still Morning", location:"Hallstatt, Austria",   film:"Kodak Ektar 100",    camera:"Mamiya RZ67",     year:2000, bw:false, water:true},
+    {file:"rolling-green-hills.jpg",       title:"Patchwork",                  location:"Tuscany, Italy",       film:"Fujifilm Pro 400H",  camera:"Pentax 645",      year:1997, bw:false, water:false},
+    {file:"forest-path-trees.jpg",         title:"Into the Woods",             location:"Black Forest, Germany",film:"Kodak Portra 160",   camera:"Rolleiflex 2.8F", year:1995, bw:false, water:false},
+    {file:"waterfall-bridge.jpg",          title:"Hidden Falls",               location:"Iceland",              film:"Fujifilm Velvia 50", camera:"Nikon FM2",       year:2006, bw:false, water:true},
+    {file:"autumn-forest-road.jpg",        title:"October Road",               location:"Vermont, USA",         film:"Kodak Portra 400",   camera:"Leica M7",        year:2007, bw:false, water:false},
+    {file:"desert-dunes.jpg",              title:"Wind Lines",                 location:"Namibia",              film:"Kodak Ektar 100",    camera:"Hasselblad 503CW",year:2008, bw:false, water:false},
+    {file:"misty-pine-forest.jpg",         title:"Silence",                    location:"Norway",               film:"Ilford HP5 Plus",    camera:"Leica M6",        year:2003, bw:true,  water:false},
+    {file:"succulent-closeup.jpg",         title:"Geometry of Growth",         location:"Studio",               film:"Kodak Portra 160",   camera:"Hasselblad 500CM",year:2009, bw:false, water:false},
+    {file:"foggy-pier-lake.jpg",           title:"The Quiet Dock",             location:"Lake District, UK",    film:"Cinestill 50D",      camera:"Contax T2",       year:2010, bw:false, water:true},
+    {file:"woman-portrait-window.jpg",     title:"By the Window",              location:"Lisbon, Portugal",     film:"Kodak Portra 400",   camera:"Pentax 67",       year:2011, bw:false, water:false},
+    {file:"man-portrait-street.jpg",       title:"Stranger, No. 14",           location:"Havana, Cuba",         film:"Kodak Tri-X 400",    camera:"Leica M4",        year:2012, bw:true,  water:false},
+    {file:"couple-silhouette-sunset.jpg",  title:"Goodnight",                  location:"Santorini, Greece",    film:"Kodak Portra 800",   camera:"Canon EOS-1V",    year:2013, bw:false, water:true},
+    {file:"woman-portrait-soft.jpg",       title:"Soft Hour",                  location:"Paris, France",        film:"Fujifilm Pro 400H",  camera:"Contax 645",      year:2014, bw:false, water:false},
+    {file:"woman-portrait-freckles.jpg",   title:"Freckles & Sun",             location:"Studio",               film:"Kodak Portra 160",   camera:"Mamiya 645",      year:2015, bw:false, water:false},
+    {file:"friends-golden-hour.jpg",       title:"Golden Hour, Together",      location:"California, USA",      film:"Kodak Portra 400",   camera:"Nikon F100",      year:2016, bw:false, water:false},
+    {file:"woman-curly-portrait.jpg",      title:"Curls",                      location:"Brooklyn, USA",        film:"Cinestill 800T",     camera:"Canon AE-1",      year:2017, bw:false, water:false},
+    {file:"man-bw-portrait.jpg",           title:"Portrait in Shadow",         location:"Berlin, Germany",      film:"Ilford Delta 3200",  camera:"Leica M6",        year:2018, bw:true,  water:false},
+    {file:"woman-fashion-portrait.jpg",    title:"The Red Wall",               location:"Marrakesh, Morocco",   film:"Kodak Portra 400",   camera:"Pentax 67",       year:2019, bw:false, water:false},
+    {file:"street-cafe-paris.jpg",         title:"Café de Flore",         location:"Paris, France",        film:"Kodak Gold 200",     camera:"Olympus OM-1",    year:2020, bw:false, water:false},
+    {file:"woman-laughing-portrait.jpg",   title:"That Laugh",                 location:"Mexico City, Mexico",  film:"Kodak Portra 800",   camera:"Contax G2",       year:2021, bw:false, water:false},
+    {file:"vintage-car-street.jpg",        title:"Sunday Drive",               location:"Havana, Cuba",         film:"Kodak Ektar 100",    camera:"Nikon FE",        year:2022, bw:false, water:false},
+    {file:"cozy-interior-window.jpg",      title:"Home Light",                 location:"Copenhagen, Denmark",  film:"Kodak Portra 400",   camera:"Leica M6",        year:2023, bw:false, water:false}
+  ];
+
+  var IMG_BASE = "../../assets/img/";
+  var codeEl = document.getElementById("code");
+  var gutterEl = document.getElementById("gutter");
+  var lncolEl = document.getElementById("lncol");
+  var filesizeEl = document.getElementById("filesize");
+  var respTimeEl = document.getElementById("resp-time");
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- helpers to build highlighted DOM ----------
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  function span(cls, text){
+    var s = document.createElement("span");
+    s.className = cls;
+    s.textContent = text;
+    return s;
+  }
+  function txt(s){ return document.createTextNode(s); }
+
+  // Build the full code DOM (hidden into a fragment), then we measure full text for typewriter.
+  // Strategy: build line objects -> array of {nodes:[...], plainLen}. Then stream by revealing
+  // characters progressively. To keep highlighting + interactivity, we build the real DOM up front
+  // and reveal it by clipping the visible plain-text length.
+
+  var IND = "  "; // 2 spaces
+
+  // We assemble an ordered list of "atoms": each atom is {node, text, interactive}
+  // The typewriter reveals atoms char by char by toggling visibility through a running counter.
+  var atoms = [];
+  function pushAtom(node, text){
+    atoms.push({node:node, len:text.length});
+  }
+  function addSpan(parent, cls, text){
+    var s = span(cls, text);
+    parent.appendChild(s);
+    pushAtom(s, text);
+    return s;
+  }
+  function addText(parent, text){
+    var n = txt(text);
+    parent.appendChild(n);
+    atoms.push({node:n, len:text.length});
+    return n;
+  }
+
+  // root line container
+  var root = document.createElement("div");
+
+  function line(indentLevel){
+    var ln = document.createElement("div");
+    ln.className = "ln";
+    if(indentLevel>0){ addText(ln, repeat(IND, indentLevel)); }
+    root.appendChild(ln);
+    return ln;
+  }
+  function repeat(s,n){ var o=""; while(n-->0)o+=s; return o; }
+
+  // Build: a top comment, then array
+  var c0 = line(0);
+  addSpan(c0, "t-comment", "// GET /v1/photographs → 200 OK");
+  var c1 = line(0);
+  addSpan(c1, "t-comment", "// hint: hover or tap a \"url\" value to preview the photograph");
+
+  // opening bracket
+  var lOpen = line(0);
+  addSpan(lOpen, "t-brace", "[");
+
+  var objCount = PHOTOS.length;
+
+  PHOTOS.forEach(function(p, idx){
+    buildObject(p, idx, idx < objCount-1);
+  });
+
+  // closing bracket
+  var lClose = line(0);
+  addSpan(lClose, "t-brace", "]");
+
+  function kv(level, key, valueBuilder, trailingComma){
+    var ln = line(level);
+    addSpan(ln, "t-punct", "\"");
+    addSpan(ln, "t-key", key);
+    addSpan(ln, "t-punct", "\"");
+    addSpan(ln, "t-punct", ": ");
+    valueBuilder(ln);
+    if(trailingComma) addSpan(ln, "t-punct", ",");
+  }
+
+  function strVal(ln, s){
+    addSpan(ln, "t-punct", "\"");
+    addSpan(ln, "t-str", s);
+    addSpan(ln, "t-punct", "\"");
+  }
+  function numVal(ln, n){ addSpan(ln, "t-num", String(n)); }
+  function boolVal(ln, b){ addSpan(ln, "t-bool", b?"true":"false"); }
+
+  function buildObject(p, idx, comma){
+    // opening line with collapse toggle:  {
+    var openLn = line(1);
+    var toggle = document.createElement("span");
+    toggle.className = "toggle";
+    toggle.textContent = "▾"; // ▾
+    toggle.setAttribute("role","button");
+    toggle.setAttribute("tabindex","0");
+    toggle.setAttribute("aria-expanded","true");
+    toggle.setAttribute("aria-label","Collapse photo object "+(idx+1));
+    openLn.appendChild(toggle);
+    atoms.push({node:toggle, len:1});
+    addSpan(openLn, "t-brace", "{");
+
+    // collapsed summary placeholder (hidden by default)
+    var summary = span("collapsed-summary", " … ");
+    summary.style.display = "none";
+    summary.setAttribute("aria-hidden","true");
+    openLn.appendChild(summary);
+    // not part of atoms (revealed-only state managed separately)
+
+    // body lines container so we can hide on collapse
+    var body = document.createElement("div");
+    body.className = "obj-body";
+    root.appendChild(body); // will hold the inner lines
+    // We need inner lines appended to body, but our line() appends to root.
+    // Temporarily redirect.
+    var savedRoot = root;
+    root = body;
+
+    var id = "PH-" + String(p.year) + "-" + String(idx+1).padStart(3,"0");
+
+    kv(2, "id",       function(l){ strVal(l, id); }, true);
+    kv(2, "title",    function(l){ strVal(l, p.title); }, true);
+    kv(2, "location", function(l){ strVal(l, p.location); }, true);
+    kv(2, "film",     function(l){ strVal(l, p.film); }, true);
+    kv(2, "camera",   function(l){ strVal(l, p.camera); }, true);
+    kv(2, "year",     function(l){ numVal(l, p.year); }, true);
+    kv(2, "bw",       function(l){ boolVal(l, p.bw); }, true);
+
+    // url - interactive expandable value (last key, no comma)
+    var urlLn = line(2);
+    addSpan(urlLn, "t-punct", "\"");
+    addSpan(urlLn, "t-key", "url");
+    addSpan(urlLn, "t-punct", "\"");
+    addSpan(urlLn, "t-punct", ": ");
+    addSpan(urlLn, "t-punct", "\"");
+    var urlStr = "/img/" + p.file;
+    var urlSpan = document.createElement("span");
+    urlSpan.className = "urlval";
+    urlSpan.textContent = urlStr;
+    urlSpan.setAttribute("role","button");
+    urlSpan.setAttribute("tabindex","0");
+    urlSpan.setAttribute("aria-expanded","false");
+    urlSpan.setAttribute("aria-label","Preview photograph: "+p.title);
+    urlLn.appendChild(urlSpan);
+    atoms.push({node:urlSpan, len:urlStr.length});
+    addSpan(urlLn, "t-punct", "\"");
+
+    // preview container (sits after the url line, pushes layout)
+    var preview = document.createElement("div");
+    preview.className = "preview";
+    var inner = document.createElement("div");
+    inner.className = "preview-inner";
+    inner.appendChild(txt(repeat(IND,3)));
+    var fig = document.createElement("figure");
+    var img = document.createElement("img");
+    img.alt = p.title;
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.width = 280;
+    if(p.bw) img.className = "bw";
+    img.dataset.src = IMG_BASE + p.file;
+    fig.appendChild(img);
+    var cap = document.createElement("figcaption");
+    cap.textContent = p.title + " — " + p.location + " · " + p.film;
+    fig.appendChild(cap);
+    inner.appendChild(fig);
+    preview.appendChild(inner);
+    urlLn.appendChild(preview); // preview lives inside the url line block but displays block
+
+    // restore root, then add closing brace line
+    root = savedRoot;
+    var closeLn = line(1);
+    addSpan(closeLn, "t-brace", "}");
+    if(comma) addSpan(closeLn, "t-punct", ",");
+
+    // wire interactions
+    wireUrl(urlSpan, preview, img);
+    wireToggle(toggle, body, summary, urlSpan);
+  }
+
+  // ---------- interactions ----------
+  function ensureImg(img){
+    if(img.dataset.src && !img.src){
+      img.src = img.dataset.src;
+    }
+  }
+
+  function openPreview(preview, img){
+    ensureImg(img);
+    preview.classList.add("open");
+    if(reduceMotion){
+      preview.style.height = "auto";
+      return;
+    }
+    // measure
+    var inner = preview.firstChild;
+    preview.style.height = "auto";
+    var target = inner.offsetHeight;
+    preview.style.height = "0px";
+    // force reflow
+    void preview.offsetHeight;
+    preview.style.height = target + "px";
+    var done = function(){
+      if(preview.classList.contains("open")){
+        preview.style.height = "auto";
+      }
+      preview.removeEventListener("transitionend", done);
+    };
+    preview.addEventListener("transitionend", done);
+  }
+  function closePreview(preview){
+    if(reduceMotion){
+      preview.classList.remove("open");
+      preview.style.height = "0px";
+      return;
+    }
+    var cur = preview.offsetHeight;
+    preview.style.height = cur + "px";
+    void preview.offsetHeight;
+    preview.classList.remove("open");
+    preview.style.height = "0px";
+  }
+
+  function wireUrl(urlSpan, preview, img){
+    var open = false;
+    var hoverOpen = false;
+
+    function setOpen(state){
+      if(state === open) return;
+      open = state;
+      urlSpan.setAttribute("aria-expanded", state?"true":"false");
+      if(state) openPreview(preview, img);
+      else closePreview(preview);
+    }
+
+    // click / tap toggles (sticky)
+    urlSpan.addEventListener("click", function(e){
+      e.preventDefault();
+      setOpen(!open);
+    });
+    urlSpan.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        setOpen(!open);
+      }
+    });
+
+    // hover preview (desktop, pointer:fine) — only if not stuck open by click
+    if(window.matchMedia && window.matchMedia("(hover:hover) and (pointer:fine)").matches){
+      urlSpan.addEventListener("pointerenter", function(){
+        if(!open){ hoverOpen = true; openPreview(preview, img); urlSpan.setAttribute("aria-expanded","true"); }
+      });
+      urlSpan.addEventListener("pointerleave", function(){
+        if(hoverOpen && !open){ hoverOpen=false; closePreview(preview); urlSpan.setAttribute("aria-expanded","false"); }
+      });
+    }
+  }
+
+  function wireToggle(toggle, body, summary, urlSpan){
+    var collapsed = false;
+    function setCollapsed(state){
+      collapsed = state;
+      toggle.textContent = state ? "▸" : "▾"; // ▸ / ▾
+      toggle.setAttribute("aria-expanded", state?"false":"true");
+      body.style.display = state ? "none" : "";
+      summary.style.display = state ? "inline" : "none";
+    }
+    toggle.addEventListener("click", function(e){ e.stopPropagation(); setCollapsed(!collapsed); });
+    summary.addEventListener("click", function(e){ e.stopPropagation(); setCollapsed(false); });
+    toggle.addEventListener("keydown", function(e){
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setCollapsed(!collapsed); }
+    });
+  }
+
+  // ---------- mount + gutter + status ----------
+  codeEl.innerHTML = "";
+  codeEl.appendChild(root);
+
+  function updateGutter(){
+    var lines = root.querySelectorAll(".ln");
+    // count rendered lines (including those in bodies). Build gutter to match visual line count.
+    var n = root.querySelectorAll(".ln").length;
+    var buf = [];
+    for(var i=1;i<=n;i++) buf.push(i);
+    gutterEl.textContent = buf.join("\n");
+  }
+  updateGutter();
+
+  // approximate file size from total chars
+  var totalChars = 0;
+  atoms.forEach(function(a){ totalChars += a.len; });
+  var kb = (totalChars/1024);
+  filesizeEl.textContent = (kb<1?(Math.round(totalChars))+" B":(kb.toFixed(1)+" KB"));
+  respTimeEl.textContent = (90 + Math.floor(Math.random()*80)) + " ms";
+
+  // ---------- typewriter streaming ----------
+  // We reveal atoms progressively. To create the "streaming text" feel without
+  // reflowing huge DOM each frame, we hide all atoms via a clip: set each atom node
+  // hidden initially, reveal as the running char-count passes its boundary, and for
+  // the atom currently being revealed, show a partial substring.
+
+  var cursor = document.createElement("span");
+  cursor.className = "cursor";
+
+  // store original text for partial reveal
+  atoms.forEach(function(a){
+    if(a.node.nodeType === 3){ // text node
+      a.full = a.node.textContent;
+    } else {
+      a.full = a.node.textContent;
+    }
+  });
+
+  function hideAll(){
+    atoms.forEach(function(a){
+      if(a.node.nodeType === 3){ a.node.textContent = ""; }
+      else { a.node.textContent = ""; a.node.style.display = "none"; }
+    });
+  }
+
+  function revealAll(){
+    atoms.forEach(function(a){
+      if(a.node.nodeType === 3){ a.node.textContent = a.full; }
+      else { a.node.textContent = a.full; a.node.style.display = ""; }
+    });
+  }
+
+  if(reduceMotion){
+    revealAll();
+    updateGutter();
+    finalizeStatus();
+  } else {
+    runStream();
+  }
+
+  function finalizeStatus(){
+    lncolEl.textContent = "Ln " + root.querySelectorAll(".ln").length + ", Col 1";
+  }
+
+  function runStream(){
+    hideAll();
+    var ai = 0;          // atom index
+    var ci = 0;          // char index within current atom
+    var charsPerFrame;   // tuned for ~medium speed
+    var startTime = null;
+    var paused = false;
+
+    // place cursor at start
+    if(atoms.length){ insertCursorBefore(atoms[0].node); }
+
+    function insertCursorBefore(node){
+      if(cursor.parentNode) cursor.parentNode.removeChild(cursor);
+      // for text nodes, insert cursor as sibling after the (empty) text node's parent position
+      if(node.nodeType === 3){
+        if(node.parentNode) node.parentNode.insertBefore(cursor, node.nextSibling);
+      } else {
+        if(node.parentNode) node.parentNode.insertBefore(cursor, node.nextSibling);
+      }
+    }
+
+    document.addEventListener("visibilitychange", function(){
+      paused = document.hidden;
+      if(!paused && running) requestAnimationFrame(step);
+    });
+
+    var running = true;
+    var lastTs = 0;
+
+    function step(ts){
+      if(!running) return;
+      if(document.hidden){ paused = true; return; }
+      if(!lastTs) lastTs = ts;
+      var dt = ts - lastTs;
+      lastTs = ts;
+
+      // medium speed: ~ 9 atoms-or-chunks worth per frame, scaled by dt
+      var budget = Math.max(1, Math.round((dt/16.7) * 9));
+
+      while(budget-- > 0 && ai < atoms.length){
+        var a = atoms[ai];
+        if(a.node.nodeType === 3){
+          // text node (indentation/commas etc) — reveal whole at once
+          a.node.textContent = a.full;
+          ai++; ci=0;
+          if(ai < atoms.length) insertCursorBefore(atoms[ai].node);
+          continue;
+        }
+        // element span: ensure visible
+        if(a.node.style.display === "none") a.node.style.display = "";
+        // reveal one char
+        ci++;
+        a.node.textContent = a.full.slice(0, ci);
+        if(ci >= a.full.length){
+          ai++; ci=0;
+          if(ai < atoms.length) insertCursorBefore(atoms[ai].node);
+        }
+      }
+
+      if(ai < atoms.length){
+        requestAnimationFrame(step);
+      } else {
+        running = false;
+        // finished
+        if(cursor.parentNode) cursor.parentNode.removeChild(cursor);
+        finalizeStatus();
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  // live Ln/Col update on click within code
+  codeEl.addEventListener("click", function(e){
+    var lnNode = e.target.closest ? e.target.closest(".ln") : null;
+    if(lnNode){
+      var all = Array.prototype.indexOf.call(root.querySelectorAll(".ln"), lnNode);
+      if(all>=0) lncolEl.textContent = "Ln " + (all+1) + ", Col 1";
+    }
+  });
+
+})();
+</script>
+</body>
+</html>

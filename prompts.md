@@ -70,3 +70,28 @@ A running record of every prompt given for this project, in order, so we can tra
 - Regenerated all thumbnails over http (so the WebGL/canvas designs capture truthfully) and rebuilt the hub `index.html` into two sections — "Twenty-five still designs" and "Ten that move" (interactive cards carry a pulsing badge). Hero now reads "Thirty-five ways".
 
 **Commit:** [`d741559`](https://github.com/tsmiltonAgents/20260628_photosite/commit/d741559) — "Add a Motion wing: 10 boundary-pushing interactive designs (26-35)"
+
+---
+
+## Prompt 4 — 2026-06-28
+
+> actually i want another 50 but the styles i like so far are: The contact sheet. No, sorry, not the contact sheet. I don't like that. The Portra a bit, index a bit. Film/index, grain, Mar. Negatives, I think, is kind of fun having that. I'd like you to further explore that design 20, which is Bauhaus, and that's kind of it. What I want you to do is explore another 50 different design ideas with different levels of animation and involvement. Also, reflections are kind of fun, but only because of the weirdness. It's not actually cool, but for some photos it could be sick, but only when they actually have water in. Just come up with loads and loads and loads and loads and loads of ideas.
+
+**Read of the taste signals:** likes Portra, Index (Swiss), Film/Index (brutalist), Grain (riso), Ma (Japanese-minimal), Negatives (analog), Bauhaus (#20 — wants it explored deeply), and the water Reflection effect *but only on photos that actually contain water*. Dislikes the contact sheet.
+
+**What I built — 50 new designs (36–85), leaning hard into those families, with a deliberate range of animation/involvement:**
+- **Swiss / Type / Editorial (36–43):** Grid System, Akzidenz, Specimen, Datasheet, Counterpoint (Portra evolved), Lateral (horizontal scroll), Ledger, Colour Field.
+- **Bauhaus / Geometric (44–51):** Bauhaus Machine (drag shapes that mask photos), De Stijl, Red Wedge (constructivist), Suprematist, Aperture (geometric reveals), Memphis, Composition (Kandinsky network), Futura posters.
+- **Brutalist / Raw / Code (52–57):** Finder (faux desktop OS), index.html 1996, Wireframe, GET /photos (JSON), Manifesto, Dot Matrix.
+- **Riso / Print (58–63):** Press (teal/orange), Gig Poster, Cyanotype, Misregister (CMYK pull-apart), Flipbook (3D page-turn), Overprint (ink separations).
+- **Japanese / Ma (64–69):** Yohaku (ink-wash), Shōji (sliding screens), Ensō (self-drawing brush circles), Hanging Scroll, Kintsugi (gold seams), Notan.
+- **Analog Film (70–75):** Carousel (slide projector), Light Table, 120 Roll, Develop (negative→positive on scroll), Double Exposure, Enlarger (dial in the print).
+- **Weird / Context-aware (76–81):** **Still Water** — the requested idea: the rippling reflection applied *only* to water photos, calm frames for the rest — plus Drying Line, Gravity, Magnetic type, Liquid, Focus Plane.
+- **Experimental / Generative (82–85):** Timeline scrubber, Atlas (map + route), Spectrum (colour-sort with FLIP), Generative grid.
+
+**Engineering notes:**
+- Built by ~18 parallel agents, then validated every page over `http://localhost` (true same-origin, so WebGL behaves as deployed): **0 JS errors, 0 broken images** across all 50.
+- Found and fixed **Liquid (80)**: it spun up ~30 WebGL contexts (browsers evict beyond ~16) which blanked most tiles — capped live contexts to 12 with a guaranteed `<img>` fallback so every photo shows.
+- Regenerated thumbnails over http and rebuilt the hub into **three sections** — "Twenty-five still", "Ten that move", and "Fifty more explorations" (interactive cards badged). Hero now reads "Eighty-five ways"; 36 interactive in total.
+
+**Commit:** [`PENDING`](https://github.com/tsmiltonAgents/20260628_photosite) — recorded below after commit.

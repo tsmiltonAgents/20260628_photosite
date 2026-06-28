@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Counterpoint — Tom Milton, Photographs</title>
+<meta name="description" content="Counterpoint — a literary portfolio of the film photographs of Tom Milton. Elegant prose in a wide reading column, film data noted in the margins.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f5efe4;
+    --paper-2:#efe7d8;
+    --ink:#241f1a;
+    --ink-70:#52483d;
+    --ink-45:#8a7e6f;
+    --rule:#d8cdb8;
+    --accent:#9c4b2e;     /* warm terracotta */
+    --accent-2:#7a6a3a;
+    --read:64ch;
+    --marg:clamp(150px,18vw,23ch);
+    --gap:clamp(26px,4vw,72px);
+    --pad:clamp(22px,6vw,88px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Spectral',Georgia,serif;
+    font-size:clamp(17px,1.15vw,19px);
+    line-height:1.72;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:2;
+    background:radial-gradient(120% 80% at 50% 0%, rgba(255,250,240,.5), transparent 60%);
+    mix-blend-mode:soft-light;
+  }
+  a{color:inherit}
+  img{display:block;max-width:100%}
+  ::selection{background:rgba(156,75,46,.18)}
+
+  .mono{font-family:'Space Mono',monospace}
+
+  /* ---- top bar ---- */
+  .topbar{
+    position:sticky;top:0;z-index:10;
+    display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+    padding:16px var(--pad);
+    background:linear-gradient(var(--paper),rgba(245,239,228,.85));
+    backdrop-filter:blur(4px);
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-45);
+  }
+  .topbar a{text-decoration:none;color:var(--ink-70);transition:color .2s}
+  .topbar a:hover{color:var(--accent)}
+  .topbar .dot{color:var(--accent)}
+
+  .frame{max-width:1240px;margin:0 auto;padding:0 var(--pad)}
+
+  /* ---- masthead ---- */
+  .mast{padding:clamp(60px,13vh,150px) 0 clamp(40px,8vh,90px);border-bottom:1px solid var(--rule)}
+  .mast .kicker{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);margin-bottom:26px}
+  .mast h1{
+    font-family:'Fraunces',serif;font-optical-sizing:auto;
+    font-weight:340;font-size:clamp(52px,12vw,148px);line-height:.92;letter-spacing:-.018em;
+    font-variation-settings:"opsz" 144;
+  }
+  .mast h1 em{font-style:italic;font-weight:340;color:var(--accent)}
+  .mast .deck{
+    margin-top:34px;max-width:54ch;font-size:clamp(19px,1.5vw,23px);line-height:1.6;color:var(--ink-70);
+    font-weight:300;
+  }
+  .mast .byline{margin-top:38px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-45);display:flex;gap:28px;flex-wrap:wrap}
+
+  /* ---- couplet: prose + margin note ---- */
+  article{padding:clamp(40px,7vh,84px) 0 0}
+  .couplet{
+    display:grid;
+    grid-template-columns:minmax(0,var(--read)) var(--marg);
+    gap:var(--gap);
+    align-items:start;
+    margin:0 auto clamp(20px,3vh,30px);
+    max-width:calc(var(--read) + var(--marg) + var(--gap));
+  }
+  .couplet .prose>*+*{margin-top:1.05em}
+  .couplet .prose p{hyphens:auto}
+  .lead{text-indent:0}
+  .lead::first-letter{
+    font-family:'Fraunces',serif;font-weight:400;float:left;
+    font-size:3.5em;line-height:.78;padding:.04em .09em 0 0;color:var(--accent);
+  }
+  .note{
+    font-family:'Space Mono',monospace;font-size:11.5px;line-height:1.65;
+    color:var(--ink-45);letter-spacing:.01em;
+    border-top:1px solid var(--rule);padding-top:10px;
+  }
+  .note b{color:var(--ink-70);font-weight:700;display:block;letter-spacing:.06em;text-transform:uppercase;font-size:10.5px;margin-bottom:6px}
+  .note .k{color:var(--accent-2)}
+  .note .ts{display:block;margin-top:8px;color:var(--ink-45)}
+
+  /* ---- section opener ---- */
+  .opener{
+    max-width:calc(var(--read) + var(--marg) + var(--gap));
+    margin:clamp(60px,11vh,130px) auto clamp(30px,5vh,60px);
+    border-top:1px solid var(--ink);padding-top:22px;
+  }
+  .opener .nm{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);display:flex;justify-content:space-between}
+  .opener h2{
+    font-family:'Fraunces',serif;font-weight:330;font-variation-settings:"opsz" 144;
+    font-size:clamp(40px,8.5vw,104px);line-height:.95;letter-spacing:-.02em;margin-top:14px;
+  }
+  .opener h2 em{font-style:italic;color:var(--accent)}
+  .opener .sub{margin-top:18px;max-width:48ch;color:var(--ink-70);font-weight:300;font-size:clamp(18px,1.4vw,21px)}
+
+  /* ---- figures ---- */
+  figure{margin:clamp(26px,4vh,46px) auto}
+  figure img{
+    width:100%;height:auto;border-radius:1px;
+    box-shadow:0 1px 0 rgba(0,0,0,.04),0 24px 50px -34px rgba(40,30,18,.5);
+    filter:sepia(.16) saturate(1.07) contrast(.96) brightness(1.03);
+  }
+  figure img.bw{filter:grayscale(1) contrast(1.05) brightness(1.0)}
+  figure figcaption{
+    display:grid;grid-template-columns:1fr auto;gap:14px;align-items:baseline;
+    margin-top:12px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.04em;
+    color:var(--ink-45);text-transform:uppercase;border-top:1px solid var(--rule);padding-top:8px;
+  }
+  figure figcaption .ti{color:var(--ink-70)}
+  figure figcaption .ti em{font-family:'Spectral',serif;text-transform:none;font-style:italic;font-size:14px;letter-spacing:0;color:var(--ink);margin-right:8px}
+  .fig-wide{max-width:1100px}
+  .fig-read{max-width:calc(var(--read) + var(--marg) + var(--gap))}
+  .fig-inset{max-width:var(--read)}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,2vw,26px);max-width:1100px;margin-left:auto;margin-right:auto}
+  .duo figure{margin:0}
+
+  .pull{
+    max-width:calc(var(--read) + var(--marg) + var(--gap));margin:clamp(40px,6vh,72px) auto;
+    font-family:'Fraunces',serif;font-weight:330;font-style:italic;font-variation-settings:"opsz" 96;
+    font-size:clamp(26px,3.6vw,44px);line-height:1.18;letter-spacing:-.01em;color:var(--ink);
+    border-left:2px solid var(--accent);padding-left:clamp(20px,3vw,40px);
+  }
+
+  /* ---- colophon ---- */
+  .colophon{
+    border-top:1px solid var(--ink);margin:clamp(70px,12vh,140px) auto 90px;
+    max-width:calc(var(--read) + var(--marg) + var(--gap));padding-top:26px;
+    display:grid;grid-template-columns:minmax(0,var(--read)) var(--marg);gap:var(--gap);
+  }
+  .colophon p{font-size:15px;color:var(--ink-70);line-height:1.7}
+  .colophon .meta{font-family:'Space Mono',monospace;font-size:11px;line-height:1.9;color:var(--ink-45);text-transform:uppercase;letter-spacing:.06em}
+
+  /* ---- reveal ---- */
+  .rev{opacity:0;transform:translateY(18px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
+  .rev.vis{opacity:1;transform:none}
+
+  @media(max-width:820px){
+    .couplet{grid-template-columns:1fr}
+    .note{border-top:1px solid var(--rule);margin-top:4px}
+    .colophon{grid-template-columns:1fr}
+    figure figcaption{grid-template-columns:1fr}
+    .duo{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    .rev{opacity:1;transform:none;transition:none}
+  }
+</style>
+</head>
+<body>
+  <nav class="topbar" aria-label="Navigation">
+    <a href="../../index.html">&larr; All designs</a>
+    <span>Counterpoint <span class="dot">·</span> a portfolio in prose</span>
+    <span class="mono">TOM MILTON</span>
+  </nav>
+
+  <header class="frame mast">
+    <div class="kicker">Photographs &amp; field notes · 1995–2023</div>
+    <h1>Counter&shy;point<em>.</em></h1>
+    <p class="deck">Twenty-eight years of film, gathered as an essay. The reading runs in one column; the camera keeps its own notes in the other — emulsion, body, the hour the shutter fell.</p>
+    <div class="byline"><span>Words &amp; pictures — Tom Milton</span><span>Set in Fraunces &amp; Spectral</span></div>
+  </header>
+
+  <article class="frame">
+
+    <!-- I — LIGHT -->
+    <section class="opener rev">
+      <div class="nm"><span>Chapter I</span><span>Light</span></div>
+      <h2>On the <em>discipline</em><br>of waiting</h2>
+      <p class="sub">A landscape is mostly patience. The frame is decided long before the light arrives to fill it.</p>
+    </section>
+
+    <div class="couplet rev">
+      <div class="prose">
+        <p class="lead">There is a particular hour in wheat country when the field stops being green and becomes, for perhaps four minutes, the colour of a struck match. I had been standing in the same furrow since mid-afternoon, the Leica cold against my sternum, doing the only work a landscape photographer truly does, which is nothing — and doing it precisely. The exposure was settled. The composition was settled. What remained was to wait for the sun to lower itself the last few degrees and set the whole hillside alight.</p>
+        <p>Portra forgives a great deal, but it does not forgive impatience. The film holds a highlight the way a good listener holds a pause, and so I let the meter sit a third of a stop hot and trusted the negative to draw the rest back. When the light came it came all at once, the way it always does, and I made four frames before it was gone.</p>
+      </div>
+      <aside class="note">
+        <b>Frame 01</b>
+        Last Light, Wheat Country<br>
+        <span class="k">Tuscany, Italy</span> — 1998<br>
+        Leica M6 · 50mm<br>
+        Kodak Portra 400<br>
+        <span class="ts">f/8 · 1/250s · +0.3 EV<br>18:42, low sun</span>
+      </aside>
+    </div>
+
+    <figure class="fig-read rev">
+      <img src="../../assets/img/golden-field-sunburst.jpg" alt="A wheat field in Tuscany set alight by a low sun, the sky bursting gold behind a distant tree line." loading="lazy" decoding="async">
+      <figcaption><span class="ti"><em>Last Light, Wheat Country</em> Tuscany, Italy</span><span>Portra 400 · M6</span></figcaption>
+    </figure>
+
+    <div class="couplet rev">
+      <div class="prose">
+        <p>In the old growth of the Olympic peninsula the light works differently — it does not arrive, it filters, descending through two hundred feet of canopy until it reaches the floor already softened and impossibly green. You do not wait for that light. You wait for the wind to stop, so that the long exposure can hold the ferns still. The Hasselblad makes you slow regardless; the waist-level finder turns the forest upside down and asks you to compose a world inverted, which is, I have come to think, the correct relationship between a photographer and a forest.</p>
+      </div>
+      <aside class="note">
+        <b>Frame 02</b>
+        Cathedral of Pines<br>
+        <span class="k">Olympic NP, USA</span> — 1996<br>
+        Hasselblad 500CM · 80mm<br>
+        Kodak Portra 160<br>
+        <span class="ts">f/16 · 1/30s · −0.7 EV<br>11:10, overcast</span>
+      </aside>
+    </div>
+
+    <div class="duo rev">
+      <figure>
+        <img src="../../assets/img/forest-sunlight.jpg" alt="Shafts of soft daylight falling through a tall stand of pines onto a green forest floor." loading="lazy" decoding="async">
+        <figcaption><span class="ti"><em>Cathedral of Pines</em></span><span>Portra 160</span></figcaption>
+      </figure>
+      <figure>
+        <img src="../../assets/img/sun-through-leaves.jpg" alt="Sunlight glowing through translucent green leaves, backlit in Kyoto." loading="lazy" decoding="async">
+        <figcaption><span class="ti"><em>Backlit</em> · Kyoto</span><span>Portra 800</span></figcaption>
+      </figure>
+    </div>
+
+    <blockquote class="pull rev">“The exposure was settled, the composition was settled. What remained was to wait — and to do nothing, precisely.”</blockquote>
+
+    <!-- II — WATER -->
+    <section class="opener rev">
+      <div class="nm"><span>Chapter II</span><span>Water</span></div>
+      <h2>Everything that<br><em>reflects</em></h2>
+      <p class="sub">Water is the most patient teacher of exposure. It asks nothing of you, which means the photograph is entirely your responsibility.</p>
+    </section>
+
+    <div class="couplet rev">
+      <div class="prose">
+        <p class="lead">At Hallstatt the lake holds the village twice — once standing and once dissolved, the second a little softer than the first, as memory tends to be. I set the RZ67 on the tripod before dawn and metered for the reflection rather than the houses, because the reflection is where the photograph actually lives. Ektar is a saturated, literal film, and it renders that doubled world without sentiment; the sentiment, if there is to be any, has to be yours.</p>
+        <p>I have made a quiet career out of standing at the edges of cold water before the rest of the world is awake. Big Sur, the Lake District, the falls in Iceland that run all day and ask nothing of anyone — each one taught the same lesson, which is that the surface is never the subject. The subject is what the surface agrees, for a moment, to show you.</p>
+      </div>
+      <aside class="note">
+        <b>Frame 03</b>
+        Reflections, Still Morning<br>
+        <span class="k">Hallstatt, Austria</span> — 2000<br>
+        Mamiya RZ67 · 110mm<br>
+        Kodak Ektar 100<br>
+        <span class="ts">f/11 · 1/60s · +0.3 EV<br>06:05, dead calm</span>
+      </aside>
+    </div>
+
+    <figure class="fig-wide rev">
+      <img src="../../assets/img/lake-mountain-house.jpg" alt="A village reflected perfectly in the still water of Lake Hallstatt at dawn, mountains rising behind." loading="lazy" decoding="async">
+      <figcaption><span class="ti"><em>Reflections, Still Morning</em> Hallstatt, Austria</span><span>Ektar 100 · RZ67 · 2000</span></figcaption>
+    </figure>
+
+    <div class="couplet rev">
+      <div class="prose">
+        <p>The falls in Iceland were the opposite problem. Where the lake demanded stillness, the water there demanded a decision about time itself. A quarter of a second draws the spray into one continuous white gesture; a thousandth freezes every separate drop into something brittle and untrue. Velvia, unforgiving and saturated to the very edge of honesty, rewards only the photographer who has already made every other choice correctly. I metered for the spray, let the slow film do the rest, and walked back across the bridge wet to the knees.</p>
+      </div>
+      <aside class="note">
+        <b>Frame 04</b>
+        Hidden Falls<br>
+        <span class="k">Iceland</span> — 2006<br>
+        Nikon FM2 · 24mm<br>
+        Fujifilm Velvia 50<br>
+        <span class="ts">f/16 · 1/4s · −1.0 EV<br>spray, tripod</span>
+      </aside>
+    </div>
+
+    <div class="duo rev">
+      <figure>
+        <img src="../../assets/img/waterfall-bridge.jpg" alt="A waterfall in Iceland softened to a continuous white by a slow shutter, a small bridge crossing in front." loading="lazy" decoding="async">
+        <figcaption><span class="ti"><em>Hidden Falls</em> · Iceland</span><span>Velvia 50</span></figcaption>
+      </figure>
+      <figure>
+        <img src="../../assets/img/cliff-coast-ocean.jpg" alt="A dramatic coastline at Big Sur where green cliffs meet the open ocean." loading="lazy" decoding="async">
+        <figcaption><span class="ti"><em>Edge of the World</em> · Big Sur</span><span>Portra 400</span></figcaption>
+      </figure>
+    </div>
+
+    <!-- III — PEOPLE -->
+    <section class="opener rev">
+      <div class="nm"><span>Chapter III</span><span>People</span></div>
+      <h2>A little warmer<br>than the <em>truth</em></h2>
+      <p class="sub">I have never wanted my portraits to be accurate. I have wanted them to be fair.</p>
+    </section>
+
+    <div class="couplet rev">
+      <div class="prose">
+        <p class="lead">The window is the portraitist's oldest collaborator and the most reliable. In Lisbon a woman sat in the soft fall of north light from a tall casement, and the Pentax — that same deliberate weight I carry into forests — slowed the encounter to the pace of a conversation. There is no hurrying a 67; you load ten frames and you spend them like coins. Portra renders skin the way memory does, a little warmer than the truth, forgiving in the highlights, kind.</p>
+        <p>Not every portrait is made in kindness, and not every face wants to be made warm. In Havana an older man held my eye for the length of a single frame of Tri-X — no softening, no second chance, the grain rising in the shadow of his cheek like weather. Monochrome tells the truth the colour film politely declines to. I left that negative exactly as it was exposed.</p>
+      </div>
+      <aside class="note">
+        <b>Frame 05</b>
+        By the Window<br>
+        <span class="k">Lisbon, Portugal</span> — 2011<br>
+        Pentax 67 · 105mm<br>
+        Kodak Portra 400<br>
+        <span class="ts">f/2.8 · 1/125s<br>north light, soft</span>
+        <b style="margin-top:14px">Frame 06</b>
+        Stranger, No. 14<br>
+        <span class="k">Havana, Cuba</span> — 2012<br>
+        Leica M4 · Kodak Tri-X 400
+      </aside>
+    </div>
+
+    <div class="duo rev">
+      <figure>
+        <img src="../../assets/img/woman-portrait-window.jpg" alt="A woman seated by a tall window in Lisbon, soft daylight across her face, a quiet expression." loading="lazy" decoding="async">
+        <figcaption><span class="ti"><em>By the Window</em></span><span>Portra 400 · 67</span></figcaption>
+      </figure>
+      <figure>
+        <img class="bw" src="../../assets/img/man-portrait-street.jpg" alt="A black and white street portrait of an older man in Havana looking directly into the camera." loading="lazy" decoding="async">
+        <figcaption><span class="ti"><em>Stranger, No. 14</em></span><span>Tri-X · M4</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="couplet rev">
+      <div class="prose">
+        <p>The freckled light of a studio afternoon is its own small kindness. With nothing to wait for and nothing to chase, a portrait becomes a matter of attention only — the way the catchlight sits, the half-second before a real expression replaces the arranged one. That half-second is the entire art. Everything before it is preparation, and everything after it is editing.</p>
+      </div>
+      <aside class="note">
+        <b>Frame 07</b>
+        Freckles &amp; Sun<br>
+        <span class="k">Studio</span> — 2015<br>
+        Mamiya 645 · 80mm<br>
+        Kodak Portra 160<br>
+        <span class="ts">window light, reflector</span>
+      </aside>
+    </div>
+
+    <figure class="fig-read rev">
+      <img src="../../assets/img/woman-portrait-freckles.jpg" alt="A close, softly lit studio portrait of a woman with freckles, warm natural light across her face." loading="lazy" decoding="async">
+      <figcaption><span class="ti"><em>Freckles &amp; Sun</em> Studio</span><span>Portra 160 · 645</span></figcaption>
+    </figure>
+
+    <blockquote class="pull rev">“Portra renders skin the way memory does — a little warmer than the truth, forgiving in the highlights, kind.”</blockquote>
+
+    <div class="colophon rev">
+      <p>This portfolio is set in <span class="mono">Fraunces</span> and <span class="mono">Spectral</span>, with field notes in <span class="mono">Space&nbsp;Mono</span>. Every photograph was made on film between 1995 and 2023 and scanned from the original negative. The colour frames are graded to approximate a Kodak Portra print; the monochrome frames are left as they were exposed. Nothing here was cropped after the fact.</p>
+      <div class="meta">
+        Tom Milton<br>
+        Photographs in prose<br>
+        No. 40 — Counterpoint<br>
+        © MMXXVI<br><br>
+        <a href="../../index.html" style="color:var(--accent);text-decoration:none">&larr; All designs</a>
+      </div>
+    </div>
+
+  </article>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var els = Array.prototype.slice.call(document.querySelectorAll('.rev'));
+  if(reduce || !('IntersectionObserver' in window)){
+    els.forEach(function(e){ e.classList.add('vis'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ en.target.classList.add('vis'); io.unobserve(en.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  els.forEach(function(e){ io.observe(e); });
+})();
+</script>
+</body>
+</html>

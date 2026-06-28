@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIELD NOTES — A Riso Zine by Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Space+Mono:wght@400;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#ff3d9a; --blue:#1257d6; --yellow:#ffd400; --green:#00a878;
+    --paper:#f3ece0; --paper2:#ece2d0; --ink:#221d18;
+    --pw:340px; --ph:470px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:#cdbfa9;
+    background-image:
+      radial-gradient(circle at 30% 20%, #d8cbb4, transparent 60%),
+      radial-gradient(circle at 80% 90%, #c2b39a, transparent 55%);
+    color:var(--ink); font-family:'Spectral',Georgia,serif;
+    min-height:100vh; overflow-x:hidden;
+    display:flex; flex-direction:column; align-items:center;
+    -webkit-font-smoothing:antialiased;
+  }
+  .backlink{
+    position:fixed; top:16px; left:18px; z-index:500;
+    font-family:'Space Mono',monospace; font-size:12px; text-decoration:none;
+    color:var(--ink); background:rgba(243,236,224,.85); backdrop-filter:blur(6px);
+    padding:8px 12px; border:2px solid var(--ink); border-radius:2px;
+    box-shadow:3px 3px 0 var(--ink);
+  }
+  .backlink:hover{background:var(--yellow);}
+
+  .stage{
+    flex:1; width:100%; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; padding:70px 12px 20px; gap:18px;
+  }
+  .scaler{transform-origin:center center; transition:transform .4s ease;}
+
+  .book{
+    position:relative; width:calc(var(--pw)*2); height:var(--ph);
+    perspective:2200px;
+    transition:transform .55s cubic-bezier(.4,.05,.25,1);
+    transform-style:preserve-3d;
+  }
+  /* the felt under-shadow of the book */
+  .book::after{
+    content:""; position:absolute; left:6%; right:6%; bottom:-26px; height:40px;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,.32), transparent 72%);
+    filter:blur(3px); z-index:0;
+  }
+
+  .paper{
+    position:absolute; top:0; right:0; width:var(--pw); height:100%;
+    transform-style:preserve-3d; transform-origin:left center;
+    transition:transform .65s cubic-bezier(.4,.05,.25,1);
+    will-change:transform;
+  }
+  .paper.turning{transition:none;}
+  .paper.flipped{transform:rotateY(-180deg);}
+  .face{
+    position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+    overflow:hidden; background:var(--paper);
+    box-shadow:inset 0 0 60px rgba(120,100,70,.12);
+  }
+  .face.back{transform:rotateY(180deg);}
+  /* spine shading */
+  .face.front{border-radius:0 4px 4px 0;}
+  .face.back{border-radius:4px 0 0 4px;}
+  .face::before{ /* page curl shade near spine */
+    content:""; position:absolute; top:0; bottom:0; width:34px; pointer-events:none; z-index:4;
+  }
+  .face.front::before{left:0; background:linear-gradient(90deg, rgba(80,60,40,.22), transparent);}
+  .face.back::before{right:0; background:linear-gradient(270deg, rgba(80,60,40,.22), transparent);}
+  /* dynamic turn shadow overlay */
+  .turnshade{
+    position:absolute; inset:0; z-index:9; pointer-events:none;
+    background:rgba(20,12,6,0); transition:background .2s;
+  }
+
+  /* paper grain */
+  .face .grain{
+    position:absolute; inset:0; pointer-events:none; z-index:6; opacity:.5; mix-blend-mode:multiply;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.05) 0 1px, transparent 1px),
+      radial-gradient(circle at 70% 60%, rgba(0,0,0,.04) 0 1px, transparent 1px),
+      radial-gradient(circle at 40% 80%, rgba(0,0,0,.05) 0 1px, transparent 1px);
+    background-size:7px 7px, 9px 9px, 11px 11px;
+  }
+
+  /* ===== PAGE CONTENT LAYOUTS ===== */
+  .pg{position:absolute; inset:0; padding:26px 24px; display:flex; flex-direction:column; z-index:3;}
+  .pgnum{
+    position:absolute; bottom:14px; font-family:'Space Mono',monospace; font-size:11px;
+    letter-spacing:.1em; color:var(--ink); opacity:.6;
+  }
+  .pgnum.l{left:22px;} .pgnum.r{right:22px;}
+
+  /* COVER */
+  .cover{
+    background:var(--blue);
+    color:var(--paper); padding:30px 26px; height:100%; display:flex; flex-direction:column;
+    position:absolute; inset:0; z-index:3;
+  }
+  .cover .kicker{font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.32em; text-transform:uppercase; border-bottom:2px solid var(--yellow); padding-bottom:10px;}
+  .cover h1{
+    font-family:'Bricolage Grotesque',sans-serif; font-weight:800; line-height:.86;
+    font-size:62px; margin-top:auto; text-transform:uppercase; letter-spacing:-.02em;
+    color:var(--yellow); text-shadow:3px 3px 0 var(--pink);
+  }
+  .cover .by{margin-top:14px; font-family:'Space Mono',monospace; font-size:13px; letter-spacing:.06em;}
+  .cover .issue{margin-top:6px; font-family:'Space Mono',monospace; font-size:11px; opacity:.85;}
+  .cover .blob{position:absolute; width:130px; height:130px; border-radius:50%; background:var(--pink); mix-blend-mode:screen; top:60px; right:-30px; opacity:.85;}
+  .cover .blob2{position:absolute; width:90px; height:90px; border-radius:50%; background:var(--green); mix-blend-mode:screen; top:120px; right:60px;}
+
+  /* BACK COVER */
+  .backcover{background:var(--pink); color:#3a0020; position:absolute; inset:0; z-index:3; padding:30px 26px; display:flex; flex-direction:column;}
+  .backcover .big{font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:30px; line-height:.95; margin-top:auto; text-transform:uppercase; color:var(--paper); text-shadow:2px 2px 0 var(--blue);}
+  .backcover p{font-family:'Space Mono',monospace; font-size:11px; margin-top:14px; line-height:1.7;}
+
+  /* CONTENTS / INTRO */
+  .intro h2{font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:34px; text-transform:uppercase; line-height:.9; color:var(--pink);}
+  .intro .rule{height:4px; background:var(--blue); margin:14px 0 16px; width:60%;}
+  .intro p{font-size:15.5px; line-height:1.55;}
+  .intro .toc{margin-top:auto; font-family:'Space Mono',monospace; font-size:11.5px; line-height:1.9;}
+  .intro .toc b{color:var(--blue);}
+
+  /* PHOTO PAGE */
+  .photopg{padding:0;}
+  .photopg .imgbox{position:relative; flex:1; overflow:hidden;}
+  .photopg img{width:100%; height:100%; object-fit:cover; display:block;}
+  /* riso ink tint via blended overlay */
+  .photopg .tint{position:absolute; inset:0; mix-blend-mode:multiply; opacity:.55;}
+  .photopg .tint2{position:absolute; inset:0; mix-blend-mode:screen; opacity:.18;}
+  .photopg.bw img{filter:grayscale(1) contrast(1.08);}
+  .photopg.bw .tint, .photopg.bw .tint2{display:none;}
+  .photopg .halftone{
+    position:absolute; inset:0; mix-blend-mode:multiply; opacity:.25; pointer-events:none;
+    background-image:radial-gradient(rgba(0,0,0,.6) 22%, transparent 23%);
+    background-size:4px 4px;
+  }
+  .photopg .label{
+    padding:14px 18px 16px; background:var(--paper); position:relative;
+  }
+  .photopg .label .t{font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:21px; line-height:1; text-transform:uppercase; letter-spacing:-.01em;}
+  .photopg .label .loc{font-family:'Spectral',serif; font-style:italic; font-size:14px; margin-top:4px; color:#5a4f42;}
+  .photopg .label .meta{font-family:'Space Mono',monospace; font-size:10px; margin-top:8px; letter-spacing:.02em; color:var(--ink); display:flex; flex-wrap:wrap; gap:3px 12px;}
+  .photopg .tab{position:absolute; top:-16px; left:18px; background:var(--ink); color:var(--paper); font-family:'Space Mono',monospace; font-size:10px; padding:3px 9px; letter-spacing:.1em;}
+  .photopg.ink-pink .tab{background:var(--pink);} .photopg.ink-blue .tab{background:var(--blue);}
+  .photopg.ink-green .tab{background:var(--green);} .photopg.ink-yellow .tab{background:var(--yellow); color:var(--ink);}
+
+  /* COLOPHON */
+  .colophon{background:var(--yellow); position:absolute; inset:0; z-index:3; padding:28px 24px; display:flex; flex-direction:column;}
+  .colophon h3{font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:26px; text-transform:uppercase; color:var(--blue);}
+  .colophon .rule{height:3px; background:var(--ink); margin:12px 0;}
+  .colophon dl{font-family:'Space Mono',monospace; font-size:11.5px; line-height:1.7;}
+  .colophon dt{color:var(--pink); font-weight:700; margin-top:9px;}
+  .colophon .foot{margin-top:auto; font-style:italic; font-family:'Spectral',serif; font-size:13px;}
+
+  /* corner hint flap */
+  .corner-hint{
+    position:absolute; bottom:0; right:0; width:0; height:0; z-index:8;
+    border-style:solid; border-width:0 0 54px 54px; border-color:transparent transparent var(--pink) transparent;
+    cursor:pointer; transition:border-width .3s;
+  }
+  .corner-hint::after{
+    content:"›"; position:absolute; right:6px; bottom:-50px; color:var(--paper); font-size:24px; font-weight:700; line-height:1;
+  }
+  .corner-hint.gone{display:none;}
+
+  /* CONTROLS */
+  .controls{display:flex; align-items:center; gap:16px; font-family:'Space Mono',monospace;}
+  .btn{
+    width:48px; height:48px; border-radius:50%; border:2px solid var(--ink);
+    background:var(--paper); color:var(--ink); font-size:20px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; box-shadow:3px 3px 0 var(--ink);
+    transition:transform .12s, background .15s;
+  }
+  .btn:hover:not(:disabled){background:var(--yellow);}
+  .btn:active:not(:disabled){transform:translate(3px,3px); box-shadow:0 0 0 var(--ink);}
+  .btn:disabled{opacity:.35; cursor:default; box-shadow:1px 1px 0 var(--ink);}
+  .pageind{min-width:90px; text-align:center; font-size:12px; letter-spacing:.08em; background:var(--ink); color:var(--paper); padding:8px 12px; border-radius:2px;}
+  .hint{
+    font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.04em; color:#5a4f42;
+    text-align:center; min-height:16px; transition:opacity .4s;
+  }
+  .hint .blink{display:inline-block; animation:blink 1.3s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+
+  @media (prefers-reduced-motion:reduce){
+    .paper, .book, .scaler{transition:none !important;}
+    .hint .blink{animation:none;}
+  }
+  @media (max-width:480px){
+    .stage{padding-top:60px;}
+    .hint{padding:0 16px;}
+  }
+</style>
+</head>
+<body>
+<a class="backlink" href="../../index.html">&larr; All designs</a>
+
+<div class="stage">
+  <div class="scaler" id="scaler">
+    <div class="book" id="book" aria-label="A flip-through riso zine. Drag a page corner, use the arrow keys, or the buttons to turn pages."></div>
+  </div>
+
+  <div class="controls" role="group" aria-label="Page navigation">
+    <button class="btn" id="prev" aria-label="Previous page" disabled>‹</button>
+    <span class="pageind" id="ind" aria-live="polite">COVER</span>
+    <button class="btn" id="next" aria-label="Next page">›</button>
+  </div>
+  <p class="hint" id="hint">Drag the corner &nbsp;·&nbsp; <span class="blink">use ← →</span> &nbsp;·&nbsp; click the flap to flip</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var BASE = "../../assets/img/";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var PW = 340; // base page width (must match CSS --pw fallback)
+
+  var PHOTOS = [
+    {file:"golden-field-sunburst.jpg", title:"Last Light, Wheat Country", loc:"Tuscany, Italy", film:"Kodak Portra 400", cam:"Leica M6", year:"1998", ink:"yellow"},
+    {file:"landscape-misty-mountains.jpg", title:"Morning Fog, Cascades", loc:"Washington, USA", film:"Fujifilm Pro 400H", cam:"Pentax 67", year:"2001", ink:"blue"},
+    {file:"forest-sunlight.jpg", title:"Cathedral of Pines", loc:"Olympic NP, USA", film:"Kodak Portra 160", cam:"Hasselblad 500CM", year:"1996", ink:"green"},
+    {file:"misty-pine-forest.jpg", title:"Silence", loc:"Norway", film:"Ilford HP5 Plus", cam:"Leica M6", year:"2003", ink:"blue", bw:true},
+    {file:"cliff-coast-ocean.jpg", title:"Edge of the World", loc:"Big Sur, USA", film:"Kodak Portra 400", cam:"Contax G2", year:"2002", ink:"blue"},
+    {file:"woman-portrait-window.jpg", title:"By the Window", loc:"Lisbon, Portugal", film:"Kodak Portra 400", cam:"Pentax 67", year:"2011", ink:"pink"},
+    {file:"mountain-road-fog.jpg", title:"The Long Way Home", loc:"Dolomites, Italy", film:"Cinestill 800T", cam:"Canon AE-1", year:"2005", ink:"pink"},
+    {file:"man-bw-portrait.jpg", title:"Portrait in Shadow", loc:"Berlin, Germany", film:"Ilford Delta 3200", cam:"Leica M6", year:"2018", ink:"blue", bw:true},
+    {file:"street-cafe-paris.jpg", title:"Café de Flore", loc:"Paris, France", film:"Kodak Gold 200", cam:"Olympus OM-1", year:"2020", ink:"yellow"},
+    {file:"waterfall-bridge.jpg", title:"Hidden Falls", loc:"Iceland", film:"Fujifilm Velvia 50", cam:"Nikon FM2", year:"2006", ink:"green"}
+  ];
+  var INK = {pink:"#ff3d9a", blue:"#1257d6", yellow:"#ffd400", green:"#00a878"};
+
+  // ---- Build logical pages ----
+  function coverHTML(){
+    return '<div class="cover" role="img" aria-label="Cover: Field Notes, a riso zine by Tom Milton, Issue No. 7">'+
+      '<span class="blob"></span><span class="blob2"></span>'+
+      '<div class="kicker">Riso Zine · Issue Nº 07</div>'+
+      '<h1>Field<br>Notes</h1>'+
+      '<div class="by">Photographs by TOM MILTON</div>'+
+      '<div class="issue">Thirty years on film · Hand-printed in four inks</div>'+
+      '</div>';
+  }
+  function introHTML(){
+    return '<div class="pg intro">'+
+      '<h2>Pull up<br>a chair</h2><div class="rule"></div>'+
+      '<p>This little book collects frames made on the road between 1995 and 2023 — '+
+      'all shot on film, all printed by hand. The colours misregister. The grain shows. '+
+      'That is the point.</p>'+
+      '<div class="toc">CONTENTS<br>'+
+      PHOTOS.map(function(p,i){return '<b>'+String(i+1).padStart(2,'0')+'</b> &nbsp;'+p.title;}).join('<br>')+
+      '</div></div>';
+  }
+  function photoHTML(p, n){
+    var tint = INK[p.ink] || INK.blue;
+    var inner = '<div class="pg photopg ink-'+(p.ink||'blue')+(p.bw?' bw':'')+'">'+
+      '<div class="imgbox">'+
+        '<img src="'+BASE+p.file+'" alt="'+p.title+' — '+p.loc+', photographed on '+p.film+' with a '+p.cam+'" loading="lazy" decoding="async" draggable="false">'+
+        '<div class="tint" style="background:'+tint+'"></div>'+
+        '<div class="tint2" style="background:'+tint+'"></div>'+
+        '<div class="halftone"></div>'+
+      '</div>'+
+      '<div class="label"><span class="tab">Nº '+String(n).padStart(2,'0')+'</span>'+
+        '<div class="t">'+p.title+'</div>'+
+        '<div class="loc">'+p.loc+', '+p.year+'</div>'+
+        '<div class="meta"><span>'+p.film+'</span><span>'+p.cam+'</span></div>'+
+      '</div></div>';
+    return inner;
+  }
+  function colophonHTML(){
+    return '<div class="colophon">'+
+      '<h3>Colophon</h3><div class="rule"></div>'+
+      '<dl>'+
+      '<dt>PHOTOGRAPHY</dt><dd>Tom Milton, 1995–2023</dd>'+
+      '<dt>FILM STOCKS</dt><dd>Portra · Ektar · Velvia · Tri-X · HP5 · Cinestill</dd>'+
+      '<dt>PRESS</dt><dd>Risograph, 4 spot inks on recycled stock</dd>'+
+      '<dt>EDITION</dt><dd>Nº 07 of an ongoing series</dd>'+
+      '</dl>'+
+      '<p class="foot">"You take the picture; the print takes you back."</p></div>';
+  }
+  function backCoverHTML(){
+    return '<div class="backcover" role="img" aria-label="Back cover">'+
+      '<div class="big">The end<br>of the<br>roll.</div>'+
+      '<p>FIELD NOTES · ISSUE Nº 07<br>© TOM MILTON · PRINTED ON FILM &amp; PAPER</p></div>';
+  }
+
+  // pages[0]=cover, [1]=intro, then 10 photos, then colophon, then back cover
+  var pages = [];
+  pages.push({type:'cover'});
+  pages.push({type:'intro'});
+  PHOTOS.forEach(function(p,i){ pages.push({type:'photo', p:p, n:i+1}); });
+  pages.push({type:'colophon'});
+  pages.push({type:'back'});
+  // pad to even
+  if(pages.length % 2 !== 0) pages.push({type:'blank'});
+  var TOTAL = pages.length;
+  var NPAPERS = TOTAL/2;
+
+  function renderPage(pg, side){
+    if(!pg) return '';
+    switch(pg.type){
+      case 'cover': return coverHTML();
+      case 'intro': return introHTML();
+      case 'photo': return photoHTML(pg.p, pg.n);
+      case 'colophon': return colophonHTML();
+      case 'back': return backCoverHTML();
+      default: return '<div class="pg" style="background:var(--paper2)"></div>';
+    }
+  }
+  function pgNum(idx, side){
+    // skip numbering on cover(0) and back(last)
+    if(idx===0 || idx===TOTAL-1) return '';
+    return '<span class="pgnum '+side+'">'+idx+'</span>';
+  }
+
+  // ---- Build DOM papers ----
+  var book = document.getElementById("book");
+  var papers = [];
+  for(var i=0;i<NPAPERS;i++){
+    var frontIdx = 2*i, backIdx = 2*i+1;
+    var paper = document.createElement("div");
+    paper.className = "paper";
+    paper.innerHTML =
+      '<div class="face front">'+ renderPage(pages[frontIdx],'front') + '<div class="grain"></div>'+ pgNum(frontIdx,'r') +'<div class="turnshade"></div></div>'+
+      '<div class="face back">'+ renderPage(pages[backIdx],'back') + '<div class="grain"></div>'+ pgNum(backIdx,'l') +'<div class="turnshade"></div></div>';
+    book.appendChild(paper);
+    papers.push(paper);
+  }
+
+  // corner hint on cover (front face of paper 0)
+  var corner = document.createElement("div");
+  corner.className = "corner-hint";
+  corner.setAttribute("aria-hidden","true");
+  papers[0].querySelector(".face.front").appendChild(corner);
+
+  // ---- State / z-index ----
+  var current = 0; // number of papers flipped (0 = cover showing)
+  function updateZ(){
+    for(var i=0;i<NPAPERS;i++){
+      if(i < current){ papers[i].style.zIndex = i + 1; papers[i].classList.add("flipped"); }
+      else { papers[i].style.zIndex = NPAPERS - i; papers[i].classList.remove("flipped"); }
+    }
+  }
+  function updateShift(){
+    var shift = 0;
+    if(current === 0) shift = PW/2;            // closed: center cover
+    else if(current >= NPAPERS) shift = -PW/2; // fully open back cover
+    bookShift = shift; applyScale();
+  }
+  var bookShift = PW/2, bookScale = 1;
+  function applyScale(){
+    book.style.transform = "translateX(" + bookShift + "px)";
+    document.getElementById("scaler").style.transform = "scale(" + bookScale + ")";
+  }
+  function fitScale(){
+    var vw = window.innerWidth;
+    var spread = PW*2 + 24;
+    bookScale = Math.min(1, (vw - 24) / spread);
+    if(bookScale < 0.4) bookScale = 0.4;
+    applyScale();
+  }
+
+  // ---- Indicator / hint ----
+  var ind = document.getElementById("ind");
+  var prevBtn = document.getElementById("prev");
+  var nextBtn = document.getElementById("next");
+  var hintEl = document.getElementById("hint");
+  var interacted = false;
+  function updateUI(){
+    if(current === 0) ind.textContent = "COVER";
+    else if(current >= NPAPERS) ind.textContent = "BACK COVER";
+    else ind.textContent = "PP. " + (2*current-1) + "–" + (2*current);
+    prevBtn.disabled = current <= 0;
+    nextBtn.disabled = current >= NPAPERS;
+    if(current > 0){ corner.classList.add("gone"); }
+    else corner.classList.remove("gone");
+    if(interacted && hintEl) hintEl.style.opacity = "0";
+  }
+
+  // ---- Turning ----
+  var animating = false;
+  function turnForward(){
+    if(animating || current >= NPAPERS) return;
+    interacted = true;
+    var paper = papers[current];
+    paper.style.zIndex = NPAPERS + 5;
+    if(reduce){ paper.classList.add("flipped"); current++; settle(); return; }
+    animating = true;
+    paper.classList.remove("turning");
+    // ensure current transform baseline
+    paper.style.transform = "";
+    requestAnimationFrame(function(){
+      paper.classList.add("flipped");
+      current++;
+      onTurnEnd(paper);
+    });
+    updateShiftSoon();
+  }
+  function turnBackward(){
+    if(animating || current <= 0) return;
+    interacted = true;
+    var paper = papers[current-1];
+    paper.style.zIndex = NPAPERS + 5;
+    if(reduce){ paper.classList.remove("flipped"); current--; settle(); return; }
+    animating = true;
+    paper.classList.remove("turning");
+    paper.style.transform = "";
+    requestAnimationFrame(function(){
+      paper.classList.remove("flipped");
+      current--;
+      onTurnEnd(paper);
+    });
+    updateShiftSoon();
+  }
+  function onTurnEnd(paper){
+    var done = function(e){
+      if(e && e.propertyName && e.propertyName.indexOf("transform")===-1) return;
+      paper.removeEventListener("transitionend", done);
+      animating = false;
+      settle();
+    };
+    paper.addEventListener("transitionend", done);
+    // safety timeout
+    setTimeout(function(){ if(animating){ done(); } }, 800);
+  }
+  function settle(){
+    updateZ(); updateUI(); updateShift();
+    // clear inline transforms left from drags
+    papers.forEach(function(p){ if(!p.classList.contains("turning")) p.style.transform = ""; });
+  }
+  var shiftPending = false;
+  function updateShiftSoon(){
+    // shift book toward center as it opens
+    var targetShift = (current+ (animating?1:0) >= 1) ? 0 : PW/2;
+    // recompute simply: if we're leaving cover, go to 0; if returning to cover, to PW/2
+    if(current === 0 && !animating){ bookShift = PW/2; }
+    else if(current >= NPAPERS){ bookShift = -PW/2; }
+    else { bookShift = 0; }
+    applyScale();
+  }
+
+  // ---- Drag handling ----
+  var drag = null;
+  function bookWidthPx(){ return PW * bookScale; }
+  book.addEventListener("pointerdown", function(e){
+    if(animating) return;
+    var rect = book.getBoundingClientRect();
+    var localX = e.clientX - rect.left;       // 0..(2*PW*scale)
+    var half = rect.width/2;
+    var dir;
+    if(localX >= half && current < NPAPERS) dir = "fwd";
+    else if(localX < half && current > 0) dir = "back";
+    else return;
+    var paper = (dir==="fwd") ? papers[current] : papers[current-1];
+    paper.classList.add("turning");
+    paper.style.zIndex = NPAPERS + 5;
+    drag = { dir:dir, paper:paper, startX:e.clientX, last:e.clientX, lastT:performance.now(), vel:0, angle:(dir==="fwd"?0:-180) };
+    book.setPointerCapture && book.setPointerCapture(e.pointerId);
+    interacted = true;
+    if(hintEl) hintEl.style.opacity = "0";
+    e.preventDefault();
+  });
+  book.addEventListener("pointermove", function(e){
+    if(!drag) return;
+    var w = PW * bookScale;
+    var dx = e.clientX - drag.startX;
+    var now = performance.now();
+    var dt = now - drag.lastT;
+    if(dt > 0){ drag.vel = (e.clientX - drag.last) / dt; }
+    drag.last = e.clientX; drag.lastT = now;
+    var angle;
+    if(drag.dir === "fwd"){
+      var frac = Math.max(0, Math.min(1, -dx / w));
+      angle = -180 * frac;
+    } else {
+      var fracB = Math.max(0, Math.min(1, dx / w));
+      angle = -180 + 180 * fracB;
+    }
+    drag.angle = angle;
+    drag.paper.style.transform = "rotateY(" + angle + "deg)";
+    // shade on the turning face
+    var prog = Math.abs(angle)/180; // 0..1
+    var shadeFront = drag.paper.querySelector(".face.front .turnshade");
+    var shadeBack = drag.paper.querySelector(".face.back .turnshade");
+    if(shadeFront) shadeFront.style.background = "rgba(20,12,6," + (Math.sin(prog*Math.PI)*0.35) + ")";
+    if(shadeBack) shadeBack.style.background = "rgba(20,12,6," + (Math.sin(prog*Math.PI)*0.25) + ")";
+    e.preventDefault();
+  });
+  function endDrag(e){
+    if(!drag) return;
+    var d = drag; drag = null;
+    var prog = Math.abs(d.angle)/180;
+    var fast = Math.abs(d.vel) > 0.5;
+    var complete;
+    if(d.dir === "fwd"){
+      complete = prog > 0.35 || (fast && d.vel < 0);
+    } else {
+      complete = prog < 0.65 || (fast && d.vel > 0);
+    }
+    // clear shades
+    d.paper.querySelectorAll(".turnshade").forEach(function(s){ s.style.background = "rgba(20,12,6,0)"; });
+    d.paper.classList.remove("turning"); // re-enable transition for snap
+    d.paper.style.transform = ""; // let CSS class drive final state
+    if(d.dir === "fwd"){
+      if(complete){ d.paper.classList.add("flipped"); current++; }
+      else { d.paper.classList.remove("flipped"); }
+    } else {
+      if(complete){ d.paper.classList.remove("flipped"); current--; }
+      else { d.paper.classList.add("flipped"); }
+    }
+    if(reduce){ settle(); return; }
+    animating = true;
+    onTurnEnd(d.paper);
+    updateShiftSoon();
+  }
+  book.addEventListener("pointerup", endDrag);
+  book.addEventListener("pointercancel", endDrag);
+
+  // ---- Buttons / keys / corner ----
+  nextBtn.addEventListener("click", turnForward);
+  prevBtn.addEventListener("click", turnBackward);
+  corner.addEventListener("click", function(ev){ ev.stopPropagation(); turnForward(); });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "ArrowRight"){ turnForward(); }
+    else if(e.key === "ArrowLeft"){ turnBackward(); }
+  });
+
+  // ---- Init ----
+  updateZ(); updateUI(); fitScale(); updateShift();
+  window.addEventListener("resize", fitScale);
+  // pause: nothing continuous runs; transitions are CSS. Avoid work when hidden.
+  document.addEventListener("visibilitychange", function(){
+    if(document.hidden && drag){ drag = null; }
+  });
+})();
+</script>
+</body>
+</html>

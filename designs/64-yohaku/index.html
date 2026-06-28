@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>余白 — Tom Milton</title>
+<meta name="description" content="余白 / Yohaku — the space left empty. Quiet film photography by Tom Milton." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Shippori+Mincho:wght@400;500;600&family=Noto+Serif+JP:wght@200;300;400&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --paper:#f6f4ee;        /* warm off-white */
+    --paper-deep:#efece4;   /* faint deeper paper */
+    --ink:#191715;          /* sumi near-black */
+    --ink-soft:#4b4742;     /* soft warm gray */
+    --gray:#938d83;         /* muted gray */
+    --hair:#cfc9bd;         /* hairline */
+    --vermilion:#a4472f;    /* the one restrained accent, used barely */
+
+    --latin:'EB Garamond',Georgia,serif;
+    --jp:'Shippori Mincho','Noto Serif JP',serif;
+    --jp-light:'Noto Serif JP','Shippori Mincho',serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--latin);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* ---- whisper-quiet film grain ---- */
+  body::after{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none; z-index:9999;
+    opacity:.035; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection{background:rgba(164,71,47,.16);}
+  a{color:inherit;text-decoration:none;}
+
+  /* ---- the quiet "all designs" link ---- */
+  .back{
+    position:fixed; top:clamp(1.3rem,2.4vw,2.2rem); left:clamp(1.3rem,2.4vw,2.2rem);
+    z-index:80;
+    font-family:var(--latin);
+    font-size:.7rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--gray); transition:color .6s ease;
+    mix-blend-mode:multiply;
+  }
+  .back:hover{color:var(--ink);}
+
+  /* faint folio counter, fixed bottom-right */
+  .folio{
+    position:fixed; right:clamp(1.2rem,2.4vw,2.2rem); bottom:clamp(1.2rem,2.4vw,2rem);
+    z-index:80; font-family:var(--jp-light); font-weight:300;
+    font-size:.72rem; letter-spacing:.12em; color:var(--gray);
+    mix-blend-mode:multiply;
+    display:flex; gap:.5em; align-items:baseline;
+  }
+  .folio .now{color:var(--ink-soft);}
+  .folio .sep{opacity:.5;}
+
+  /* ============ MASTHEAD ============ */
+  .masthead{
+    min-height:100vh; min-height:100svh;
+    display:grid; grid-template-columns:1fr auto 1fr;
+    align-items:center; position:relative;
+    padding:6rem 0;
+  }
+  .masthead__center{
+    grid-column:2;
+    display:flex; flex-direction:row-reverse;
+    align-items:center; justify-content:center;
+    gap:clamp(1.8rem,5vw,4rem);
+  }
+  .yohaku-glyph{
+    writing-mode:vertical-rl;
+    font-family:var(--jp); font-weight:400;
+    font-size:clamp(6.5rem,20vw,15rem);
+    line-height:.92; letter-spacing:.04em;
+    color:var(--ink); user-select:none;
+  }
+  .masthead__text{
+    writing-mode:vertical-rl; text-orientation:mixed;
+    display:flex; flex-direction:row; align-items:flex-start;
+    gap:clamp(1.4rem,3.4vw,2.6rem);
+    height:clamp(17rem,46vh,30rem);
+  }
+  .m-rule{ width:1px; background:var(--hair); align-self:stretch; }
+  .m-name{
+    font-family:var(--latin); font-style:italic; font-weight:400;
+    font-size:clamp(1rem,1.5vw,1.25rem); letter-spacing:.08em;
+    color:var(--ink-soft);
+  }
+  .m-sub{
+    font-family:var(--latin); font-weight:400;
+    font-size:.72rem; letter-spacing:.34em; text-transform:uppercase;
+    color:var(--gray);
+  }
+  .romaji{
+    grid-column:2; align-self:end; justify-self:center;
+    margin-top:2.5rem;
+    font-family:var(--latin); font-size:.7rem; letter-spacing:.42em;
+    text-transform:uppercase; color:var(--gray);
+  }
+  .scroll-cue{
+    position:absolute; left:50%; bottom:clamp(1.6rem,4vh,3rem);
+    transform:translateX(-50%);
+    font-family:var(--latin); font-size:.62rem; letter-spacing:.3em;
+    text-transform:uppercase; color:var(--gray);
+    display:flex; flex-direction:column; align-items:center; gap:.7rem;
+  }
+  .scroll-cue .line{ width:1px; height:clamp(2rem,5vh,3.4rem); background:var(--hair);
+    transform-origin:top; animation:cueGrow 3.4s ease-in-out infinite; }
+  @keyframes cueGrow{ 0%,100%{transform:scaleY(.4);opacity:.5} 50%{transform:scaleY(1);opacity:1} }
+
+  /* opening statement — vast yohaku */
+  .statement{
+    min-height:78vh; min-height:78svh;
+    display:flex; align-items:center; justify-content:center;
+    padding:6rem clamp(1.5rem,8vw,9rem);
+  }
+  .statement p{
+    max-width:34ch; margin:0;
+    font-family:var(--latin); font-style:italic; font-weight:400;
+    font-size:clamp(1.25rem,2.4vw,1.9rem); line-height:1.85;
+    color:var(--ink-soft); text-align:center;
+  }
+  .statement .jp-aside{
+    display:block; margin-top:1.8rem;
+    font-family:var(--jp-light); font-weight:300; font-style:normal;
+    font-size:.92rem; letter-spacing:.42em; color:var(--gray);
+  }
+
+  /* ============ SCENE — one photo, vast margins ============ */
+  .scene{
+    min-height:118vh; min-height:118svh;
+    display:grid;
+    grid-template-columns:1fr clamp(2rem,8vw,9rem) minmax(auto,min(64vw,820px)) clamp(2rem,7vw,8rem) 1fr;
+    align-items:center;
+    position:relative;
+    padding:clamp(4rem,12vh,11rem) 0;
+  }
+  /* the single thin vertical line */
+  .scene__rule{
+    grid-column:2; justify-self:center; align-self:stretch;
+    width:1px; background:linear-gradient(var(--paper),var(--hair) 18%,var(--hair) 82%,var(--paper));
+  }
+
+  .plate{ grid-column:3; position:relative; }
+
+  .plate__img-wrap{
+    position:relative; width:100%;
+    /* the ink-wash mask: a soft organic radial bloom that grows in */
+    -webkit-mask-image:radial-gradient(closest-side at 50% 50%,#000 58%,rgba(0,0,0,.55) 76%,transparent 92%);
+    mask-image:radial-gradient(closest-side at 50% 50%,#000 58%,rgba(0,0,0,.55) 76%,transparent 92%);
+    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+    -webkit-mask-position:center; mask-position:center;
+    -webkit-mask-size:14% 14%; mask-size:14% 14%;     /* INITIAL: pinched bud */
+    opacity:0;
+    transform:scale(1.04);
+    transition:opacity 1.5s ease;
+    will-change:mask-size,opacity;
+  }
+  /* organic ink-bleed edge applied to the masked photo */
+  .plate__img-wrap.inked{ filter:url(#inkbleed0); }
+
+  /* revealed state (set by JS, or by default when no-JS / reduced motion) */
+  .plate.is-open .plate__img-wrap{
+    -webkit-mask-size:235% 235%; mask-size:235% 235%;
+    opacity:1; transform:scale(1);
+    transition:mask-size 1.9s cubic-bezier(.22,.61,.36,1),
+               -webkit-mask-size 1.9s cubic-bezier(.22,.61,.36,1),
+               opacity 1.4s ease, transform 2.2s cubic-bezier(.22,.61,.36,1);
+  }
+
+  .plate__img{
+    display:block; width:100%; height:auto;
+    filter:saturate(1.06) contrast(1.02) sepia(.1) brightness(1.01);
+  }
+  .plate__img.bw{ filter:grayscale(1) contrast(1.08) brightness(1.02); }
+
+  /* faint ground-shadow under the floating plate */
+  .plate__shadow{
+    position:absolute; left:8%; right:8%; bottom:-3.2%; height:5%;
+    background:radial-gradient(ellipse at center,rgba(25,23,21,.16),transparent 70%);
+    filter:blur(8px); opacity:0; transition:opacity 1.8s ease 1s;
+    z-index:-1;
+  }
+  .plate.is-open .plate__shadow{opacity:1;}
+
+  /* vertical title column, sits in the right gutter beside the plate */
+  .plate__caption{
+    position:absolute; top:0; left:calc(100% + clamp(1.4rem,3.2vw,3.4rem));
+    height:100%; display:flex; align-items:center;
+  }
+  .cap-inner{
+    writing-mode:vertical-rl; text-orientation:mixed;
+    display:flex; flex-direction:row; align-items:flex-start;
+    gap:clamp(1rem,2vw,1.7rem);
+    opacity:0; transform:translateY(14px);
+    transition:opacity 1.3s ease .6s, transform 1.3s ease .6s;
+  }
+  .plate.is-open .cap-inner{opacity:1; transform:none;}
+  .cap-title{
+    font-family:var(--jp); font-weight:500;
+    font-size:clamp(1.15rem,1.9vw,1.5rem); letter-spacing:.05em;
+    color:var(--ink);
+  }
+  .cap-num{
+    font-family:var(--latin); font-size:.66rem; letter-spacing:.3em;
+    color:var(--vermilion);
+  }
+  .cap-meta{
+    font-family:var(--latin); font-weight:400;
+    font-size:.74rem; letter-spacing:.16em; line-height:2.1;
+    color:var(--gray); white-space:nowrap;
+  }
+  .cap-meta .loc{color:var(--ink-soft); font-style:italic;}
+
+  /* ============ CLOSING ============ */
+  .colophon{
+    min-height:88vh; min-height:88svh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:2.2rem; padding:6rem clamp(1.5rem,8vw,9rem); text-align:center;
+  }
+  .colophon .seal{
+    width:62px; height:62px; border:1.5px solid var(--vermilion);
+    border-radius:6px; display:flex; align-items:center; justify-content:center;
+    color:var(--vermilion); font-family:var(--jp); font-size:1.5rem;
+    letter-spacing:0; opacity:.85; line-height:1;
+  }
+  .colophon .co-jp{
+    font-family:var(--jp); font-weight:400; font-size:clamp(1.6rem,4vw,2.4rem);
+    letter-spacing:.3em; color:var(--ink);
+  }
+  .colophon .co-name{
+    font-family:var(--latin); font-style:italic; font-size:1.05rem;
+    letter-spacing:.1em; color:var(--ink-soft);
+  }
+  .colophon .co-sub{
+    font-family:var(--latin); font-size:.68rem; letter-spacing:.36em;
+    text-transform:uppercase; color:var(--gray); max-width:30ch; line-height:2;
+  }
+
+  /* ---- mobile: caption moves below plate, fewer columns ---- */
+  @media (max-width:760px){
+    .scene{
+      grid-template-columns:clamp(1.6rem,7vw,3rem) 1px 1fr clamp(1rem,5vw,2rem);
+      min-height:100svh;
+    }
+    .scene__rule{grid-column:2;}
+    .plate{grid-column:3;}
+    .plate__caption{
+      position:static; height:auto; display:block;
+      margin-top:1.8rem;
+    }
+    .cap-inner{
+      writing-mode:horizontal-tb;
+      flex-direction:column; gap:.7rem; align-items:flex-start;
+    }
+    .cap-meta{line-height:1.9; white-space:normal;}
+    .masthead__center{gap:1.4rem;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    .scroll-cue .line{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+  <a class="back" href="../../index.html">← All designs</a>
+
+  <!-- offscreen SVG filters: organic ink-bleed edges (one seed per few scenes) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="inkbleed0" x="-12%" y="-12%" width="124%" height="124%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.016" numOctaves="2" seed="7" result="t"/>
+        <feDisplacementMap in="SourceGraphic" in2="t" scale="26" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <filter id="inkbleed1" x="-12%" y="-12%" width="124%" height="124%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.014 0.011" numOctaves="2" seed="29" result="t"/>
+        <feDisplacementMap in="SourceGraphic" in2="t" scale="30" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <filter id="inkbleed2" x="-12%" y="-12%" width="124%" height="124%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.018" numOctaves="2" seed="51" result="t"/>
+        <feDisplacementMap in="SourceGraphic" in2="t" scale="22" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="masthead">
+    <div class="masthead__center">
+      <h1 class="yohaku-glyph" aria-label="余白 Yohaku">余白</h1>
+      <div class="masthead__text">
+        <span class="m-name">Tom&nbsp;Milton</span>
+        <span class="m-rule"></span>
+        <span class="m-sub">Film&nbsp;Photographs</span>
+      </div>
+    </div>
+    <p class="romaji">Yo&nbsp;·&nbsp;Haku — the space left empty</p>
+    <div class="scroll-cue" aria-hidden="true"><span>scroll</span><span class="line"></span></div>
+  </header>
+
+  <!-- opening statement -->
+  <section class="statement">
+    <p>What is left out is not absent.<br>The silence around a picture<br>is part of the picture.
+      <span class="jp-aside">余白に語らせる</span>
+    </p>
+  </section>
+
+  <main id="gallery"><!-- scenes injected here, with a no-JS fallback below --></main>
+
+  <!-- ============ COLOPHON ============ -->
+  <footer class="colophon">
+    <div class="seal" aria-hidden="true">間</div>
+    <div class="co-jp">余白</div>
+    <div class="co-name">Tom Milton</div>
+    <p class="co-sub">Photographed on film, 1995–2023. Printed quietly, with room to breathe.</p>
+  </footer>
+
+  <div class="folio" aria-hidden="true">
+    <span class="now">01</span><span class="sep">/</span><span class="total">—</span>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PHOTOS = [
+    ["golden-field-sunburst.jpg","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",""],
+    ["forest-sunlight.jpg","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",""],
+    ["landscape-misty-mountains.jpg","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001",""],
+    ["lake-cabin-dawn.jpg","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003",""],
+    ["sun-through-leaves.jpg","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004",""],
+    ["valley-green-river.jpg","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3","1999",""],
+    ["cliff-coast-ocean.jpg","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002",""],
+    ["misty-pine-forest.jpg","Silence","Norway","Ilford HP5 Plus","Leica M6","2003","bw"],
+    ["mountain-road-fog.jpg","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005",""],
+    ["forest-path-trees.jpg","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F","1995",""],
+    ["lake-mountain-house.jpg","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000",""],
+    ["waterfall-bridge.jpg","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006",""],
+    ["foggy-pier-lake.jpg","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2","2010",""],
+    ["woman-portrait-window.jpg","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",""],
+    ["desert-dunes.jpg","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",""],
+    ["autumn-forest-road.jpg","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",""]
+  ];
+
+  var BASE = "../../assets/img/";
+  var gallery = document.getElementById("gallery");
+  var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function pad(n){ return n<10 ? "0"+n : ""+n; }
+
+  // build scenes
+  PHOTOS.forEach(function(p,i){
+    var file=p[0],title=p[1],loc=p[2],film=p[3],cam=p[4],year=p[5],flag=p[6];
+    var isBW = flag.indexOf("bw")>-1;
+
+    var scene=document.createElement("section");
+    scene.className="scene";
+    scene.setAttribute("aria-roledescription","photograph");
+
+    var rule=document.createElement("div");
+    rule.className="scene__rule"; rule.setAttribute("aria-hidden","true");
+
+    var plate=document.createElement("figure");
+    plate.className="plate";
+    plate.style.margin="0";
+
+    var wrap=document.createElement("div");
+    wrap.className="plate__img-wrap inked";
+    // rotate the three ink-bleed seeds for organic variety
+    wrap.style.filter="url(#inkbleed"+(i%3)+")";
+
+    var img=document.createElement("img");
+    img.className="plate__img"+(isBW?" bw":"");
+    img.src=BASE+file;
+    img.loading = i<2 ? "eager" : "lazy";
+    img.decoding="async";
+    img.alt=title+" — "+loc+", photographed "+year+" on "+film;
+    wrap.appendChild(img);
+
+    var shadow=document.createElement("div");
+    shadow.className="plate__shadow"; shadow.setAttribute("aria-hidden","true");
+
+    var cap=document.createElement("figcaption");
+    cap.className="plate__caption";
+    var inner=document.createElement("div");
+    inner.className="cap-inner";
+    inner.innerHTML =
+      '<span class="cap-num">'+pad(i+1)+'</span>'+
+      '<span class="cap-title">'+title+'</span>'+
+      '<span class="cap-meta"><span class="loc">'+loc+'</span><br>'+
+        film+'<br>'+cam+'<br>'+year+'</span>';
+    cap.appendChild(inner);
+
+    plate.appendChild(wrap);
+    plate.appendChild(shadow);
+    plate.appendChild(cap);
+
+    scene.appendChild(rule);
+    scene.appendChild(plate);
+    gallery.appendChild(scene);
+
+    // strong INITIAL state for reduced-motion / no animation: just reveal
+    if(prefersReduced){ plate.classList.add("is-open"); }
+  });
+
+  // ---- folio total ----
+  var totalEl=document.querySelector(".folio .total");
+  if(totalEl) totalEl.textContent=pad(PHOTOS.length);
+  var nowEl=document.querySelector(".folio .now");
+
+  // ---- ink-wash bloom on enter via IntersectionObserver ----
+  var plates = Array.prototype.slice.call(document.querySelectorAll(".plate"));
+
+  if(!prefersReduced && "IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add("is-open");
+          io.unobserve(e.target); // bloom once — a photo settles and stays
+        }
+      });
+    },{ threshold:0.32, rootMargin:"0px 0px -8% 0px" });
+    plates.forEach(function(pl){ io.observe(pl); });
+  } else {
+    // no IO support: reveal everything
+    plates.forEach(function(pl){ pl.classList.add("is-open"); });
+  }
+
+  // ---- folio counter tracks the scene nearest viewport centre (rAF, paused when hidden) ----
+  var scenes = Array.prototype.slice.call(document.querySelectorAll(".scene"));
+  var ticking=false, running=true;
+
+  function updateFolio(){
+    ticking=false;
+    var mid = window.innerHeight/2;
+    var best=0, bestDist=Infinity;
+    for(var i=0;i<scenes.length;i++){
+      var r=scenes[i].getBoundingClientRect();
+      var c=(r.top+r.bottom)/2;
+      var d=Math.abs(c-mid);
+      if(d<bestDist){bestDist=d; best=i;}
+    }
+    if(nowEl) nowEl.textContent=pad(best+1);
+  }
+  function onScroll(){
+    if(!ticking && running){ ticking=true; requestAnimationFrame(updateFolio); }
+  }
+  window.addEventListener("scroll",onScroll,{passive:true});
+  window.addEventListener("resize",onScroll,{passive:true});
+
+  document.addEventListener("visibilitychange",function(){
+    running=!document.hidden;
+    if(running) onScroll();
+  });
+
+  updateFolio();
+}());
+</script>
+</body>
+</html>

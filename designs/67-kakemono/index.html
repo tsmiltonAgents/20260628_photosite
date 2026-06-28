@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>掛物 — Tom Milton</title>
+<meta name="description" content="Kakemono — film photographs of Tom Milton mounted as Japanese hanging scrolls." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Noto+Serif+JP:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --paper:#e9e3d4;        /* warm tatami paper backdrop */
+    --paper-2:#ded6c4;
+    --ink:#20242b;          /* near-black sumi */
+    --ink-soft:#3c4350;
+    --gray:#7c7567;
+    --indigo:#27384c;       /* aizome indigo */
+    --indigo-2:#1b2838;
+    --indigo-3:#324a63;
+    --gold:#b5934f;         /* dim gilt thread */
+    --jade:#5d6f63;
+    --serif-jp:'Shippori Mincho','Noto Serif JP',serif;
+    --serif-jp-light:'Noto Serif JP','Shippori Mincho',serif;
+    --serif-lat:'EB Garamond',Georgia,serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 80% at 50% 0%, var(--paper) 0%, var(--paper-2) 70%, #d4cbb6 100%);
+    color:var(--ink);
+    font-family:var(--serif-lat);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  /* faint paper grain */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.04;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none;}
+
+  .back{
+    position:fixed;top:clamp(1.1rem,2.4vw,2.2rem);left:clamp(1.1rem,2.4vw,2.2rem);
+    z-index:200;font-family:var(--serif-lat);font-size:.72rem;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--gray);
+    background:rgba(233,227,212,.7);backdrop-filter:blur(3px);
+    padding:.45rem .8rem;border:1px solid rgba(60,67,80,.18);border-radius:2px;
+    transition:color .5s ease,border-color .5s ease;
+  }
+  .back:hover{color:var(--ink);border-color:rgba(60,67,80,.45);}
+
+  /* ---------------- tokonoma masthead ---------------- */
+  .toko{
+    min-height:100vh;min-height:100svh;display:grid;place-items:center;
+    position:relative;padding:7rem 1.5rem 5rem;
+  }
+  .toko__inner{
+    display:flex;flex-direction:row-reverse;align-items:center;gap:clamp(1.6rem,5vw,4rem);
+  }
+  .toko__glyph{
+    writing-mode:vertical-rl;font-family:var(--serif-jp);font-weight:600;
+    font-size:clamp(6rem,20vw,15rem);line-height:.92;color:var(--ink);user-select:none;
+    text-shadow:0 2px 0 rgba(255,255,255,.25);
+  }
+  .toko__text{
+    writing-mode:vertical-rl;text-orientation:mixed;display:flex;flex-direction:row;
+    gap:clamp(1.2rem,3vw,2.4rem);height:clamp(16rem,44vh,28rem);
+  }
+  .toko__title{font-family:var(--serif-jp);font-weight:400;font-size:clamp(1rem,2.4vw,1.5rem);letter-spacing:.4em;color:var(--ink-soft);}
+  .toko__name{font-family:var(--serif-lat);font-style:italic;font-size:clamp(.95rem,2vw,1.3rem);letter-spacing:.28em;color:var(--gray);}
+  .toko__lede{
+    position:absolute;bottom:clamp(2rem,6vh,4rem);left:50%;transform:translateX(-50%);
+    text-align:center;max-width:34rem;font-size:.82rem;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--gray);line-height:2;
+  }
+  .toko__scrollcue{display:block;margin-top:.6rem;font-size:1.1rem;color:var(--indigo);animation:bob 3.4s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(7px);}}
+
+  /* ---------------- the gallery of scrolls ---------------- */
+  .gallery{
+    display:flex;flex-direction:column;align-items:center;
+    gap:clamp(8rem,16vh,16rem);
+    padding:clamp(4rem,10vh,9rem) 1.2rem clamp(7rem,14vh,12rem);
+  }
+
+  /* a single kakemono */
+  .scroll{
+    --p:0;                     /* unroll progress 0..1 set by JS */
+    width:min(86vw,var(--w,400px));
+    position:relative;
+    filter:drop-shadow(0 22px 34px rgba(27,40,56,.26));
+  }
+  /* the suspension rod at the very top (always visible) */
+  .rod{
+    position:relative;height:20px;width:calc(100% + 34px);left:-17px;z-index:6;
+    border-radius:11px;
+    background:
+      linear-gradient(180deg,#4a4035 0%,#2c241b 48%,#1c160f 100%);
+    box-shadow:0 4px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.12);
+  }
+  .rod::before,.rod::after{
+    content:"";position:absolute;top:50%;width:16px;height:30px;transform:translateY(-50%);
+    border-radius:4px;background:linear-gradient(180deg,#5a4d3a,#2a2117);
+    box-shadow:0 3px 6px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.15);
+  }
+  .rod::before{left:-3px;}
+  .rod::after{right:-3px;}
+  /* hanging cord (futai) */
+  .cord{height:14px;display:flex;justify-content:center;gap:34%;}
+  .cord span{width:2px;background:linear-gradient(180deg,#7a2f2c,#561f1d);opacity:.85;}
+
+  /* the part that unrolls: fixed natural height, revealed top→bottom */
+  .scroll__body{
+    position:relative;overflow:hidden;
+    /* reveal height grows with progress */
+    height:calc(var(--bodyH,640px) * var(--p));
+    transition:none;
+    background:var(--indigo-2);
+  }
+  /* the brocade silk + photo live inside an inner that stays full height,
+     so the reveal looks like cloth descending from the rod */
+  .scroll__inner{
+    position:absolute;top:0;left:0;width:100%;height:var(--bodyH,640px);
+  }
+
+  /* silk brocade mount (ichimonji / chu-beri) */
+  .brocade{
+    position:relative;
+    background-color:var(--indigo);
+    background-image:
+      repeating-linear-gradient(45deg, rgba(181,147,79,.16) 0 1px, transparent 1px 13px),
+      repeating-linear-gradient(-45deg, rgba(181,147,79,.16) 0 1px, transparent 1px 13px),
+      radial-gradient(60% 120% at 50% 50%, rgba(50,74,99,.5), rgba(27,40,56,0) 70%);
+    box-shadow:inset 0 0 24px rgba(0,0,0,.32);
+  }
+  .brocade--top{height:84px;border-bottom:3px solid var(--indigo-3);}
+  .brocade--bot{height:120px;border-top:3px solid var(--indigo-3);}
+  /* the thin gilt inner border framing the photo (ichimonji strips) */
+  .strip{height:10px;background:
+    linear-gradient(180deg,#caa86a,#9a7c44 40%,#7d6334);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.25);}
+
+  .photo-wrap{
+    position:relative;overflow:hidden;background:#0e1218;
+    border-left:14px solid var(--indigo);border-right:14px solid var(--indigo);
+  }
+  .photo-wrap img{
+    display:block;width:100%;height:100%;object-fit:cover;
+    filter:sepia(.12) saturate(.92) contrast(1.0) brightness(1.01);
+  }
+  .photo-wrap.bw img{filter:grayscale(1) contrast(1.04) brightness(1.0);}
+  /* soft inner vignette to seat the print in the silk */
+  .photo-wrap::after{content:"";position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 40px rgba(10,14,22,.45);}
+
+  /* the roller bar (jiku) — sits at the descending lower edge of the reveal */
+  .roller{
+    position:absolute;left:-17px;width:calc(100% + 34px);height:24px;z-index:7;
+    top:calc(var(--bodyH,640px) * var(--p) - 12px);
+    border-radius:12px;
+    background:linear-gradient(180deg,#4a4035 0%,#2c241b 50%,#161009 100%);
+    box-shadow:0 6px 12px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.12);
+  }
+  .roller::before,.roller::after{
+    content:"";position:absolute;top:50%;transform:translateY(-50%);
+    width:20px;height:34px;border-radius:5px;
+    background:linear-gradient(180deg,#6a5a40,#221a10);
+    box-shadow:0 3px 7px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.18);
+  }
+  .roller::before{left:-5px;}
+  .roller::after{right:-5px;}
+
+  /* vertical caption beside the scroll */
+  .caption{
+    position:absolute;top:96px;left:calc(100% + clamp(.8rem,2.4vw,2rem));
+    writing-mode:vertical-rl;text-orientation:mixed;
+    display:flex;flex-direction:row;gap:.9rem;height:auto;
+    opacity:0;transform:translateY(14px);
+    transition:opacity 1.1s ease,transform 1.1s ease;
+  }
+  .scroll.revealed .caption{opacity:1;transform:none;}
+  .caption__title{font-family:var(--serif-jp);font-weight:500;font-size:clamp(1rem,1.4vw,1.2rem);letter-spacing:.32em;color:var(--ink);}
+  .caption__meta{font-family:var(--serif-lat);font-style:italic;font-size:.78rem;letter-spacing:.16em;color:var(--gray);line-height:1.5;}
+  .caption__seal{
+    writing-mode:horizontal-tb;align-self:flex-end;margin-top:.4rem;
+    width:34px;height:34px;border-radius:4px;border:2px solid #8c3a33;
+    color:#8c3a33;font-family:var(--serif-jp);font-size:.62rem;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    line-height:1;background:rgba(140,58,51,.06);
+  }
+  @media(max-width:720px){
+    .caption{position:static;writing-mode:horizontal-tb;flex-direction:column;
+      margin:1.4rem auto 0;align-items:center;text-align:center;width:86vw;}
+    .caption__seal{align-self:center;}
+  }
+
+  /* colophon */
+  .colophon{
+    text-align:center;padding:0 1.5rem clamp(5rem,12vh,9rem);
+    font-family:var(--serif-jp);color:var(--ink-soft);
+  }
+  .colophon .mark{font-size:1.8rem;color:var(--indigo);}
+  .colophon p{font-family:var(--serif-lat);font-style:italic;color:var(--gray);letter-spacing:.14em;font-size:.85rem;}
+
+  @media(prefers-reduced-motion:reduce){
+    .toko__scrollcue{animation:none;}
+    .caption{transition:none;}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">← All designs</a>
+
+<header class="toko">
+  <div class="toko__inner">
+    <div class="toko__glyph" aria-hidden="true">掛物</div>
+    <div class="toko__text">
+      <div class="toko__title">懸かる景色</div>
+      <div class="toko__name">Tom Milton — Hanging Scrolls</div>
+    </div>
+  </div>
+  <p class="toko__lede">
+    Kakemono. Each photograph mounted as a hanging scroll, unrolled in the quiet of the tokonoma.
+    <span class="toko__scrollcue" aria-hidden="true">▾</span>
+  </p>
+</header>
+
+<main class="gallery" id="gallery" aria-label="Photographs as hanging scrolls"></main>
+
+<footer class="colophon">
+  <div class="mark" aria-hidden="true">了</div>
+  <p>The scroll is rolled again until it is wanted.</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var DATA=[
+    {f:"golden-field-sunburst.jpg",t:"残光",lat:"Last Light, Wheat Country",loc:"Tuscany, Italy",film:"Kodak Portra 400",cam:"Leica M6",yr:1998,w:380,h:620,seal:"残光"},
+    {f:"sun-through-leaves.jpg",t:"逆光",lat:"Backlit",loc:"Kyoto, Japan",film:"Kodak Portra 800",cam:"Leica M6",yr:2004,w:360,h:680,seal:"光"},
+    {f:"forest-sunlight.jpg",t:"杉の聖堂",lat:"Cathedral of Pines",loc:"Olympic NP, USA",film:"Kodak Portra 160",cam:"Hasselblad 500CM",yr:1996,w:360,h:700,seal:"森"},
+    {f:"misty-pine-forest.jpg",t:"静寂",lat:"Silence",loc:"Norway",film:"Ilford HP5 Plus",cam:"Leica M6",yr:2003,bw:true,w:380,h:640,seal:"静"},
+    {f:"lake-mountain-house.jpg",t:"映る朝",lat:"Reflections, Still Morning",loc:"Hallstatt, Austria",film:"Kodak Ektar 100",cam:"Mamiya RZ67",yr:2000,water:true,w:420,h:560,seal:"映"},
+    {f:"mountain-road-fog.jpg",t:"帰り道",lat:"The Long Way Home",loc:"Dolomites, Italy",film:"Cinestill 800T",cam:"Canon AE-1",yr:2005,w:420,h:560,seal:"路"},
+    {f:"woman-portrait-window.jpg",t:"窓辺",lat:"By the Window",loc:"Lisbon, Portugal",film:"Kodak Portra 400",cam:"Pentax 67",yr:2011,w:380,h:660,seal:"窓"},
+    {f:"autumn-forest-road.jpg",t:"十月の道",lat:"October Road",loc:"Vermont, USA",film:"Kodak Portra 400",cam:"Leica M7",yr:2007,w:380,h:640,seal:"秋"},
+    {f:"waterfall-bridge.jpg",t:"隠れ滝",lat:"Hidden Falls",loc:"Iceland",film:"Fujifilm Velvia 50",cam:"Nikon FM2",yr:2006,water:true,w:380,h:680,seal:"滝"},
+    {f:"forest-path-trees.jpg",t:"森の奥へ",lat:"Into the Woods",loc:"Black Forest, Germany",film:"Kodak Portra 160",cam:"Rolleiflex 2.8F",yr:1995,w:380,h:640,seal:"道"},
+    {f:"desert-dunes.jpg",t:"風の線",lat:"Wind Lines",loc:"Namibia",film:"Kodak Ektar 100",cam:"Hasselblad 503CW",yr:2008,w:440,h:540,seal:"風"},
+    {f:"cozy-interior-window.jpg",t:"家の灯",lat:"Home Light",loc:"Copenhagen, Denmark",film:"Kodak Portra 400",cam:"Leica M6",yr:2023,w:400,h:600,seal:"灯"}
+  ];
+
+  var gallery=document.getElementById("gallery");
+  var reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var scrolls=[];
+
+  DATA.forEach(function(d){
+    var fig=document.createElement("figure");
+    fig.className="scroll";
+    fig.style.setProperty("--w",d.w+"px");
+    // body natural height = top mount + strips + photo + bottom mount
+    var photoH=Math.round(d.h);
+    var bodyH=84+10+photoH+10+120;
+    fig.style.setProperty("--bodyH",bodyH+"px");
+    fig.style.setProperty("--p",reduce?1:0);
+
+    var seal=d.seal||d.t.slice(0,1);
+    fig.innerHTML=
+      '<div class="rod" aria-hidden="true"></div>'+
+      '<div class="cord" aria-hidden="true"><span></span><span></span></div>'+
+      '<div class="scroll__body">'+
+        '<div class="scroll__inner">'+
+          '<div class="brocade brocade--top"></div>'+
+          '<div class="strip"></div>'+
+          '<div class="photo-wrap'+(d.bw?' bw':'')+'" style="height:'+photoH+'px">'+
+            '<img src="../../assets/img/'+d.f+'" alt="'+d.lat+' — '+d.loc+', '+d.yr+'" loading="lazy" decoding="async" />'+
+          '</div>'+
+          '<div class="strip"></div>'+
+          '<div class="brocade brocade--bot"></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="roller" aria-hidden="true"></div>'+
+      '<figcaption class="caption">'+
+        '<div class="caption__title">'+d.t+'</div>'+
+        '<div class="caption__meta">'+d.lat+' · '+d.loc+'<br/>'+d.film+' · '+d.cam+' · '+d.yr+'</div>'+
+        '<div class="caption__seal" aria-hidden="true">'+seal+'</div>'+
+      '</figcaption>';
+
+    gallery.appendChild(fig);
+    scrolls.push(fig);
+    if(reduce) fig.classList.add("revealed");
+  });
+
+  if(reduce) return; // static, fully unrolled
+
+  // scroll-driven unroll
+  var ticking=false;
+  function compute(){
+    ticking=false;
+    var vh=window.innerHeight;
+    for(var i=0;i<scrolls.length;i++){
+      var el=scrolls[i];
+      var r=el.getBoundingClientRect();
+      // begin unrolling when the top of the scroll reaches 88% of viewport,
+      // complete by the time it reaches 32% — gives a deliberate, ceremonial reveal
+      var start=vh*0.88, end=vh*0.30;
+      var p=(start - r.top)/(start - end);
+      p=p<0?0:(p>1?1:p);
+      // ease (smoothstep) for a cloth-like settle
+      var e=p*p*(3-2*p);
+      el.style.setProperty("--p",e.toFixed(4));
+      if(e>0.96){ if(!el.classList.contains("revealed")) el.classList.add("revealed"); }
+      else if(e<0.5 && el.classList.contains("revealed")) el.classList.remove("revealed");
+    }
+  }
+  function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(compute);} }
+
+  var running=true;
+  window.addEventListener("scroll",onScroll,{passive:true});
+  window.addEventListener("resize",onScroll,{passive:true});
+  document.addEventListener("visibilitychange",function(){
+    running=!document.hidden;
+    if(running) onScroll();
+  });
+  // strong initial state
+  compute();
+  window.addEventListener("load",compute);
+})();
+</script>
+</body>
+</html>

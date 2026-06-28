@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Double Exposure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07070a;
+    --ink:#ece7dc;
+    --dim:#7d7768;
+    --gold:#d9a35c;
+    --serif:'Cormorant Garamond',Georgia,serif;
+    --sans:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--ink);font-family:var(--sans);
+    overflow:hidden;touch-action:none;
+  }
+  ::selection{background:var(--gold);color:#160d02}
+  a{color:inherit}
+
+  .back{
+    position:fixed;top:1rem;left:1rem;z-index:40;
+    font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+    text-decoration:none;color:var(--dim);padding:.5rem .7rem;border:1px solid #23242a;
+    background:rgba(7,7,10,.6);backdrop-filter:blur(6px);transition:.2s;
+  }
+  .back:hover{color:var(--gold);border-color:#4a3a1c}
+
+  /* full-bleed stage */
+  .stage{position:fixed;inset:0;background:#000;overflow:hidden;cursor:crosshair}
+  .layer{position:absolute;inset:-8% -12%;width:124%;height:116%;}
+  .layer img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    will-change:transform,opacity;user-select:none;-webkit-user-drag:none;pointer-events:none}
+  /* base layer */
+  #la{z-index:1}
+  /* overlay layer — the multiple exposure */
+  #lb{z-index:2;mix-blend-mode:screen}
+  /* grade applied to each image via class */
+  .grade-col{filter:saturate(1.06) contrast(1.02) brightness(1.04) sepia(.12) hue-rotate(-6deg)}
+  .grade-bw{filter:grayscale(1) contrast(1.06) brightness(1.04)}
+
+  /* vignette + light leak ambience over the blend */
+  .stage::after{
+    content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+    background:
+      radial-gradient(120% 90% at 50% 50%, transparent 50%, rgba(0,0,0,.55) 100%),
+      radial-gradient(80% 60% at 15% 10%, rgba(217,163,92,.10), transparent 60%);
+    mix-blend-mode:normal;
+  }
+  /* grain */
+  .stage .grain{position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:overlay;opacity:.08;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* title block */
+  header{position:fixed;left:clamp(1rem,4vw,3rem);bottom:clamp(1.4rem,5vh,3rem);z-index:20;max-width:min(90vw,560px);
+    text-shadow:0 2px 30px rgba(0,0,0,.9)}
+  .kick{font-size:.66rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+  header h1{font-family:var(--serif);font-weight:500;font-size:clamp(2.4rem,8vw,4.6rem);line-height:.95;letter-spacing:.01em}
+  header h1 em{font-style:italic}
+  .pair{margin-top:.9rem;font-family:var(--serif);font-size:clamp(1.05rem,3vw,1.5rem);line-height:1.25;color:var(--ink)}
+  .pair span{color:var(--gold);font-style:italic}
+  .pmeta{margin-top:.5rem;font-size:.72rem;letter-spacing:.05em;color:var(--dim);line-height:1.6}
+
+  /* top-right controls / hud */
+  .hud{position:fixed;top:1rem;right:1rem;z-index:30;text-align:right;font-size:.66rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--dim);line-height:1.9}
+  .hud b{color:var(--gold);font-weight:500}
+  .counter{font-family:var(--serif);font-style:italic;font-size:1.5rem;letter-spacing:0;color:var(--ink);text-transform:none}
+
+  /* crosshair guides showing pointer mapping */
+  .guideH,.guideV{position:fixed;z-index:12;pointer-events:none;background:rgba(217,163,92,.22)}
+  .guideH{left:0;right:0;height:1px}
+  .guideV{top:0;bottom:0;width:1px}
+  .guideLbl{position:fixed;z-index:13;pointer-events:none;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);background:rgba(7,7,10,.5);padding:.15rem .4rem}
+
+  /* intro hint */
+  .hint{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:25;text-align:center;
+    pointer-events:none;transition:opacity .6s ease;max-width:80vw}
+  .hint .ring{width:54px;height:54px;border:1px solid var(--gold);border-radius:50%;margin:0 auto 1.1rem;
+    position:relative;animation:breathe 2.4s ease infinite}
+  .hint .ring::after{content:"";position:absolute;inset:0;margin:auto;width:7px;height:7px;border-radius:50%;background:var(--gold)}
+  @keyframes breathe{0%,100%{transform:scale(.82);opacity:.5}50%{transform:scale(1.1);opacity:1}}
+  .hint p{font-family:var(--serif);font-size:clamp(1.2rem,3.4vw,1.7rem);font-style:italic;line-height:1.45}
+  .hint small{display:block;margin-top:.6rem;font-family:var(--sans);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-style:normal}
+  body.touched .hint{opacity:0}
+
+  @media(prefers-reduced-motion:reduce){
+    .hint .ring{animation:none}
+    .layer img{transition:none!important}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">&larr; All designs</a>
+
+<div class="stage" id="stage" role="img" aria-label="Live double exposure blend of two film photographs. Move pointer to sculpt the exposure, tap to change the pairing.">
+  <div class="layer" id="la"><img id="imgA" alt="" src=""></div>
+  <div class="layer" id="lb"><img id="imgB" alt="" src=""></div>
+  <div class="grain"></div>
+</div>
+
+<div class="guideH" id="gH"></div>
+<div class="guideV" id="gV"></div>
+<div class="guideLbl" id="lblX">offset</div>
+<div class="guideLbl" id="lblY">intensity</div>
+
+<div class="hint" id="hint" aria-hidden="true">
+  <div class="ring"></div>
+  <p>Two negatives, one frame.</p>
+  <small>Move to sculpt · Tap to re-pair</small>
+</div>
+
+<div class="hud">
+  <div class="counter" id="counter">01</div>
+  <div>Double Exposure</div>
+  <div><b>x</b> offset · <b>y</b> intensity</div>
+  <div>Tap &middot; <b>re-pair</b></div>
+</div>
+
+<header>
+  <div class="kick">Tom Milton · In-Camera No. 74</div>
+  <h1>Double<br><em>Exposure</em></h1>
+  <div class="pair" id="pairTitle"></div>
+  <div class="pmeta" id="pairMeta"></div>
+</header>
+
+<script>
+(function(){
+  "use strict";
+  var IMG={
+    "woman-portrait-window.jpg":["By the Window","Lisbon · Portra 400",0],
+    "forest-sunlight.jpg":["Cathedral of Pines","Olympic NP · Portra 160",0],
+    "man-bw-portrait.jpg":["Portrait in Shadow","Berlin · Delta 3200",1],
+    "misty-pine-forest.jpg":["Silence","Norway · HP5 Plus",1],
+    "woman-portrait-soft.jpg":["Soft Hour","Paris · Pro 400H",0],
+    "golden-field-sunburst.jpg":["Last Light","Tuscany · Portra 400",0],
+    "woman-curly-portrait.jpg":["Curls","Brooklyn · 800T",0],
+    "waterfall-bridge.jpg":["Hidden Falls","Iceland · Velvia 50",0],
+    "couple-silhouette-sunset.jpg":["Goodnight","Santorini · Portra 800",0],
+    "desert-dunes.jpg":["Wind Lines","Namibia · Ektar 100",0],
+    "woman-fashion-portrait.jpg":["The Red Wall","Marrakesh · Portra 400",0],
+    "sun-through-leaves.jpg":["Backlit","Kyoto · Portra 800",0],
+    "woman-portrait-freckles.jpg":["Freckles & Sun","Studio · Portra 160",0],
+    "rolling-green-hills.jpg":["Patchwork","Tuscany · Pro 400H",0],
+    "woman-laughing-portrait.jpg":["That Laugh","Mexico City · Portra 800",0],
+    "autumn-forest-road.jpg":["October Road","Vermont · Portra 400",0]
+  };
+  // striking portrait + landscape/foliage pairings
+  var PAIRS=[
+    ["woman-portrait-window.jpg","forest-sunlight.jpg"],
+    ["man-bw-portrait.jpg","misty-pine-forest.jpg"],
+    ["woman-portrait-soft.jpg","golden-field-sunburst.jpg"],
+    ["woman-curly-portrait.jpg","waterfall-bridge.jpg"],
+    ["couple-silhouette-sunset.jpg","desert-dunes.jpg"],
+    ["woman-fashion-portrait.jpg","sun-through-leaves.jpg"],
+    ["woman-portrait-freckles.jpg","rolling-green-hills.jpg"],
+    ["woman-laughing-portrait.jpg","autumn-forest-road.jpg"]
+  ];
+
+  var imgA=document.getElementById("imgA"), imgB=document.getElementById("imgB");
+  var laEl=document.getElementById("la"), lbEl=document.getElementById("lb");
+  var pairTitle=document.getElementById("pairTitle"), pairMeta=document.getElementById("pairMeta");
+  var counter=document.getElementById("counter");
+  var gH=document.getElementById("gH"),gV=document.getElementById("gV");
+  var lblX=document.getElementById("lblX"),lblY=document.getElementById("lblY");
+  var stage=document.getElementById("stage");
+  var reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  var idx=0;
+  function grade(el,file){el.className="grade-"+(IMG[file][2]===1?"bw":"col");}
+
+  function load(i){
+    idx=((i%PAIRS.length)+PAIRS.length)%PAIRS.length;
+    var p=PAIRS[idx], a=p[0], b=p[1];
+    imgA.src="../../assets/img/"+a;
+    imgB.src="../../assets/img/"+b;
+    imgA.alt=IMG[a][0]+", "+IMG[a][1];
+    imgB.alt="blended with "+IMG[b][0]+", "+IMG[b][1];
+    grade(imgA,a); grade(imgB,b);
+    pairTitle.innerHTML='<span>'+IMG[a][0]+'</span> &nbsp;&times;&nbsp; <span>'+IMG[b][0]+'</span>';
+    pairMeta.textContent=IMG[a][1]+"  +  "+IMG[b][1];
+    counter.textContent=String(idx+1).padStart(2,"0");
+  }
+  load(0);
+
+  // pointer-driven blend, rAF-smoothed
+  // tx: -1..1 horizontal -> parallax offset of the two layers in opposite directions
+  // ty: 0..1 vertical -> overlay intensity / opacity
+  var targetX=0.5, targetY=0.42, curX=0.5, curY=0.42;
+  var touched=false;
+
+  function setTargets(px,py){
+    targetX=Math.max(0,Math.min(1,px));
+    targetY=Math.max(0,Math.min(1,py));
+    if(!touched){touched=true;document.body.classList.add("touched");}
+  }
+
+  stage.addEventListener("pointermove",function(e){
+    setTargets(e.clientX/window.innerWidth, e.clientY/window.innerHeight);
+  },{passive:true});
+  stage.addEventListener("pointerdown",function(e){
+    setTargets(e.clientX/window.innerWidth, e.clientY/window.innerHeight);
+  },{passive:true});
+  // tap / click cycles pairing
+  stage.addEventListener("click",function(){ load(idx+1); });
+
+  var W=window.innerWidth,H=window.innerHeight;
+  window.addEventListener("resize",function(){W=window.innerWidth;H=window.innerHeight;},{passive:true});
+
+  function render(){
+    var ox=(curX-0.5);            // -0.5..0.5
+    var maxShift=W*0.10;
+    // base layer drifts one way, overlay the other -> parallax separation
+    laEl.style.transform="translateX("+(ox*maxShift*0.5).toFixed(1)+"px)";
+    lbEl.style.transform="translateX("+(-ox*maxShift).toFixed(1)+"px) translateY("+(-(curY-0.5)*H*0.05).toFixed(1)+"px)";
+    // overlay intensity: top = ghostly, bottom = strong (0.2 .. 1)
+    var op=0.2+curY*0.85; if(op>1)op=1;
+    lbEl.style.opacity=op.toFixed(3);
+    // a touch of base fade when overlay is very strong keeps it dreamy
+    laEl.style.opacity=(1-curY*0.18).toFixed(3);
+  }
+
+  var running=true;
+  function loop(){
+    if(running){
+      if(reduce){curX=targetX;curY=targetY;}
+      else{curX+=(targetX-curX)*0.12;curY+=(targetY-curY)*0.12;}
+      render();
+      // guide overlays
+      gV.style.left=(curX*W)+"px";
+      gH.style.top=(curY*H)+"px";
+      lblX.style.left=(curX*W+8)+"px"; lblX.style.top=(H-22)+"px";
+      lblY.style.top=(curY*H+6)+"px"; lblY.style.left="8px";
+    }
+    requestAnimationFrame(loop);
+  }
+  document.addEventListener("visibilitychange",function(){running=!document.hidden;});
+
+  // keyboard: arrows cycle pairings (a11y)
+  window.addEventListener("keydown",function(e){
+    if(e.key==="ArrowRight"||e.key==="ArrowDown"){load(idx+1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"||e.key==="ArrowUp"){load(idx-1);e.preventDefault();}
+  });
+
+  // initial guide position
+  curX=targetX;curY=targetY;render();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

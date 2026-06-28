@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton / Red Wedge — A Photographic Agitation</title>
+<meta name="description" content="Russian-constructivist agitprop portfolio for film photographer Tom Milton. Bold diagonals, red and black, photomontage that flies in on scroll.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Oswald:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#d31f12;
+    --red2:#a8160c;
+    --black:#15120e;
+    --cream:#ece2cc;     /* warm cream twist on the Bauhaus white */
+    --cream2:#e0d4b8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  body{
+    background:var(--cream);
+    color:var(--black);
+    font-family:'Oswald',system-ui,sans-serif;
+    line-height:1.2;
+    overflow-x:hidden;
+    position:relative;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.08;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none;}
+
+  .backlink{
+    position:fixed;top:16px;left:16px;z-index:600;
+    background:var(--black);color:var(--cream);
+    font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;
+    letter-spacing:.12em;text-transform:uppercase;
+    padding:9px 14px;border:3px solid var(--black);
+    transition:transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .backlink:hover,.backlink:focus-visible{background:var(--red);color:var(--cream);transform:translate(-2px,-2px);outline:none;}
+
+  /* ---- fixed diagonal backdrop (parallax) ---- */
+  .backdrop{position:fixed;inset:-20% -20%;z-index:0;pointer-events:none;overflow:hidden;}
+  .backdrop .bar{
+    position:absolute;left:-30%;width:160%;height:8vh;background:var(--black);opacity:.05;
+    transform:rotate(-26deg);
+  }
+  .backdrop .bar:nth-child(1){top:8%;}
+  .backdrop .bar:nth-child(2){top:34%;height:3vh;background:var(--red);opacity:.07;}
+  .backdrop .bar:nth-child(3){top:62%;}
+  .backdrop .bar:nth-child(4){top:84%;height:4vh;background:var(--red);opacity:.06;}
+
+  main{position:relative;z-index:1;}
+
+  /* ================= HERO ================= */
+  .hero{
+    position:relative;min-height:100vh;overflow:hidden;
+    background:var(--cream);border-bottom:12px solid var(--black);
+    display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(20px,6vw,90px);
+  }
+  /* El Lissitzky homage: red wedge into cream circle on black field */
+  .hero .field{
+    position:absolute;top:0;right:0;width:58%;height:100%;
+    background:var(--black);
+    clip-path:polygon(22% 0,100% 0,100% 100%,0 100%);
+  }
+  .hero .circle{
+    position:absolute;top:50%;right:14%;width:34vmin;height:34vmin;
+    border-radius:50%;background:var(--cream);
+    transform:translateY(-50%);
+    box-shadow:0 0 0 8px var(--black);
+  }
+  .hero .wedge{
+    position:absolute;top:50%;right:6%;width:46vmin;height:46vmin;
+    transform:translateY(-50%);
+    transition:transform 1s cubic-bezier(.2,.7,.2,1), opacity .7s ease;
+  }
+  .hero .wedge::before{
+    content:"";position:absolute;inset:0;background:var(--red);
+    clip-path:polygon(0 50%, 100% 8%, 100% 92%);
+    box-shadow:0 14px 30px rgba(0,0,0,.35);
+  }
+  .hero.preload .wedge{transform:translate(-26vw,-50%) rotate(-12deg);opacity:0;}
+
+  .hero .mast{position:relative;z-index:3;max-width:62%;}
+  .hero .stamp{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:18px;
+  }
+  .hero .stamp::before{content:"";width:34px;height:0;border-top:4px solid var(--red);}
+  .hero h1{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(2.6rem,11vw,8.5rem);line-height:.82;
+    text-transform:uppercase;letter-spacing:-.02em;
+  }
+  .hero h1 .a{display:block;}
+  .hero h1 .b{display:block;color:var(--red);transform:skewX(-7deg);}
+  .hero .tag{
+    margin-top:clamp(16px,3vw,30px);
+    font-family:'Oswald',sans-serif;font-weight:600;
+    font-size:clamp(1rem,2.6vw,1.7rem);text-transform:uppercase;
+    letter-spacing:.02em;line-height:1.05;max-width:18ch;
+  }
+  .hero .tag b{color:var(--red);}
+  .hero .rule{height:6px;background:var(--black);width:min(46vw,520px);margin-top:22px;}
+  .hero .scrollcue{
+    position:absolute;left:clamp(20px,6vw,90px);bottom:26px;z-index:3;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.24em;
+    text-transform:uppercase;display:flex;align-items:center;gap:12px;color:var(--black);
+  }
+  .hero .scrollcue .arr{width:10px;height:10px;border-right:3px solid var(--red);border-bottom:3px solid var(--red);transform:rotate(45deg);animation:drop 1.4s ease-in-out infinite;}
+  @keyframes drop{0%,100%{transform:translateY(0) rotate(45deg);opacity:.4;}50%{transform:translateY(6px) rotate(45deg);opacity:1;}}
+
+  /* ================= MANIFESTO STRIP ================= */
+  .manifesto{
+    background:var(--red);color:var(--cream);
+    border-bottom:12px solid var(--black);
+    padding:clamp(40px,8vw,110px) clamp(20px,6vw,90px);
+    overflow:hidden;position:relative;
+  }
+  .manifesto .big{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(2rem,8vw,6rem);line-height:.9;text-transform:uppercase;
+    transform:rotate(-3deg);transform-origin:left;
+  }
+  .manifesto .big em{font-style:normal;color:var(--black);}
+  .manifesto .sub{
+    margin-top:26px;max-width:48ch;font-weight:500;
+    font-size:clamp(1rem,2vw,1.3rem);line-height:1.4;letter-spacing:.01em;
+  }
+  .manifesto .tri{
+    position:absolute;right:-4vw;top:-4vw;width:30vw;height:30vw;
+    background:var(--black);clip-path:polygon(100% 0,100% 100%,0 0);opacity:.9;
+  }
+
+  /* ================= MONTAGE ENTRIES ================= */
+  .entry{
+    position:relative;
+    padding:clamp(50px,10vw,130px) clamp(20px,6vw,90px);
+    border-bottom:12px solid var(--black);
+    display:grid;gap:clamp(24px,4vw,60px);align-items:center;
+    grid-template-columns:1fr 1fr;
+    overflow:hidden;
+  }
+  .entry.flip{grid-template-columns:1fr 1fr;}
+  .entry.flip .e-text{order:2;}
+  .entry.flip .e-photo{order:1;}
+
+  .e-photo{position:relative;}
+  .e-photo .frame{
+    position:relative;display:block;
+    border:6px solid var(--black);
+    background:var(--black);
+    box-shadow:14px 14px 0 var(--red);
+    overflow:hidden;
+    aspect-ratio:4/5;
+  }
+  .e-photo .frame.wide{aspect-ratio:3/2;}
+  .e-photo .frame img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:saturate(1.06) contrast(1.05) sepia(0.08) brightness(1.02);
+  }
+  .e-photo .frame.bw img{filter:grayscale(1) contrast(1.1) brightness(1.03);}
+  .e-photo .tag-num{
+    position:absolute;top:-22px;left:-14px;z-index:4;
+    font-family:'Archivo Black',sans-serif;font-size:clamp(2.4rem,7vw,5rem);
+    color:var(--red);-webkit-text-stroke:2px var(--black);line-height:.8;
+  }
+  .e-photo .acc{
+    position:absolute;width:0;height:0;z-index:3;
+  }
+  .e-photo .acc.t{
+    right:-18px;bottom:36px;
+    border-left:34px solid transparent;border-right:34px solid transparent;
+    border-bottom:56px solid var(--red);transform:rotate(18deg);
+  }
+
+  .e-text{position:relative;}
+  .e-text .idx{
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.26em;
+    text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:14px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .e-text .idx::after{content:"";flex:1;height:3px;background:var(--black);max-width:120px;}
+  .e-text h2{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(1.8rem,5.2vw,4rem);line-height:.86;text-transform:uppercase;
+    letter-spacing:-.01em;transform:skewX(-5deg);transform-origin:left;
+  }
+  .e-text h2 b{color:var(--red);}
+  .e-text .meta{
+    margin-top:22px;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;
+    font-family:'Space Mono',monospace;font-size:12.5px;letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .e-text .meta dt{color:var(--red);font-weight:700;}
+  .e-text .meta dd{font-weight:400;}
+  .e-text .bar{height:6px;width:64%;background:var(--black);margin-top:24px;transform:skewX(-20deg);}
+
+  /* ---- scroll reveal ---- */
+  .rv{opacity:0;will-change:transform,opacity;
+      transition:transform .95s cubic-bezier(.16,.84,.3,1), opacity .8s ease;}
+  .rv[data-dir="l"]{transform:translate(-16vw,5vh) rotate(-7deg);}
+  .rv[data-dir="r"]{transform:translate(16vw,-5vh) rotate(7deg);}
+  .rv[data-dir="dl"]{transform:translate(-13vw,11vh) rotate(-9deg);}
+  .rv[data-dir="dr"]{transform:translate(13vw,11vh) rotate(9deg);}
+  .rv[data-dir="u"]{transform:translate(0,14vh) rotate(2.5deg);}
+  .rv.in{opacity:1;transform:none;}
+  /* photo resting tilt lives on inner element so reveal can zero-out cleanly */
+  .tilt{display:block;transform:rotate(-3.5deg);}
+  .tilt.r{transform:rotate(3deg);}
+
+  /* ================= FOOTER ================= */
+  footer{
+    background:var(--black);color:var(--cream);
+    padding:clamp(40px,7vw,90px) clamp(20px,6vw,90px);
+    position:relative;overflow:hidden;
+  }
+  footer .big{font-family:'Archivo Black',sans-serif;font-size:clamp(2rem,9vw,6.5rem);line-height:.84;text-transform:uppercase;}
+  footer .big b{color:var(--red);}
+  footer .row{
+    margin-top:28px;display:flex;flex-wrap:wrap;gap:10px 30px;
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--cream2);
+  }
+  footer .wedge2{position:absolute;right:-6vw;bottom:-10vw;width:34vw;height:34vw;background:var(--red);clip-path:polygon(0 50%,100% 0,100% 100%);opacity:.85;}
+
+  @media (max-width:820px){
+    .hero .mast{max-width:100%;}
+    .hero .field,.hero .circle,.hero .wedge{opacity:.9;}
+    .hero .wedge{right:-8%;width:60vmin;}
+    .entry{grid-template-columns:1fr;}
+    .entry.flip .e-text,.entry.flip .e-photo{order:initial;}
+    .e-text .bar{width:50%;}
+  }
+  @media (max-width:560px){
+    .hero .field{width:100%;clip-path:polygon(0 64%,100% 38%,100% 100%,0 100%);}
+    .hero .circle{top:auto;bottom:8%;right:8%;transform:none;width:26vmin;height:26vmin;}
+    .hero .wedge{top:auto;bottom:2%;transform:none;width:50vmin;}
+    .hero.preload .wedge{transform:translate(-30vw,0) rotate(-12deg);opacity:0;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .rv{opacity:1 !important;transform:none !important;transition:none !important;}
+    .hero.preload .wedge{transform:translateY(-50%);opacity:1;}
+    .hero .scrollcue .arr{animation:none;}
+  }
+</style>
+</head>
+<body>
+  <a class="backlink" href="../../index.html">&larr; All designs</a>
+
+  <div class="backdrop" id="backdrop" aria-hidden="true">
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+  </div>
+
+  <main>
+    <!-- ============ HERO ============ -->
+    <header class="hero preload" id="hero">
+      <div class="field" aria-hidden="true"></div>
+      <div class="circle" aria-hidden="true"></div>
+      <div class="wedge" aria-hidden="true"></div>
+      <div class="mast">
+        <span class="stamp">Film Photography &middot; Est. 1995</span>
+        <h1><span class="a">Tom</span><span class="b">Milton</span></h1>
+        <p class="tag">Beat the grey with the <b>red wedge</b>. Thirty years of light, cut on the diagonal.</p>
+        <div class="rule"></div>
+      </div>
+      <div class="scrollcue">Scroll to advance <span class="arr"></span></div>
+    </header>
+
+    <!-- ============ MANIFESTO ============ -->
+    <section class="manifesto">
+      <div class="tri" aria-hidden="true"></div>
+      <div class="big rv" data-dir="l">Photographs<br>are <em>built</em>,<br>not taken.</div>
+      <p class="sub rv" data-dir="u">A portfolio set in motion: every frame cropped hard, angled against the grid, and driven home like a wedge. Drag your eye across the diagonal.</p>
+    </section>
+
+    <!-- entries injected by JS -->
+    <div id="entries"></div>
+
+    <!-- ============ FOOTER ============ -->
+    <footer>
+      <div class="wedge2" aria-hidden="true"></div>
+      <div class="big rv" data-dir="dl">End of<br>transmission<b>.</b></div>
+      <div class="row rv" data-dir="u">
+        <span>Tom Milton</span><span>Constructions on the Diagonal</span><span>No. 46</span><span>1995&ndash;2023</span>
+      </div>
+    </footer>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var P='../../assets/img/';
+
+  // ---- entries data ----
+  var data=[
+    {img:'woman-fashion-portrait.jpg', t:'The Red <b>Wall</b>', loc:'Marrakesh, Morocco', film:'Kodak Portra 400', cam:'Pentax 67', yr:'2019', wide:false, dir:'r', tilt:''},
+    {img:'man-portrait-street.jpg', bw:true, t:'Stranger, <b>No.&nbsp;14</b>', loc:'Havana, Cuba', film:'Kodak Tri-X 400', cam:'Leica M4', yr:'2012', wide:false, dir:'l', tilt:'r'},
+    {img:'cliff-coast-ocean.jpg', t:'Edge of the <b>World</b>', loc:'Big Sur, USA', film:'Kodak Portra 400', cam:'Contax G2', yr:'2002', wide:true, dir:'r', tilt:''},
+    {img:'desert-dunes.jpg', t:'Wind <b>Lines</b>', loc:'Namibia', film:'Kodak Ektar 100', cam:'Hasselblad 503CW', yr:'2008', wide:true, dir:'l', tilt:'r'},
+    {img:'mountain-road-fog.jpg', t:'The Long Way <b>Home</b>', loc:'Dolomites, Italy', film:'Cinestill 800T', cam:'Canon AE-1', yr:'2005', wide:false, dir:'r', tilt:''},
+    {img:'woman-laughing-portrait.jpg', t:'That <b>Laugh</b>', loc:'Mexico City, Mexico', film:'Kodak Portra 800', cam:'Contax G2', yr:'2021', wide:false, dir:'l', tilt:'r'}
+  ];
+
+  var host=document.getElementById('entries');
+  data.forEach(function(d,i){
+    var flip = (i%2===1);
+    var sec=document.createElement('section');
+    sec.className='entry'+(flip?' flip':'');
+    var n=String(i+1).padStart(2,'0');
+    var photoDir = flip ? 'r' : 'l';
+    var textDir  = flip ? 'l' : 'r';
+    sec.innerHTML =
+      '<div class="e-photo rv" data-dir="'+photoDir+'">'+
+        '<span class="tag-num" aria-hidden="true">'+n+'</span>'+
+        '<span class="acc t" aria-hidden="true"></span>'+
+        '<span class="tilt'+(d.tilt==='r'?' r':'')+'">'+
+          '<a class="frame'+(d.wide?' wide':'')+(d.bw?' bw':'')+'" href="'+P+d.img+'">'+
+            '<img src="'+P+d.img+'" loading="lazy" alt="'+d.t.replace(/<[^>]+>/g,'')+' — '+d.loc+', '+d.yr+', shot on '+d.film+'">'+
+          '</a>'+
+        '</span>'+
+      '</div>'+
+      '<div class="e-text rv" data-dir="'+textDir+'">'+
+        '<div class="idx">Plate '+n+'</div>'+
+        '<h2>'+d.t+'</h2>'+
+        '<dl class="meta">'+
+          '<dt>Place</dt><dd>'+d.loc+'</dd>'+
+          '<dt>Stock</dt><dd>'+d.film+'</dd>'+
+          '<dt>Camera</dt><dd>'+d.cam+'</dd>'+
+          '<dt>Year</dt><dd>'+d.yr+'</dd>'+
+        '</dl>'+
+        '<div class="bar" aria-hidden="true"></div>'+
+      '</div>';
+    host.appendChild(sec);
+  });
+
+  // ---- hero intro ----
+  var hero=document.getElementById('hero');
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ hero.classList.remove('preload'); }); });
+
+  // ---- scroll reveal ----
+  var rvs=[].slice.call(document.querySelectorAll('.rv'));
+  if(reduce){
+    rvs.forEach(function(el){el.classList.add('in');});
+  } else if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold:0.18, rootMargin:'0px 0px -8% 0px'});
+    rvs.forEach(function(el){ io.observe(el); });
+  } else {
+    rvs.forEach(function(el){el.classList.add('in');});
+  }
+
+  // ---- parallax backdrop (rAF-throttled, paused when hidden / reduced) ----
+  var backdrop=document.getElementById('backdrop');
+  var ticking=false, paused=reduce;
+  function onScroll(){
+    if(paused||ticking) return;
+    ticking=true;
+    requestAnimationFrame(function(){
+      var y=window.pageYOffset||document.documentElement.scrollTop;
+      backdrop.style.transform='translateY('+(y*-0.06)+'px)';
+      ticking=false;
+    });
+  }
+  if(!reduce){
+    window.addEventListener('scroll', onScroll, {passive:true});
+    document.addEventListener('visibilitychange', function(){ paused=document.hidden; });
+  }
+})();
+</script>
+</body>
+</html>

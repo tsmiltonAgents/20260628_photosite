@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas · Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IM+Fell+English:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#e8dcc2;
+    --paper-d:#dccfb0;
+    --sea:#cdd9d2;
+    --land:#d8c8a3;
+    --land-edge:#a78d5f;
+    --ink:#3a2f22;
+    --ink-soft:#6b5a44;
+    --route:#b5572a;
+    --route-glow:rgba(181,87,42,.35);
+    --pin:#8a3a1f;
+    --grad-portra: saturate(1.05) contrast(1.02) brightness(1.02) sepia(0.14) hue-rotate(-6deg);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Cormorant Garamond',Georgia,serif;
+    -webkit-font-smoothing:antialiased;
+    user-select:none;
+  }
+  /* paper texture + vignette */
+  .vign{position:fixed;inset:0;pointer-events:none;z-index:50;
+    box-shadow:inset 0 0 220px 40px rgba(90,66,30,.32);
+    background:radial-gradient(120% 120% at 50% 40%, transparent 55%, rgba(90,66,30,.12) 100%);}
+  .fibers{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.5;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.42 0 0 0 0 0.34 0 0 0 0 0.2 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  .topbar{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;
+    justify-content:space-between;padding:0 26px;z-index:40;
+    background:linear-gradient(to bottom,rgba(232,220,194,.95),rgba(232,220,194,0));}
+  .back{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.04em;color:var(--ink-soft);
+    text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+  .back:hover{color:var(--route)}
+  .title{font-family:'IM Fell English',serif;font-size:22px;letter-spacing:.04em;color:var(--ink)}
+  .title i{font-size:13px;color:var(--ink-soft);font-style:italic;display:block;text-align:center;letter-spacing:.18em}
+
+  .mapwrap{position:fixed;inset:0;z-index:5;cursor:grab;touch-action:none}
+  .mapwrap.grabbing{cursor:grabbing}
+  svg.map{width:100%;height:100%;display:block}
+
+  /* the panning group set via transform */
+  .compass{position:fixed;right:24px;bottom:24px;z-index:30;width:84px;height:84px;opacity:.8;
+    pointer-events:none;filter:drop-shadow(0 2px 4px rgba(90,66,30,.3))}
+
+  .controls{position:fixed;left:24px;bottom:24px;z-index:30;display:flex;flex-direction:column;gap:8px}
+  .ctl{width:40px;height:40px;border:1px solid var(--land-edge);background:rgba(232,220,194,.85);
+    color:var(--ink);font-family:'Space Mono',monospace;font-size:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;border-radius:3px;transition:.15s}
+  .ctl:hover{background:var(--paper-d);border-color:var(--route);color:var(--route)}
+  .ctl.route{font-size:11px;letter-spacing:.04em;width:auto;padding:0 12px;height:40px}
+  .ctl.route.on{background:var(--route);color:var(--paper);border-color:var(--route)}
+
+  /* pin labels in HTML overlay for crisp text */
+  .legend{position:fixed;right:24px;top:74px;z-index:30;font-family:'Space Mono',monospace;
+    font-size:10px;letter-spacing:.06em;color:var(--ink-soft);text-align:right;line-height:1.7}
+  .legend .k{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin-left:6px}
+
+  .hint{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:30;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--ink-soft);
+    text-align:center;pointer-events:none;transition:opacity .6s;
+    background:rgba(232,220,194,.7);padding:6px 14px;border-radius:20px}
+  .hint b{color:var(--route)}
+  .hint.hidden{opacity:0}
+
+  /* photo card overlay */
+  .viewer{position:fixed;inset:0;z-index:45;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;opacity:0;transition:opacity .35s}
+  .viewer.open{pointer-events:auto;opacity:1}
+  .viewer .scrim{position:absolute;inset:0;background:rgba(34,26,15,.55);backdrop-filter:blur(2px)}
+  .vcard{position:relative;z-index:2;background:var(--paper);padding:14px 14px 18px;
+    border:1px solid var(--land-edge);max-width:min(560px,90vw);
+    box-shadow:0 40px 90px -30px rgba(34,26,15,.7);transform:scale(.92);transition:transform .35s;
+    background-image:linear-gradient(rgba(216,200,163,.25),rgba(216,200,163,.25))}
+  .viewer.open .vcard{transform:scale(1)}
+  .vcard img{display:block;width:100%;max-height:62vh;object-fit:cover;filter:var(--grad-portra);
+    border:1px solid rgba(90,66,30,.25)}
+  .vcard.bw img{filter:grayscale(1) contrast(1.08)}
+  .vcard .cap{margin-top:12px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px}
+  .vcard .ttl{font-family:'IM Fell English',serif;font-size:26px;line-height:1.05;color:var(--ink)}
+  .vcard .loc{font-style:italic;font-size:16px;color:var(--route);margin-top:2px}
+  .vcard .side{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.04em;
+    color:var(--ink-soft);text-align:right;line-height:1.6;flex:0 0 auto}
+  .vclose{position:absolute;top:-14px;right:-14px;width:34px;height:34px;border-radius:50%;
+    background:var(--ink);color:var(--paper);border:none;cursor:pointer;font-size:16px;
+    display:flex;align-items:center;justify-content:center;z-index:3}
+  .vclose:hover{background:var(--route)}
+  .vnav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;
+    background:rgba(232,220,194,.9);border:1px solid var(--land-edge);color:var(--ink);cursor:pointer;
+    font-size:18px;display:flex;align-items:center;justify-content:center}
+  .vnav:hover{color:var(--route)}
+  .vprev{left:-58px}.vnext{right:-58px}
+  @media(max-width:640px){.vprev{left:6px}.vnext{right:6px}.vnav{background:rgba(232,220,194,.8)}}
+
+  /* SVG element styling */
+  .sea-rect{fill:var(--sea)}
+  .graticule{stroke:rgba(90,66,30,.16);stroke-width:.4;fill:none}
+  .continent{fill:var(--land);stroke:var(--land-edge);stroke-width:.8;
+    stroke-linejoin:round;paint-order:stroke}
+  .route-path{fill:none;stroke:var(--route);stroke-width:1.6;stroke-linecap:round;
+    stroke-dasharray:3 3.5;opacity:.85;filter:drop-shadow(0 0 3px var(--route-glow))}
+  .pin-g{cursor:pointer}
+  .pin-stem{stroke:var(--pin);stroke-width:1.1}
+  .pin-head{fill:var(--pin);stroke:var(--paper);stroke-width:1}
+  .pin-head.water{fill:#2f6f86}
+  .pin-head.bw{fill:#4a4338}
+  .pin-g:hover .pin-head{fill:var(--route)}
+  .pin-ring{fill:none;stroke:var(--route);stroke-width:1;opacity:0}
+  .pin-label{font-family:'Space Mono',monospace;font-size:3.4px;fill:var(--ink);
+    paint-order:stroke;stroke:var(--paper);stroke-width:1.1px;letter-spacing:.02em}
+  .cluster-count{font-family:'Space Mono',monospace;font-size:4px;fill:var(--paper);font-weight:700;text-anchor:middle}
+  @media (prefers-reduced-motion: reduce){
+    .viewer,.vcard{transition:none}
+  }
+</style>
+</head>
+<body>
+<div class="fibers"></div>
+<div class="vign"></div>
+
+<div class="topbar">
+  <a class="back" href="../../index.html" aria-label="Back to all designs">← All designs</a>
+  <div class="title">Atlas<i>TOM MILTON · 1995—2023</i></div>
+  <div style="width:80px"></div>
+</div>
+
+<div class="mapwrap" id="mapwrap">
+  <svg class="map" id="map" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid slice"
+       role="application" aria-label="World map of photograph locations. Drag to pan, scroll to zoom, click a pin to view.">
+    <defs>
+      <radialGradient id="seaGrad" cx="50%" cy="40%" r="75%">
+        <stop offset="0%" stop-color="#d2ddd6"/>
+        <stop offset="100%" stop-color="#c2d0c8"/>
+      </radialGradient>
+    </defs>
+    <g id="world">
+      <rect class="sea-rect" x="-200" y="-200" width="760" height="600" fill="url(#seaGrad)"/>
+      <g id="graticule"></g>
+      <g id="continents"></g>
+      <path id="route" class="route-path" d=""/>
+      <g id="pins"></g>
+    </g>
+  </svg>
+</div>
+
+<div class="legend" aria-hidden="true">
+  land &amp; coast<span class="k" style="background:#2f6f86"></span>
+  <br>water site<span class="k" style="background:#8a3a1f"></span>
+  <br>on land<span class="k" style="background:#4a4338"></span>
+  <br>black &amp; white
+</div>
+
+<svg class="compass" viewBox="0 0 100 100" aria-hidden="true">
+  <circle cx="50" cy="50" r="44" fill="none" stroke="#a78d5f" stroke-width="1.2"/>
+  <circle cx="50" cy="50" r="38" fill="none" stroke="#a78d5f" stroke-width=".5"/>
+  <g stroke="#6b5a44" stroke-width="1">
+    <path d="M50 8 L56 50 L50 92 L44 50 Z" fill="#b5572a" stroke="none"/>
+    <path d="M50 8 L56 50 L50 50 Z" fill="#8a3a1f" stroke="none"/>
+    <path d="M8 50 L50 44 L92 50 L50 56 Z" fill="#d8c8a3"/>
+  </g>
+  <text x="50" y="20" text-anchor="middle" font-family="IM Fell English" font-size="9" fill="#3a2f22">N</text>
+</svg>
+
+<div class="controls">
+  <button class="ctl" id="zin" aria-label="Zoom in">+</button>
+  <button class="ctl" id="zout" aria-label="Zoom out">−</button>
+  <button class="ctl" id="reset" aria-label="Reset map view" style="font-size:13px">⊙</button>
+  <button class="ctl route on" id="routeBtn" aria-pressed="true">ROUTE</button>
+</div>
+
+<div class="hint" id="hint">Drag to <b>pan</b> · scroll to <b>zoom</b> · click a <b>pin</b> to travel there</div>
+
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Photograph">
+  <div class="scrim" id="scrim"></div>
+  <div class="vcard" id="vcard">
+    <button class="vclose" id="vclose" aria-label="Close">✕</button>
+    <button class="vnav vprev" id="vprev" aria-label="Previous, by date">‹</button>
+    <button class="vnav vnext" id="vnext" aria-label="Next, by date">›</button>
+    <img id="vimg" alt="">
+    <div class="cap">
+      <div>
+        <div class="ttl" id="vttl"></div>
+        <div class="loc" id="vloc"></div>
+      </div>
+      <div class="side" id="vside"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // ---- data with map coordinates (viewBox 0..360 x, 0..200 y) ----
+  // x: 0=west edge, 360=east edge (Pacific). y:0 north (~75N), 200 south (~-55S)
+  const DATA = [
+    {f:"forest-path-trees.jpg",t:"Into the Woods",loc:"Black Forest, Germany",film:"Kodak Portra 160",cam:"Rolleiflex 2.8F",y:1995,x:181,my:62},
+    {f:"forest-sunlight.jpg",t:"Cathedral of Pines",loc:"Olympic NP, USA",film:"Kodak Portra 160",cam:"Hasselblad 500CM",y:1996,x:40,my:66,water:0},
+    {f:"rolling-green-hills.jpg",t:"Patchwork",loc:"Tuscany, Italy",film:"Fujifilm Pro 400H",cam:"Pentax 645",y:1997,x:184,my:70},
+    {f:"golden-field-sunburst.jpg",t:"Last Light, Wheat Country",loc:"Tuscany, Italy",film:"Kodak Portra 400",cam:"Leica M6",y:1998,x:187,my:71},
+    {f:"valley-green-river.jpg",t:"River Bend, Spring",loc:"Glencoe, Scotland",film:"Fujifilm Velvia 50",cam:"Nikon F3",y:1999,x:171,my:54,water:1},
+    {f:"lake-mountain-house.jpg",t:"Reflections, Still Morning",loc:"Hallstatt, Austria",film:"Kodak Ektar 100",cam:"Mamiya RZ67",y:2000,x:189,my:66,water:1},
+    {f:"landscape-misty-mountains.jpg",t:"Morning Fog, Cascades",loc:"Washington, USA",film:"Fujifilm Pro 400H",cam:"Pentax 67",y:2001,x:43,my:64,water:1},
+    {f:"cliff-coast-ocean.jpg",t:"Edge of the World",loc:"Big Sur, USA",film:"Kodak Portra 400",cam:"Contax G2",y:2002,x:37,my:74,water:1},
+    {f:"lake-cabin-dawn.jpg",t:"The Cabin at Dawn",loc:"Banff, Canada",film:"Kodak Ektar 100",cam:"Mamiya 7 II",y:2003,x:47,my:58,water:1},
+    {f:"misty-pine-forest.jpg",t:"Silence",loc:"Norway",film:"Ilford HP5 Plus",cam:"Leica M6",y:2003,x:182,my:46,bw:1},
+    {f:"sun-through-leaves.jpg",t:"Backlit",loc:"Kyoto, Japan",film:"Kodak Portra 800",cam:"Leica M6",y:2004,x:316,my:74},
+    {f:"mountain-road-fog.jpg",t:"The Long Way Home",loc:"Dolomites, Italy",film:"Cinestill 800T",cam:"Canon AE-1",y:2005,x:190,my:64},
+    {f:"waterfall-bridge.jpg",t:"Hidden Falls",loc:"Iceland",film:"Fujifilm Velvia 50",cam:"Nikon FM2",y:2006,x:158,my:44,water:1},
+    {f:"autumn-forest-road.jpg",t:"October Road",loc:"Vermont, USA",film:"Kodak Portra 400",cam:"Leica M7",y:2007,x:78,my:64},
+    {f:"desert-dunes.jpg",t:"Wind Lines",loc:"Namibia",film:"Kodak Ektar 100",cam:"Hasselblad 503CW",y:2008,x:188,my:148},
+    {f:"succulent-closeup.jpg",t:"Geometry of Growth",loc:"Studio",film:"Kodak Portra 160",cam:"Hasselblad 500CM",y:2009,x:176,my:60,studio:1},
+    {f:"foggy-pier-lake.jpg",t:"The Quiet Dock",loc:"Lake District, UK",film:"Cinestill 50D",cam:"Contax T2",y:2010,x:170,my:57,water:1},
+    {f:"woman-portrait-window.jpg",t:"By the Window",loc:"Lisbon, Portugal",film:"Kodak Portra 400",cam:"Pentax 67",y:2011,x:166,my:73},
+    {f:"man-portrait-street.jpg",t:"Stranger, No. 14",loc:"Havana, Cuba",film:"Kodak Tri-X 400",cam:"Leica M4",y:2012,x:66,my:92,bw:1},
+    {f:"couple-silhouette-sunset.jpg",t:"Goodnight",loc:"Santorini, Greece",film:"Kodak Portra 800",cam:"Canon EOS-1V",y:2013,x:200,my:73,water:1},
+    {f:"woman-portrait-soft.jpg",t:"Soft Hour",loc:"Paris, France",film:"Fujifilm Pro 400H",cam:"Contax 645",y:2014,x:176,my:60},
+    {f:"woman-portrait-freckles.jpg",t:"Freckles & Sun",loc:"Studio",film:"Kodak Portra 160",cam:"Mamiya 645",y:2015,x:178,my:62,studio:1},
+    {f:"friends-golden-hour.jpg",t:"Golden Hour, Together",loc:"California, USA",film:"Kodak Portra 400",cam:"Nikon F100",y:2016,x:39,my:72},
+    {f:"woman-curly-portrait.jpg",t:"Curls",loc:"Brooklyn, USA",film:"Cinestill 800T",cam:"Canon AE-1",y:2017,x:80,my:65},
+    {f:"man-bw-portrait.jpg",t:"Portrait in Shadow",loc:"Berlin, Germany",film:"Ilford Delta 3200",cam:"Leica M6",y:2018,x:191,my:58,bw:1},
+    {f:"woman-fashion-portrait.jpg",t:"The Red Wall",loc:"Marrakesh, Morocco",film:"Kodak Portra 400",cam:"Pentax 67",y:2019,x:170,my:88},
+    {f:"street-cafe-paris.jpg",t:"Café de Flore",loc:"Paris, France",film:"Kodak Gold 200",cam:"Olympus OM-1",y:2020,x:174,my:60},
+    {f:"woman-laughing-portrait.jpg",t:"That Laugh",loc:"Mexico City, Mexico",film:"Kodak Portra 800",cam:"Contax G2",y:2021,x:55,my:96},
+    {f:"vintage-car-street.jpg",t:"Sunday Drive",loc:"Havana, Cuba",film:"Kodak Ektar 100",cam:"Nikon FE",y:2022,x:68,my:91},
+    {f:"cozy-interior-window.jpg",t:"Home Light",loc:"Copenhagen, Denmark",film:"Kodak Portra 400",cam:"Leica M6",y:2023,x:186,my:53}
+  ];
+  DATA.sort((a,b)=>a.y-b.y);
+
+  const NS="http://www.w3.org/2000/svg";
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- draw graticule ----------
+  const grat=document.getElementById('graticule');
+  for(let gx=0;gx<=360;gx+=30){
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('class','graticule');l.setAttribute('x1',gx);l.setAttribute('y1',0);
+    l.setAttribute('x2',gx);l.setAttribute('y2',200);grat.appendChild(l);
+  }
+  for(let gy=0;gy<=200;gy+=25){
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('class','graticule');l.setAttribute('x1',0);l.setAttribute('y1',gy);
+    l.setAttribute('x2',360);l.setAttribute('y2',gy);grat.appendChild(l);
+  }
+
+  // ---------- continents (hand-drawn abstract silhouettes) ----------
+  const CONTINENTS = [
+    // North America
+    "M30,40 L60,36 L78,44 L80,58 L70,66 L74,78 L62,86 L52,80 L46,68 L40,72 L32,64 L34,52 Z",
+    // Greenland
+    "M96,30 L112,28 L116,40 L106,50 L98,44 Z",
+    // South America
+    "M64,100 L82,96 L90,108 L86,128 L74,150 L66,150 L62,132 L60,116 Z",
+    // Europe
+    "M168,48 L196,46 L200,56 L190,60 L196,66 L184,70 L176,66 L170,72 L164,64 L168,56 Z",
+    // Africa
+    "M166,82 L206,80 L210,96 L200,118 L190,140 L182,152 L174,146 L170,124 L162,104 L160,90 Z",
+    // Asia
+    "M200,40 L300,36 L320,50 L324,66 L308,72 L290,68 L276,76 L258,70 L240,74 L220,66 L208,58 Z",
+    // India peninsula
+    "M250,76 L268,74 L266,92 L256,98 L250,88 Z",
+    // SE Asia / Indonesia
+    "M286,86 L312,90 L318,100 L300,104 L288,98 Z",
+    // Australia
+    "M300,128 L336,126 L344,140 L332,154 L312,152 L300,142 Z",
+    // UK & Ireland
+    "M166,52 L174,50 L176,58 L168,62 L163,57 Z",
+    // Iceland
+    "M154,42 L164,41 L165,47 L156,48 Z",
+    // Japan
+    "M312,66 L322,64 L324,76 L316,82 L312,74 Z",
+    // Scandinavia
+    "M180,40 L196,38 L198,50 L186,54 L180,46 Z"
+  ];
+  const contG=document.getElementById('continents');
+  CONTINENTS.forEach(d=>{
+    const p=document.createElementNS(NS,'path');
+    p.setAttribute('class','continent');p.setAttribute('d',d);contG.appendChild(p);
+  });
+
+  // ---------- cluster nearby points ----------
+  // group items whose coords are within CLUST distance; pin sits at centroid
+  const CLUST=7;
+  const clusters=[];
+  DATA.forEach(d=>{
+    let host=null;
+    for(const c of clusters){
+      if(Math.hypot(c.x-d.x,c.y-d.my)<CLUST){host=c;break;}
+    }
+    if(host){host.items.push(d);host.x=(host.x*(host.items.length-1)+d.x)/host.items.length;
+      host.y=(host.y*(host.items.length-1)+d.my)/host.items.length;}
+    else clusters.push({x:d.x,y:d.my,items:[d]});
+  });
+
+  // ---------- route path (chronological centroids of each item's cluster) ----------
+  // build polyline through each photo in date order, using its cluster center for stability
+  function clusterOf(d){return clusters.find(c=>c.items.includes(d));}
+  let routeD="";
+  DATA.forEach((d,i)=>{const c=clusterOf(d);routeD+=(i===0?"M":"L")+c.x.toFixed(1)+","+c.y.toFixed(1)+" ";});
+  const routeEl=document.getElementById('route');
+  routeEl.setAttribute('d',routeD.trim());
+  const routeLen=routeEl.getTotalLength();
+  routeEl.style.strokeDasharray=routeLen;
+  routeEl.style.strokeDashoffset=reduced?0:routeLen;
+
+  // ---------- draw pins ----------
+  const pinsG=document.getElementById('pins');
+  clusters.forEach((c,ci)=>{
+    const g=document.createElementNS(NS,'g');
+    g.setAttribute('class','pin-g');
+    g.setAttribute('tabindex','0');
+    g.setAttribute('role','button');
+    const rep=c.items[0];
+    const multi=c.items.length>1;
+    g.setAttribute('aria-label',(multi? c.items.length+' photographs near ' : rep.t+', ')+rep.loc);
+    const ring=document.createElementNS(NS,'circle');
+    ring.setAttribute('class','pin-ring');ring.setAttribute('cx',c.x);ring.setAttribute('cy',c.y);ring.setAttribute('r',6);
+    const stem=document.createElementNS(NS,'line');
+    stem.setAttribute('class','pin-stem');stem.setAttribute('x1',c.x);stem.setAttribute('y1',c.y);
+    stem.setAttribute('x2',c.x);stem.setAttribute('y2',c.y-5.5);
+    const head=document.createElementNS(NS,'circle');
+    head.setAttribute('class','pin-head'+(rep.water?' water':rep.bw?' bw':''));
+    head.setAttribute('cx',c.x);head.setAttribute('cy',c.y-6.5);head.setAttribute('r',multi?3.4:2.4);
+    g.appendChild(ring);g.appendChild(stem);g.appendChild(head);
+    if(multi){
+      const cnt=document.createElementNS(NS,'text');
+      cnt.setAttribute('class','cluster-count');cnt.setAttribute('x',c.x);cnt.setAttribute('y',c.y-5.3);
+      cnt.textContent=c.items.length;g.appendChild(cnt);
+    }
+    const lab=document.createElementNS(NS,'text');
+    lab.setAttribute('class','pin-label');lab.setAttribute('x',c.x+4.5);lab.setAttribute('y',c.y-5.5);
+    lab.textContent=rep.loc.split(',')[0];
+    g.appendChild(lab);
+    c.ring=ring;
+    g.addEventListener('click',(e)=>{e.stopPropagation();selectCluster(ci,0);});
+    g.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectCluster(ci,0);}});
+    pinsG.appendChild(g);
+    c.idx=ci;
+  });
+
+  // ============ pan / zoom ============
+  const wrap=document.getElementById('mapwrap');
+  const world=document.getElementById('world');
+  const VB={w:360,h:200};
+  let view={x:0,y:0,s:1};     // current (animated)
+  let goal={x:0,y:0,s:1};     // target
+  const MINS=0.85, MAXS=6;
+
+  function clampGoal(){
+    goal.s=Math.max(MINS,Math.min(MAXS,goal.s));
+    // limit panning so map stays roughly on screen
+    const lim=VB.w*0.5*(goal.s);
+    // allow generous range
+    goal.x=Math.max(-VB.w*1.1,Math.min(VB.w*1.1,goal.x));
+    goal.y=Math.max(-VB.h*1.1,Math.min(VB.h*1.1,goal.y));
+  }
+  function applyTransform(){
+    // translate then scale around viewport center
+    const cx=VB.w/2, cy=VB.h/2;
+    world.setAttribute('transform',
+      `translate(${cx},${cy}) scale(${view.s}) translate(${-cx+view.x},${-cy+view.y})`);
+    // counter-scale pin labels/heads for legibility could go here; keep simple
+  }
+
+  let animating=true;
+  function loop(){
+    if(document.hidden){raf=null;return;}
+    const k=reduced?1:0.18;
+    view.x+=(goal.x-view.x)*k;
+    view.y+=(goal.y-view.y)*k;
+    view.s+=(goal.s-view.s)*k;
+    applyTransform();
+    raf=requestAnimationFrame(loop);
+  }
+  let raf=requestAnimationFrame(loop);
+
+  // drag pan
+  let dragging=false,sx=0,sy=0,ox=0,oy=0,moved=false;
+  wrap.addEventListener('pointerdown',(e)=>{
+    if(e.target.closest('.pin-g'))return; // let pin handle
+    dragging=true;moved=false;wrap.classList.add('grabbing');
+    sx=e.clientX;sy=e.clientY;ox=goal.x;oy=goal.y;
+    wrap.setPointerCapture(e.pointerId);
+  });
+  wrap.addEventListener('pointermove',(e)=>{
+    if(!dragging)return;
+    const r=wrap.getBoundingClientRect();
+    const scaleX=VB.w/r.width, scaleY=VB.h/r.height;
+    const dx=(e.clientX-sx)*scaleX/goal.s, dy=(e.clientY-sy)*scaleY/goal.s;
+    if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>3)moved=true;
+    goal.x=ox+dx;goal.y=oy+dy;clampGoal();hideHint();
+  });
+  function endPan(){dragging=false;wrap.classList.remove('grabbing');}
+  wrap.addEventListener('pointerup',endPan);
+  wrap.addEventListener('pointercancel',endPan);
+
+  // wheel zoom toward cursor
+  wrap.addEventListener('wheel',(e)=>{
+    e.preventDefault();
+    const r=wrap.getBoundingClientRect();
+    const px=(e.clientX-r.left)/r.width*VB.w;
+    const py=(e.clientY-r.top)/r.height*VB.h;
+    zoomAt(px,py, e.deltaY<0?1.18:1/1.18);
+    hideHint();
+  },{passive:false});
+
+  function zoomAt(px,py,factor){
+    const cx=VB.w/2, cy=VB.h/2;
+    // world point under cursor before zoom
+    const wx=(px-cx)/goal.s - goal.x + cx;
+    const wy=(py-cy)/goal.s - goal.y + cy;
+    goal.s*=factor;clampGoal();
+    // keep that world point under cursor
+    goal.x=cx - wx + (px-cx)/goal.s;
+    goal.y=cy - wy + (py-cy)/goal.s;
+    clampGoal();
+  }
+
+  document.getElementById('zin').addEventListener('click',()=>{zoomAt(VB.w/2,VB.h/2,1.4);});
+  document.getElementById('zout').addEventListener('click',()=>{zoomAt(VB.w/2,VB.h/2,1/1.4);});
+  document.getElementById('reset').addEventListener('click',()=>{goal={x:0,y:0,s:1};});
+
+  // fly to a world coordinate at zoom Z
+  function flyTo(wx,wy,Z){
+    const cx=VB.w/2, cy=VB.h/2;
+    goal.s=Z;
+    goal.x=cx-wx;       // because scale around center: screenCenter maps to world (cx - goal.x)... derived to center wx
+    goal.y=cy-wy;
+    clampGoal();
+  }
+
+  // ============ route toggle / draw ============
+  const routeBtn=document.getElementById('routeBtn');
+  let routeOn=true;
+  function drawRoute(){
+    if(reduced){routeEl.style.strokeDashoffset=0;return;}
+    routeEl.style.transition='none';routeEl.style.strokeDashoffset=routeLen;
+    void routeEl.getBoundingClientRect();
+    routeEl.style.transition='stroke-dashoffset 2.6s ease';
+    requestAnimationFrame(()=>{routeEl.style.strokeDashoffset=0;});
+  }
+  routeBtn.addEventListener('click',()=>{
+    routeOn=!routeOn;routeBtn.classList.toggle('on',routeOn);
+    routeBtn.setAttribute('aria-pressed',routeOn);
+    if(routeOn){routeEl.style.opacity='';drawRoute();}
+    else{routeEl.style.opacity='0';}
+  });
+  // initial draw
+  setTimeout(drawRoute,500);
+
+  // ============ viewer ============
+  const viewer=document.getElementById('viewer');
+  const vimg=document.getElementById('vimg');
+  const vttl=document.getElementById('vttl');
+  const vloc=document.getElementById('vloc');
+  const vside=document.getElementById('vside');
+  const vcard=document.getElementById('vcard');
+  let curCluster=-1, curItem=0;
+
+  function showItem(d){
+    vimg.src='../../assets/img/'+d.f;
+    vimg.alt=d.t+' — '+d.loc+', '+d.y;
+    vttl.textContent=d.t;
+    vloc.textContent=d.loc+' · '+d.y;
+    vside.innerHTML=d.film.replace(/ /g,'&nbsp;')+'<br>'+d.cam.replace(/ /g,'&nbsp;')+'<br>'+d.y;
+    vcard.classList.toggle('bw',!!d.bw);
+  }
+  function selectCluster(ci,item){
+    const c=clusters[ci];
+    curCluster=ci;curItem=item||0;
+    // highlight ring
+    clusters.forEach(cc=>{if(cc.ring)cc.ring.style.opacity=0;});
+    if(c.ring){c.ring.style.opacity=.9;}
+    flyTo(c.x,c.y, c.items.length>1?3.4:3.8);
+    showItem(c.items[curItem]);
+    openViewer();
+    updateNav(c);
+    hideHint();
+  }
+  function updateNav(c){
+    // prev/next traverse all photos chronologically across clusters
+    document.getElementById('vprev').style.visibility='visible';
+    document.getElementById('vnext').style.visibility='visible';
+  }
+  function openViewer(){viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');}
+  function closeViewer(){viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');
+    clusters.forEach(cc=>{if(cc.ring)cc.ring.style.opacity=0;});}
+
+  // global chronological nav across every photo
+  function globalIndexOf(d){return DATA.indexOf(d);}
+  function navBy(step){
+    const c=clusters[curCluster];
+    const d=c.items[curItem];
+    const gi=globalIndexOf(d);
+    const ngi=(gi+step+DATA.length)%DATA.length;
+    const nd=DATA[ngi];
+    const nc=clusters.findIndex(cc=>cc.items.includes(nd));
+    selectCluster(nc, clusters[nc].items.indexOf(nd));
+  }
+  document.getElementById('vnext').addEventListener('click',(e)=>{e.stopPropagation();navBy(1);});
+  document.getElementById('vprev').addEventListener('click',(e)=>{e.stopPropagation();navBy(-1);});
+  document.getElementById('vclose').addEventListener('click',closeViewer);
+  document.getElementById('scrim').addEventListener('click',closeViewer);
+  window.addEventListener('keydown',(e)=>{
+    if(viewer.classList.contains('open')){
+      if(e.key==='Escape')closeViewer();
+      else if(e.key==='ArrowRight')navBy(1);
+      else if(e.key==='ArrowLeft')navBy(-1);
+    }
+  });
+
+  // ============ hint + visibility ============
+  let hintShown=true;
+  function hideHint(){if(hintShown){hintShown=false;document.getElementById('hint').classList.add('hidden');}}
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){if(raf){cancelAnimationFrame(raf);raf=null;}}
+    else if(!raf){raf=requestAnimationFrame(loop);}
+  });
+
+  applyTransform();
+})();
+</script>
+</body>
+</html>

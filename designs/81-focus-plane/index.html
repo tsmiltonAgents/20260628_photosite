@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Plane — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#16140f;
+    --panel:#1d1a13;
+    --ink:#ece4d4;
+    --muted:#8c8270;
+    --accent:#d8a24a;
+    --line:rgba(216,162,74,.55);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Spectral',serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  a{color:inherit}
+
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:60;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 26px;
+    background:linear-gradient(var(--bg), transparent);
+    pointer-events:none;
+  }
+  .topbar a,.topbar .title{pointer-events:auto}
+  .back{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.04em;text-decoration:none;color:var(--muted);transition:color .3s}
+  .back:hover{color:var(--accent)}
+  .title{font-size:15px;letter-spacing:.36em;text-transform:uppercase;color:var(--ink)}
+
+  /* Focal plane band indicator */
+  #band{
+    position:fixed;left:0;right:0;z-index:40;pointer-events:none;
+    height:0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 0 30px rgba(216,162,74,.08);
+    transition:opacity .4s;
+  }
+  #band::before, #band::after{
+    content:"";position:absolute;left:0;right:0;
+  }
+  #band .edge{
+    position:absolute;left:0;right:0;height:1px;background:var(--line);
+  }
+  #band .glow{
+    position:absolute;left:0;right:0;top:0;bottom:0;
+    background:linear-gradient(transparent, rgba(216,162,74,.05), transparent);
+  }
+  .tick{position:absolute;left:0;width:18px;height:1px;background:var(--accent)}
+
+  /* Lens scale readout */
+  #lens{
+    position:fixed;right:22px;top:50%;transform:translateY(-50%);
+    z-index:55;width:74px;
+    font-family:'IBM Plex Mono',monospace;
+    text-align:right;pointer-events:auto;cursor:ns-resize;
+    user-select:none;-webkit-user-select:none;
+  }
+  #lens .scale{
+    position:relative;height:280px;border-right:1px solid rgba(236,228,212,.18);
+    margin-right:30px;
+  }
+  #lens .mark{
+    position:absolute;right:0;font-size:10px;color:var(--muted);
+    transform:translateY(-50%);padding-right:7px;letter-spacing:.02em;
+  }
+  #lens .mark::after{content:"";position:absolute;right:-1px;top:50%;width:6px;height:1px;background:rgba(236,228,212,.3)}
+  #lens .mark.major{color:var(--ink)}
+  #lens .mark.major::after{width:11px;background:rgba(236,228,212,.5)}
+  #lens .indicator{
+    position:absolute;right:-30px;width:28px;height:0;
+    border-top:1px solid var(--accent);
+  }
+  #lens .indicator .dot{
+    position:absolute;right:-6px;top:-4px;width:8px;height:8px;border-radius:50%;
+    background:var(--accent);box-shadow:0 0 10px var(--accent);
+  }
+  #lens .readout{
+    position:absolute;right:34px;white-space:nowrap;
+    font-size:13px;color:var(--accent);transform:translateY(-50%);
+    letter-spacing:.04em;
+  }
+  #lens .cap{
+    position:absolute;top:-22px;right:0;font-size:9px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--muted);
+  }
+
+  header.hero{
+    min-height:62vh;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:0 8vw;max-width:1100px;
+  }
+  header.hero h1{
+    font-weight:300;font-size:clamp(40px,8vw,90px);line-height:.98;letter-spacing:-.01em;
+  }
+  header.hero h1 em{font-style:italic;color:var(--accent)}
+  header.hero p{
+    margin-top:22px;max-width:520px;font-size:18px;line-height:1.55;color:var(--muted);
+    font-weight:300;
+  }
+  header.hero .hint{
+    margin-top:30px;font-family:'IBM Plex Mono',monospace;font-size:12px;
+    letter-spacing:.04em;color:var(--accent);display:flex;align-items:center;gap:10px;
+  }
+  header.hero .hint .ar{animation:bob 2s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+
+  .gallery{
+    padding:4vh 6vw 28vh;
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:7vh 3vw;
+    align-items:start;
+  }
+  figure{margin:0;position:relative;will-change:filter,transform}
+  figure .frame{
+    position:relative;overflow:hidden;background:#000;
+    box-shadow:0 26px 60px -30px rgba(0,0,0,.8);
+  }
+  figure img{
+    display:block;width:100%;height:100%;object-fit:cover;
+    filter:saturate(1.06) contrast(1.03) sepia(.06);
+  }
+  figure img.bw{filter:grayscale(1) contrast(1.07)}
+  figcaption{
+    margin-top:14px;font-family:'IBM Plex Mono',monospace;
+    transition:opacity .4s;
+  }
+  figcaption .t{font-family:'Spectral',serif;font-size:19px;font-weight:400;color:var(--ink);letter-spacing:.01em}
+  figcaption .meta{font-size:11px;color:var(--muted);margin-top:5px;letter-spacing:.02em}
+  figcaption .meta .loc{color:var(--accent)}
+  /* layout spans for implied depth variety */
+  .s-lg{grid-column:span 7}
+  .s-md{grid-column:span 5}
+  .s-sm{grid-column:span 4}
+  .s-wide{grid-column:span 8}
+  .push-r{grid-column-start:6}
+  .push-mr{grid-column-start:4}
+
+  @media(max-width:760px){
+    .gallery{grid-template-columns:repeat(6,1fr);gap:6vh 4vw}
+    .s-lg,.s-wide{grid-column:span 6}
+    .s-md{grid-column:span 6}
+    .s-sm{grid-column:span 4}
+    .push-r,.push-mr{grid-column-start:auto}
+    #lens{display:none}
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a class="back" href="../../index.html">&larr; All designs</a>
+    <span class="title">Focus Plane</span>
+    <span style="width:80px"></span>
+  </div>
+
+  <div id="band" aria-hidden="true">
+    <div class="glow"></div>
+    <span class="tick" style="top:-1px"></span>
+    <span class="tick" style="bottom:-1px"></span>
+  </div>
+
+  <div id="lens" role="slider" aria-label="Focal distance" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
+    <span class="cap">Focus</span>
+    <div class="scale" id="scale">
+      <div class="indicator" id="lensInd"><span class="dot"></span></div>
+      <div class="readout" id="lensRead" style="top:50%">∞</div>
+    </div>
+  </div>
+
+  <header class="hero">
+    <h1>The Focal<br><em>Plane</em></h1>
+    <p>Thirty photographs by Tom Milton, set at varying depths. Slide the focus &mdash; whatever meets the plane snaps sharp; the rest dissolves into bokeh.</p>
+    <div class="hint"><span class="ar">↓</span> Move your cursor up and down to rack focus &middot; or drag the lens scale</div>
+  </header>
+
+  <main class="gallery" id="gallery" aria-label="Photographs"></main>
+
+<script>
+(function(){
+"use strict";
+
+const PHOTOS = [
+  {f:"golden-field-sunburst.jpg",t:"Last Light, Wheat Country",l:"Tuscany, Italy",film:"Kodak Portra 400 · Leica M6 · 1998"},
+  {f:"landscape-misty-mountains.jpg",t:"Morning Fog, Cascades",l:"Washington, USA",film:"Fujifilm Pro 400H · Pentax 67 · 2001"},
+  {f:"lake-cabin-dawn.jpg",t:"The Cabin at Dawn",l:"Banff, Canada",film:"Kodak Ektar 100 · Mamiya 7 II · 2003"},
+  {f:"forest-sunlight.jpg",t:"Cathedral of Pines",l:"Olympic NP, USA",film:"Kodak Portra 160 · Hasselblad 500CM · 1996"},
+  {f:"valley-green-river.jpg",t:"River Bend, Spring",l:"Glencoe, Scotland",film:"Fujifilm Velvia 50 · Nikon F3 · 1999"},
+  {f:"cliff-coast-ocean.jpg",t:"Edge of the World",l:"Big Sur, USA",film:"Kodak Portra 400 · Contax G2 · 2002"},
+  {f:"mountain-road-fog.jpg",t:"The Long Way Home",l:"Dolomites, Italy",film:"Cinestill 800T · Canon AE-1 · 2005"},
+  {f:"sun-through-leaves.jpg",t:"Backlit",l:"Kyoto, Japan",film:"Kodak Portra 800 · Leica M6 · 2004"},
+  {f:"lake-mountain-house.jpg",t:"Reflections, Still Morning",l:"Hallstatt, Austria",film:"Kodak Ektar 100 · Mamiya RZ67 · 2000"},
+  {f:"rolling-green-hills.jpg",t:"Patchwork",l:"Tuscany, Italy",film:"Fujifilm Pro 400H · Pentax 645 · 1997"},
+  {f:"forest-path-trees.jpg",t:"Into the Woods",l:"Black Forest, Germany",film:"Kodak Portra 160 · Rolleiflex 2.8F · 1995"},
+  {f:"waterfall-bridge.jpg",t:"Hidden Falls",l:"Iceland",film:"Fujifilm Velvia 50 · Nikon FM2 · 2006"},
+  {f:"autumn-forest-road.jpg",t:"October Road",l:"Vermont, USA",film:"Kodak Portra 400 · Leica M7 · 2007"},
+  {f:"desert-dunes.jpg",t:"Wind Lines",l:"Namibia",film:"Kodak Ektar 100 · Hasselblad 503CW · 2008"},
+  {f:"misty-pine-forest.jpg",t:"Silence",l:"Norway",film:"Ilford HP5 Plus · Leica M6 · 2003",bw:true},
+  {f:"succulent-closeup.jpg",t:"Geometry of Growth",l:"Studio",film:"Kodak Portra 160 · Hasselblad 500CM · 2009"},
+  {f:"foggy-pier-lake.jpg",t:"The Quiet Dock",l:"Lake District, UK",film:"Cinestill 50D · Contax T2 · 2010"},
+  {f:"woman-portrait-window.jpg",t:"By the Window",l:"Lisbon, Portugal",film:"Kodak Portra 400 · Pentax 67 · 2011"},
+  {f:"man-portrait-street.jpg",t:"Stranger, No. 14",l:"Havana, Cuba",film:"Kodak Tri-X 400 · Leica M4 · 2012",bw:true},
+  {f:"couple-silhouette-sunset.jpg",t:"Goodnight",l:"Santorini, Greece",film:"Kodak Portra 800 · Canon EOS-1V · 2013"},
+  {f:"woman-portrait-soft.jpg",t:"Soft Hour",l:"Paris, France",film:"Fujifilm Pro 400H · Contax 645 · 2014"},
+  {f:"woman-portrait-freckles.jpg",t:"Freckles & Sun",l:"Studio",film:"Kodak Portra 160 · Mamiya 645 · 2015"},
+  {f:"friends-golden-hour.jpg",t:"Golden Hour, Together",l:"California, USA",film:"Kodak Portra 400 · Nikon F100 · 2016"},
+  {f:"woman-curly-portrait.jpg",t:"Curls",l:"Brooklyn, USA",film:"Cinestill 800T · Canon AE-1 · 2017"},
+  {f:"man-bw-portrait.jpg",t:"Portrait in Shadow",l:"Berlin, Germany",film:"Ilford Delta 3200 · Leica M6 · 2018",bw:true},
+  {f:"woman-fashion-portrait.jpg",t:"The Red Wall",l:"Marrakesh, Morocco",film:"Kodak Portra 400 · Pentax 67 · 2019"},
+  {f:"street-cafe-paris.jpg",t:"Café de Flore",l:"Paris, France",film:"Kodak Gold 200 · Olympus OM-1 · 2020"},
+  {f:"woman-laughing-portrait.jpg",t:"That Laugh",l:"Mexico City, Mexico",film:"Kodak Portra 800 · Contax G2 · 2021"},
+  {f:"vintage-car-street.jpg",t:"Sunday Drive",l:"Havana, Cuba",film:"Kodak Ektar 100 · Nikon FE · 2022"},
+  {f:"cozy-interior-window.jpg",t:"Home Light",l:"Copenhagen, Denmark",film:"Kodak Portra 400 · Leica M6 · 2023"},
+];
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// layout pattern: vary spans + start columns to give implied depth & scatter
+const LAYOUT = [
+  {c:'s-lg', ar:'4/5'}, {c:'s-sm push-r', ar:'1/1'},
+  {c:'s-md', ar:'4/5'}, {c:'s-wide push-mr', ar:'16/10'},
+  {c:'s-sm', ar:'1/1'}, {c:'s-lg push-r', ar:'4/5'},
+  {c:'s-md', ar:'5/4'}, {c:'s-sm', ar:'4/5'},
+  {c:'s-wide', ar:'16/9'}, {c:'s-sm push-r', ar:'1/1'},
+  {c:'s-md', ar:'4/5'}, {c:'s-lg', ar:'3/2'},
+];
+
+const gallery = document.getElementById('gallery');
+const figs = [];
+
+PHOTOS.forEach((p,i)=>{
+  const lay = LAYOUT[i % LAYOUT.length];
+  const fig = document.createElement('figure');
+  fig.className = lay.c;
+  const parts = p.film.split(' · ');
+  fig.innerHTML =
+    '<div class="frame" style="aspect-ratio:'+lay.ar+'">'+
+      '<img loading="lazy" decoding="async" src="../../assets/img/'+p.f+'" alt="'+p.t+' — '+p.l+'. '+p.film+'"'+(p.bw?' class="bw"':'')+'>'+
+    '</div>'+
+    '<figcaption>'+
+      '<div class="t">'+p.t+'</div>'+
+      '<div class="meta"><span class="loc">'+p.l+'</span> &nbsp;·&nbsp; '+p.film+'</div>'+
+    '</figcaption>';
+  gallery.appendChild(fig);
+  figs.push({el:fig, frame:fig.querySelector('.frame'), img:fig.querySelector('img'),
+             cap:fig.querySelector('figcaption'), bw:!!p.bw, cy:0, h:0, cur:{b:-1,s:-1,br:-1,o:-1}});
+});
+
+const band = document.getElementById('band');
+const lensInd = document.getElementById('lensInd');
+const lensRead = document.getElementById('lensRead');
+const scaleEl = document.getElementById('scale');
+const lensWidget = document.getElementById('lens');
+
+// build lens scale marks (distance in metres, like a focus ring)
+const DIST = [0.7,1,1.5,2,3,5,10,'∞'];
+DIST.forEach((d,i)=>{
+  const m = document.createElement('div');
+  m.className = 'mark' + (i%2===0?' major':'');
+  m.style.top = (i/(DIST.length-1)*100)+'%';
+  m.textContent = d;
+  scaleEl.appendChild(m);
+});
+
+// focus plane state: focusY is a fraction 0..1 of viewport height
+let focusY = 0.5;     // current rendered
+let targetY = 0.5;    // target from input
+let viewH = window.innerHeight;
+
+// band thickness (depth of field) — fraction of viewport
+const DOF = 0.16;
+
+function setBand(){
+  const y = focusY*viewH;
+  const thick = DOF*viewH;
+  band.style.top = (y - thick/2)+'px';
+  band.style.height = thick+'px';
+}
+
+// map focusY (0 top .. 1 bottom) -> a "distance" readout
+function distanceFor(fy){
+  // top = far (∞), bottom = near (0.7m); ease
+  const t = fy; // 0..1
+  if(t < 0.08) return '∞';
+  const dists = [10,5,3,2,1.5,1,0.7];
+  const idx = Math.min(dists.length-1, Math.floor((1-t)*0 + t* (dists.length)) );
+  // smooth interpolation
+  const v = 0.7 + (1-t)*(1-t)*(20-0.7);
+  return v>=18 ? '∞' : v.toFixed(v<3?1:0)+'m';
+}
+
+function updateLens(){
+  lensInd.style.top = (focusY*100)+'%';
+  lensRead.style.top = (focusY*100)+'%';
+  lensRead.textContent = distanceFor(focusY);
+  lensWidget.setAttribute('aria-valuenow', Math.round(focusY*100));
+}
+
+// compute each figure's filters from distance to the focal band
+function applyFocus(){
+  const fy = focusY*viewH;
+  for(let i=0;i<figs.length;i++){
+    const F = figs[i];
+    const r = F.frame.getBoundingClientRect();
+    // skip far offscreen
+    if(r.bottom < -300 || r.top > viewH+300){
+      continue;
+    }
+    const center = r.top + r.height/2;
+    const dist = Math.abs(center - fy);
+    // normalized distance beyond half DOF band
+    const half = DOF*viewH/2;
+    let d = Math.max(0, dist - half) / viewH; // 0 at plane, grows
+    d = Math.min(d*1.9, 1);
+    const blur = (reduceMotion ? d*3 : d*d*16);          // px, eased
+    const sat  = 1 - d*0.85;
+    const bri  = 1 - d*0.42;
+    const op   = 1 - d*0.30;
+    // round to limit churn
+    const rb = Math.round(blur*10)/10;
+    const rs = Math.round(sat*100)/100;
+    const rr = Math.round(bri*100)/100;
+    if(rb!==F.cur.b || rs!==F.cur.s || rr!==F.cur.br){
+      const base = F.bw ? 'grayscale(1) ' : 'saturate('+(F.bw?1:rs*1.06)+') sepia('+(F.bw?0:0.06)+') ';
+      F.img.style.filter = 'blur('+rb+'px) ' + base + 'contrast(1.03) brightness('+rr+')';
+      F.cur.b=rb; F.cur.s=rs; F.cur.br=rr;
+    }
+    const ro = Math.round(op*100)/100;
+    if(ro!==F.cur.o){
+      F.cap.style.opacity = Math.max(0.25, op);
+      F.el.style.transform = reduceMotion?'':'scale('+(1 - d*0.04)+')';
+      F.cur.o=ro;
+    }
+  }
+}
+
+let dirty=true;
+function markDirty(){ dirty=true; }
+
+let running=true;
+function loop(){
+  if(running){
+    // ease focus toward target
+    if(Math.abs(targetY-focusY) > 0.0005){
+      focusY += (targetY-focusY)*0.16;
+      dirty=true;
+    } else if(focusY!==targetY){
+      focusY = targetY; dirty=true;
+    }
+    if(dirty){
+      setBand();
+      updateLens();
+      applyFocus();
+      dirty=false;
+    }
+  }
+  requestAnimationFrame(loop);
+}
+
+// ===== input =====
+let hintShown=true;
+function fromPointerY(clientY){
+  targetY = Math.max(0, Math.min(1, clientY/viewH));
+  markDirty();
+}
+// cursor controls focal plane (vertical) anywhere on page
+window.addEventListener('pointermove', e=>{
+  if(draggingLens) return;
+  fromPointerY(e.clientY);
+});
+
+// dragging the lens scale
+let draggingLens=false;
+function lensFromY(clientY){
+  const r = scaleEl.getBoundingClientRect();
+  let t = (clientY - r.top)/r.height;
+  targetY = Math.max(0, Math.min(1, t));
+  markDirty();
+}
+lensWidget.addEventListener('pointerdown', e=>{
+  draggingLens=true; lensWidget.setPointerCapture(e.pointerId);
+  lensFromY(e.clientY); e.preventDefault();
+});
+lensWidget.addEventListener('pointermove', e=>{
+  if(draggingLens){ lensFromY(e.clientY); }
+});
+lensWidget.addEventListener('pointerup', e=>{ draggingLens=false; });
+lensWidget.addEventListener('pointercancel', ()=>{ draggingLens=false; });
+lensWidget.addEventListener('keydown', e=>{
+  if(e.key==='ArrowUp'){ targetY=Math.max(0,targetY-0.05); markDirty(); e.preventDefault(); }
+  if(e.key==='ArrowDown'){ targetY=Math.min(1,targetY+0.05); markDirty(); e.preventDefault(); }
+});
+
+// re-apply focus on scroll (positions change) and resize
+window.addEventListener('scroll', markDirty, {passive:true});
+window.addEventListener('resize', ()=>{ viewH=window.innerHeight; markDirty(); });
+
+document.addEventListener('visibilitychange', ()=>{ running=!document.hidden; if(running) markDirty(); });
+
+// keep applying during scroll continuously (positions shift)
+let scrollTick=false;
+window.addEventListener('scroll', ()=>{ if(!scrollTick){ scrollTick=true; requestAnimationFrame(()=>{ markDirty(); scrollTick=false; }); } }, {passive:true});
+
+// init
+viewH = window.innerHeight;
+setBand(); updateLens();
+// initial pass once images give layout
+window.addEventListener('load', markDirty);
+setTimeout(markDirty, 300);
+requestAnimationFrame(loop);
+
+})();
+</script>
+</body>
+</html>

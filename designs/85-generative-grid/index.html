@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generative — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500&family=Space+Grotesk:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f1ea;
+    --panel:#ece7dc;
+    --ink:#1c1a16;
+    --muted:#7a7367;
+    --line:rgba(28,26,22,.14);
+    --accent:#b4502f;
+    --portra:saturate(1.05) contrast(1.02) brightness(1.03) sepia(.09) hue-rotate(-6deg);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit}
+  .back{
+    position:fixed;top:16px;left:18px;z-index:50;
+    font-size:13px;color:var(--muted);text-decoration:none;
+    padding:7px 12px;border:1px solid var(--line);border-radius:3px;
+    background:rgba(244,241,234,.8);backdrop-filter:blur(6px);
+    transition:color .2s,border-color .2s;
+  }
+  .back:hover{color:var(--ink);border-color:var(--ink)}
+
+  .wrap{max-width:1320px;margin:0 auto;padding:0 26px}
+
+  header.top{
+    display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+    gap:26px;padding:74px 0 22px;border-bottom:1px solid var(--line);
+  }
+  .lede{max-width:560px}
+  .kicker{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  h1{font-family:'Spectral',serif;font-weight:400;font-size:clamp(40px,7.5vw,80px);line-height:.94;letter-spacing:-.015em}
+  h1 em{font-style:italic;color:var(--accent)}
+  .lede p{margin-top:16px;color:var(--muted);font-size:15px;line-height:1.6;max-width:460px}
+
+  /* control panel */
+  .panel{
+    display:flex;flex-direction:column;gap:14px;align-items:flex-end;
+    min-width:220px;
+  }
+  .serial{
+    font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);
+    text-align:right;line-height:1.7;
+  }
+  .serial b{color:var(--ink);font-weight:400}
+  .serial .seedval{
+    display:inline-block;min-width:96px;text-align:right;
+    transition:color .2s;
+  }
+  .gen{
+    display:inline-flex;align-items:center;gap:10px;
+    font:inherit;font-weight:600;font-size:14px;letter-spacing:.02em;
+    background:var(--ink);color:var(--bg);border:0;cursor:pointer;
+    padding:13px 22px;border-radius:4px;
+    transition:transform .12s,background .2s;
+  }
+  .gen:hover{background:var(--accent)}
+  .gen:active{transform:translateY(1px) scale(.99)}
+  .gen .ic{font-family:'Space Mono';font-size:16px;display:inline-block;transition:transform .5s}
+  .gen.spin .ic{transform:rotate(360deg)}
+  .meta-row{
+    display:flex;gap:18px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);
+    letter-spacing:.05em;
+  }
+  .meta-row span b{color:var(--ink);font-weight:400}
+
+  /* grid stage */
+  .stage{position:relative;margin:30px 0 90px}
+  .grid{position:relative;width:100%}
+  .tile{
+    position:absolute;top:0;left:0;
+    overflow:hidden;border-radius:3px;background:var(--panel);
+    will-change:transform;cursor:pointer;
+    box-shadow:0 2px 10px rgba(28,26,22,.10);
+  }
+  .tile .imgwrap{position:absolute;inset:0;overflow:hidden}
+  .tile img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:var(--portra);
+    transition:transform .7s cubic-bezier(.2,.7,.2,1);
+  }
+  .tile.bw img{filter:grayscale(1) contrast(1.06) brightness(1.02)}
+  .tile:hover img{transform:scale(1.04)}
+  .tile .cap{
+    position:absolute;left:0;right:0;bottom:0;padding:14px 15px;
+    background:linear-gradient(0deg,rgba(20,18,14,.86),rgba(20,18,14,.1) 60%,transparent);
+    color:#f4f1ea;opacity:0;transform:translateY(6px);
+    transition:opacity .35s,transform .35s;
+  }
+  .tile:hover .cap,.tile:focus-within .cap{opacity:1;transform:translateY(0)}
+  .tile .cap .t{font-family:'Spectral',serif;font-size:16px;line-height:1.15}
+  .tile .cap .d{font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.04em;margin-top:5px;opacity:.82}
+  .tile .num{
+    position:absolute;top:9px;left:11px;
+    font-family:'Space Mono',monospace;font-size:10px;color:rgba(244,241,234,.0);
+    transition:color .3s;mix-blend-mode:difference;
+  }
+  .tile:hover .num{color:rgba(244,241,234,.9)}
+  .tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .hint{
+    text-align:center;color:var(--muted);font-family:'Space Mono',monospace;
+    font-size:11.5px;letter-spacing:.05em;padding-bottom:60px;
+  }
+  .hint kbd{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:2px 8px}
+
+  @media (max-width:680px){
+    header.top{padding-top:64px}
+    .panel{align-items:flex-start;width:100%}
+    .serial{text-align:left}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .gen .ic,.tile img{transition:none}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">← All designs</a>
+
+<div class="wrap">
+  <header class="top">
+    <div class="lede">
+      <div class="kicker">Tom Milton · Generative Edit</div>
+      <h1>The Composition<br><em>composes itself</em></h1>
+      <p>An algorithm arranges thirty frames into a balanced asymmetric wall. No two layouts are ever the same — regenerate to deal a new hand.</p>
+    </div>
+    <div class="panel">
+      <button class="gen" id="gen" aria-label="Regenerate layout">
+        <span class="ic">⟳</span> Regenerate
+      </button>
+      <div class="serial" aria-live="polite">
+        Serial <b class="seedval" id="seed">—</b><br>
+        Generation <b id="gencount">001</b>
+      </div>
+      <div class="meta-row">
+        <span>cols <b id="mcol">—</b></span>
+        <span>gutter <b id="mgut">—</b></span>
+        <span>tiles <b>30</b></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <p class="hint">Press <kbd>Regenerate</kbd> or hit <kbd>Space</kbd> for a new arrangement · hover any frame for its story</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const DATA = [
+    ["golden-field-sunburst","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400",1998,""],
+    ["landscape-misty-mountains","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H",2001,"water"],
+    ["lake-cabin-dawn","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100",2003,"water"],
+    ["forest-sunlight","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160",1996,""],
+    ["valley-green-river","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50",1999,"water"],
+    ["cliff-coast-ocean","Edge of the World","Big Sur, USA","Kodak Portra 400",2002,"water"],
+    ["mountain-road-fog","The Long Way Home","Dolomites, Italy","Cinestill 800T",2005,""],
+    ["sun-through-leaves","Backlit","Kyoto, Japan","Kodak Portra 800",2004,""],
+    ["lake-mountain-house","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100",2000,"water"],
+    ["rolling-green-hills","Patchwork","Tuscany, Italy","Fujifilm Pro 400H",1997,""],
+    ["forest-path-trees","Into the Woods","Black Forest, Germany","Kodak Portra 160",1995,""],
+    ["waterfall-bridge","Hidden Falls","Iceland","Fujifilm Velvia 50",2006,"water"],
+    ["autumn-forest-road","October Road","Vermont, USA","Kodak Portra 400",2007,""],
+    ["desert-dunes","Wind Lines","Namibia","Kodak Ektar 100",2008,""],
+    ["misty-pine-forest","Silence","Norway","Ilford HP5 Plus",2003,"bw"],
+    ["succulent-closeup","Geometry of Growth","Studio","Kodak Portra 160",2009,""],
+    ["foggy-pier-lake","The Quiet Dock","Lake District, UK","Cinestill 50D",2010,"water"],
+    ["woman-portrait-window","By the Window","Lisbon, Portugal","Kodak Portra 400",2011,""],
+    ["man-portrait-street","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400",2012,"bw"],
+    ["couple-silhouette-sunset","Goodnight","Santorini, Greece","Kodak Portra 800",2013,"water"],
+    ["woman-portrait-soft","Soft Hour","Paris, France","Fujifilm Pro 400H",2014,""],
+    ["woman-portrait-freckles","Freckles & Sun","Studio","Kodak Portra 160",2015,""],
+    ["friends-golden-hour","Golden Hour, Together","California, USA","Kodak Portra 400",2016,""],
+    ["woman-curly-portrait","Curls","Brooklyn, USA","Cinestill 800T",2017,""],
+    ["man-bw-portrait","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200",2018,"bw"],
+    ["woman-fashion-portrait","The Red Wall","Marrakesh, Morocco","Kodak Portra 400",2019,""],
+    ["street-cafe-paris","Café de Flore","Paris, France","Kodak Gold 200",2020,""],
+    ["woman-laughing-portrait","That Laugh","Mexico City, Mexico","Kodak Portra 800",2021,""],
+    ["vintage-car-street","Sunday Drive","Havana, Cuba","Kodak Ektar 100",2022,""],
+    ["cozy-interior-window","Home Light","Copenhagen, Denmark","Kodak Portra 400",2023,""]
+  ].map(r=>({file:r[0],title:r[1],loc:r[2],film:r[3],year:r[4],flag:r[5],
+             portrait:/woman|man|couple|friends/.test(r[0])}));
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const grid=document.getElementById('grid');
+  const seedEl=document.getElementById('seed');
+  const genCountEl=document.getElementById('gencount');
+  const mcolEl=document.getElementById('mcol');
+  const mgutEl=document.getElementById('mgut');
+  const genBtn=document.getElementById('gen');
+
+  // seeded PRNG (mulberry32)
+  function mulberry32(a){
+    return function(){
+      a|=0;a=a+0x6D2B79F5|0;
+      let t=Math.imul(a^a>>>15,1|a);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return ((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+
+  // build tiles once
+  const tiles=new Map();
+  DATA.forEach((d,i)=>{
+    const el=document.createElement('a');
+    el.className='tile'+(d.flag==='bw'?' bw':'');
+    el.href='#';
+    el.tabIndex=0;
+    el.setAttribute('role','img');
+    el.setAttribute('aria-label',`${d.title}. ${d.loc}. ${d.film}, ${d.year}.`);
+    el.innerHTML=`
+      <div class="imgwrap"><img src="../../assets/img/${d.file}.jpg" alt="${d.title} — ${d.loc}" loading="lazy" decoding="async"></div>
+      <div class="num">${String(i+1).padStart(2,'0')}</div>
+      <div class="cap"><div class="t">${d.title}</div><div class="d">${d.loc} · ${d.film} · ${d.year}</div></div>`;
+    el.addEventListener('click',e=>e.preventDefault());
+    grid.appendChild(el);
+    tiles.set(d.file,el);
+  });
+
+  // ---- Generative layout engine ----
+  // A row-based packer on a unit grid of `cols` columns. Each item gets a
+  // span (1..maxSpan) chosen with rng, weighted by orientation. We pack into
+  // rows; rowHeight derived from a base unit with slight per-row variation so
+  // the wall reads as designed, not chaotic.
+  let lastLayout=null;
+
+  function chooseCols(rng, w){
+    if(w<560) return 2;
+    if(w<820) return rng()<.5?3:3;
+    if(w<1080) return rng()<.5?4:5;
+    return rng()<.5?5:6;
+  }
+
+  function buildLayout(seed){
+    const rng=mulberry32(seed);
+    const W=grid.clientWidth;
+    const cols=chooseCols(rng,W);
+    const gutter = W<560 ? 8 : [10,14,18,22][Math.floor(rng()*4)];
+    const unit=(W-gutter*(cols-1))/cols;
+
+    // shuffle order (Fisher-Yates) so spatial position differs each gen,
+    // but keep deterministic per seed.
+    const order=DATA.slice();
+    for(let i=order.length-1;i>0;i--){
+      const j=Math.floor(rng()*(i+1));
+      [order[i],order[j]]=[order[j],order[i]];
+    }
+
+    // pack
+    const placed=[];
+    let cursorCol=0, rowY=0, rowItems=[], rowMaxSpan=cols;
+    function flushRow(){
+      if(!rowItems.length) return;
+      // determine row height: base on average aspect of items, with variation
+      let rh=unit*(0.72+rng()*0.18); // landscape-ish base
+      // if row has a portrait-dominant item give it more height
+      const hasPortrait=rowItems.some(r=>r.d.portrait && r.span>=2);
+      if(hasPortrait) rh*= (1.15+rng()*0.25);
+      rowItems.forEach(r=>{
+        const w=r.span*unit+(r.span-1)*gutter;
+        placed.push({file:r.d.file,x:r.col*(unit+gutter),y:rowY,w:w,h:rh});
+      });
+      rowY+=rh+gutter;
+      rowItems=[];cursorCol=0;
+    }
+
+    order.forEach((d,idx)=>{
+      const remaining=cols-cursorCol;
+      let maxSpan=Math.min(cols<=2?2:3, remaining);
+      // weight span: portraits like span 1-2, landscapes can be wide
+      let span;
+      const r=rng();
+      if(cols<=2){ span = r<0.30?2:1; }
+      else if(d.portrait){ span = r<0.62?1:2; }
+      else { span = r<0.40?1: r<0.78?2:3; }
+      span=Math.min(span,maxSpan,remaining);
+      if(span<1)span=1;
+      rowItems.push({d,span,col:cursorCol});
+      cursorCol+=span;
+      if(cursorCol>=cols){ flushRow(); }
+    });
+    // final partial row: stretch last items to fill width nicely
+    if(rowItems.length){
+      const used=rowItems.reduce((s,r)=>s+r.span,0);
+      let slack=cols-used;
+      // distribute slack to items from the end
+      let i=rowItems.length-1;
+      while(slack>0){
+        rowItems[i].span+=1; slack--;
+        i--; if(i<0)i=rowItems.length-1;
+      }
+      // recompute cols positions
+      let c=0; rowItems.forEach(r=>{r.col=c;c+=r.span;});
+      flushRow();
+    }
+
+    return {cols,gutter,unit,height:rowY-gutter,pos:placed.reduce((m,p)=>{m[p.file]=p;return m;},{})};
+  }
+
+  function render(seed, animate){
+    // FLIP first
+    const first=new Map();
+    if(animate&&!reduceMotion){
+      tiles.forEach((el,f)=>first.set(f, el.getBoundingClientRect()));
+    }
+    const L=buildLayout(seed);
+    lastLayout=L;
+    grid.style.height=L.height+'px';
+    Object.keys(L.pos).forEach((f,i)=>{
+      const el=tiles.get(f), p=L.pos[f];
+      el.style.width=p.w+'px';
+      el.style.height=p.h+'px';
+      el.style.transform=`translate(${p.x}px,${p.y}px)`;
+    });
+    // update readouts
+    mcolEl.textContent=L.cols;
+    mgutEl.textContent=L.gutter+'px';
+
+    if(!animate||reduceMotion) return;
+    let n=0;
+    tiles.forEach((el,f)=>{
+      const fr=first.get(f); if(!fr)return;
+      const la=el.getBoundingClientRect();
+      const dx=fr.left-la.left, dy=fr.top-la.top;
+      const sx=la.width? fr.width/la.width:1, sy=la.height? fr.height/la.height:1;
+      const moved=Math.abs(dx)>0.5||Math.abs(dy)>0.5||Math.abs(sx-1)>0.01||Math.abs(sy-1)>0.01;
+      if(!moved) return;
+      el.animate([
+        {transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`,easing:'cubic-bezier(.22,.85,.18,1)'},
+        {transform:'translate(0,0) scale(1,1)'}
+      ],{duration:720, delay:Math.min(n*10,160), fill:'none', composite:'add'});
+      n++;
+    });
+  }
+
+  // seed/serial display
+  function seedToSerial(s){
+    // base36, uppercase, padded — looks like an edition number
+    return 'GX-'+(s>>>0).toString(36).toUpperCase().padStart(6,'0');
+  }
+
+  let genCount=0, currentSeed=0;
+  function regenerate(animate){
+    currentSeed=(Math.random()*4294967296)>>>0;
+    genCount++;
+    seedEl.textContent=seedToSerial(currentSeed);
+    genCountEl.textContent=String(genCount).padStart(3,'0');
+    render(currentSeed, animate);
+  }
+
+  genBtn.addEventListener('click',()=>{
+    if(!reduceMotion){ genBtn.classList.remove('spin'); void genBtn.offsetWidth; genBtn.classList.add('spin'); }
+    regenerate(true);
+  });
+  window.addEventListener('keydown',e=>{
+    if(e.code==='Space' && e.target.tagName!=='BUTTON' && e.target.tagName!=='A'){
+      e.preventDefault();
+      genBtn.classList.remove('spin'); void genBtn.offsetWidth; genBtn.classList.add('spin');
+      regenerate(true);
+    }
+  });
+
+  // responsive: re-render same seed (no anim) so it reflows
+  let rt;
+  window.addEventListener('resize',()=>{
+    clearTimeout(rt);
+    rt=setTimeout(()=>render(currentSeed,false),130);
+  });
+  window.addEventListener('load',()=>render(currentSeed,false));
+
+  // initial
+  regenerate(false);
+  // entrance reveal
+  if(!reduceMotion){
+    let i=0;
+    tiles.forEach(el=>{
+      el.style.opacity='0';
+      el.animate([{opacity:0,transform:el.style.transform+' translateY(20px)'},{opacity:1,transform:el.style.transform}],
+        {duration:640,delay:Math.min(i*28,820),fill:'forwards',easing:'cubic-bezier(.2,.7,.2,1)'});
+      el.style.opacity='1';
+      i++;
+    });
+  }
+})();
+</script>
+</body>
+</html>

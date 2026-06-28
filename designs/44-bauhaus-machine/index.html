@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton / Bauhaus Machine — Constructions in Light</title>
+<meta name="description" content="An interactive constructivist composition of Tom Milton's film photographs. Drag the bold geometric shapes to recompose the poster.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#e2231a;
+    --blue:#005bbb;
+    --yellow:#ffd500;
+    --pink:#ff5c8a;      /* palette twist */
+    --orange:#f47b20;    /* palette twist */
+    --ink:#141210;
+    --paper:#f3ece0;
+    --paper2:#e9e0d0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Archivo',system-ui,sans-serif;
+    line-height:1.15;
+    overflow-x:hidden;
+    min-height:100vh;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.07;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none;}
+
+  .backlink{
+    position:fixed;top:16px;left:16px;z-index:300;
+    background:var(--ink);color:var(--paper);
+    font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    padding:9px 13px;border:3px solid var(--ink);
+    transition:transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .backlink:hover,.backlink:focus-visible{background:var(--yellow);color:var(--ink);transform:translate(-2px,-2px);outline:none;}
+
+  .wrap{
+    min-height:100vh;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+  }
+
+  /* ---- Masthead ---- */
+  header.top{
+    border-bottom:8px solid var(--ink);
+    padding:64px 20px 18px;
+    display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 28px;
+    background:
+      linear-gradient(135deg, var(--red) 0 14px, transparent 14px) left top/60px 60px no-repeat,
+      var(--paper);
+  }
+  .brand{flex:1 1 320px;min-width:260px;}
+  .brand .kicker{
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--red);margin-bottom:8px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .brand .kicker::before{content:"";width:26px;height:13px;background:var(--blue);display:inline-block;}
+  h1{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(2.3rem,7vw,5rem);line-height:.86;
+    text-transform:uppercase;letter-spacing:-.02em;
+  }
+  h1 .mch{color:var(--red);}
+  h1 .ine{ -webkit-text-stroke:2px var(--ink);color:transparent;}
+  .sub{
+    font-family:'Space Mono',monospace;font-size:12.5px;letter-spacing:.05em;
+    margin-top:12px;max-width:46ch;color:#3a342c;line-height:1.5;
+  }
+
+  .controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  button.rnd{
+    font-family:'Archivo',sans-serif;font-weight:900;font-size:15px;
+    text-transform:uppercase;letter-spacing:.06em;
+    background:var(--yellow);color:var(--ink);
+    border:4px solid var(--ink);padding:13px 20px;cursor:pointer;
+    box-shadow:6px 6px 0 var(--ink);
+    transition:transform .1s ease, box-shadow .1s ease, background .12s ease;
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  button.rnd::before{content:"";width:18px;height:18px;border-radius:50%;background:var(--blue);box-shadow:inset 0 0 0 4px var(--paper);}
+  button.rnd:hover{background:var(--red);color:var(--paper);}
+  button.rnd:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--ink);}
+  button.rnd:focus-visible{outline:3px solid var(--blue);outline-offset:3px;}
+
+  /* ---- Stage ---- */
+  .stagewrap{position:relative;overflow:hidden;background:var(--paper2);}
+  canvas#stage{display:block;width:100%;height:100%;touch-action:none;cursor:grab;}
+  canvas#stage.grabbing{cursor:grabbing;}
+  .hint{
+    position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+    z-index:20;background:var(--ink);color:var(--paper);
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.12em;
+    text-transform:uppercase;padding:9px 16px;
+    display:flex;align-items:center;gap:10px;pointer-events:none;
+    transition:opacity .5s ease;
+  }
+  .hint .dot{width:10px;height:10px;background:var(--yellow);border-radius:50%;animation:pulse 1.3s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{transform:scale(.6);opacity:.5;}50%{transform:scale(1.1);opacity:1;}}
+
+  /* ---- Footer strip ---- */
+  footer.strip{
+    border-top:8px solid var(--ink);
+    display:flex;flex-wrap:wrap;align-items:center;gap:0;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  footer.strip span{padding:11px 18px;color:var(--paper);flex:1 1 auto;text-align:center;white-space:nowrap;}
+  footer.strip span:nth-child(1){background:var(--red);}
+  footer.strip span:nth-child(2){background:var(--ink);}
+  footer.strip span:nth-child(3){background:var(--blue);}
+  footer.strip span:nth-child(4){background:var(--ink);}
+  footer.strip span:nth-child(5){background:var(--yellow);color:var(--ink);}
+
+  @media (max-width:640px){
+    header.top{padding-top:58px;}
+    .sub{display:none;}
+    footer.strip span{font-size:10px;letter-spacing:.08em;padding:9px 8px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .hint .dot{animation:none;}
+  }
+</style>
+</head>
+<body>
+  <a class="backlink" href="../../index.html">&larr; All designs</a>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="kicker">Tom Milton — Film Photography</div>
+        <h1><span class="mch">Bauhaus</span> <span class="ine">Machine</span></h1>
+        <p class="sub">An interactive constructivist poster. Drag the primary shapes to recompose; several are masks holding photographs. Hit randomise for a new balanced arrangement.</p>
+      </div>
+      <div class="controls">
+        <button class="rnd" id="randomise" type="button" aria-label="Randomise the composition">Randomise</button>
+      </div>
+    </header>
+
+    <section class="stagewrap" aria-label="Interactive constructivist composition of photographs and geometric shapes">
+      <canvas id="stage" role="img" aria-label="A Bauhaus-style poster built from primary-coloured circles, triangles, half-circles and bars. Five of the shapes are masks containing Tom Milton's film photographs. Drag any shape to move it; click a shape to rotate it.">Your browser does not support canvas. This is an interactive constructivist poster of Tom Milton's photographs.</canvas>
+      <div class="hint" id="hint"><span class="dot"></span> Drag the shapes &middot; click to rotate</div>
+    </section>
+
+    <footer class="strip">
+      <span>Est. 1995</span>
+      <span>Constructions in Light</span>
+      <span>Drag &middot; Rotate &middot; Randomise</span>
+      <span>No. 44</span>
+      <span>Tom Milton</span>
+    </footer>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var canvas = document.getElementById('stage');
+  var ctx = canvas.getContext('2d');
+  var wrap = canvas.parentElement;
+  var hint = document.getElementById('hint');
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var W = 0, H = 0, BASE = 0;
+
+  // ---- image registry ----
+  var IMG = {};
+  function loadImg(src){
+    if(IMG[src]) return IMG[src];
+    var im = new Image();
+    im.decoding = 'async';
+    im.src = src;
+    IMG[src] = im;
+    return im;
+  }
+
+  // ---- shape definitions ----
+  // type: circle | ring | triangle | halfcircle | bar | quarter
+  var P = '../../assets/img/';
+  var defs = [
+    // photo masks (5)
+    {type:'circle',    img:P+'golden-field-sunburst.jpg', s:0.46},
+    {type:'triangle',  img:P+'woman-portrait-window.jpg', s:0.50},
+    {type:'halfcircle',img:P+'cliff-coast-ocean.jpg',     s:0.52},
+    {type:'bar',       img:P+'forest-sunlight.jpg',        s:0.46},
+    {type:'ring',      img:P+'man-bw-portrait.jpg', s:0.44, bw:true},
+    // solid primary shapes
+    {type:'circle',    color:'red',    s:0.30},
+    {type:'triangle',  color:'blue',   s:0.40},
+    {type:'bar',       color:'yellow', s:0.34},
+    {type:'halfcircle',color:'ink',    s:0.30},
+    {type:'quarter',   color:'red',    s:0.40},
+    {type:'ring',      color:'blue',   s:0.30},
+    {type:'circle',    color:'pink',   s:0.18},
+    {type:'bar',       color:'orange', s:0.26}
+  ];
+
+  var COL = {red:'#e2231a',blue:'#005bbb',yellow:'#ffd500',ink:'#141210',pink:'#ff5c8a',orange:'#f47b20',paper:'#f3ece0'};
+
+  var shapes = [];
+  defs.forEach(function(d,i){
+    shapes.push({
+      type:d.type, color:d.color, s:d.s,
+      img: d.img ? loadImg(d.img) : null,
+      bw: !!d.bw,
+      isPhoto: !!d.img,
+      // current (animated) state, normalized position
+      nx:0.5, ny:0.5, rot:0, sc:d.s,
+      // target
+      tx:0.5, ty:0.5, trot:0, tsc:d.s,
+      phase: Math.random()*Math.PI*2,
+      drag:false, dragdx:0, dragdy:0
+    });
+  });
+
+  // ---- layout generator: balanced spread over anchor grid ----
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){var j=(Math.random()*(i+1))|0;var t=a[i];a[i]=a[j];a[j]=t;} return a; }
+  var ROTS = [0, Math.PI/12, Math.PI/6, Math.PI/4, -Math.PI/12, -Math.PI/6, Math.PI/2, -Math.PI/4];
+
+  function layout(initial){
+    // anchor grid 4 x 4 -> 16 cells, pick distinct cells for our shapes
+    var cols=4, rows=4, cells=[];
+    for(var r=0;r<rows;r++) for(var c=0;c<cols;c++){
+      cells.push({x:(c+0.5)/cols, y:(r+0.5)/rows});
+    }
+    shuffle(cells);
+    shapes.forEach(function(sh,i){
+      var cell = cells[i % cells.length];
+      var jx = (Math.random()-0.5)*0.10;
+      var jy = (Math.random()-0.5)*0.10;
+      sh.tx = Math.max(0.08, Math.min(0.92, cell.x + jx));
+      sh.ty = Math.max(0.10, Math.min(0.90, cell.y + jy));
+      sh.trot = sh.type==='bar' ? ROTS[(Math.random()*ROTS.length)|0]
+              : (Math.random()<0.55 ? 0 : ROTS[(Math.random()*ROTS.length)|0]);
+      // slight scale variation
+      sh.tsc = sh.s * (0.88 + Math.random()*0.28);
+      if(initial){ sh.nx=sh.tx; sh.ny=sh.ty; sh.rot=sh.trot; sh.sc=sh.tsc; }
+    });
+  }
+
+  // ---- geometry helpers (local space, centered at origin) ----
+  function halfBox(sh){
+    var s = sh.sc * BASE;
+    if(sh.type==='bar') return {hw:s*0.85, hh:s*0.20};
+    return {hw:s*0.52, hh:s*0.52};
+  }
+  function tracePath(sh){
+    var s = sh.sc * BASE, r;
+    ctx.beginPath();
+    switch(sh.type){
+      case 'circle':
+        ctx.arc(0,0,s*0.5,0,Math.PI*2); break;
+      case 'ring':
+        r=s*0.5;
+        ctx.arc(0,0,r,0,Math.PI*2);
+        ctx.arc(0,0,r*0.54,0,Math.PI*2,true); // hole (evenodd via 2nd subpath ccw)
+        break;
+      case 'triangle':
+        r=s*0.55;
+        ctx.moveTo(0,-r);
+        ctx.lineTo(r*0.866, r*0.5);
+        ctx.lineTo(-r*0.866, r*0.5);
+        ctx.closePath(); break;
+      case 'halfcircle':
+        r=s*0.5;
+        ctx.arc(0,0,r,0,Math.PI); // lower half (y down)
+        ctx.closePath(); break;
+      case 'quarter':
+        r=s*0.62;
+        ctx.moveTo(-r*0.5,-r*0.5);
+        ctx.lineTo(r*0.5,-r*0.5);
+        ctx.arc(-r*0.5,-r*0.5,r,0,Math.PI*0.5);
+        ctx.closePath(); break;
+      case 'bar':
+        var hw=s*0.85, hh=s*0.20;
+        ctx.rect(-hw,-hh,hw*2,hh*2); break;
+    }
+  }
+  function coverDraw(img, hw, hh){
+    var iw=img.naturalWidth, ih=img.naturalHeight;
+    if(!iw||!ih) return;
+    var bw=hw*2, bh=hh*2, ir=iw/ih, br=bw/bh, dw, dh;
+    if(ir>br){ dh=bh; dw=bh*ir; } else { dw=bw; dh=bw/ir; }
+    ctx.drawImage(img, -dw/2, -dh/2, dw, dh);
+  }
+
+  // ---- draw a single shape ----
+  function drawShape(sh, t){
+    var floatY = reduce ? 0 : Math.sin(t*0.0007 + sh.phase) * 4;
+    var cx = sh.nx*W, cy = sh.ny*H + floatY;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(sh.rot);
+
+    // soft drop shadow for depth (especially while dragging)
+    ctx.save();
+    ctx.shadowColor = 'rgba(20,18,16,'+(sh.drag?0.34:0.16)+')';
+    ctx.shadowBlur = sh.drag? 26 : 12;
+    ctx.shadowOffsetX = sh.drag? 10 : 5;
+    ctx.shadowOffsetY = sh.drag? 14 : 7;
+
+    if(sh.isPhoto){
+      var hb = halfBox(sh);
+      // clip to shape, draw photo (cover), warm Portra grade
+      ctx.save();
+      tracePath(sh);
+      ctx.clip(sh.type==='ring' ? 'evenodd':'nonzero');
+      if(sh.img.complete && sh.img.naturalWidth){
+        ctx.filter = sh.bw ? 'grayscale(1) contrast(1.06) brightness(1.02)'
+                           : 'saturate(1.08) contrast(1.04) sepia(0.10) brightness(1.02)';
+        coverDraw(sh.img, hb.hw, hb.hh);
+        ctx.filter = 'none';
+      } else {
+        // initial visible placeholder before image decodes
+        ctx.fillStyle = sh.bw ? '#7d7a74' : COL.blue;
+        ctx.fillRect(-hb.hw-2,-hb.hh-2,hb.hw*2+4,hb.hh*2+4);
+      }
+      ctx.restore();
+      ctx.restore(); // end shadow context (shadow only on fill below)
+      // bold outline
+      ctx.save();
+      tracePath(sh);
+      ctx.lineWidth = Math.max(4, BASE*0.012);
+      ctx.strokeStyle = COL.ink;
+      ctx.stroke();
+      if(sh.type==='ring'){
+        // re-stroke inner edge handled by evenodd path stroke already
+      }
+      ctx.restore();
+    } else {
+      // solid coloured shape
+      tracePath(sh);
+      ctx.fillStyle = COL[sh.color] || COL.red;
+      if(sh.type==='ring'){ ctx.fill('evenodd'); } else { ctx.fill(); }
+      ctx.restore(); // shadow ctx
+      // outline for non-ring solids, except ink shapes
+      if(sh.color!=='ink'){
+        ctx.save();
+        tracePath(sh);
+        ctx.lineWidth = Math.max(3, BASE*0.008);
+        ctx.strokeStyle = COL.ink;
+        if(sh.type==='ring'){ ctx.stroke(); } else { ctx.stroke(); }
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+  }
+
+  // ---- main render ----
+  var lastT = 0;
+  function render(t){
+    var dt = Math.min(0.05, (t - lastT)/1000) || 0.016;
+    lastT = t;
+
+    // animate toward targets
+    var k = reduce ? 1 : 1 - Math.pow(0.0001, dt); // smooth ease, frame-rate independent
+    shapes.forEach(function(sh){
+      if(sh.drag){
+        // follow handled in pointer move (nx,ny already set); keep target synced
+        sh.tx=sh.nx; sh.ty=sh.ny;
+      } else {
+        sh.nx += (sh.tx - sh.nx)*k;
+        sh.ny += (sh.ty - sh.ny)*k;
+        sh.sc += (sh.tsc - sh.sc)*k;
+        // shortest-path rotation
+        var dr = sh.trot - sh.rot;
+        while(dr> Math.PI) dr-=Math.PI*2;
+        while(dr<-Math.PI) dr+=Math.PI*2;
+        sh.rot += dr*k;
+      }
+    });
+
+    ctx.clearRect(0,0,W,H);
+    // background subtle tone is via CSS; draw faint baseline grid marks
+    for(var i=0;i<shapes.length;i++) drawShape(shapes[i], t);
+
+    raf = requestAnimationFrame(render);
+  }
+
+  // ---- sizing ----
+  function resize(){
+    var rect = wrap.getBoundingClientRect();
+    W = Math.max(280, rect.width);
+    H = Math.max(320, rect.height);
+    BASE = Math.min(W, H);
+    canvas.width = Math.round(W*DPR);
+    canvas.height = Math.round(H*DPR);
+    canvas.style.width = W+'px';
+    canvas.style.height = H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+
+  // ---- pointer interaction ----
+  var active = null, startX=0, startY=0, moved=false;
+  function pos(e){
+    var r = canvas.getBoundingClientRect();
+    return {x:(e.clientX-r.left), y:(e.clientY-r.top)};
+  }
+  function pickShape(px,py){
+    for(var i=shapes.length-1;i>=0;i--){
+      var sh=shapes[i];
+      var floatY = reduce?0:Math.sin(performance.now()*0.0007+sh.phase)*4;
+      var dx=px-sh.nx*W, dy=py-(sh.ny*H+floatY);
+      var c=Math.cos(-sh.rot), s=Math.sin(-sh.rot);
+      var lx=dx*c-dy*s, ly=dx*s+dy*c;
+      var hb=halfBox(sh);
+      if(Math.abs(lx)<=hb.hw && Math.abs(ly)<=hb.hh) return sh;
+    }
+    return null;
+  }
+  function down(e){
+    var p=pos(e);
+    var sh=pickShape(p.x,p.y);
+    if(!sh) return;
+    active=sh; moved=false; startX=p.x; startY=p.y;
+    sh.drag=true;
+    sh.dragdx = p.x - sh.nx*W;
+    sh.dragdy = p.y - sh.ny*H;
+    // bring to front
+    var idx=shapes.indexOf(sh); shapes.splice(idx,1); shapes.push(sh);
+    canvas.classList.add('grabbing');
+    canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+    fadeHint();
+    e.preventDefault();
+  }
+  function move(e){
+    if(!active) return;
+    var p=pos(e);
+    if(Math.abs(p.x-startX)+Math.abs(p.y-startY)>4) moved=true;
+    active.nx = Math.max(0.04, Math.min(0.96, (p.x - active.dragdx)/W));
+    active.ny = Math.max(0.05, Math.min(0.95, (p.y - active.dragdy)/H));
+    e.preventDefault();
+  }
+  function up(e){
+    if(!active) return;
+    active.drag=false;
+    if(!moved){
+      // click => rotate 45deg
+      active.trot = active.rot + Math.PI/4;
+    } else {
+      // snap rotation to nearest 15deg
+      var step=Math.PI/12;
+      active.trot = Math.round(active.rot/step)*step;
+      active.tx=active.nx; active.ty=active.ny;
+    }
+    active=null;
+    canvas.classList.remove('grabbing');
+  }
+  canvas.addEventListener('pointerdown', down);
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
+
+  var hintGone=false;
+  function fadeHint(){ if(hintGone) return; hintGone=true; hint.style.opacity='0'; }
+
+  // ---- randomise ----
+  document.getElementById('randomise').addEventListener('click', function(){
+    layout(false);
+    fadeHint();
+  });
+
+  // ---- visibility / lifecycle ----
+  var raf=null, visible=true;
+  function start(){ if(raf==null){ lastT=performance.now(); raf=requestAnimationFrame(render);} }
+  function stop(){ if(raf!=null){ cancelAnimationFrame(raf); raf=null; } }
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden) stop(); else if(visible) start();
+  });
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){
+      visible = es[0].isIntersecting;
+      if(visible && !document.hidden) start(); else stop();
+    }, {threshold:0.01}).observe(canvas);
+  }
+
+  var rT;
+  window.addEventListener('resize', function(){ clearTimeout(rT); rT=setTimeout(resize, 120); });
+
+  // ---- init ----
+  resize();
+  layout(true);
+  // ensure redraw once images decode
+  shapes.forEach(function(sh){ if(sh.img){ sh.img.addEventListener('load', function(){}); } });
+  start();
+})();
+</script>
+</body>
+</html>

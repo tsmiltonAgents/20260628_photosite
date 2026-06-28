@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Press</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3ead7;
+    --paper-deep:#e9ddc2;
+    --ink-teal:#0a8a8f;
+    --ink-teal-dk:#066a6e;
+    --ink-orange:#ff5a1f;
+    --ink-orange-2:#ff7a32;
+    --ink-black:#241f1b;
+    --reg:#211c18;
+    --gap:clamp(14px,2.4vw,30px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink-black);
+    font-family:'Archivo',system-ui,sans-serif;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:9000;pointer-events:none;
+    opacity:.5;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.34'/%3E%3C/svg%3E");
+  }
+  /* faint ink-roller streaks */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:8999;pointer-events:none;opacity:.06;mix-blend-mode:multiply;
+    background:repeating-linear-gradient(90deg,transparent 0 38px,rgba(0,0,0,.5) 38px 39px);
+  }
+  a{color:inherit}
+  .skip{position:absolute;left:-999px;top:0;background:var(--ink-orange);color:#fff;padding:10px 16px;z-index:99999}
+  .skip:focus{left:8px;top:8px}
+
+  /* ---- registration / crop marks ---- */
+  .reg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none}
+
+  /* ---- top bar ---- */
+  .topbar{
+    position:sticky;top:0;z-index:200;
+    display:flex;justify-content:space-between;align-items:center;
+    gap:16px;padding:12px clamp(18px,4vw,54px);
+    background:linear-gradient(var(--paper),var(--paper));
+    border-bottom:2.5px solid var(--ink-black);
+    mix-blend-mode:multiply;
+  }
+  .back{
+    font-family:'Spline Sans Mono',monospace;font-weight:600;font-size:.8rem;
+    text-decoration:none;text-transform:uppercase;letter-spacing:.05em;
+    display:inline-flex;align-items:center;gap:7px;
+    padding:7px 12px;border:2px solid var(--ink-black);background:var(--paper);
+    transition:.15s;
+  }
+  .back:hover,.back:focus-visible{background:var(--ink-orange);color:#fff;border-color:var(--ink-orange)}
+  .runhead{font-family:'Spline Sans Mono',monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-teal-dk)}
+  .runhead b{color:var(--ink-orange)}
+
+  /* ---- masthead ---- */
+  .masthead{
+    padding:clamp(40px,8vw,110px) clamp(18px,4vw,54px) clamp(28px,5vw,60px);
+    position:relative;
+  }
+  .colophon{
+    font-family:'Spline Sans Mono',monospace;font-size:.72rem;letter-spacing:.16em;
+    text-transform:uppercase;display:flex;flex-wrap:wrap;gap:6px 22px;
+    border-block:2px solid var(--ink-black);padding:9px 2px;margin-bottom:clamp(18px,4vw,40px);
+  }
+  .colophon span{position:relative}
+  .colophon .dot{color:var(--ink-orange)}
+  .bigtitle{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(3.6rem,17vw,15rem);
+    line-height:.82;letter-spacing:-.02em;text-transform:uppercase;
+    position:relative;display:inline-block;
+  }
+  /* mis-registration of the title using two pseudo-layers */
+  .bigtitle .layer{display:block;position:relative}
+  .bigtitle .ghost-t,.bigtitle .ghost-o{position:absolute;inset:0;pointer-events:none}
+  .bigtitle .ghost-t{color:var(--ink-teal);mix-blend-mode:multiply;transform:translate(-5px,3px);opacity:.92}
+  .bigtitle .ghost-o{color:var(--ink-orange);mix-blend-mode:multiply;transform:translate(5px,-3px);opacity:.85}
+  .bigtitle .base{color:var(--ink-black);position:relative;mix-blend-mode:multiply}
+  .sub{
+    margin-top:clamp(18px,3vw,34px);max-width:60ch;
+    font-size:clamp(1rem,1.5vw,1.25rem);font-weight:500;
+  }
+  .sub b{background:var(--ink-teal);color:var(--paper);padding:1px 7px;font-weight:700}
+  .sub .o{background:var(--ink-orange);color:#fff;padding:1px 7px;font-weight:700}
+
+  /* ---- section header strip ---- */
+  .strip{
+    display:flex;align-items:center;gap:14px;
+    padding:10px clamp(18px,4vw,54px);
+    background:var(--ink-teal);color:var(--paper);
+    font-family:'Spline Sans Mono',monospace;text-transform:uppercase;letter-spacing:.14em;font-size:.78rem;
+    border-block:2.5px solid var(--ink-black);
+    mix-blend-mode:multiply;
+  }
+  .strip .num{background:var(--ink-orange);color:#fff;padding:2px 9px;font-weight:600}
+  .strip .fill{flex:1;height:0;border-top:2px dashed var(--paper);opacity:.6}
+
+  /* ---- grid ---- */
+  .sheet{padding:clamp(24px,4vw,56px) clamp(18px,4vw,54px) clamp(60px,9vw,120px)}
+  .grid{
+    display:grid;gap:var(--gap);
+    grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+  }
+  figure.plate{
+    position:relative;margin:0;background:var(--paper-deep);
+    border:2.5px solid var(--ink-black);
+    padding:12px 12px 0;
+    display:flex;flex-direction:column;
+  }
+  figure.plate.feat{grid-column:span 2}
+  @media(max-width:640px){figure.plate.feat{grid-column:span 1}}
+
+  .platehead{
+    display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+    font-family:'Spline Sans Mono',monospace;font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;margin-bottom:9px;
+  }
+  .platehead .pn{color:var(--ink-orange);font-weight:600}
+  .platehead .yr{color:var(--ink-teal-dk);font-weight:600}
+
+  /* duotone halftone photo */
+  .imgwrap{
+    position:relative;overflow:hidden;
+    border:2px solid var(--ink-black);
+    aspect-ratio:4/3;background:var(--paper-deep);
+    isolation:isolate;
+  }
+  figure.plate.feat .imgwrap{aspect-ratio:16/10}
+  .imgwrap img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    /* push to two-ish tones, warm, then we tint with blends */
+    filter:grayscale(1) contrast(1.32) brightness(1.06) sepia(.15);
+  }
+  /* TEAL ink layer (the photo itself, multiplied) */
+  .layer-teal{
+    position:absolute;inset:0;mix-blend-mode:multiply;
+    background:var(--ink-teal);
+  }
+  .layer-teal img{
+    width:100%;height:100%;object-fit:cover;
+    filter:grayscale(1) contrast(1.4) brightness(1.05);
+    mix-blend-mode:screen;
+  }
+  /* ORANGE ink layer, offset = misregistration */
+  .layer-orange{
+    position:absolute;inset:0;mix-blend-mode:multiply;
+    transform:translate(3px,-3px);opacity:.78;
+  }
+  .layer-orange::before{content:"";position:absolute;inset:0;background:var(--ink-orange)}
+  .layer-orange img{
+    width:100%;height:100%;object-fit:cover;
+    filter:grayscale(1) contrast(1.5) brightness(.92);
+    mix-blend-mode:screen;position:relative;
+  }
+  /* big visible halftone dot screen, multiplied */
+  .halftone{
+    position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.5;
+    background-image:radial-gradient(circle at center, var(--ink-black) 38%, transparent 42%);
+    background-size:7px 7px;
+  }
+  figure.plate.feat .halftone{background-size:9px 9px}
+  /* subtle paper showing through highlights */
+  .imgwrap::after{
+    content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;
+    background:radial-gradient(120% 90% at 30% 20%, rgba(243,234,215,.25), transparent 60%);
+  }
+
+  figcaption{padding:11px 2px 14px}
+  .cap-title{
+    font-family:'Archivo Black',sans-serif;font-size:clamp(1.05rem,1.7vw,1.45rem);
+    line-height:1;text-transform:uppercase;letter-spacing:-.01em;
+    color:var(--ink-black);
+  }
+  .cap-meta{
+    margin-top:8px;font-family:'Spline Sans Mono',monospace;font-size:.68rem;
+    line-height:1.6;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-teal-dk);
+  }
+  .cap-meta .loc{color:var(--ink-black);font-weight:600}
+  .tag{
+    display:inline-block;margin-top:9px;background:var(--ink-orange);color:#fff;
+    font-family:'Spline Sans Mono',monospace;font-size:.6rem;letter-spacing:.12em;
+    text-transform:uppercase;padding:2px 8px;font-weight:600;
+  }
+  .tag.bw{background:var(--ink-black)}
+  .tag.water{background:var(--ink-teal)}
+
+  /* corner crop marks per plate, drawn with css */
+  .plate .crop{position:absolute;width:13px;height:13px;pointer-events:none;z-index:3}
+  .plate .crop::before,.plate .crop::after{content:"";position:absolute;background:var(--ink-orange)}
+  .plate .crop::before{width:13px;height:2px;top:0;left:0}
+  .plate .crop::after{width:2px;height:13px;top:0;left:0}
+  .plate .c-tl{top:-2px;left:-2px}
+  .plate .c-tr{top:-2px;right:-2px;transform:scaleX(-1)}
+  .plate .c-bl{bottom:-2px;left:-2px;transform:scaleY(-1)}
+  .plate .c-br{bottom:-2px;right:-2px;transform:scale(-1)}
+
+  /* colophon / footer */
+  footer{
+    border-top:2.5px solid var(--ink-black);
+    padding:clamp(34px,6vw,72px) clamp(18px,4vw,54px);
+    display:flex;flex-wrap:wrap;gap:26px 50px;align-items:flex-end;justify-content:space-between;
+  }
+  .foot-big{font-family:'Archivo Black',sans-serif;font-size:clamp(2rem,6vw,4.4rem);line-height:.85;text-transform:uppercase;color:var(--ink-teal)}
+  .foot-meta{font-family:'Spline Sans Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;line-height:2;color:var(--ink-black)}
+  .foot-meta .o{color:var(--ink-orange)}
+  .swatches{display:flex;gap:0;margin-top:10px;border:2px solid var(--ink-black);width:max-content}
+  .swatches span{width:34px;height:22px;display:block}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#work">Skip to plates</a>
+<canvas class="reg-canvas" id="reg" aria-hidden="true"></canvas>
+
+<header>
+  <div class="topbar">
+    <a class="back" href="../../index.html">&larr; All designs</a>
+    <div class="runhead">Two-Colour Risograph &nbsp;·&nbsp; <b>Teal</b> + <b>Fluoro&nbsp;Orange</b> &nbsp;·&nbsp; Edition of 50</div>
+  </div>
+
+  <div class="masthead">
+    <div class="colophon">
+      <span>Hand-pulled prints</span>
+      <span class="dot">●</span>
+      <span>Tom Milton Studio</span>
+      <span class="dot">●</span>
+      <span>Newsprint 90gsm</span>
+      <span class="dot">●</span>
+      <span>MCMXCV–MMXXIII</span>
+    </div>
+    <h1 class="bigtitle" aria-label="Press">
+      <span class="layer">
+        <span class="ghost-t" aria-hidden="true">PRESS</span>
+        <span class="ghost-o" aria-hidden="true">PRESS</span>
+        <span class="base">PRESS</span>
+      </span>
+    </h1>
+    <p class="sub">A risograph pull of the <b>Grain</b> archive. Two ink drums — <span class="o">fluoro orange</span> over <b>teal</b> — laid down in separate passes, slightly out of register, on warm newsprint. Photographs by Tom Milton, 1995–2023.</p>
+  </div>
+</header>
+
+<main id="work">
+  <div class="strip" aria-hidden="true">
+    <span class="num">001</span><span>The Plates</span><span class="fill"></span><span>Trim · Bleed · Pull</span>
+  </div>
+  <section class="sheet">
+    <div class="grid" id="grid"></div>
+  </section>
+</main>
+
+<footer>
+  <div>
+    <div class="foot-big">Pull<br>again.</div>
+    <div class="swatches" aria-hidden="true">
+      <span style="background:var(--ink-teal)"></span>
+      <span style="background:var(--ink-orange)"></span>
+      <span style="background:var(--ink-black)"></span>
+      <span style="background:var(--paper-deep)"></span>
+    </div>
+  </div>
+  <div class="foot-meta">
+    Tom Milton — Press Edition<br>
+    Inks: <span class="o">Fluoro Orange</span> + Teal<br>
+    Stock: Warm Newsprint<br>
+    © MMXXVI · All frames analogue
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var PHOTOS=[
+    ["golden-field-sunburst.jpg","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",""],
+    ["landscape-misty-mountains.jpg","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001","water"],
+    ["lake-cabin-dawn.jpg","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003","water"],
+    ["forest-sunlight.jpg","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",""],
+    ["valley-green-river.jpg","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3","1999","water"],
+    ["cliff-coast-ocean.jpg","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002","water"],
+    ["mountain-road-fog.jpg","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005",""],
+    ["sun-through-leaves.jpg","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004",""],
+    ["lake-mountain-house.jpg","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000","water"],
+    ["rolling-green-hills.jpg","Patchwork","Tuscany, Italy","Fujifilm Pro 400H","Pentax 645","1997",""],
+    ["forest-path-trees.jpg","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F","1995",""],
+    ["waterfall-bridge.jpg","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006","water"],
+    ["autumn-forest-road.jpg","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",""],
+    ["desert-dunes.jpg","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",""],
+    ["misty-pine-forest.jpg","Silence","Norway","Ilford HP5 Plus","Leica M6","2003","bw"],
+    ["succulent-closeup.jpg","Geometry of Growth","Studio","Kodak Portra 160","Hasselblad 500CM","2009",""],
+    ["foggy-pier-lake.jpg","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2","2010","water"],
+    ["woman-portrait-window.jpg","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",""],
+    ["man-portrait-street.jpg","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400","Leica M4","2012","bw"],
+    ["couple-silhouette-sunset.jpg","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V","2013","water"],
+    ["woman-portrait-soft.jpg","Soft Hour","Paris, France","Fujifilm Pro 400H","Contax 645","2014",""],
+    ["woman-portrait-freckles.jpg","Freckles & Sun","Studio","Kodak Portra 160","Mamiya 645","2015",""],
+    ["friends-golden-hour.jpg","Golden Hour, Together","California, USA","Kodak Portra 400","Nikon F100","2016",""],
+    ["woman-curly-portrait.jpg","Curls","Brooklyn, USA","Cinestill 800T","Canon AE-1","2017",""],
+    ["man-bw-portrait.jpg","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6","2018","bw"],
+    ["woman-fashion-portrait.jpg","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67","2019",""],
+    ["street-cafe-paris.jpg","Café de Flore","Paris, France","Kodak Gold 200","Olympus OM-1","2020",""],
+    ["woman-laughing-portrait.jpg","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2","2021",""],
+    ["vintage-car-street.jpg","Sunday Drive","Havana, Cuba","Kodak Ektar 100","Nikon FE","2022",""],
+    ["cozy-interior-window.jpg","Home Light","Copenhagen, Denmark","Kodak Portra 400","Leica M6","2023",""]
+  ];
+  var BASE="../../assets/img/";
+  var grid=document.getElementById("grid");
+  var frag=document.createDocumentFragment();
+
+  PHOTOS.forEach(function(p,i){
+    var file=p[0],title=p[1],loc=p[2],film=p[3],cam=p[4],yr=p[5],flag=p[6];
+    var feat=(i%7===0);
+    var fig=document.createElement("figure");
+    fig.className="plate"+(feat?" feat":"");
+    var pn=("00"+(i+1)).slice(-3);
+    var tagHTML="";
+    if(flag==="bw")tagHTML='<span class="tag bw">B&amp;W · Single Drum</span>';
+    else if(flag==="water")tagHTML='<span class="tag water">Water</span>';
+    var alt=title+" — "+loc+", "+yr+", shot on "+film;
+    fig.innerHTML=
+      '<span class="crop c-tl"></span><span class="crop c-tr"></span><span class="crop c-bl"></span><span class="crop c-br"></span>'+
+      '<div class="platehead"><span class="pn">PL.'+pn+'</span><span class="yr">'+yr+'</span></div>'+
+      '<div class="imgwrap">'+
+        '<div class="layer-teal"><img loading="lazy" src="'+BASE+file+'" alt="'+alt.replace(/"/g,"&quot;")+'"></div>'+
+        '<div class="layer-orange"><img loading="lazy" src="'+BASE+file+'" alt="" aria-hidden="true"></div>'+
+        '<div class="halftone"></div>'+
+      '</div>'+
+      '<figcaption>'+
+        '<div class="cap-title">'+title+'</div>'+
+        '<div class="cap-meta"><span class="loc">'+loc+'</span><br>'+film+' · '+cam+'</div>'+
+        tagHTML+
+      '</figcaption>';
+    frag.appendChild(fig);
+  });
+  grid.appendChild(frag);
+
+  /* ---- registration / crop marks: draw-in animation on canvas ---- */
+  var canvas=document.getElementById("reg");
+  var ctx=canvas.getContext("2d");
+  var DPR=Math.min(window.devicePixelRatio||1,2);
+  var W=0,H=0;
+  function resize(){
+    W=window.innerWidth;H=window.innerHeight;
+    canvas.width=W*DPR;canvas.height=H*DPR;
+    canvas.style.width=W+"px";canvas.style.height=H+"px";
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  resize();
+  var reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var progress=reduce?1:0;
+  var raf=null,running=false;
+
+  // registration target (a crosshair + circle) drawn at each corner
+  function regMark(cx,cy,p,inkA,inkB){
+    var arm=15, gap=5, r=9;
+    ctx.lineWidth=1.6;
+    // teal layer slightly offset (misregistration)
+    drawCross(cx-1.2,cy+1.2,arm,gap,r,inkA,p);
+    drawCross(cx+1.2,cy-1.2,arm,gap,r,inkB,p);
+  }
+  function drawCross(cx,cy,arm,gap,r,col,p){
+    ctx.strokeStyle=col;
+    // horizontal arms (draw proportional to p)
+    var a=arm*p;
+    ctx.beginPath();
+    ctx.moveTo(cx-gap-a,cy);ctx.lineTo(cx-gap,cy);
+    ctx.moveTo(cx+gap,cy);ctx.lineTo(cx+gap+a,cy);
+    ctx.moveTo(cx,cy-gap-a);ctx.lineTo(cx,cy-gap);
+    ctx.moveTo(cx,cy+gap);ctx.lineTo(cx,cy+gap+a);
+    ctx.stroke();
+    // circle arc
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*p);
+    ctx.stroke();
+  }
+  // L-shaped crop/trim marks at the page corners
+  function cropMark(cx,cy,sx,sy,p,col){
+    var len=26*p;
+    ctx.strokeStyle=col;ctx.lineWidth=1.4;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);ctx.lineTo(cx+sx*len,cy);
+    ctx.moveTo(cx,cy);ctx.lineTo(cx,cy+sy*len);
+    ctx.stroke();
+  }
+
+  function render(){
+    ctx.clearRect(0,0,W,H);
+    var m=34; // margin from edge
+    var p=progress;
+    var teal="#0a8a8f",orange="#ff5a1f";
+    // crop marks (page corners)
+    cropMark(m,m,1,1,p,orange);
+    cropMark(W-m,m,-1,1,p,orange);
+    cropMark(m,H-m,1,-1,p,orange);
+    cropMark(W-m,H-m,-1,-1,p,orange);
+    // registration targets near corners (inset)
+    var ri=70;
+    regMark(ri,H/2,p,teal,orange);
+    regMark(W-ri,H/2,p,teal,orange);
+    regMark(W/2,ri,p,teal,orange);
+    regMark(W/2,H-ri,p,teal,orange);
+  }
+
+  function tick(){
+    if(progress<1){progress+=0.022;if(progress>1)progress=1;}
+    render();
+    if(progress<1&&running){raf=requestAnimationFrame(tick);}
+    else{running=false;}
+  }
+  function start(){
+    if(running||reduce){render();return;}
+    running=true;raf=requestAnimationFrame(tick);
+  }
+  // initial state strong: render at p=0 then animate
+  render();
+  if(reduce){progress=1;render();}
+  else{ // tiny delay so marks "draw in"
+    requestAnimationFrame(start);
+  }
+
+  window.addEventListener("resize",function(){resize();render();},{passive:true});
+  document.addEventListener("visibilitychange",function(){
+    if(document.hidden){if(raf)cancelAnimationFrame(raf);running=false;}
+    else if(progress<1){start();}
+  });
+})();
+</script>
+</body>
+</html>

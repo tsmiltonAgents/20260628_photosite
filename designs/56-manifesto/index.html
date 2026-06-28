@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANIFESTO — Tom Milton / On Film &amp; Light</title>
+<meta name="description" content="A brutalist manifesto on film, grain, light, time and patience by film photographer Tom Milton.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0a0a0a;
+    --white:#f4f1ea;
+    --pure:#ffffff;
+    --red:#e60023;
+    --display:'Archivo Black', 'Archivo', system-ui, sans-serif;
+    --mono:'Space Mono', ui-monospace, monospace;
+    --grot:'Archivo', system-ui, sans-serif;
+    --kodak:saturate(1.12) contrast(1.06) brightness(1.02) sepia(0.12) hue-rotate(-6deg);
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    background:var(--black);
+    color:var(--white);
+    font-family:var(--grot);
+    overflow-x:hidden;
+    width:100%;
+    line-height:1;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  img{ display:block; max-width:100%; }
+
+  ::selection{ background:var(--red); color:var(--pure); }
+
+  /* ---------- BACK LINK ---------- */
+  .backlink{
+    position:fixed;
+    top:0; left:0;
+    z-index:200;
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:.74rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    text-decoration:none;
+    color:var(--black);
+    background:var(--red);
+    padding:.7em 1em;
+    border-right:3px solid var(--black);
+    border-bottom:3px solid var(--black);
+    transition:background .15s, color .15s;
+  }
+  .backlink:hover,.backlink:focus-visible{ background:var(--white); color:var(--black); outline:none; }
+
+  /* ---------- SHELL ---------- */
+  .wrap{ width:100%; overflow:hidden; }
+
+  section{ position:relative; width:100%; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100vh;
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:clamp(1rem,5vw,4rem) clamp(1rem,5vw,4rem) clamp(2rem,6vw,5rem);
+    border-bottom:6px solid var(--white);
+  }
+  .hero__kicker{
+    font-family:var(--mono);
+    font-size:clamp(.7rem,1.6vw,.95rem);
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4em 1.2em;
+    margin-bottom:clamp(1.5rem,5vw,3rem);
+    padding-top:2.5rem;
+  }
+  .hero__kicker .dot{ color:var(--red); }
+  .hero__title{
+    font-family:var(--display);
+    font-weight:900;
+    font-size:clamp(3.2rem,18vw,15rem);
+    line-height:.84;
+    letter-spacing:-.02em;
+    text-transform:uppercase;
+    word-break:break-word;
+  }
+  .hero__title .red{ color:var(--red); }
+  .hero__sub{
+    font-family:var(--mono);
+    font-size:clamp(.78rem,1.8vw,1.05rem);
+    line-height:1.5;
+    max-width:46ch;
+    margin-top:clamp(1.5rem,4vw,2.6rem);
+    letter-spacing:.02em;
+    text-transform:uppercase;
+    color:var(--white);
+  }
+  .hero__sub b{ color:var(--red); }
+  .scrollcue{
+    margin-top:clamp(1.5rem,4vw,3rem);
+    font-family:var(--mono);
+    font-size:.72rem;
+    letter-spacing:.25em;
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:.8em;
+  }
+  .scrollcue .bar{ display:inline-block; width:clamp(40px,10vw,90px); height:3px; background:var(--red); }
+
+  /* ---------- STATEMENT ---------- */
+  .statement{
+    min-height:88vh;
+    min-height:88svh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:clamp(3rem,9vw,8rem) clamp(1rem,5vw,4rem);
+    border-bottom:6px solid var(--white);
+    position:relative;
+  }
+  .statement.alt{ background:var(--white); color:var(--black); }
+  .statement__num{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:clamp(1rem,3vw,1.7rem);
+    letter-spacing:.1em;
+    color:var(--red);
+    margin-bottom:clamp(1rem,3vw,2rem);
+    display:flex;
+    align-items:center;
+    gap:1em;
+  }
+  .statement__num::after{
+    content:"";
+    flex:1;
+    height:3px;
+    background:currentColor;
+    color:var(--red);
+    max-width:40vw;
+  }
+  .statement__line{
+    font-family:var(--display);
+    font-weight:900;
+    font-size:clamp(2.6rem,12.5vw,11rem);
+    line-height:.88;
+    letter-spacing:-.015em;
+    text-transform:uppercase;
+    word-break:break-word;
+    hyphens:none;
+  }
+  .statement__line .red{ color:var(--red); }
+  .statement__foot{
+    font-family:var(--mono);
+    font-size:clamp(.72rem,1.6vw,.95rem);
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    margin-top:clamp(1.4rem,4vw,2.6rem);
+    max-width:52ch;
+    line-height:1.5;
+    opacity:.85;
+  }
+
+  /* big statement variant */
+  .statement.big .statement__line{ font-size:clamp(3rem,15vw,13rem); }
+
+  /* ---------- REVEAL ANIMATION ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(40px);
+    clip-path:inset(0 0 100% 0);
+    transition:opacity .8s cubic-bezier(.16,.84,.44,1),
+               transform .8s cubic-bezier(.16,.84,.44,1),
+               clip-path .9s cubic-bezier(.16,.84,.44,1);
+    will-change:opacity, transform, clip-path;
+  }
+  .reveal.in{ opacity:1; transform:none; clip-path:inset(0 0 0 0); }
+  .reveal.d1{ transition-delay:.08s; }
+  .reveal.d2{ transition-delay:.16s; }
+  /* Fallback: if JS never runs, show everything (no .js class on html) */
+  html:not(.js) .reveal{ opacity:1; transform:none; clip-path:none; }
+
+  /* ---------- FULL-BLEED PHOTO ---------- */
+  .photo{
+    position:relative;
+    width:100%;
+    height:100vh;
+    height:100svh;
+    min-height:480px;
+    overflow:hidden;
+    background:var(--black);
+    border-bottom:6px solid var(--white);
+  }
+  .photo img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    filter:var(--kodak);
+  }
+  .photo.bw img{ filter:grayscale(1) contrast(1.12) brightness(1.02); }
+  .photo__cap{
+    position:absolute;
+    z-index:5;
+    background:var(--black);
+    color:var(--white);
+    font-family:var(--mono);
+    padding:.85em 1.1em;
+    max-width:min(86vw,420px);
+    line-height:1.45;
+    border:3px solid var(--white);
+  }
+  .photo__cap.bl{ left:0; bottom:0; border-left:0; border-bottom:0; }
+  .photo__cap.tr{ right:0; top:0; border-right:0; border-top:0; }
+  .photo__cap.br{ right:0; bottom:0; border-right:0; border-bottom:0; }
+  .photo__cap .t{
+    font-family:var(--display);
+    font-size:clamp(1rem,3.4vw,1.6rem);
+    text-transform:uppercase;
+    line-height:1;
+    margin-bottom:.5em;
+    letter-spacing:-.01em;
+  }
+  .photo__cap .meta{
+    font-size:clamp(.62rem,1.5vw,.78rem);
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    display:grid;
+    gap:.18em;
+  }
+  .photo__cap .meta span{ display:block; }
+  .photo__cap .meta .k{ color:var(--red); }
+  .photo__idx{
+    position:absolute;
+    top:0; left:0;
+    z-index:5;
+    font-family:var(--display);
+    font-size:clamp(2.4rem,9vw,7rem);
+    line-height:.8;
+    color:var(--pure);
+    mix-blend-mode:difference;
+    padding:.1em .2em;
+    pointer-events:none;
+  }
+
+  /* ---------- MARQUEE ---------- */
+  .marquee{
+    border-bottom:6px solid var(--white);
+    background:var(--red);
+    color:var(--black);
+    overflow:hidden;
+    padding:clamp(.6rem,2vw,1.1rem) 0;
+    white-space:nowrap;
+    position:relative;
+  }
+  .marquee.invert{ background:var(--black); color:var(--red); border-top:6px solid var(--red); }
+  .marquee__track{
+    display:inline-flex;
+    align-items:center;
+    will-change:transform;
+  }
+  .marquee__track span{
+    font-family:var(--display);
+    font-size:clamp(1.4rem,5vw,3rem);
+    text-transform:uppercase;
+    letter-spacing:0;
+    padding:0 .35em;
+    flex:0 0 auto;
+  }
+  .marquee__track .sep{ color:var(--white); padding:0 .15em; }
+  .marquee.invert .marquee__track .sep{ color:var(--white); }
+
+  /* ---------- COLOPHON ---------- */
+  .colophon{
+    padding:clamp(3rem,9vw,8rem) clamp(1rem,5vw,4rem) clamp(4rem,10vw,9rem);
+    background:var(--black);
+  }
+  .colophon__big{
+    font-family:var(--display);
+    font-size:clamp(2.4rem,11vw,9rem);
+    line-height:.86;
+    text-transform:uppercase;
+    letter-spacing:-.02em;
+    word-break:break-word;
+  }
+  .colophon__big .red{ color:var(--red); }
+  .colo-grid{
+    margin-top:clamp(2rem,6vw,4rem);
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:clamp(1.2rem,3vw,2.4rem);
+    border-top:3px solid var(--white);
+    padding-top:clamp(1.5rem,4vw,2.5rem);
+  }
+  .colo-grid div{
+    font-family:var(--mono);
+    font-size:.78rem;
+    line-height:1.6;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .colo-grid .h{ color:var(--red); display:block; margin-bottom:.6em; font-weight:700; }
+  .colo-foot{
+    margin-top:clamp(2.5rem,6vw,4rem);
+    font-family:var(--mono);
+    font-size:.72rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:1rem;
+    border-top:3px solid var(--red);
+    padding-top:1.5rem;
+    opacity:.85;
+  }
+
+  @media (max-width:640px){
+    .photo{ height:78vh; height:78svh; }
+    .photo__cap{ max-width:90vw; }
+    .statement{ min-height:80vh; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .reveal{ opacity:1 !important; transform:none !important; clip-path:none !important; transition:none !important; }
+    .marquee__track{ transform:none !important; }
+    .marquee{ text-align:center; }
+    *{ scroll-behavior:auto !important; }
+  }
+</style>
+</head>
+<body>
+<a class="backlink" href="../../index.html">&larr; All designs</a>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero" id="top">
+    <div class="hero__kicker reveal">
+      <span>TOM MILTON</span>
+      <span class="dot">/</span>
+      <span>A MANIFESTO ON FILM &amp; LIGHT</span>
+      <span class="dot">/</span>
+      <span>EST. 1995</span>
+    </div>
+    <h1 class="hero__title reveal d1">FILM<br>IS A <span class="red">CREED.</span></h1>
+    <p class="hero__sub reveal d2">Eighteen years. Thirty rolls a month. One belief: that the <b>latent image</b> holds more truth than any screen. This is what the dark taught me.</p>
+    <div class="scrollcue reveal d2"><span class="bar"></span> SCROLL TO BEGIN</div>
+  </header>
+
+  <!-- 01 -->
+  <section class="statement big">
+    <div class="statement__num reveal">01 / THE FIRST LAW</div>
+    <h2 class="statement__line reveal d1">LIGHT IS THE<br>ONLY <span class="red">SUBJECT.</span></h2>
+    <p class="statement__foot reveal d2">Everything else — the face, the field, the falling rain — is just something for the light to land on.</p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="photo" data-idx="I">
+    <img src="../../assets/img/golden-field-sunburst.jpg" alt="Last Light, Wheat Country" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">01</div>
+    <figcaption class="photo__cap bl">
+      <div class="t">Last Light, Wheat Country</div>
+      <div class="meta">
+        <span class="k">Tuscany, Italy</span>
+        <span>Kodak Portra 400 — Leica M6</span>
+        <span>1998</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- 02 -->
+  <section class="statement alt">
+    <div class="statement__num reveal">02 / ON TEXTURE</div>
+    <h2 class="statement__line reveal d1">GRAIN IS NOT NOISE.<br>GRAIN IS <span class="red">MEMORY.</span></h2>
+    <p class="statement__foot reveal d2">Every silver crystal is a witness. Smooth it away and you erase the proof that someone was there.</p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="photo" data-idx="II">
+    <img src="../../assets/img/landscape-misty-mountains.jpg" alt="Morning Fog, Cascades" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">02</div>
+    <figcaption class="photo__cap tr">
+      <div class="t">Morning Fog, Cascades</div>
+      <div class="meta">
+        <span class="k">Washington, USA</span>
+        <span>Fujifilm Pro 400H — Pentax 67</span>
+        <span>2001</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- 03 -->
+  <section class="statement">
+    <div class="statement__num reveal">03 / ON WAITING</div>
+    <h2 class="statement__line reveal d1">THE LATENT IMAGE<br>WAITS IN THE <span class="red">DARK.</span></h2>
+    <p class="statement__foot reveal d2">It is already there the instant the shutter falls — invisible, patient, holding its breath until the chemistry calls it out.</p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="photo" data-idx="III">
+    <img src="../../assets/img/forest-sunlight.jpg" alt="Cathedral of Pines" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">03</div>
+    <figcaption class="photo__cap br">
+      <div class="t">Cathedral of Pines</div>
+      <div class="meta">
+        <span class="k">Olympic NP, USA</span>
+        <span>Kodak Portra 160 — Hasselblad 500CM</span>
+        <span>1996</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- MARQUEE 1 -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track" data-marquee data-speed="60"></div>
+  </div>
+
+  <!-- 04 -->
+  <section class="statement alt">
+    <div class="statement__num reveal">04 / ON DISCIPLINE</div>
+    <h2 class="statement__line reveal d1">PATIENCE<br>IS A <span class="red">LENS.</span></h2>
+    <p class="statement__foot reveal d2">It sharpens nothing the eye can measure, yet without it every frame comes out soft.</p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="photo" data-idx="IV">
+    <img src="../../assets/img/valley-green-river.jpg" alt="River Bend, Spring" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">04</div>
+    <figcaption class="photo__cap bl">
+      <div class="t">River Bend, Spring</div>
+      <div class="meta">
+        <span class="k">Glencoe, Scotland</span>
+        <span>Fujifilm Velvia 50 — Nikon F3</span>
+        <span>1999</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- 05 -->
+  <section class="statement">
+    <div class="statement__num reveal">05 / ON LIMITS</div>
+    <h2 class="statement__line reveal d1">TWELVE FRAMES.<br>NO SECOND <span class="red">CHANCES.</span></h2>
+    <p class="statement__foot reveal d2">Scarcity is not a constraint. It is the reason every exposure has to mean something.</p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="photo" data-idx="V">
+    <img src="../../assets/img/cliff-coast-ocean.jpg" alt="Edge of the World" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">05</div>
+    <figcaption class="photo__cap tr">
+      <div class="t">Edge of the World</div>
+      <div class="meta">
+        <span class="k">Big Sur, USA</span>
+        <span>Kodak Portra 400 — Contax G2</span>
+        <span>2002</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- 06 -->
+  <section class="statement alt">
+    <div class="statement__num reveal">06 / ON PERMANENCE</div>
+    <h2 class="statement__line reveal d1">FILM REMEMBERS<br>WHAT PIXELS <span class="red">FORGET.</span></h2>
+    <p class="statement__foot reveal d2">A negative is a physical fact. It can be held to the light a hundred years from now and still tell no lies.</p>
+  </section>
+
+  <!-- PHOTO bw -->
+  <section class="photo bw" data-idx="VI">
+    <img src="../../assets/img/misty-pine-forest.jpg" alt="Silence" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">06</div>
+    <figcaption class="photo__cap bl">
+      <div class="t">Silence</div>
+      <div class="meta">
+        <span class="k">Norway</span>
+        <span>Ilford HP5 Plus — Leica M6</span>
+        <span>2003 — B&amp;W</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- 07 -->
+  <section class="statement big">
+    <div class="statement__num reveal">07 / THE EXPOSURE</div>
+    <h2 class="statement__line reveal d1">EXPOSE FOR THE SHADOWS.<br>PRAY FOR THE <span class="red">REST.</span></h2>
+    <p class="statement__foot reveal d2">Highlights forgive. Shadows do not. Protect the dark and the whole frame holds together.</p>
+  </section>
+
+  <!-- PHOTO bw -->
+  <section class="photo bw" data-idx="VII">
+    <img src="../../assets/img/man-portrait-street.jpg" alt="Stranger, No. 14" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">07</div>
+    <figcaption class="photo__cap br">
+      <div class="t">Stranger, No. 14</div>
+      <div class="meta">
+        <span class="k">Havana, Cuba</span>
+        <span>Kodak Tri-X 400 — Leica M4</span>
+        <span>2012 — B&amp;W</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- MARQUEE 2 invert -->
+  <div class="marquee invert" aria-hidden="true">
+    <div class="marquee__track" data-marquee data-speed="80" data-reverse="1"></div>
+  </div>
+
+  <!-- 08 -->
+  <section class="statement">
+    <div class="statement__num reveal">08 / ON TIME</div>
+    <h2 class="statement__line reveal d1">TIME IS THE REAL<br><span class="red">DEVELOPER.</span></h2>
+    <p class="statement__foot reveal d2">Six minutes in the tank, or twenty years on a shelf — the image keeps becoming itself long after the shutter is closed.</p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="photo" data-idx="VIII">
+    <img src="../../assets/img/lake-mountain-house.jpg" alt="Reflections, Still Morning" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">08</div>
+    <figcaption class="photo__cap bl">
+      <div class="t">Reflections, Still Morning</div>
+      <div class="meta">
+        <span class="k">Hallstatt, Austria</span>
+        <span>Kodak Ektar 100 — Mamiya RZ67</span>
+        <span>2000</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- 09 -->
+  <section class="statement alt">
+    <div class="statement__num reveal">09 / ON THE FRAME</div>
+    <h2 class="statement__line reveal d1">YOU DON'T TAKE IT.<br>YOU <span class="red">WAIT</span> FOR IT.</h2>
+    <p class="statement__foot reveal d2">The photograph already exists in the world. Your only job is to be standing in the right light when it arrives.</p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="photo" data-idx="IX">
+    <img src="../../assets/img/woman-portrait-window.jpg" alt="By the Window" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">09</div>
+    <figcaption class="photo__cap tr">
+      <div class="t">By the Window</div>
+      <div class="meta">
+        <span class="k">Lisbon, Portugal</span>
+        <span>Kodak Portra 400 — Pentax 67</span>
+        <span>2011</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- 10 -->
+  <section class="statement">
+    <div class="statement__num reveal">10 / ON CHEMISTRY</div>
+    <h2 class="statement__line reveal d1">EVERY ROLL IS<br>A SMALL <span class="red">FAITH.</span></h2>
+    <p class="statement__foot reveal d2">You shoot blind and trust the dark to keep its promise. No preview. No undo. Only belief and the developing tray.</p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="photo" data-idx="X">
+    <img src="../../assets/img/desert-dunes.jpg" alt="Wind Lines" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">10</div>
+    <figcaption class="photo__cap br">
+      <div class="t">Wind Lines</div>
+      <div class="meta">
+        <span class="k">Namibia</span>
+        <span>Kodak Ektar 100 — Hasselblad 503CW</span>
+        <span>2008</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- 11 -->
+  <section class="statement alt big">
+    <div class="statement__num reveal">11 / ON COLOUR</div>
+    <h2 class="statement__line reveal d1">COLOUR IS NOT SEEN.<br>IT IS <span class="red">REMEMBERED.</span></h2>
+    <p class="statement__foot reveal d2">Portra warms a face the way memory warms a moment — a little kinder than the truth, and all the more honest for it.</p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="photo" data-idx="XI">
+    <img src="../../assets/img/woman-fashion-portrait.jpg" alt="The Red Wall" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">11</div>
+    <figcaption class="photo__cap bl">
+      <div class="t">The Red Wall</div>
+      <div class="meta">
+        <span class="k">Marrakesh, Morocco</span>
+        <span>Kodak Portra 400 — Pentax 67</span>
+        <span>2019</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- 12 -->
+  <section class="statement">
+    <div class="statement__num reveal">12 / THE LAST LAW</div>
+    <h2 class="statement__line reveal d1">SHOOT LIKE THE<br>LIGHT IS <span class="red">LEAVING.</span></h2>
+    <p class="statement__foot reveal d2">Because it is. Always. The golden hour does not wait, the negative does not lie, and the moment will not come again.</p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="photo" data-idx="XII">
+    <img src="../../assets/img/autumn-forest-road.jpg" alt="October Road" loading="lazy" decoding="async">
+    <div class="photo__idx" aria-hidden="true">12</div>
+    <figcaption class="photo__cap tr">
+      <div class="t">October Road</div>
+      <div class="meta">
+        <span class="k">Vermont, USA</span>
+        <span>Kodak Portra 400 — Leica M7</span>
+        <span>2007</span>
+      </div>
+    </figcaption>
+  </section>
+
+  <!-- COLOPHON -->
+  <footer class="colophon">
+    <div class="colophon__big reveal">END OF<br><span class="red">MANIFESTO.</span></div>
+    <div class="colo-grid">
+      <div class="reveal">
+        <span class="h">The Author</span>
+        Tom Milton<br>
+        Film photographer<br>
+        Working in light since 1995
+      </div>
+      <div class="reveal">
+        <span class="h">The Tools</span>
+        Leica M6 / M4 / M7<br>
+        Pentax 67 · Hasselblad<br>
+        Mamiya 7 II · Rolleiflex
+      </div>
+      <div class="reveal">
+        <span class="h">The Stock</span>
+        Kodak Portra · Ektar<br>
+        Tri-X · Fuji Velvia<br>
+        Ilford HP5 · Cinestill
+      </div>
+      <div class="reveal">
+        <span class="h">The Creed</span>
+        Expose for the shadows.<br>
+        Trust the dark.<br>
+        Shoot like the light is leaving.
+      </div>
+    </div>
+    <div class="colo-foot">
+      <span>&copy; 1995&ndash;2026 TOM MILTON</span>
+      <span>BLACK / WHITE / ONE RED</span>
+      <a href="#top" style="color:var(--red);text-decoration:none;">BACK TO TOP &uarr;</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var docEl = document.documentElement;
+  docEl.classList.add('js');
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- SCROLL REVEALS ---------- */
+  var reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  if (reduced || !('IntersectionObserver' in window)) {
+    reveals.forEach(function(el){ el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+    reveals.forEach(function(el){ io.observe(el); });
+    // Safety: anything already on-screen at load reveals immediately
+    requestAnimationFrame(function(){
+      reveals.forEach(function(el){
+        var r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('in');
+      });
+    });
+  }
+
+  /* ---------- MARQUEE ---------- */
+  var STOCKS = [
+    'KODAK PORTRA 400','FUJI VELVIA 50','CINESTILL 800T','ILFORD HP5 PLUS',
+    'KODAK TRI-X 400','KODAK EKTAR 100','FUJI PRO 400H','KODAK PORTRA 160',
+    'ILFORD DELTA 3200','KODAK PORTRA 800','FUJI ACROS 100','KODAK GOLD 200',
+    'LOMOGRAPHY 800','KODAK T-MAX 400','FUJI PROVIA 100F','AGFA APX 400'
+  ];
+
+  function buildContent(){
+    var frag = document.createDocumentFragment();
+    STOCKS.forEach(function(name){
+      var s = document.createElement('span'); s.textContent = name; frag.appendChild(s);
+      var sep = document.createElement('span'); sep.className = 'sep'; sep.textContent = '·'; frag.appendChild(sep);
+    });
+    return frag;
+  }
+
+  var tracks = Array.prototype.slice.call(document.querySelectorAll('[data-marquee]'));
+  var marquees = [];
+
+  tracks.forEach(function(track){
+    // Build a single run, then duplicate until track width >= 2x viewport for seamless loop
+    track.appendChild(buildContent());
+    var oneWidth = track.scrollWidth;
+    var guard = 0;
+    while (track.scrollWidth < window.innerWidth * 2 + oneWidth && guard < 12){
+      track.appendChild(buildContent());
+      guard++;
+    }
+    // Duplicate the whole set once more for seamless wrap
+    var html = track.innerHTML;
+    track.innerHTML = html + html;
+    var half = track.scrollWidth / 2;
+
+    if (reduced){
+      track.style.transform = 'none';
+      return;
+    }
+
+    marquees.push({
+      el: track,
+      half: half,
+      speed: parseFloat(track.getAttribute('data-speed')) || 60,
+      reverse: track.getAttribute('data-reverse') === '1',
+      offset: track.getAttribute('data-reverse') === '1' ? (track.scrollWidth / 2) : 0
+    });
+  });
+
+  var last = 0;
+  var running = true;
+
+  function frame(now){
+    if (!running){ return; }
+    if (!last) last = now;
+    var dt = (now - last) / 1000;
+    last = now;
+    if (dt > 0.1) dt = 0.1; // clamp after tab switch
+
+    for (var i=0; i<marquees.length; i++){
+      var m = marquees[i];
+      if (m.reverse){
+        m.offset += m.speed * dt;
+        if (m.offset >= m.half) m.offset -= m.half;
+        m.el.style.transform = 'translate3d(' + (-m.half + m.offset) + 'px,0,0)';
+      } else {
+        m.offset += m.speed * dt;
+        if (m.offset >= m.half) m.offset -= m.half;
+        m.el.style.transform = 'translate3d(' + (-m.offset) + 'px,0,0)';
+      }
+    }
+    rafId = requestAnimationFrame(frame);
+  }
+
+  var rafId = null;
+  function start(){
+    if (reduced || marquees.length === 0) return;
+    if (rafId) return;
+    running = true;
+    last = 0;
+    rafId = requestAnimationFrame(frame);
+  }
+  function stop(){
+    running = false;
+    if (rafId){ cancelAnimationFrame(rafId); rafId = null; }
+  }
+
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) stop(); else start();
+  });
+
+  start();
+
+  // Recompute marquee halves on resize (debounced) to avoid drift
+  var rt;
+  window.addEventListener('resize', function(){
+    clearTimeout(rt);
+    rt = setTimeout(function(){
+      marquees.forEach(function(m){ m.half = m.el.scrollWidth / 2; });
+    }, 200);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Cyanotype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=La+Belle+Aurore&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#eee9dd;        /* cold-pressed watercolour paper */
+    --paper-warm:#e7e0cf;
+    --cyan-deep:#0a2a4f;    /* prussian blue shadow */
+    --cyan-mid:#16456f;
+    --cyan-bright:#2f6f9c;
+    --ink:#10243a;
+    --hand:#1c3a57;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'EB Garamond',Georgia,serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+    overflow-x:hidden;position:relative;
+  }
+  /* cold-pressed watercolour paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:9000;pointer-events:none;opacity:.6;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.22'/%3E%3C/svg%3E");
+  }
+  /* faint uneven wash / vignette like an antique print */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:8999;pointer-events:none;opacity:.5;mix-blend-mode:multiply;
+    background:
+      radial-gradient(140% 120% at 20% 0%, rgba(20,69,111,.06), transparent 55%),
+      radial-gradient(120% 120% at 90% 100%, rgba(10,42,79,.08), transparent 55%);
+  }
+  a{color:inherit}
+  .skip{position:absolute;left:-999px;background:var(--cyan-deep);color:var(--paper);padding:10px 16px;z-index:99999}
+  .skip:focus{left:10px;top:10px}
+
+  /* nav */
+  .nav{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+    padding:18px clamp(18px,5vw,64px) 12px;
+    position:sticky;top:0;z-index:200;
+    background:linear-gradient(var(--paper) 70%, transparent);
+  }
+  .back{
+    font-family:'EB Garamond',serif;font-style:italic;font-size:1rem;
+    text-decoration:none;letter-spacing:.02em;color:var(--cyan-mid);
+    border-bottom:1px solid var(--cyan-bright);padding-bottom:2px;transition:.2s;
+  }
+  .back:hover,.back:focus-visible{color:var(--cyan-deep);border-color:var(--cyan-deep)}
+  .nav .plate-id{font-family:'EB Garamond',serif;font-style:italic;letter-spacing:.18em;font-size:.82rem;color:var(--cyan-mid);text-transform:uppercase}
+
+  /* masthead */
+  .masthead{
+    text-align:center;padding:clamp(40px,9vw,120px) clamp(20px,6vw,72px) clamp(30px,6vw,70px);
+    max-width:1100px;margin:0 auto;position:relative;
+  }
+  .process{
+    font-family:'EB Garamond',serif;font-style:italic;letter-spacing:.42em;text-transform:uppercase;
+    font-size:clamp(.7rem,1.6vw,.92rem);color:var(--cyan-bright);margin-bottom:clamp(14px,3vw,26px);
+  }
+  h1.title{
+    font-family:'Cormorant Garamond',serif;font-weight:500;
+    font-size:clamp(3rem,11vw,8.5rem);line-height:.95;letter-spacing:.01em;color:var(--cyan-deep);
+  }
+  h1.title em{font-style:italic;color:var(--cyan-mid)}
+  .latin{
+    font-family:'EB Garamond',serif;font-style:italic;font-size:clamp(1rem,1.6vw,1.3rem);
+    color:var(--cyan-mid);margin-top:clamp(14px,2vw,22px);letter-spacing:.06em;
+  }
+  .blurb{
+    max-width:60ch;margin:clamp(22px,3vw,34px) auto 0;font-size:clamp(1.02rem,1.4vw,1.22rem);
+    color:var(--ink);line-height:1.75;
+  }
+  .blurb b{color:var(--cyan-deep);font-weight:600}
+  .rule-orn{
+    margin:clamp(26px,4vw,46px) auto 0;width:min(360px,70%);height:auto;display:block;
+  }
+  .rule-orn line,.rule-orn circle{stroke:var(--cyan-bright)}
+
+  /* specimen plate grid */
+  .plates{
+    max-width:1240px;margin:0 auto;
+    padding:clamp(24px,4vw,50px) clamp(18px,5vw,64px) clamp(70px,11vw,140px);
+    column-gap:clamp(26px,4vw,56px);
+    columns:3 300px;
+  }
+  @media(max-width:900px){.plates{columns:2 280px}}
+  @media(max-width:560px){.plates{columns:1}}
+
+  figure.plate{
+    break-inside:avoid;margin:0 0 clamp(34px,5vw,64px);
+    position:relative;text-align:center;
+  }
+  /* deckled-edge paper mount */
+  .mount{
+    position:relative;background:var(--paper-warm);
+    padding:clamp(12px,2vw,20px) clamp(12px,2vw,20px) clamp(10px,1.6vw,16px);
+    /* deckle: irregular soft edge */
+    box-shadow:0 1px 0 rgba(16,36,58,.08),0 14px 30px -18px rgba(10,42,79,.5);
+    -webkit-mask:
+      radial-gradient(circle at center, #000 99%, transparent 100%);
+  }
+  .deckle{
+    position:relative;
+    /* irregular border drawn with multiple insets / clip */
+    padding:6px;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 6px, rgba(16,36,58,.04) 6px 7px);
+  }
+  .deckle::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    border:1px solid rgba(16,36,58,.18);
+    -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='r'%3E%3CfeTurbulence baseFrequency='0.04' numOctaves='3' result='t'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='t' scale='8'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='%23fff' filter='url(%23r)'/%3E%3C/svg%3E");
+    mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='r'%3E%3CfeTurbulence baseFrequency='0.04' numOctaves='3' result='t'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='t' scale='8'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='%23fff' filter='url(%23r)'/%3E%3C/svg%3E");
+  }
+
+  /* cyanotype image */
+  .sun{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:var(--cyan-deep);
+    /* deckled wavy edge via displacement mask */
+    -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.014' numOctaves='3' seed='7' result='t'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='t' scale='14'/%3E%3C/filter%3E%3Crect x='6' y='6' width='288' height='288' rx='3' fill='%23fff' filter='url(%23d)'/%3E%3C/svg%3E");
+    mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.014' numOctaves='3' seed='7' result='t'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='t' scale='14'/%3E%3C/filter%3E%3Crect x='6' y='6' width='288' height='288' rx='3' fill='%23fff' filter='url(%23d)'/%3E%3C/svg%3E");
+    -webkit-mask-size:cover;mask-size:cover;
+  }
+  .sun img{
+    width:100%;height:auto;display:block;
+    /* duotone cyanotype: grayscale, high contrast, then tint blue via blend layer */
+    filter:grayscale(1) contrast(1.18) brightness(1.04) sepia(.05);
+    /* EXPOSURE fade: start light, develop to full blue */
+    opacity:0;transition:opacity 1.4s ease, filter 1.6s ease;
+    will-change:opacity,filter;
+  }
+  .sun.developed img{opacity:1}
+  /* prussian-blue tint layer (multiply over grayscale = duotone) */
+  .sun::before{
+    content:"";position:absolute;inset:0;z-index:2;pointer-events:none;mix-blend-mode:multiply;
+    background:linear-gradient(160deg, var(--cyan-mid), var(--cyan-deep));
+    opacity:.92;
+  }
+  /* lift the whites back toward paper in highlights */
+  .sun::after{
+    content:"";position:absolute;inset:0;z-index:3;pointer-events:none;mix-blend-mode:screen;
+    background:radial-gradient(110% 90% at 38% 26%, rgba(140,180,210,.30), transparent 62%);
+  }
+  /* faint exposure unevenness streaks inside the print */
+  .sun .uneven{
+    position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:soft-light;opacity:.5;
+    background:
+      radial-gradient(80% 60% at 80% 90%, rgba(255,255,255,.12), transparent 60%),
+      radial-gradient(70% 50% at 10% 5%, rgba(10,42,79,.25), transparent 60%);
+  }
+
+  /* botanical caption */
+  figcaption{padding:clamp(14px,2vw,20px) 6px 4px;text-align:center}
+  .specimen{
+    font-family:'EB Garamond',serif;font-style:italic;letter-spacing:.26em;text-transform:uppercase;
+    font-size:.66rem;color:var(--cyan-bright);margin-bottom:7px;
+  }
+  .cap-title{
+    font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(1.4rem,2.2vw,1.9rem);
+    line-height:1.05;color:var(--cyan-deep);
+  }
+  .cap-loc{
+    font-family:'La Belle Aurore',cursive;font-size:clamp(1.1rem,1.8vw,1.45rem);color:var(--hand);
+    margin-top:4px;line-height:1.2;
+  }
+  .cap-meta{
+    margin-top:10px;font-size:.84rem;color:var(--cyan-mid);font-style:italic;letter-spacing:.02em;
+    line-height:1.55;
+  }
+  .cap-meta .yr{font-variant-numeric:oldstyle-nums}
+  .cap-orn{display:block;margin:10px auto 0;width:46px;height:8px}
+  .cap-orn line{stroke:var(--cyan-bright);stroke-width:1}
+  .cap-orn circle{fill:var(--cyan-bright)}
+  .flag{
+    display:inline-block;margin-top:8px;font-family:'EB Garamond',serif;font-style:italic;
+    font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan-bright);
+    border:1px solid var(--cyan-bright);border-radius:20px;padding:1px 11px;
+  }
+
+  footer{
+    text-align:center;padding:clamp(40px,7vw,90px) clamp(20px,6vw,72px);
+    border-top:1px solid rgba(16,36,58,.18);max-width:900px;margin:0 auto;
+  }
+  footer .fhand{font-family:'La Belle Aurore',cursive;font-size:clamp(1.8rem,5vw,3rem);color:var(--cyan-deep);line-height:1.2}
+  footer .fmeta{font-family:'EB Garamond',serif;font-style:italic;color:var(--cyan-mid);margin-top:16px;letter-spacing:.04em}
+  footer .fmeta b{color:var(--cyan-deep)}
+
+  @media (prefers-reduced-motion:reduce){
+    .sun img{opacity:1!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#plates">Skip to the sun-prints</a>
+
+<nav class="nav">
+  <a class="back" href="../../index.html">&larr; All designs</a>
+  <span class="plate-id">Cyanotype Process · No. lx</span>
+</nav>
+
+<header class="masthead">
+  <div class="process">Photographic Sun-Prints · Ferro-Prussiate</div>
+  <h1 class="title">Cyanotype<br><em>&amp; Light</em></h1>
+  <p class="latin">Impressiones Solis — Thomae Milton, fecit</p>
+  <p class="blurb">A complete folio of the <b>Grain</b> archive, re-imagined in the manner of Anna Atkins: each photograph contact-printed as a <b>Prussian-blue cyanotype</b>, deep iron-blue against the white of cold-pressed paper. Exposed by daylight, washed in water, dried in the open air.</p>
+  <svg class="rule-orn" viewBox="0 0 360 16" aria-hidden="true">
+    <line x1="0" y1="8" x2="150" y2="8" stroke-width="1"/>
+    <circle cx="180" cy="8" r="4" fill="none" stroke-width="1"/>
+    <circle cx="180" cy="8" r="1.4" fill="#2f6f9c" stroke="none"/>
+    <line x1="210" y1="8" x2="360" y2="8" stroke-width="1"/>
+  </svg>
+</header>
+
+<main id="plates" class="plates" aria-label="Cyanotype specimen plates"></main>
+
+<footer>
+  <div class="fhand">Exposed to the sun,<br>fixed in water.</div>
+  <p class="fmeta">Tom Milton — <b>Cyanotype Folio</b> · thirty sun-prints, 1995–2023<br>Prussian blue on cold-pressed paper · &copy; MMXXVI</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var PHOTOS=[
+    ["golden-field-sunburst.jpg","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",""],
+    ["landscape-misty-mountains.jpg","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001","water"],
+    ["lake-cabin-dawn.jpg","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003","water"],
+    ["forest-sunlight.jpg","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",""],
+    ["valley-green-river.jpg","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3","1999","water"],
+    ["cliff-coast-ocean.jpg","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002","water"],
+    ["mountain-road-fog.jpg","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005",""],
+    ["sun-through-leaves.jpg","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004",""],
+    ["lake-mountain-house.jpg","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000","water"],
+    ["rolling-green-hills.jpg","Patchwork","Tuscany, Italy","Fujifilm Pro 400H","Pentax 645","1997",""],
+    ["forest-path-trees.jpg","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F","1995",""],
+    ["waterfall-bridge.jpg","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006","water"],
+    ["autumn-forest-road.jpg","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",""],
+    ["desert-dunes.jpg","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",""],
+    ["misty-pine-forest.jpg","Silence","Norway","Ilford HP5 Plus","Leica M6","2003","bw"],
+    ["succulent-closeup.jpg","Geometry of Growth","Studio","Kodak Portra 160","Hasselblad 500CM","2009",""],
+    ["foggy-pier-lake.jpg","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2","2010","water"],
+    ["woman-portrait-window.jpg","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",""],
+    ["man-portrait-street.jpg","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400","Leica M4","2012","bw"],
+    ["couple-silhouette-sunset.jpg","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V","2013","water"],
+    ["woman-portrait-soft.jpg","Soft Hour","Paris, France","Fujifilm Pro 400H","Contax 645","2014",""],
+    ["woman-portrait-freckles.jpg","Freckles & Sun","Studio","Kodak Portra 160","Mamiya 645","2015",""],
+    ["friends-golden-hour.jpg","Golden Hour, Together","California, USA","Kodak Portra 400","Nikon F100","2016",""],
+    ["woman-curly-portrait.jpg","Curls","Brooklyn, USA","Cinestill 800T","Canon AE-1","2017",""],
+    ["man-bw-portrait.jpg","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6","2018","bw"],
+    ["woman-fashion-portrait.jpg","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67","2019",""],
+    ["street-cafe-paris.jpg","Café de Flore","Paris, France","Kodak Gold 200","Olympus OM-1","2020",""],
+    ["woman-laughing-portrait.jpg","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2","2021",""],
+    ["vintage-car-street.jpg","Sunday Drive","Havana, Cuba","Kodak Ektar 100","Nikon FE","2022",""],
+    ["cozy-interior-window.jpg","Home Light","Copenhagen, Denmark","Kodak Portra 400","Leica M6","2023",""]
+  ];
+  var BASE="../../assets/img/";
+  var roman=["","i","ii","iii","iv","v","vi","vii","viii","ix","x","xi","xii","xiii","xiv","xv","xvi","xvii","xviii","xix","xx","xxi","xxii","xxiii","xxiv","xxv","xxvi","xxvii","xxviii","xxix","xxx"];
+  var main=document.getElementById("plates");
+  var frag=document.createDocumentFragment();
+  var suns=[];
+
+  PHOTOS.forEach(function(p,i){
+    var file=p[0],title=p[1],loc=p[2],film=p[3],cam=p[4],yr=p[5],flag=p[6];
+    var fig=document.createElement("figure");
+    fig.className="plate";
+    var flagHTML="";
+    if(flag==="water")flagHTML='<span class="flag">aqua</span>';
+    else if(flag==="bw")flagHTML='<span class="flag">monochroma</span>';
+    var alt=title+", "+loc+", "+yr+" — a Prussian-blue cyanotype sun-print of a photograph by Tom Milton, originally on "+film;
+    fig.innerHTML=
+      '<div class="mount"><div class="deckle">'+
+        '<div class="sun">'+
+          '<img loading="lazy" src="'+BASE+file+'" alt="'+alt.replace(/"/g,"&quot;")+'">'+
+          '<div class="uneven" aria-hidden="true"></div>'+
+        '</div>'+
+      '</div></div>'+
+      '<figcaption>'+
+        '<div class="specimen">Plate '+roman[i+1]+'</div>'+
+        '<div class="cap-title">'+title+'</div>'+
+        '<div class="cap-loc">'+loc+'</div>'+
+        '<div class="cap-meta">'+film+' &middot; '+cam+'<br><span class="yr">Exposed '+yr+'</span></div>'+
+        '<svg class="cap-orn" viewBox="0 0 46 8" aria-hidden="true"><line x1="0" y1="4" x2="18" y2="4"/><circle cx="23" cy="4" r="2"/><line x1="28" y1="4" x2="46" y2="4"/></svg>'+
+        flagHTML+
+      '</figcaption>';
+    frag.appendChild(fig);
+  });
+  main.appendChild(frag);
+  suns=Array.prototype.slice.call(main.querySelectorAll(".sun"));
+
+  /* EXPOSURE develop-in: reveal each sun-print to its full blue as it enters view */
+  var reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  function develop(el){el.classList.add("developed");}
+  if(reduce){
+    suns.forEach(develop);
+  } else if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          var el=e.target;
+          // slight stagger so prints "develop" one after another
+          var d=Math.min(parseInt(el.getAttribute("data-d")||"0",10),600);
+          setTimeout(function(){develop(el);},d);
+          io.unobserve(el);
+        }
+      });
+    },{threshold:0.18, rootMargin:"0px 0px -8% 0px"});
+    suns.forEach(function(el,idx){el.setAttribute("data-d",(idx%4)*120);io.observe(el);});
+    // ensure already-visible top ones develop even if observer is slow
+    setTimeout(function(){
+      suns.forEach(function(el){
+        var r=el.getBoundingClientRect();
+        if(r.top<window.innerHeight&&r.bottom>0)develop(el);
+      });
+    },200);
+  } else {
+    suns.forEach(develop);
+  }
+})();
+</script>
+</body>
+</html>

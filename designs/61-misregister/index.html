@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Misregister</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IM+Fell+English:ital@0;1&family=Special+Elite&family=Oswald:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   MISREGISTER — CMYK NEWSPRINT PORTFOLIO
+   ============================================================ */
+
+:root {
+  --newsprint: #f2edd7;
+  --newsprint-dark: #e8e0c0;
+  --ink: #1a1612;
+  --ink-light: #3a342a;
+  --ink-faint: #6b6050;
+  --rule: #c8bc9a;
+  --cyan: #00b4d8;
+  --magenta: #e8007a;
+  --yellow: #f5c800;
+  --black: #1a1612;
+  --col-gap: 24px;
+  --gutterline: 1px solid var(--rule);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  background: var(--newsprint-dark);
+}
+
+body {
+  font-family: 'IM Fell English', Georgia, serif;
+  background-color: var(--newsprint);
+  color: var(--ink);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Newsprint texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.04;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+}
+
+/* Paper tone gradient */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  background: radial-gradient(ellipse 120% 80% at 50% 10%, rgba(255,248,220,0.3) 0%, transparent 70%);
+}
+
+/* ============================================================
+   BACK LINK
+   ============================================================ */
+
+.back-link {
+  position: fixed;
+  top: 16px;
+  left: 20px;
+  z-index: 2000;
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.back-link:hover {
+  color: var(--magenta);
+  border-color: var(--magenta);
+}
+
+/* ============================================================
+   MASTHEAD
+   ============================================================ */
+
+.masthead {
+  padding: 60px 40px 0;
+  text-align: center;
+  border-bottom: 4px double var(--ink);
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.masthead__rule-top {
+  height: 2px;
+  background: var(--ink);
+  margin-bottom: 6px;
+}
+
+.masthead__rule-mid {
+  height: 1px;
+  background: var(--ink);
+  margin-bottom: 14px;
+}
+
+.masthead__eyebrow {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+}
+
+.masthead__title {
+  font-family: 'UnifrakturMaguntia', cursive;
+  font-size: clamp(52px, 10vw, 110px);
+  line-height: 0.9;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+
+.masthead__subtitle {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(13px, 2.5vw, 18px);
+  font-style: italic;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.masthead__meta-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.masthead__meta-row span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.masthead__meta-row span::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+}
+
+.masthead__meta-row span:first-child::before {
+  display: none;
+}
+
+/* Registration mark in masthead */
+.reg-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  position: relative;
+  margin: 0 8px;
+}
+
+.reg-mark svg {
+  width: 20px;
+  height: 20px;
+  opacity: 0.4;
+}
+
+/* ============================================================
+   HINT BAR
+   ============================================================ */
+
+.hint-bar {
+  background: var(--ink);
+  color: var(--newsprint);
+  text-align: center;
+  padding: 8px 20px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.hint-bar em {
+  font-style: normal;
+  color: var(--yellow);
+}
+
+/* ============================================================
+   NEWSPAPER LAYOUT GRID
+   ============================================================ */
+
+.newspaper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 24px 60px;
+}
+
+/* Column rules */
+.col-rules {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0 var(--col-gap);
+}
+
+@media (max-width: 900px) {
+  .col-rules {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .col-rules {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Section header */
+.section-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 30px 0 20px;
+}
+
+.section-head__line {
+  flex: 1;
+  height: 1px;
+  background: var(--ink);
+}
+
+.section-head__label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   PHOTO CARD — CMYK PRINT EFFECT
+   ============================================================ */
+
+.photo-card {
+  position: relative;
+  margin-bottom: 30px;
+  break-inside: avoid;
+  cursor: crosshair;
+}
+
+/* Column gutter rule */
+.photo-card + .photo-card {
+  padding-top: 0;
+}
+
+/* Halftone dot overlay */
+.photo-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+  background-size: 4px 4px;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.photo-card:hover::before,
+.photo-card.is-active::before {
+  opacity: 1;
+}
+
+/* CMYK print frame */
+.cmyk-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #d4cdb0;
+  line-height: 0;
+}
+
+/* Aspect ratio placeholder */
+.cmyk-frame__sizer {
+  width: 100%;
+  padding-top: 75%; /* 4:3 default */
+}
+
+/* Channel layers container */
+.cmyk-layers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Individual channel */
+.cmyk-layer {
+  position: absolute;
+  inset: -8px; /* overscan so offset reveals no white edges */
+  width: calc(100% + 16px);
+  height: calc(100% + 16px);
+  transition: transform 0.15s ease-out, opacity 0.3s ease;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.cmyk-layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* BASE layer — full color, multiply for paper */
+.cmyk-layer--base img {
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+}
+
+/* CYAN channel — teal tint */
+.cmyk-layer--cyan img {
+  mix-blend-mode: multiply;
+  filter: sepia(1) saturate(4) hue-rotate(170deg) brightness(1.1);
+  opacity: 0.55;
+}
+
+/* MAGENTA channel — pink/red tint */
+.cmyk-layer--magenta img {
+  mix-blend-mode: multiply;
+  filter: sepia(1) saturate(5) hue-rotate(300deg) brightness(1.05);
+  opacity: 0.5;
+}
+
+/* YELLOW channel — warm yellow tint */
+.cmyk-layer--yellow img {
+  mix-blend-mode: multiply;
+  filter: sepia(1) saturate(4) hue-rotate(10deg) brightness(1.15);
+  opacity: 0.45;
+}
+
+/* BLACK (Key) channel — sharp detail */
+.cmyk-layer--key img {
+  mix-blend-mode: multiply;
+  filter: grayscale(1) contrast(1.4) brightness(0.75);
+  opacity: 0.7;
+}
+
+/* Halftone vignette overlay on each card */
+.cmyk-frame__halftone {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background-image:
+    radial-gradient(ellipse at 0% 0%, rgba(0,0,0,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 100% 100%, rgba(0,0,0,0.15) 0%, transparent 55%);
+  mix-blend-mode: multiply;
+}
+
+/* Registration marks on corners */
+.cmyk-frame__regmarks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+}
+
+.cmyk-frame__regmark {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.photo-card:hover .cmyk-frame__regmark,
+.photo-card.is-active .cmyk-frame__regmark {
+  opacity: 0.6;
+}
+
+.cmyk-frame__regmark::before,
+.cmyk-frame__regmark::after {
+  content: '';
+  position: absolute;
+  background: var(--ink);
+}
+
+.cmyk-frame__regmark::before {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+  top: 0;
+}
+
+.cmyk-frame__regmark::after {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+  left: 0;
+}
+
+.cmyk-frame__regmark--tl { top: 6px; left: 6px; }
+.cmyk-frame__regmark--tr { top: 6px; right: 6px; }
+.cmyk-frame__regmark--bl { bottom: 6px; left: 6px; }
+.cmyk-frame__regmark--br { bottom: 6px; right: 6px; }
+
+/* CMYK channel label pills */
+.cmyk-frame__channels {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: flex;
+  gap: 3px;
+  z-index: 9;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.photo-card:hover .cmyk-frame__channels,
+.photo-card.is-active .cmyk-frame__channels {
+  opacity: 1;
+}
+
+.channel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.channel-dot--c { background: var(--cyan); }
+.channel-dot--m { background: var(--magenta); }
+.channel-dot--y { background: var(--yellow); }
+.channel-dot--k { background: var(--black); border: 1px solid #888; }
+
+/* ============================================================
+   CAPTION / NEWSPRINT METADATA
+   ============================================================ */
+
+.photo-caption {
+  padding: 10px 0 0;
+  border-top: var(--gutterline);
+  margin-top: 4px;
+}
+
+.photo-caption__title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(14px, 2vw, 16px);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 4px;
+  font-style: italic;
+}
+
+.photo-caption__location {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+
+.photo-caption__meta {
+  font-family: 'Special Elite', monospace;
+  font-size: 9.5px;
+  color: var(--ink-faint);
+  line-height: 1.6;
+}
+
+.photo-caption__meta-item {
+  display: inline;
+}
+
+.photo-caption__meta-item + .photo-caption__meta-item::before {
+  content: ' · ';
+  color: var(--rule);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.footer {
+  border-top: 4px double var(--ink);
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer__copy {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.footer__reg {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  color: var(--ink-faint);
+}
+
+.footer__cmyk {
+  display: flex;
+  gap: 4px;
+}
+
+.footer__cmyk-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* ============================================================
+   LARGE FEATURE CARD (first photo)
+   ============================================================ */
+
+.photo-card--feature {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 901px) {
+  .photo-card--feature {
+    grid-column: 1 / 3;
+  }
+
+  .photo-card--feature .cmyk-frame__sizer {
+    padding-top: 60%;
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .cmyk-layer {
+    transition: none !important;
+    will-change: auto !important;
+  }
+
+  .cmyk-layer--cyan,
+  .cmyk-layer--magenta,
+  .cmyk-layer--yellow {
+    display: none;
+  }
+}
+
+/* ============================================================
+   COLUMN DIVIDERS
+   ============================================================ */
+
+.col-divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: var(--ink);
+  margin: 10px 0 20px;
+}
+
+/* ============================================================
+   FULL-WIDTH PULL QUOTE
+   ============================================================ */
+
+.pull-quote {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px 40px;
+  border-top: var(--gutterline);
+  border-bottom: var(--gutterline);
+  margin: 10px 0 20px;
+}
+
+.pull-quote__text {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(16px, 3vw, 24px);
+  font-style: italic;
+  color: var(--ink-light);
+  line-height: 1.4;
+}
+
+.pull-quote__cmyk {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.pull-quote__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* ============================================================
+   TOUCH RIPPLE (tap feedback)
+   ============================================================ */
+
+.touch-ripple {
+  position: absolute;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple-out 0.5s ease-out forwards;
+  pointer-events: none;
+  z-index: 20;
+  border: 2px solid var(--magenta);
+  opacity: 0.7;
+}
+
+@keyframes ripple-out {
+  to {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}
+</style>
+</head>
+<body>
+
+<a class="back-link" href="../../index.html">← All designs</a>
+
+<!-- ============================================================
+     MASTHEAD
+     ============================================================ -->
+<header class="masthead" role="banner">
+  <div class="masthead__rule-top"></div>
+  <div class="masthead__rule-mid"></div>
+  <p class="masthead__eyebrow">Tom Milton &mdash; Photography Portfolio &mdash; Est. 1996</p>
+  <h1 class="masthead__title">Misregister</h1>
+  <p class="masthead__subtitle">Photographs printed in CMYK on newsprint — pull the plates apart</p>
+  <div class="masthead__meta-row">
+    <span>Cyan</span>
+    <span>Magenta</span>
+    <span>Yellow</span>
+    <span>Key (Black)</span>
+    <span>
+      <svg class="reg-mark" viewBox="0 0 20 20" aria-hidden="true">
+        <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="10" y1="0" x2="10" y2="20" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="0" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="10" cy="10" r="2" fill="currentColor"/>
+      </svg>
+      Registration Mark
+    </span>
+  </div>
+</header>
+
+<div class="hint-bar" role="note" aria-live="polite">
+  <em>Move your cursor</em> over a print to pull the CMYK plates apart &mdash; <em>tap</em> on touch to trigger separation
+</div>
+
+<!-- ============================================================
+     MAIN GRID
+     ============================================================ -->
+<main class="newspaper" role="main">
+
+  <div class="section-head">
+    <div class="section-head__line"></div>
+    <span class="section-head__label">Landscape Prints</span>
+    <div class="section-head__line"></div>
+  </div>
+
+  <div class="col-rules" id="photo-grid">
+    <!-- Cards injected by JS -->
+  </div>
+
+  <div class="pull-quote" role="complementary">
+    <p class="pull-quote__text">&ldquo;The misregistered print is an accident that tells the truth about how colour is built from nothing.&rdquo;</p>
+    <div class="pull-quote__cmyk" aria-hidden="true">
+      <div class="pull-quote__dot" style="background:#00b4d8"></div>
+      <div class="pull-quote__dot" style="background:#e8007a"></div>
+      <div class="pull-quote__dot" style="background:#f5c800"></div>
+      <div class="pull-quote__dot" style="background:#1a1612"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer" role="contentinfo">
+  <p class="footer__copy">&copy; Tom Milton Photography &mdash; All rights reserved</p>
+  <div class="footer__reg">
+    <div class="footer__cmyk" aria-label="CMYK colour swatches">
+      <div class="footer__cmyk-swatch" style="background:#00b4d8" title="Cyan"></div>
+      <div class="footer__cmyk-swatch" style="background:#e8007a" title="Magenta"></div>
+      <div class="footer__cmyk-swatch" style="background:#f5c800" title="Yellow"></div>
+      <div class="footer__cmyk-swatch" style="background:#1a1612" title="Key"></div>
+    </div>
+    <span>CMYK Process Print</span>
+  </div>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── Manifest ── */
+  const PHOTOS = [
+    {
+      file: 'golden-field-sunburst.jpg',
+      title: 'Last Light, Wheat Country',
+      location: 'Tuscany, Italy',
+      film: 'Kodak Portra 400',
+      camera: 'Leica M6',
+      year: '1998',
+      feature: true,
+      aspect: 66
+    },
+    {
+      file: 'landscape-misty-mountains.jpg',
+      title: 'Morning Fog, Cascades',
+      location: 'Washington, USA',
+      film: 'Fujifilm Pro 400H',
+      camera: 'Pentax 67',
+      year: '2001',
+      aspect: 75
+    },
+    {
+      file: 'lake-cabin-dawn.jpg',
+      title: 'The Cabin at Dawn',
+      location: 'Banff, Canada',
+      film: 'Kodak Ektar 100',
+      camera: 'Mamiya 7 II',
+      year: '2003',
+      aspect: 75
+    },
+    {
+      file: 'forest-sunlight.jpg',
+      title: 'Cathedral of Pines',
+      location: 'Olympic NP, USA',
+      film: 'Kodak Portra 160',
+      camera: 'Hasselblad 500CM',
+      year: '1996',
+      aspect: 100
+    },
+    {
+      file: 'cliff-coast-ocean.jpg',
+      title: 'Edge of the World',
+      location: 'Big Sur, USA',
+      film: 'Kodak Portra 400',
+      camera: 'Contax G2',
+      year: '2002',
+      aspect: 66
+    },
+    {
+      file: 'mountain-road-fog.jpg',
+      title: 'The Long Way Home',
+      location: 'Dolomites, Italy',
+      film: 'Cinestill 800T',
+      camera: 'Canon AE-1',
+      year: '2005',
+      aspect: 75
+    },
+    {
+      file: 'sun-through-leaves.jpg',
+      title: 'Backlit',
+      location: 'Kyoto, Japan',
+      film: 'Kodak Portra 800',
+      camera: 'Leica M6',
+      year: '2004',
+      aspect: 100
+    },
+    {
+      file: 'desert-dunes.jpg',
+      title: 'Wind Lines',
+      location: 'Namibia',
+      film: 'Kodak Ektar 100',
+      camera: 'Hasselblad 503CW',
+      year: '2008',
+      aspect: 66
+    },
+    {
+      file: 'waterfall-bridge.jpg',
+      title: 'Hidden Falls',
+      location: 'Iceland',
+      film: 'Fujifilm Velvia 50',
+      camera: 'Nikon FM2',
+      year: '2006',
+      aspect: 75
+    },
+    {
+      file: 'woman-fashion-portrait.jpg',
+      title: 'The Red Wall',
+      location: 'Marrakesh, Morocco',
+      film: 'Kodak Portra 400',
+      camera: 'Pentax 67',
+      year: '2019',
+      aspect: 133
+    },
+    {
+      file: 'autumn-forest-road.jpg',
+      title: 'October Road',
+      location: 'Vermont, USA',
+      film: 'Kodak Portra 400',
+      camera: 'Leica M7',
+      year: '2007',
+      aspect: 75
+    },
+    {
+      file: 'rolling-green-hills.jpg',
+      title: 'Patchwork',
+      location: 'Tuscany, Italy',
+      film: 'Fujifilm Pro 400H',
+      camera: 'Pentax 645',
+      year: '1997',
+      aspect: 75
+    }
+  ];
+
+  /* ── Channel offsets: each channel gets a multiplier vector ── */
+  const CHANNELS = [
+    { name: 'base',    cls: 'cmyk-layer--base',    mx: 0,     my: 0    },
+    { name: 'cyan',    cls: 'cmyk-layer--cyan',    mx: -1.8,  my: -1.2 },
+    { name: 'magenta', cls: 'cmyk-layer--magenta', mx:  1.4,  my:  1.0 },
+    { name: 'yellow',  cls: 'cmyk-layer--yellow',  mx:  0.8,  my: -1.6 },
+    { name: 'key',     cls: 'cmyk-layer--key',     mx: -0.5,  my:  0.5 }
+  ];
+
+  /* ── Max pixel offset at card edge ── */
+  const MAX_OFFSET = 9;
+
+  /* ── Reduced motion preference ── */
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── Build DOM ── */
+  const grid = document.getElementById('photo-grid');
+  if (!grid) return;
+
+  const cardMap = new Map(); // el → { layers, rafId, tx, ty, active }
+
+  PHOTOS.forEach(function (photo, idx) {
+    const imgSrc = '../../assets/img/' + photo.file;
+
+    /* Card wrapper */
+    const card = document.createElement('article');
+    card.className = 'photo-card' + (photo.feature ? ' photo-card--feature' : '');
+    card.setAttribute('role', 'figure');
+    card.setAttribute('aria-label', photo.title + ', ' + photo.location + ', ' + photo.year);
+
+    /* CMYK frame */
+    const frame = document.createElement('div');
+    frame.className = 'cmyk-frame';
+
+    /* Sizer */
+    const sizer = document.createElement('div');
+    sizer.className = 'cmyk-frame__sizer';
+    sizer.style.paddingTop = photo.aspect + '%';
+    frame.appendChild(sizer);
+
+    /* Layers container */
+    const layersEl = document.createElement('div');
+    layersEl.className = 'cmyk-layers';
+    layersEl.setAttribute('aria-hidden', 'true');
+    frame.appendChild(layersEl);
+
+    /* Build channel layers */
+    const layerEls = [];
+    CHANNELS.forEach(function (ch, ci) {
+      /* Skip colour channels in reduced-motion; only base+key */
+      if (prefersReduced && (ch.name === 'cyan' || ch.name === 'magenta' || ch.name === 'yellow')) return;
+
+      const layer = document.createElement('div');
+      layer.className = 'cmyk-layer ' + ch.cls;
+
+      const img = document.createElement('img');
+      img.src = imgSrc;
+      img.alt = (ci === 0) ? photo.title + ' — ' + photo.location : '';
+      img.loading = (idx < 3) ? 'eager' : 'lazy';
+      img.decoding = 'async';
+
+      layer.appendChild(img);
+      layersEl.appendChild(layer);
+      layerEls.push({ el: layer, ch: ch });
+    });
+
+    /* Halftone & vignette overlay */
+    const halftone = document.createElement('div');
+    halftone.className = 'cmyk-frame__halftone';
+    halftone.setAttribute('aria-hidden', 'true');
+    frame.appendChild(halftone);
+
+    /* Registration marks */
+    const regmarks = document.createElement('div');
+    regmarks.className = 'cmyk-frame__regmarks';
+    regmarks.setAttribute('aria-hidden', 'true');
+    ['tl','tr','bl','br'].forEach(function(pos) {
+      const rm = document.createElement('div');
+      rm.className = 'cmyk-frame__regmark cmyk-frame__regmark--' + pos;
+      regmarks.appendChild(rm);
+    });
+    frame.appendChild(regmarks);
+
+    /* CMYK channel dots */
+    const dots = document.createElement('div');
+    dots.className = 'cmyk-frame__channels';
+    dots.setAttribute('aria-hidden', 'true');
+    ['c','m','y','k'].forEach(function(c) {
+      const d = document.createElement('div');
+      d.className = 'channel-dot channel-dot--' + c;
+      dots.appendChild(d);
+    });
+    frame.appendChild(dots);
+
+    card.appendChild(frame);
+
+    /* Caption */
+    const caption = document.createElement('figcaption');
+    caption.className = 'photo-caption';
+    caption.innerHTML =
+      '<p class="photo-caption__title">' + escHtml(photo.title) + '</p>' +
+      '<p class="photo-caption__location">' + escHtml(photo.location) + '</p>' +
+      '<p class="photo-caption__meta">' +
+        '<span class="photo-caption__meta-item">' + escHtml(photo.film) + '</span>' +
+        '<span class="photo-caption__meta-item">' + escHtml(photo.camera) + '</span>' +
+        '<span class="photo-caption__meta-item">' + escHtml(photo.year) + '</span>' +
+      '</p>';
+    card.appendChild(caption);
+
+    grid.appendChild(card);
+
+    /* State object */
+    cardMap.set(card, {
+      layers: layerEls,
+      rafId: null,
+      /* current offset (normalised -1..1) */
+      nx: 0, ny: 0,
+      /* target offset */
+      tnx: 0, tny: 0,
+      active: false
+    });
+  });
+
+  /* ── Helper ── */
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /* ── Apply channel transforms ── */
+  function applyOffsets(state) {
+    if (!state || !state.layers) return;
+    state.layers.forEach(function(item) {
+      const ox = state.nx * MAX_OFFSET * item.ch.mx;
+      const oy = state.ny * MAX_OFFSET * item.ch.my;
+      item.el.style.transform = 'translate(' + ox.toFixed(2) + 'px, ' + oy.toFixed(2) + 'px)';
+    });
+  }
+
+  /* ── Animation loop per card ── */
+  function animateCard(card, state) {
+    if (document.hidden) {
+      state.rafId = null;
+      return;
+    }
+
+    /* Lerp toward target */
+    const ease = 0.12;
+    state.nx += (state.tnx - state.nx) * ease;
+    state.ny += (state.tny - state.ny) * ease;
+
+    applyOffsets(state);
+
+    /* Keep looping if still moving or active */
+    const dx = Math.abs(state.tnx - state.nx);
+    const dy = Math.abs(state.tny - state.ny);
+    const stillMoving = dx > 0.0005 || dy > 0.0005;
+
+    if (state.active || stillMoving) {
+      state.rafId = requestAnimationFrame(function() { animateCard(card, state); });
+    } else {
+      state.nx = 0; state.ny = 0;
+      applyOffsets(state);
+      state.rafId = null;
+    }
+  }
+
+  function startAnim(card, state) {
+    if (!state.rafId) {
+      state.rafId = requestAnimationFrame(function() { animateCard(card, state); });
+    }
+  }
+
+  /* ── Pointer move handler ── */
+  function onPointerMove(e) {
+    const card = e.currentTarget;
+    const state = cardMap.get(card);
+    if (!state || prefersReduced) return;
+
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    state.tnx = (x / rect.width)  * 2 - 1;  // -1..1
+    state.tny = (y / rect.height) * 2 - 1;
+    state.active = true;
+
+    startAnim(card, state);
+  }
+
+  /* ── Pointer enter/leave ── */
+  function onPointerEnter(e) {
+    const card = e.currentTarget;
+    const state = cardMap.get(card);
+    if (!state || prefersReduced) return;
+    state.active = true;
+    card.classList.add('is-active');
+  }
+
+  function onPointerLeave(e) {
+    const card = e.currentTarget;
+    const state = cardMap.get(card);
+    if (!state) return;
+    state.active = false;
+    state.tnx = 0;
+    state.tny = 0;
+    card.classList.remove('is-active');
+    startAnim(card, state);
+  }
+
+  /* ── Touch: tap triggers a brief separation burst ── */
+  function onTouchStart(e) {
+    const card = e.currentTarget;
+    const state = cardMap.get(card);
+    if (!state || prefersReduced) return;
+
+    const touch = e.touches[0];
+    const rect = card.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    /* Ripple effect */
+    const ripple = document.createElement('div');
+    ripple.className = 'touch-ripple';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    card.querySelector('.cmyk-frame').appendChild(ripple);
+    setTimeout(function() { ripple.remove(); }, 600);
+
+    state.tnx = (x / rect.width)  * 2 - 1;
+    state.tny = (y / rect.height) * 2 - 1;
+    state.active = true;
+    card.classList.add('is-active');
+
+    startAnim(card, state);
+  }
+
+  function onTouchEnd(e) {
+    const card = e.currentTarget;
+    const state = cardMap.get(card);
+    if (!state) return;
+    state.active = false;
+    state.tnx = 0;
+    state.tny = 0;
+    card.classList.remove('is-active');
+    startAnim(card, state);
+  }
+
+  /* ── Touch move for dragging ── */
+  function onTouchMove(e) {
+    const card = e.currentTarget;
+    const state = cardMap.get(card);
+    if (!state || prefersReduced) return;
+
+    const touch = e.touches[0];
+    const rect = card.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    state.tnx = (x / rect.width)  * 2 - 1;
+    state.tny = (y / rect.height) * 2 - 1;
+
+    startAnim(card, state);
+  }
+
+  /* ── Attach listeners ── */
+  cardMap.forEach(function(state, card) {
+    card.addEventListener('pointermove',  onPointerMove,  { passive: true });
+    card.addEventListener('pointerenter', onPointerEnter, { passive: true });
+    card.addEventListener('pointerleave', onPointerLeave, { passive: true });
+    card.addEventListener('touchstart',   onTouchStart,   { passive: true });
+    card.addEventListener('touchend',     onTouchEnd,     { passive: true });
+    card.addEventListener('touchmove',    onTouchMove,    { passive: true });
+  });
+
+  /* ── Pause RAF when tab hidden ── */
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+      /* Resume any active cards */
+      cardMap.forEach(function(state, card) {
+        if (state.active && !state.rafId) {
+          startAnim(card, state);
+        }
+      });
+    }
+  });
+
+  /* ── IntersectionObserver: pause off-screen cards ── */
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        const card = entry.target;
+        const state = cardMap.get(card);
+        if (!state) return;
+
+        if (!entry.isIntersecting) {
+          /* Snap to zero off-screen */
+          state.active = false;
+          state.tnx = 0;
+          state.tny = 0;
+          state.nx = 0;
+          state.ny = 0;
+          applyOffsets(state);
+          if (state.rafId) {
+            cancelAnimationFrame(state.rafId);
+            state.rafId = null;
+          }
+          card.classList.remove('is-active');
+        }
+      });
+    }, { threshold: 0.05 });
+
+    cardMap.forEach(function(state, card) {
+      io.observe(card);
+    });
+  }
+
+})();
+</script>
+</body>
+</html>

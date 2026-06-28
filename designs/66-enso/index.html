@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>圓相 · Tom Milton</title>
+  <meta name="description" content="圓相 Ensō — Film photography by Tom Milton. Photographs within hand-brushed ink circles.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+  <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --paper:    #f8f6f1;
+    --sumi:     #1a1714;
+    --sumi-mid: #3d3830;
+    --sumi-dim: #8a8078;
+    --vermilion:#cc2200;
+    --gap:      clamp(1.5rem, 4vw, 4rem);
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--sumi);
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    min-height: 100svh;
+    overflow-x: hidden;
+    position: relative;
+    line-height: 1.65;
+  }
+
+  /* Paper grain overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.038;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+  }
+
+  /* Skip link */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 1rem;
+    background: var(--sumi);
+    color: var(--paper);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    z-index: 300;
+    transition: top 0.2s;
+    text-decoration: none;
+  }
+  .skip-link:focus { top: 1rem; }
+
+  /* Back link */
+  .back-link {
+    position: fixed;
+    top: clamp(1rem, 2.5vw, 1.5rem);
+    left: clamp(1rem, 3vw, 2rem);
+    z-index: 100;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    color: var(--sumi-mid);
+    text-decoration: none;
+    opacity: 0.5;
+    transition: opacity 0.35s ease;
+  }
+  .back-link:hover, .back-link:focus-visible { opacity: 1; }
+  .back-link:focus-visible { outline: 1px solid var(--sumi); outline-offset: 3px; }
+
+  /* ---- Masthead ---- */
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100svh;
+    padding: clamp(5rem, 12vw, 10rem) var(--gap) clamp(4rem, 8vw, 6rem);
+    text-align: center;
+    position: relative;
+  }
+
+  .hero-enso-wrap {
+    width: clamp(200px, 36vw, 320px);
+    height: clamp(200px, 36vw, 320px);
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .hero-enso-svg { width: 100%; height: 100%; overflow: visible; display: block; }
+
+  .masthead-reading {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: clamp(0.75rem, 1.5vw, 0.92rem);
+    letter-spacing: 0.55em;
+    color: var(--sumi-dim);
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+  }
+
+  .masthead-kanji {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(2rem, 6vw, 3.8rem);
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    color: var(--sumi);
+    line-height: 1;
+    margin-bottom: 1.1rem;
+  }
+
+  .masthead-name {
+    font-family: 'EB Garamond', serif;
+    font-size: clamp(0.82rem, 1.8vw, 1rem);
+    font-weight: 400;
+    letter-spacing: 0.38em;
+    color: var(--sumi-mid);
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+  }
+
+  /* Hanko seal */
+  .hanko { display: inline-block; flex-shrink: 0; }
+  .hanko svg { display: block; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: clamp(1.5rem, 3vh, 2.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.68rem;
+    letter-spacing: 0.42em;
+    color: var(--sumi-dim);
+    opacity: 0.45;
+    text-transform: uppercase;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  /* Section break */
+  .section-break {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 0 clamp(2rem, 8vw, 8rem);
+    margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  }
+  .break-line { flex: 1; max-width: 180px; height: 1px; background: var(--sumi); opacity: 0.1; }
+  .break-glyph { font-family: 'Shippori Mincho', serif; font-size: 0.95rem; color: var(--sumi); opacity: 0.22; letter-spacing: 0.15em; }
+
+  /* Gallery grid */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(2.5rem, 5vw, 5rem) clamp(1.5rem, 3vw, 3rem);
+    padding: 0 clamp(1.5rem, 5vw, 5rem) clamp(4rem, 8vw, 7rem);
+    max-width: 1380px;
+    margin: 0 auto;
+  }
+  @media (max-width: 960px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .gallery { grid-template-columns: 1fr; max-width: 460px; } }
+
+  /* Ensō item */
+  .enso-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.1rem;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .enso-item:hover { transform: translateY(-6px); }
+
+  .enso-wrap { width: 100%; aspect-ratio: 1; }
+  .enso-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+  /* Photo filters */
+  .photo-img {
+    filter: saturate(1.06) contrast(1.02) sepia(0.10) brightness(1.01);
+    transform-box: fill-box;
+    transform-origin: center center;
+    will-change: transform;
+  }
+  .enso-item.bw .photo-img {
+    filter: grayscale(1) contrast(1.08) brightness(1.02);
+  }
+
+  /* Breathing animation */
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.014); }
+  }
+  .enso-item.breathing .photo-img {
+    animation: breathe 6s ease-in-out infinite;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .enso-item { transition: none; }
+    .enso-item:hover { transform: none; }
+    .enso-item.breathing .photo-img { animation: none !important; }
+    .enso-path, .hero-enso-path, .hero-enso-wide {
+      stroke-dashoffset: 0 !important;
+      transition: none !important;
+    }
+  }
+
+  /* Caption */
+  .enso-caption { text-align: center; max-width: 280px; }
+  .caption-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(0.82rem, 1.4vw, 0.97rem);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--sumi);
+    margin-bottom: 0.35rem;
+    line-height: 1.45;
+  }
+  .caption-meta {
+    font-family: 'EB Garamond', serif;
+    font-size: clamp(0.68rem, 1.1vw, 0.8rem);
+    letter-spacing: 0.06em;
+    color: var(--sumi-dim);
+    line-height: 1.65;
+  }
+
+  /* Footer */
+  footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: clamp(3rem, 6vw, 5rem) var(--gap);
+    border-top: 1px solid rgba(26, 23, 20, 0.08);
+  }
+  .footer-text {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.76rem;
+    letter-spacing: 0.28em;
+    color: var(--sumi-dim);
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+
+  /* Focus */
+  :focus-visible { outline: 1px solid var(--sumi); outline-offset: 3px; }
+  </style>
+</head>
+
+<body>
+  <a href="#gallery" class="skip-link">Skip to gallery</a>
+  <a href="../../index.html" class="back-link" aria-label="Back to all designs">← All designs</a>
+
+  <!-- MASTHEAD -->
+  <header class="masthead" role="banner">
+    <div class="hero-enso-wrap" aria-hidden="true">
+      <svg class="hero-enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="presentation">
+        <defs>
+          <filter id="ink-hero" x="-15%" y="-15%" width="130%" height="130%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.028 0.038" numOctaves="4" seed="17" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+          <filter id="ink-hero-w" x="-15%" y="-15%" width="130%" height="130%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.022 0.030" numOctaves="3" seed="41" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4.5" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+        </defs>
+        <!-- Ink bleed: wider, low opacity -->
+        <path id="hero-enso-wide" class="hero-enso-wide" d=""
+          fill="none" stroke="#1a1714" stroke-width="13" stroke-linecap="round" opacity="0.15"
+          filter="url(#ink-hero-w)"/>
+        <!-- Main stroke -->
+        <path id="hero-enso-path" class="hero-enso-path" d=""
+          fill="none" stroke="#1a1714" stroke-width="6" stroke-linecap="round"
+          filter="url(#ink-hero)"/>
+      </svg>
+    </div>
+
+    <p class="masthead-reading" aria-hidden="true">en · sō</p>
+    <h1 class="masthead-kanji">圓相</h1>
+    <p class="masthead-name">Tom Milton</p>
+
+    <div class="hanko" aria-label="Tom Milton seal">
+      <svg width="44" height="44" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vermilion hanko seal">
+        <rect x="1" y="1" width="58" height="58" fill="#cc2200" rx="3"/>
+        <rect x="4" y="4" width="52" height="52" fill="none" stroke="#f8f6f1" stroke-width="1.2" rx="1.5" opacity="0.45"/>
+        <text x="30" y="41" font-size="28" fill="#f8f6f1" text-anchor="middle" font-family="'Shippori Mincho',serif" font-weight="400">印</text>
+      </svg>
+    </div>
+
+    <p class="scroll-hint" aria-hidden="true">scroll</p>
+  </header>
+
+  <!-- SECTION BREAK -->
+  <div class="section-break" aria-hidden="true">
+    <div class="break-line"></div>
+    <span class="break-glyph">作品集</span>
+    <div class="break-line"></div>
+  </div>
+
+  <!-- GALLERY -->
+  <main id="gallery">
+    <section class="gallery" aria-label="Film photography portfolio">
+
+      <!-- 0 -->
+      <figure class="enso-item" aria-labelledby="ct0">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st0">
+            <title id="st0">Last Light, Wheat Country — Tuscany, Italy, 1998. Kodak Portra 400, Leica M6.</title>
+            <defs>
+              <clipPath id="clip-0"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-0" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.030 0.040" numOctaves="3" seed="5" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/golden-field-sunburst.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-0)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-0)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct0">Last Light, Wheat Country</p>
+          <p class="caption-meta">Tuscany, Italy &ensp;·&ensp; Kodak Portra 400 &ensp;·&ensp; Leica M6 &ensp;·&ensp; 1998</p>
+        </figcaption>
+      </figure>
+
+      <!-- 1 -->
+      <figure class="enso-item" aria-labelledby="ct1">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st1">
+            <title id="st1">Cathedral of Pines — Olympic NP, USA, 1996. Kodak Portra 160, Hasselblad 500CM.</title>
+            <defs>
+              <clipPath id="clip-1"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-1" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.035 0.042" numOctaves="3" seed="18" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.8" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/forest-sunlight.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-1)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-1)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct1">Cathedral of Pines</p>
+          <p class="caption-meta">Olympic NP, USA &ensp;·&ensp; Kodak Portra 160 &ensp;·&ensp; Hasselblad 500CM &ensp;·&ensp; 1996</p>
+        </figcaption>
+      </figure>
+
+      <!-- 2 -->
+      <figure class="enso-item" aria-labelledby="ct2">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st2">
+            <title id="st2">Backlit — Kyoto, Japan, 2004. Kodak Portra 800, Leica M6.</title>
+            <defs>
+              <clipPath id="clip-2"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-2" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.032 0.044" numOctaves="3" seed="31" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.3" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/sun-through-leaves.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-2)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-2)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct2">Backlit</p>
+          <p class="caption-meta">Kyoto, Japan &ensp;·&ensp; Kodak Portra 800 &ensp;·&ensp; Leica M6 &ensp;·&ensp; 2004</p>
+        </figcaption>
+      </figure>
+
+      <!-- 3 -->
+      <figure class="enso-item" aria-labelledby="ct3">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st3">
+            <title id="st3">Morning Fog, Cascades — Washington, USA, 2001. Fujifilm Pro 400H, Pentax 67.</title>
+            <defs>
+              <clipPath id="clip-3"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-3" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.028 0.038" numOctaves="3" seed="47" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="3.0" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/landscape-misty-mountains.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-3)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-3)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct3">Morning Fog, Cascades</p>
+          <p class="caption-meta">Washington, USA &ensp;·&ensp; Fujifilm Pro 400H &ensp;·&ensp; Pentax 67 &ensp;·&ensp; 2001</p>
+        </figcaption>
+      </figure>
+
+      <!-- 4 -->
+      <figure class="enso-item" aria-labelledby="ct4">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st4">
+            <title id="st4">The Cabin at Dawn — Banff, Canada, 2003. Kodak Ektar 100, Mamiya 7 II.</title>
+            <defs>
+              <clipPath id="clip-4"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-4" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.033 0.041" numOctaves="3" seed="62" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/lake-cabin-dawn.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-4)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-4)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct4">The Cabin at Dawn</p>
+          <p class="caption-meta">Banff, Canada &ensp;·&ensp; Kodak Ektar 100 &ensp;·&ensp; Mamiya 7 II &ensp;·&ensp; 2003</p>
+        </figcaption>
+      </figure>
+
+      <!-- 5 -->
+      <figure class="enso-item" aria-labelledby="ct5">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st5">
+            <title id="st5">Edge of the World — Big Sur, USA, 2002. Kodak Portra 400, Contax G2.</title>
+            <defs>
+              <clipPath id="clip-5"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-5" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.031 0.043" numOctaves="3" seed="79" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.9" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/cliff-coast-ocean.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-5)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-5)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct5">Edge of the World</p>
+          <p class="caption-meta">Big Sur, USA &ensp;·&ensp; Kodak Portra 400 &ensp;·&ensp; Contax G2 &ensp;·&ensp; 2002</p>
+        </figcaption>
+      </figure>
+
+      <!-- 6 (bw) -->
+      <figure class="enso-item bw" aria-labelledby="ct6">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st6">
+            <title id="st6">Silence — Norway, 2003. Ilford HP5 Plus, Leica M6.</title>
+            <defs>
+              <clipPath id="clip-6"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-6" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.034 0.039" numOctaves="3" seed="93" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/misty-pine-forest.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-6)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-6)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct6">Silence</p>
+          <p class="caption-meta">Norway &ensp;·&ensp; Ilford HP5 Plus &ensp;·&ensp; Leica M6 &ensp;·&ensp; 2003</p>
+        </figcaption>
+      </figure>
+
+      <!-- 7 -->
+      <figure class="enso-item" aria-labelledby="ct7">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st7">
+            <title id="st7">Into the Woods — Black Forest, Germany, 1995. Kodak Portra 160, Rolleiflex 2.8F.</title>
+            <defs>
+              <clipPath id="clip-7"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-7" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.029 0.041" numOctaves="3" seed="107" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.7" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/forest-path-trees.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-7)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-7)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct7">Into the Woods</p>
+          <p class="caption-meta">Black Forest, Germany &ensp;·&ensp; Kodak Portra 160 &ensp;·&ensp; Rolleiflex 2.8F &ensp;·&ensp; 1995</p>
+        </figcaption>
+      </figure>
+
+      <!-- 8 -->
+      <figure class="enso-item" aria-labelledby="ct8">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st8">
+            <title id="st8">Wind Lines — Namibia, 2008. Kodak Ektar 100, Hasselblad 503CW.</title>
+            <defs>
+              <clipPath id="clip-8"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-8" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.036 0.045" numOctaves="3" seed="121" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/desert-dunes.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-8)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-8)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct8">Wind Lines</p>
+          <p class="caption-meta">Namibia &ensp;·&ensp; Kodak Ektar 100 &ensp;·&ensp; Hasselblad 503CW &ensp;·&ensp; 2008</p>
+        </figcaption>
+      </figure>
+
+      <!-- 9 -->
+      <figure class="enso-item" aria-labelledby="ct9">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st9">
+            <title id="st9">Geometry of Growth — Studio, 2009. Kodak Portra 160, Hasselblad 500CM.</title>
+            <defs>
+              <clipPath id="clip-9"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-9" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.031 0.040" numOctaves="3" seed="135" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/succulent-closeup.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-9)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-9)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct9">Geometry of Growth</p>
+          <p class="caption-meta">Studio &ensp;·&ensp; Kodak Portra 160 &ensp;·&ensp; Hasselblad 500CM &ensp;·&ensp; 2009</p>
+        </figcaption>
+      </figure>
+
+      <!-- 10 -->
+      <figure class="enso-item" aria-labelledby="ct10">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st10">
+            <title id="st10">By the Window — Lisbon, Portugal, 2011. Kodak Portra 400, Pentax 67.</title>
+            <defs>
+              <clipPath id="clip-10"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-10" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.033 0.043" numOctaves="3" seed="149" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.8" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/woman-portrait-window.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-10)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-10)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct10">By the Window</p>
+          <p class="caption-meta">Lisbon, Portugal &ensp;·&ensp; Kodak Portra 400 &ensp;·&ensp; Pentax 67 &ensp;·&ensp; 2011</p>
+        </figcaption>
+      </figure>
+
+      <!-- 11 (bw) -->
+      <figure class="enso-item bw" aria-labelledby="ct11">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st11">
+            <title id="st11">Portrait in Shadow — Berlin, Germany, 2018. Ilford Delta 3200, Leica M6.</title>
+            <defs>
+              <clipPath id="clip-11"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-11" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.027 0.037" numOctaves="3" seed="163" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="3.1" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/man-bw-portrait.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-11)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-11)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct11">Portrait in Shadow</p>
+          <p class="caption-meta">Berlin, Germany &ensp;·&ensp; Ilford Delta 3200 &ensp;·&ensp; Leica M6 &ensp;·&ensp; 2018</p>
+        </figcaption>
+      </figure>
+
+      <!-- 12 -->
+      <figure class="enso-item" aria-labelledby="ct12">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st12">
+            <title id="st12">Freckles &amp; Sun — Studio, 2015. Kodak Portra 160, Mamiya 645.</title>
+            <defs>
+              <clipPath id="clip-12"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-12" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.034 0.042" numOctaves="3" seed="177" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/woman-portrait-freckles.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-12)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-12)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct12">Freckles &amp; Sun</p>
+          <p class="caption-meta">Studio &ensp;·&ensp; Kodak Portra 160 &ensp;·&ensp; Mamiya 645 &ensp;·&ensp; 2015</p>
+        </figcaption>
+      </figure>
+
+      <!-- 13 -->
+      <figure class="enso-item" aria-labelledby="ct13">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st13">
+            <title id="st13">Hidden Falls — Iceland, 2006. Fujifilm Velvia 50, Nikon FM2.</title>
+            <defs>
+              <clipPath id="clip-13"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-13" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.030 0.038" numOctaves="3" seed="191" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.7" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/waterfall-bridge.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-13)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-13)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct13">Hidden Falls</p>
+          <p class="caption-meta">Iceland &ensp;·&ensp; Fujifilm Velvia 50 &ensp;·&ensp; Nikon FM2 &ensp;·&ensp; 2006</p>
+        </figcaption>
+      </figure>
+
+      <!-- 14 -->
+      <figure class="enso-item" aria-labelledby="ct14">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st14">
+            <title id="st14">October Road — Vermont, USA, 2007. Kodak Portra 400, Leica M7.</title>
+            <defs>
+              <clipPath id="clip-14"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-14" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.032 0.044" numOctaves="3" seed="205" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/autumn-forest-road.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-14)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-14)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct14">October Road</p>
+          <p class="caption-meta">Vermont, USA &ensp;·&ensp; Kodak Portra 400 &ensp;·&ensp; Leica M7 &ensp;·&ensp; 2007</p>
+        </figcaption>
+      </figure>
+
+      <!-- 15 -->
+      <figure class="enso-item" aria-labelledby="ct15">
+        <div class="enso-wrap">
+          <svg class="enso-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="st15">
+            <title id="st15">The Quiet Dock — Lake District, UK, 2010. Cinestill 50D, Contax T2.</title>
+            <defs>
+              <clipPath id="clip-15"><circle cx="200" cy="200" r="148"/></clipPath>
+              <filter id="ink-15" x="-12%" y="-12%" width="124%" height="124%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.029 0.039" numOctaves="3" seed="219" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.9" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+            <image class="photo-img" href="../../assets/img/foggy-pier-lake.jpg" x="52" y="52" width="296" height="296" clip-path="url(#clip-15)" preserveAspectRatio="xMidYMid slice"/>
+            <path class="enso-path" d="M 200 42 C 340 42 358 160 358 200 C 358 310 310 358 200 358 C 90 358 42 310 42 200 C 42 90 100 42 200 42" fill="none" stroke="#1a1714" stroke-width="5.5" stroke-linecap="round" filter="url(#ink-15)"/>
+          </svg>
+        </div>
+        <figcaption class="enso-caption">
+          <p class="caption-title" id="ct15">The Quiet Dock</p>
+          <p class="caption-meta">Lake District, UK &ensp;·&ensp; Cinestill 50D &ensp;·&ensp; Contax T2 &ensp;·&ensp; 2010</p>
+        </figcaption>
+      </figure>
+
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="hanko" aria-hidden="true">
+      <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="58" height="58" fill="#cc2200" rx="3"/>
+        <rect x="4" y="4" width="52" height="52" fill="none" stroke="#f8f6f1" stroke-width="1.2" rx="1.5" opacity="0.45"/>
+        <text x="30" y="41" font-size="28" fill="#f8f6f1" text-anchor="middle" font-family="'Shippori Mincho',serif" font-weight="400">印</text>
+      </svg>
+    </div>
+    <p class="footer-text">Tom Milton &ensp;·&ensp; Film Photography</p>
+  </footer>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ── Seeded PRNG (Mulberry32) ──────────────────────────────
+    function mkRng(seed) {
+      var s = (seed >>> 0) || 1;
+      return function () {
+        s += 0x6D2B79F5;
+        var t = s;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    // ── Generate an imperfect ensō SVG path ───────────────────
+    // cx,cy = center; r = nominal radius; seed = PRNG seed
+    // gapDeg = gap size in degrees (brush lift)
+    function genEnso(cx, cy, r, seed, gapDeg) {
+      gapDeg = gapDeg || 20;
+      var rng = mkRng(seed);
+      var N = 96;
+      var gapRad = gapDeg * Math.PI / 180;
+      // Start just past the top, leave a gap
+      var startA = -Math.PI / 2 + gapRad * 0.55;
+      var sweep  = 2 * Math.PI - gapRad;
+
+      var pts = [];
+      for (var i = 0; i <= N; i++) {
+        var t = i / N;
+        // Edge factor: jitter is smaller at the two ends (tapered pressure)
+        var edge = Math.min(t, 1 - t) * 2; // 0 at ends, 1 in middle
+        var jitter = (rng() - 0.5) * (4 + edge * 10);
+        var a = startA + t * sweep;
+        var ri = r + jitter;
+        pts.push([
+          (cx + Math.cos(a) * ri).toFixed(2),
+          (cy + Math.sin(a) * ri).toFixed(2)
+        ]);
+      }
+
+      // Catmull-Rom to cubic bezier for smooth path
+      var d = 'M ' + pts[0][0] + ' ' + pts[0][1];
+      for (var j = 1; j < pts.length - 1; j++) {
+        var p0 = pts[Math.max(j - 1, 0)];
+        var p1 = pts[j];
+        var p2 = pts[Math.min(j + 1, pts.length - 1)];
+        var p3 = pts[Math.min(j + 2, pts.length - 1)];
+        var cp1x = (+p1[0] + (+p2[0] - +p0[0]) / 6).toFixed(2);
+        var cp1y = (+p1[1] + (+p2[1] - +p0[1]) / 6).toFixed(2);
+        var cp2x = (+p2[0] - (+p3[0] - +p1[0]) / 6).toFixed(2);
+        var cp2y = (+p2[1] - (+p3[1] - +p1[1]) / 6).toFixed(2);
+        d += ' C ' + cp1x + ' ' + cp1y + ' ' + cp2x + ' ' + cp2y + ' ' + p2[0] + ' ' + p2[1];
+      }
+      return d;
+    }
+
+    // ── Check reduced motion ──────────────────────────────────
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ── Generate & set all ensō paths ────────────────────────
+    var paths = document.querySelectorAll('.enso-path');
+    var gapVariants = [20, 23, 18, 25, 21, 19, 24, 22, 17, 26, 20, 23, 18, 22, 21, 19];
+
+    paths.forEach(function (path, i) {
+      var d = genEnso(200, 200, 158, i * 137 + 43, gapVariants[i % gapVariants.length]);
+      path.setAttribute('d', d);
+    });
+
+    // ── Hero ensō ─────────────────────────────────────────────
+    var heroMain = document.getElementById('hero-enso-path');
+    var heroWide = document.getElementById('hero-enso-wide');
+
+    if (heroMain && heroWide) {
+      var heroD = genEnso(200, 200, 162, 9999, 26);
+      heroMain.setAttribute('d', heroD);
+      heroWide.setAttribute('d', heroD);
+
+      if (!reduced) {
+        var heroLen = heroMain.getTotalLength();
+        // Set up draw state
+        heroMain.style.strokeDasharray = heroLen;
+        heroMain.style.strokeDashoffset = heroLen;
+        heroWide.style.strokeDasharray = heroLen;
+        heroWide.style.strokeDashoffset = heroLen;
+
+        // Double rAF to ensure layout is committed
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            heroMain.style.transition = 'stroke-dashoffset 1.9s cubic-bezier(0.15, 0.85, 0.30, 1.0)';
+            heroWide.style.transition = 'stroke-dashoffset 1.9s cubic-bezier(0.15, 0.85, 0.30, 1.0)';
+            heroMain.style.strokeDashoffset = '0';
+            heroWide.style.strokeDashoffset = '0';
+          });
+        });
+      }
+    }
+
+    // ── IntersectionObserver for gallery items ────────────────
+    if (!reduced && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          var item = entry.target;
+          var path = item.querySelector('.enso-path');
+          var img  = item.querySelector('.photo-img');
+          if (!path || !img) return;
+
+          var len = path.getTotalLength();
+          path.style.strokeDasharray  = len;
+          path.style.strokeDashoffset = len;
+
+          // Force reflow
+          void path.getBoundingClientRect();
+
+          path.style.transition = 'stroke-dashoffset 1.5s cubic-bezier(0.18, 0.88, 0.32, 1.0)';
+          path.style.strokeDashoffset = '0';
+
+          // Start breathing after draw completes
+          setTimeout(function () {
+            item.classList.add('breathing');
+          }, 1650);
+
+          io.unobserve(item);
+        });
+      }, { threshold: 0.22, rootMargin: '0px 0px -40px 0px' });
+
+      document.querySelectorAll('.enso-item').forEach(function (item) {
+        io.observe(item);
+      });
+    }
+
+    // ── Pause breathing when tab hidden ──────────────────────
+    document.addEventListener('visibilitychange', function () {
+      var state = document.hidden ? 'paused' : 'running';
+      document.querySelectorAll('.photo-img').forEach(function (img) {
+        img.style.animationPlayState = state;
+      });
+    });
+
+  }());
+  </script>
+</body>
+</html>

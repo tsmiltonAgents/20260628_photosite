@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton / De Stijl — Composition in Red, Blue & Yellow</title>
+<meta name="description" content="A neo-plasticist grid of Tom Milton's film photographs. Thick black lines, flat primary blocks, and photo cells that expand on click.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#d52017;
+    --blue:#0a4ea8;
+    --yellow:#f6c40b;
+    --ink:#16140f;
+    --paper:#f4efe3;     /* warm white twist */
+    --line:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--ink);
+    color:var(--ink);
+    font-family:'Archivo',system-ui,sans-serif;
+    overflow:hidden;
+  }
+  a{color:inherit;text-decoration:none;}
+
+  .backlink{
+    position:fixed;top:14px;left:14px;z-index:500;
+    background:var(--paper);color:var(--ink);
+    font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    padding:9px 13px;border:4px solid var(--ink);
+    transition:transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .backlink:hover,.backlink:focus-visible{background:var(--yellow);transform:translate(-2px,-2px);outline:none;}
+
+  .page{
+    height:100%;
+    padding:clamp(10px,2.2vw,26px);
+    display:flex;flex-direction:column;gap:var(--line);
+  }
+  .titlebar{
+    background:var(--paper);
+    border:var(--line) solid var(--ink);
+    padding:clamp(10px,2vw,18px) clamp(14px,2.5vw,26px);
+    display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 18px;
+    flex:0 0 auto;
+  }
+  .titlebar h1{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(1.2rem,3.6vw,2.4rem);
+    text-transform:uppercase;letter-spacing:-.01em;line-height:1;
+  }
+  .titlebar h1 b{color:var(--red);}
+  .titlebar .meta{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;
+    text-transform:uppercase;color:#5a544a;
+  }
+
+  /* ---- grid ---- */
+  .mondrian{
+    flex:1 1 auto;
+    position:relative;
+    background:var(--ink);
+    border:var(--line) solid var(--ink);
+    display:grid;
+    grid-template-columns:1.35fr 1fr 1.5fr 1fr 1.1fr;
+    grid-template-rows:1.15fr 1.3fr 1fr 1.2fr;
+    gap:var(--line);
+    transition:grid-template-columns .72s cubic-bezier(.7,0,.2,1),
+               grid-template-rows .72s cubic-bezier(.7,0,.2,1);
+    min-height:0;
+  }
+  .cell{
+    position:relative;overflow:hidden;
+    background:var(--paper);
+    opacity:1;
+    transition:opacity .55s ease, transform .55s cubic-bezier(.2,.8,.2,1);
+    transform-origin:center;
+  }
+  .mondrian.loading .cell{opacity:0;transform:scale(.32);}
+  .cell.red{background:var(--red);}
+  .cell.blue{background:var(--blue);}
+  .cell.yellow{background:var(--yellow);}
+  .cell.white{background:var(--paper);}
+
+  .cell.photo{cursor:pointer;padding:0;border:0;display:block;width:100%;height:100%;font:inherit;color:inherit;text-align:left;}
+  .cell.photo img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:saturate(1.08) contrast(1.04) sepia(0.08) brightness(1.02);
+  }
+  .cell.photo.bw img{filter:grayscale(1) contrast(1.08) brightness(1.02);}
+  .cell.photo::after{
+    content:"";position:absolute;inset:0;
+    box-shadow:inset 0 0 0 0 var(--ink);
+    background:linear-gradient(to top, rgba(20,18,14,.0) 60%, rgba(20,18,14,0));
+    transition:background .3s ease;
+    pointer-events:none;
+  }
+  .cell.photo .plus{
+    position:absolute;top:10px;right:10px;width:26px;height:26px;
+    background:var(--paper);border:3px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:18px;line-height:1;color:var(--ink);
+    transition:transform .25s ease, background .2s ease;
+  }
+  .cell.photo:hover .plus,.cell.photo:focus-visible .plus{background:var(--yellow);transform:rotate(90deg);}
+  .cell.photo:focus-visible{outline:4px solid var(--blue);outline-offset:-4px;}
+
+  /* caption that appears when expanded */
+  .cell .cap{
+    position:absolute;left:0;right:0;bottom:0;
+    background:var(--ink);color:var(--paper);
+    padding:14px 16px;
+    transform:translateY(101%);
+    transition:transform .5s cubic-bezier(.7,0,.2,1) .12s;
+    pointer-events:none;
+  }
+  .cell.expanded .cap{transform:translateY(0);}
+  .cell .cap .t{font-family:'Archivo Black',sans-serif;font-size:clamp(1rem,2.3vw,1.6rem);text-transform:uppercase;letter-spacing:.01em;line-height:1;}
+  .cell .cap .t b{color:var(--yellow);}
+  .cell .cap .d{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-top:8px;color:#cfc7b6;line-height:1.6;}
+  .cell .cap .d i{font-style:normal;color:var(--paper);}
+
+  .cell.expanded{z-index:30;}
+  .mondrian.focused .cell:not(.expanded){opacity:.55;}
+  .mondrian.focused .cell.photo:not(.expanded) .plus{opacity:0;}
+
+  /* assembling line flourish on load */
+  .scan{position:absolute;background:var(--ink);z-index:40;pointer-events:none;}
+
+  .footnote{
+    flex:0 0 auto;
+    background:var(--paper);border:var(--line) solid var(--ink);
+    padding:8px clamp(14px,2.5vw,26px);
+    font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.18em;
+    text-transform:uppercase;color:#5a544a;
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  }
+  .footnote b{color:var(--red);}
+
+  @media (max-width:760px){
+    :root{--line:9px;}
+    .titlebar .meta{display:none;}
+    .cell .cap{padding:10px 12px;}
+  }
+  @media (max-width:440px){
+    :root{--line:7px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .mondrian,.cell,.cell .cap{transition:none !important;}
+    .mondrian.loading .cell{opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body>
+  <a class="backlink" href="../../index.html">&larr; All designs</a>
+  <div class="page">
+    <div class="titlebar">
+      <h1>Tom Milton <b>/</b> De Stijl</h1>
+      <div class="meta">Composition No. 45 &middot; Red &middot; Blue &middot; Yellow</div>
+    </div>
+
+    <div class="mondrian loading" id="grid" aria-label="A Mondrian-style grid of primary colour blocks and photographs. Click a photograph to expand it.">
+      <!-- cells injected by JS -->
+    </div>
+
+    <div class="footnote">
+      <span>Neo-plasticism &middot; Film Photography 1995&ndash;2023</span>
+      <span><b>Click</b> a photograph to expand</span>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var P='../../assets/img/';
+  var grid = document.getElementById('grid');
+
+  // base templates
+  var BASE_COLS=[1.35,1,1.5,1,1.1];
+  var BASE_ROWS=[1.15,1.3,1,1.2];
+
+  // cells: area = rowStart/colStart/rowEnd/colEnd (line numbers)
+  // type: color | white | photo
+  var cells=[
+    {area:'1/1/3/2', type:'photo', img:'lake-mountain-house.jpg', t:'Reflections, Still Morning', loc:'Hallstatt, Austria', film:'Kodak Ektar 100', cam:'Mamiya RZ67', yr:'2000'},
+    {area:'1/2/2/4', type:'blue'},
+    {area:'1/4/2/5', type:'white'},
+    {area:'1/5/3/6', type:'yellow'},
+    {area:'2/2/3/3', type:'white'},
+    {area:'2/3/3/4', type:'red'},
+    {area:'2/4/3/5', type:'photo', img:'woman-portrait-window.jpg', t:'By the Window', loc:'Lisbon, Portugal', film:'Kodak Portra 400', cam:'Pentax 67', yr:'2011'},
+    {area:'3/1/4/3', type:'photo', img:'golden-field-sunburst.jpg', t:'Last Light, Wheat Country', loc:'Tuscany, Italy', film:'Kodak Portra 400', cam:'Leica M6', yr:'1998'},
+    {area:'3/3/5/4', type:'yellow'},
+    {area:'3/4/4/6', type:'white'},
+    {area:'4/1/5/2', type:'red'},
+    {area:'4/2/5/3', type:'photo', img:'succulent-closeup.jpg', t:'Geometry of Growth', loc:'Studio', film:'Kodak Portra 160', cam:'Hasselblad 500CM', yr:'2009'},
+    {area:'4/4/5/5', type:'blue'},
+    {area:'4/5/5/6', type:'photo', img:'man-bw-portrait.jpg', bw:true, t:'Portrait in Shadow', loc:'Berlin, Germany', film:'Ilford Delta 3200', cam:'Leica M6', yr:'2018'}
+  ];
+
+  var expanded=null;
+
+  function setTemplate(cols,rows){
+    grid.style.gridTemplateColumns = cols.map(function(v){return v+'fr';}).join(' ');
+    grid.style.gridTemplateRows    = rows.map(function(v){return v+'fr';}).join(' ');
+  }
+
+  function parseArea(a){var p=a.split('/').map(Number);return {rs:p[0],cs:p[1],re:p[2],ce:p[3]};}
+
+  function expand(cell,data){
+    if(expanded===cell){ collapse(); return; }
+    if(expanded) collapse(true);
+    expanded=cell;
+    var ar=parseArea(data.area);
+    var cols=BASE_COLS.map(function(_,i){var col=i+1;return (col>=ar.cs&&col<ar.ce)?6:0.32;});
+    var rows=BASE_ROWS.map(function(_,i){var row=i+1;return (row>=ar.rs&&row<ar.re)?6:0.32;});
+    setTemplate(cols,rows);
+    grid.classList.add('focused');
+    cell.classList.add('expanded');
+    cell.setAttribute('aria-expanded','true');
+  }
+  function collapse(silent){
+    if(!expanded) return;
+    setTemplate(BASE_COLS,BASE_ROWS);
+    grid.classList.remove('focused');
+    expanded.classList.remove('expanded');
+    expanded.setAttribute('aria-expanded','false');
+    if(!silent) expanded.focus && expanded.focus();
+    expanded=null;
+  }
+
+  // build cells
+  cells.forEach(function(d){
+    var el;
+    if(d.type==='photo'){
+      el=document.createElement('button');
+      el.className='cell photo'+(d.bw?' bw':'');
+      el.type='button';
+      el.setAttribute('aria-expanded','false');
+      el.setAttribute('aria-label','Photograph: '+d.t+', '+d.loc+', '+d.yr+'. Click to expand.');
+      var img=document.createElement('img');
+      img.src=P+d.img; img.alt=d.t+' — '+d.loc+', '+d.yr+', shot on '+d.film;
+      img.loading='lazy';
+      el.appendChild(img);
+      var plus=document.createElement('span');plus.className='plus';plus.textContent='+';plus.setAttribute('aria-hidden','true');
+      el.appendChild(plus);
+      var cap=document.createElement('span');cap.className='cap';
+      cap.innerHTML='<span class="t">'+d.t.replace(',', ',<b>')+(d.t.indexOf(',')>-1?'</b>':'')+'</span>'+
+        '<span class="d"><i>'+d.loc+'</i> &middot; '+d.yr+'<br>'+d.film+' &middot; '+d.cam+'</span>';
+      el.appendChild(cap);
+      (function(cell,data){ el.addEventListener('click',function(){expand(cell,data);}); })(el,d);
+    } else {
+      el=document.createElement('div');
+      el.className='cell '+d.type;
+      el.setAttribute('aria-hidden','true');
+    }
+    el.style.gridArea=d.area;
+    grid.appendChild(el);
+  });
+
+  // escape / backdrop collapse
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') collapse(); });
+  grid.addEventListener('click',function(e){ if(e.target===grid && expanded) collapse(); });
+
+  // ---- load assembly animation ----
+  setTemplate(BASE_COLS,BASE_ROWS);
+  var kids=grid.querySelectorAll('.cell');
+  if(reduce){
+    grid.classList.remove('loading');
+  } else {
+    kids.forEach(function(c,i){ c.style.transitionDelay=(i*45)+'ms'; });
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      grid.classList.remove('loading');
+    }); });
+    // clear stagger delays after intro so expand transitions are snappy
+    setTimeout(function(){ kids.forEach(function(c){ c.style.transitionDelay=''; }); }, 45*kids.length + 700);
+  }
+})();
+</script>
+</body>
+</html>

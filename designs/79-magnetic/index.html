@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magnetic — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f4efe6;
+    --ink:#1a1714;
+    --accent:#c2553a;
+    --muted:#8a7f72;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Space Grotesk',sans-serif;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  a{color:inherit}
+
+  .back{
+    position:fixed;top:22px;left:26px;z-index:50;
+    font-size:13px;letter-spacing:.04em;text-decoration:none;
+    color:var(--muted);transition:color .3s;mix-blend-mode:multiply;
+  }
+  .back:hover{color:var(--accent)}
+
+  .stage{
+    position:fixed;inset:0;
+    display:grid;
+    grid-template-columns:1fr minmax(280px,560px) 1fr;
+    align-items:center;
+  }
+
+  /* photo column */
+  .photo-wrap{
+    grid-column:2;
+    position:relative;
+    aspect-ratio:4/5;
+    max-height:78vh;
+    margin:0 auto;
+    width:100%;
+    box-shadow:0 30px 80px -30px rgba(40,30,20,.5);
+    background:#000;
+    overflow:hidden;
+  }
+  .photo-wrap img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:saturate(1.06) contrast(1.03) brightness(1.02) sepia(.07);
+    transition:opacity .9s ease;
+  }
+  .photo-wrap img.bw{filter:grayscale(1) contrast(1.08) brightness(1.03)}
+  .frame-edge{
+    position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.12), inset 0 0 70px rgba(0,0,0,.35);
+  }
+
+  /* magnetic type canvas overlay covers whole screen */
+  #type{position:fixed;inset:0;z-index:20;pointer-events:none}
+
+  .hint{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%);
+    z-index:40;font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);mix-blend-mode:multiply;
+    transition:opacity .6s; text-align:center;
+  }
+  .hint b{color:var(--accent);font-weight:500}
+
+  .nav{
+    position:fixed;bottom:24px;right:28px;z-index:40;display:flex;gap:14px;align-items:center;
+  }
+  .nav button{
+    background:none;border:1px solid rgba(40,30,20,.25);color:var(--ink);
+    width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:16px;
+    transition:all .25s;display:flex;align-items:center;justify-content:center;
+  }
+  .nav button:hover{border-color:var(--accent);color:var(--accent)}
+  .counter{position:fixed;top:24px;right:28px;z-index:40;font-size:12px;letter-spacing:.1em;color:var(--muted)}
+  .counter b{color:var(--ink);font-weight:500}
+
+  @media(max-width:680px){
+    .stage{grid-template-columns:1fr minmax(0,92%) 1fr}
+    .photo-wrap{max-height:60vh}
+    .hint{font-size:10px;bottom:14px}
+    .nav{bottom:14px;right:14px}
+  }
+</style>
+</head>
+<body>
+  <a class="back" href="../../index.html">&larr; All designs</a>
+
+  <main class="stage">
+    <div class="photo-wrap">
+      <img id="photo" src="../../assets/img/golden-field-sunburst.jpg" alt="" decoding="async">
+      <div class="frame-edge"></div>
+    </div>
+  </main>
+
+  <canvas id="type" aria-hidden="true"></canvas>
+
+  <h1 class="visually-hidden">Tom Milton — Magnetic typography portfolio</h1>
+  <ul class="visually-hidden" id="a11y" aria-label="Photographs"></ul>
+
+  <div class="counter"><b id="cur">01</b> / <span id="tot">30</span></div>
+  <div class="nav">
+    <button id="prev" aria-label="Previous photograph">&larr;</button>
+    <button id="next" aria-label="Next photograph">&rarr;</button>
+  </div>
+  <p class="hint" id="hint">Move the cursor near the words &mdash; the <b>letters</b> are magnetic</p>
+
+<script>
+(function(){
+"use strict";
+
+const PHOTOS = [
+  {f:"golden-field-sunburst.jpg",t:"Last Light, Wheat Country",l:"Tuscany, Italy",film:"Kodak Portra 400 · Leica M6 · 1998"},
+  {f:"landscape-misty-mountains.jpg",t:"Morning Fog, Cascades",l:"Washington, USA",film:"Fujifilm Pro 400H · Pentax 67 · 2001"},
+  {f:"lake-cabin-dawn.jpg",t:"The Cabin at Dawn",l:"Banff, Canada",film:"Kodak Ektar 100 · Mamiya 7 II · 2003"},
+  {f:"forest-sunlight.jpg",t:"Cathedral of Pines",l:"Olympic NP, USA",film:"Kodak Portra 160 · Hasselblad 500CM · 1996"},
+  {f:"valley-green-river.jpg",t:"River Bend, Spring",l:"Glencoe, Scotland",film:"Fujifilm Velvia 50 · Nikon F3 · 1999"},
+  {f:"cliff-coast-ocean.jpg",t:"Edge of the World",l:"Big Sur, USA",film:"Kodak Portra 400 · Contax G2 · 2002"},
+  {f:"mountain-road-fog.jpg",t:"The Long Way Home",l:"Dolomites, Italy",film:"Cinestill 800T · Canon AE-1 · 2005"},
+  {f:"sun-through-leaves.jpg",t:"Backlit",l:"Kyoto, Japan",film:"Kodak Portra 800 · Leica M6 · 2004"},
+  {f:"lake-mountain-house.jpg",t:"Reflections, Still Morning",l:"Hallstatt, Austria",film:"Kodak Ektar 100 · Mamiya RZ67 · 2000"},
+  {f:"rolling-green-hills.jpg",t:"Patchwork",l:"Tuscany, Italy",film:"Fujifilm Pro 400H · Pentax 645 · 1997"},
+  {f:"forest-path-trees.jpg",t:"Into the Woods",l:"Black Forest, Germany",film:"Kodak Portra 160 · Rolleiflex 2.8F · 1995"},
+  {f:"waterfall-bridge.jpg",t:"Hidden Falls",l:"Iceland",film:"Fujifilm Velvia 50 · Nikon FM2 · 2006"},
+  {f:"autumn-forest-road.jpg",t:"October Road",l:"Vermont, USA",film:"Kodak Portra 400 · Leica M7 · 2007"},
+  {f:"desert-dunes.jpg",t:"Wind Lines",l:"Namibia",film:"Kodak Ektar 100 · Hasselblad 503CW · 2008"},
+  {f:"misty-pine-forest.jpg",t:"Silence",l:"Norway",film:"Ilford HP5 Plus · Leica M6 · 2003",bw:true},
+  {f:"succulent-closeup.jpg",t:"Geometry of Growth",l:"Studio",film:"Kodak Portra 160 · Hasselblad 500CM · 2009"},
+  {f:"foggy-pier-lake.jpg",t:"The Quiet Dock",l:"Lake District, UK",film:"Cinestill 50D · Contax T2 · 2010"},
+  {f:"woman-portrait-window.jpg",t:"By the Window",l:"Lisbon, Portugal",film:"Kodak Portra 400 · Pentax 67 · 2011"},
+  {f:"man-portrait-street.jpg",t:"Stranger, No. 14",l:"Havana, Cuba",film:"Kodak Tri-X 400 · Leica M4 · 2012",bw:true},
+  {f:"couple-silhouette-sunset.jpg",t:"Goodnight",l:"Santorini, Greece",film:"Kodak Portra 800 · Canon EOS-1V · 2013"},
+  {f:"woman-portrait-soft.jpg",t:"Soft Hour",l:"Paris, France",film:"Fujifilm Pro 400H · Contax 645 · 2014"},
+  {f:"woman-portrait-freckles.jpg",t:"Freckles & Sun",l:"Studio",film:"Kodak Portra 160 · Mamiya 645 · 2015"},
+  {f:"friends-golden-hour.jpg",t:"Golden Hour, Together",l:"California, USA",film:"Kodak Portra 400 · Nikon F100 · 2016"},
+  {f:"woman-curly-portrait.jpg",t:"Curls",l:"Brooklyn, USA",film:"Cinestill 800T · Canon AE-1 · 2017"},
+  {f:"man-bw-portrait.jpg",t:"Portrait in Shadow",l:"Berlin, Germany",film:"Ilford Delta 3200 · Leica M6 · 2018",bw:true},
+  {f:"woman-fashion-portrait.jpg",t:"The Red Wall",l:"Marrakesh, Morocco",film:"Kodak Portra 400 · Pentax 67 · 2019"},
+  {f:"street-cafe-paris.jpg",t:"Café de Flore",l:"Paris, France",film:"Kodak Gold 200 · Olympus OM-1 · 2020"},
+  {f:"woman-laughing-portrait.jpg",t:"That Laugh",l:"Mexico City, Mexico",film:"Kodak Portra 800 · Contax G2 · 2021"},
+  {f:"vintage-car-street.jpg",t:"Sunday Drive",l:"Havana, Cuba",film:"Kodak Ektar 100 · Nikon FE · 2022"},
+  {f:"cozy-interior-window.jpg",t:"Home Light",l:"Copenhagen, Denmark",film:"Kodak Portra 400 · Leica M6 · 2023"},
+];
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const canvas = document.getElementById('type');
+const ctx = canvas.getContext('2d');
+const photo = document.getElementById('photo');
+const a11y = document.getElementById('a11y');
+const hintEl = document.getElementById('hint');
+const curEl = document.getElementById('cur');
+document.getElementById('tot').textContent = PHOTOS.length;
+
+// a11y list
+PHOTOS.forEach(p=>{
+  const li=document.createElement('li');
+  li.textContent = p.t + ", " + p.l + ". " + p.film;
+  a11y.appendChild(li);
+});
+
+let DPR = Math.min(window.devicePointerRatio || window.devicePixelRatio || 1, 2);
+let W=0,H=0;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1,2);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = W*DPR; canvas.height = H*DPR;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  layout();
+}
+
+// Letter particles
+let letters = []; // {ox,oy,x,y,vx,vy,ch,size,color,weight}
+const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+
+function buildLine(text, x, y, font, color, align){
+  ctx.font = font;
+  ctx.textBaseline = 'alphabetic';
+  // measure full width
+  const total = ctx.measureText(text).width;
+  let startX = x;
+  if(align==='center') startX = x - total/2;
+  let cx = startX;
+  for(const ch of text){
+    const w = ctx.measureText(ch).width;
+    if(ch !== ' '){
+      letters.push({
+        ox:cx, oy:y, x:cx + (reduceMotion?0:(Math.random()-.5)*60),
+        y:y + (reduceMotion?0:(Math.random()-.5)*40),
+        vx:0,vy:0, ch, font, color,
+        rot:0, vrot:0
+      });
+    }
+    cx += w;
+  }
+}
+
+let photoRect = {x:0,y:0,w:0,h:0};
+function layout(){
+  letters = [];
+  const p = PHOTOS[idx];
+  const r = photo.getBoundingClientRect();
+  photoRect = {x:r.left, y:r.top, w:r.width, h:r.height};
+
+  const small = W < 680;
+  // Title: large serif, placed to the upper-left of frame or top
+  const titleSize = small ? Math.min(34, W*0.085) : Math.min(52, W*0.04);
+  const placeSize = small ? 14 : 16;
+  const filmSize = small ? 11 : 13;
+
+  if(small){
+    // stack above photo
+    const topY = Math.max(46, photoRect.y - 70);
+    buildLine(p.t.toUpperCase(), W/2, topY, `500 ${titleSize}px 'Fraunces', serif`, ink, 'center');
+    const botY = photoRect.y + photoRect.h + 34;
+    buildLine(p.l.toUpperCase(), W/2, botY, `500 ${placeSize}px 'Space Grotesk',sans-serif`, accent, 'center');
+    buildLine(p.film, W/2, botY+24, `300 ${filmSize}px 'Space Grotesk',sans-serif`, '#8a7f72', 'center');
+  } else {
+    // Title spans across, baseline near top of frame on left gutter
+    const leftCx = photoRect.x;
+    const titleY = photoRect.y + titleSize*0.2;
+    // Title broken to fit left gutter width
+    buildLine(p.t, leftCx*0.5 + 40, photoRect.y + photoRect.h*0.42, `500 ${titleSize}px 'Fraunces', serif`, ink, 'center');
+    // place name left gutter lower
+    buildLine(p.l.toUpperCase(), leftCx*0.5 + 40, photoRect.y + photoRect.h*0.42 + titleSize*0.95, `500 ${placeSize}px 'Space Grotesk',sans-serif`, accent, 'center');
+    // film data right gutter, vertical center
+    const rightCx = photoRect.x + photoRect.w + (W - (photoRect.x + photoRect.w))/2;
+    buildLine(p.film.split(' · ')[0], rightCx, photoRect.y + photoRect.h*0.5 - 14, `300 ${filmSize}px 'Space Grotesk',sans-serif`, '#8a7f72', 'center');
+    const parts = p.film.split(' · ');
+    if(parts[1]) buildLine(parts[1], rightCx, photoRect.y + photoRect.h*0.5 + 6, `300 ${filmSize}px 'Space Grotesk',sans-serif`, '#8a7f72', 'center');
+    if(parts[2]) buildLine(parts[2], rightCx, photoRect.y + photoRect.h*0.5 + 26, `400 ${filmSize}px 'Space Grotesk',sans-serif`, ink, 'center');
+  }
+}
+
+// pointer
+let pointer = {x:-9999,y:-9999,active:false,px:-9999,py:-9999,speed:0};
+let pulse = 0;
+
+function onMove(cx,cy){
+  pointer.x = cx; pointer.y = cy; pointer.active = true;
+  hideHint();
+}
+window.addEventListener('pointermove', e=>onMove(e.clientX,e.clientY));
+window.addEventListener('pointerleave', ()=>{pointer.active=false;pointer.x=-9999;pointer.y=-9999;});
+window.addEventListener('pointerdown', e=>{
+  onMove(e.clientX,e.clientY);
+  pulse = 1; // touch pulse / click burst
+});
+
+let hintHidden=false;
+function hideHint(){ if(!hintHidden){hintHidden=true; hintEl.style.opacity='0';} }
+
+// physics
+const RADIUS = 150;
+const RADIUS2 = RADIUS*RADIUS;
+
+function step(){
+  // pointer speed
+  const dx = pointer.x - pointer.px, dy = pointer.y - pointer.py;
+  pointer.speed = Math.sqrt(dx*dx+dy*dy);
+  pointer.px = pointer.x; pointer.py = pointer.y;
+
+  const STIFF = 0.018, DAMP = 0.86;
+
+  for(let i=0;i<letters.length;i++){
+    const L = letters[i];
+    // spring to home
+    let ax = (L.ox - L.x)*STIFF;
+    let ay = (L.oy - L.y)*STIFF;
+
+    if(pointer.active){
+      const ddx = L.x - pointer.x;
+      const ddy = L.y - pointer.y;
+      const d2 = ddx*ddx + ddy*ddy;
+      if(d2 < RADIUS2 && d2 > 0.5){
+        const d = Math.sqrt(d2);
+        const force = (1 - d/RADIUS);
+        // repel + swirl: pointer speed amplifies attraction toward pointer (magnetic)
+        const speedF = Math.min(pointer.speed*0.06, 2.4);
+        // base repulsion pushes letters away forming a void; swirl gives orbit
+        const rep = force*force* (3.2 + speedF*3.0);
+        ax += (ddx/d)*rep;
+        ay += (ddy/d)*rep;
+        // tangential swirl
+        ax += (-ddy/d)*force*speedF*1.6;
+        ay += (ddx/d)*force*speedF*1.6;
+        L.vrot += force*0.04*(speedF+0.3);
+      }
+    }
+    if(pulse>0.01){
+      // radial burst from pointer
+      const ddx = L.x - pointer.x, ddy = L.y - pointer.y;
+      const d = Math.sqrt(ddx*ddx+ddy*ddy)+0.01;
+      if(d<300){
+        const f = (1-d/300)*pulse*9;
+        ax += (ddx/d)*f; ay += (ddy/d)*f;
+      }
+    }
+
+    L.vx = (L.vx + ax)*DAMP;
+    L.vy = (L.vy + ay)*DAMP;
+    L.x += L.vx; L.y += L.vy;
+    L.rot += L.vrot;
+    L.vrot *= 0.85;
+  }
+  pulse *= 0.88;
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  for(let i=0;i<letters.length;i++){
+    const L = letters[i];
+    ctx.save();
+    ctx.translate(L.x, L.y);
+    if(L.rot) ctx.rotate(L.rot*0.04);
+    ctx.font = L.font;
+    ctx.fillStyle = L.color;
+    ctx.textBaseline='alphabetic';
+    ctx.textAlign='left';
+    ctx.fillText(L.ch, 0, 0);
+    ctx.restore();
+  }
+}
+
+let running=true;
+function frame(){
+  if(running){
+    if(!reduceMotion) step();
+    draw();
+  }
+  requestAnimationFrame(frame);
+}
+
+document.addEventListener('visibilitychange',()=>{ running = !document.hidden; });
+
+// gallery navigation
+let idx = 0;
+function show(n){
+  idx = (n + PHOTOS.length) % PHOTOS.length;
+  const p = PHOTOS[idx];
+  photo.style.opacity = '0';
+  setTimeout(()=>{
+    photo.src = "../../assets/img/" + p.f;
+    photo.alt = p.t + " — " + p.l;
+    photo.className = p.bw ? 'bw' : '';
+    photo.onload = ()=>{ layout(); photo.style.opacity='1'; };
+  }, 280);
+  curEl.textContent = String(idx+1).padStart(2,'0');
+  layout();
+}
+document.getElementById('next').addEventListener('click',()=>show(idx+1));
+document.getElementById('prev').addEventListener('click',()=>show(idx-1));
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight') show(idx+1);
+  if(e.key==='ArrowLeft') show(idx-1);
+});
+
+window.addEventListener('resize', resize);
+photo.addEventListener('load', ()=>{ layout(); photo.style.opacity='1'; });
+
+// init
+photo.alt = PHOTOS[0].t + " — " + PHOTOS[0].l;
+photo.className = PHOTOS[0].bw ? 'bw' : '';
+resize();
+requestAnimationFrame(frame);
+
+})();
+</script>
+</body>
+</html>

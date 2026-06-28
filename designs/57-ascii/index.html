@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dot Matrix — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ---- GREEN TERMINAL THEME (default) ---- */
+    --bg:        #050a06;
+    --bg2:       #0a140c;
+    --panel:     #07120a;
+    --ink:       #5cff8f;
+    --ink-dim:   #2f8a52;
+    --ink-faint: #16431f;
+    --accent:    #aaffc6;
+    --grid-line: rgba(92,255,143,.07);
+    --dot-color: rgba(120,255,160,.92);
+    --card-bg:   #03070444;
+    --border:    rgba(92,255,143,.30);
+    --glow:      0 0 14px rgba(92,255,143,.20);
+    --blend:     screen;
+    --img-filter-dot: grayscale(.25) contrast(1.65) brightness(.82) saturate(.6) sepia(.18) hue-rotate(60deg);
+    --scan-op:   .35;
+  }
+  html[data-theme="news"]{
+    /* ---- NEWSPRINT THEME ---- */
+    --bg:        #ded6c4;
+    --bg2:       #e9e2d2;
+    --panel:     #efe9da;
+    --ink:       #1a1712;
+    --ink-dim:   #4a4438;
+    --ink-faint: #b6ac96;
+    --accent:    #8a2b1c;
+    --grid-line: rgba(40,32,20,.06);
+    --dot-color: rgba(20,16,10,.88);
+    --card-bg:   #f4efe2cc;
+    --border:    rgba(40,32,20,.28);
+    --glow:      0 2px 10px rgba(40,32,20,.14);
+    --blend:     multiply;
+    --img-filter-dot: grayscale(.55) contrast(1.9) brightness(1.06) sepia(.12);
+    --scan-op:   .14;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'JetBrains Mono',ui-monospace,monospace;
+    line-height:1.4;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    position:relative;
+    transition:background .5s ease,color .5s ease;
+  }
+  /* dot-grid + scanline page background */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      radial-gradient(var(--grid-line) 1px, transparent 1.4px);
+    background-size:18px 18px;
+    opacity:.9;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,.0) 0px,
+      rgba(0,0,0,.0) 2px,
+      rgba(0,0,0,var(--scan-op)) 3px,
+      rgba(0,0,0,.0) 4px);
+    mix-blend-mode:multiply;opacity:.5;
+  }
+  html[data-theme="news"] body::after{mix-blend-mode:multiply;background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,rgba(40,32,20,.05) 3px,transparent 4px)}
+
+  a{color:var(--accent);text-decoration:none}
+
+  .wrap{position:relative;z-index:1;max-width:1500px;margin:0 auto;padding:18px clamp(12px,3vw,34px) 80px}
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:12px;flex-wrap:wrap;margin-bottom:14px;
+  }
+  .back{
+    font-size:13px;font-weight:700;letter-spacing:.04em;
+    border:1px solid var(--border);padding:7px 12px;border-radius:3px;
+    background:var(--panel);box-shadow:var(--glow);
+    transition:.2s;
+  }
+  .back:hover{background:var(--bg2);transform:translateX(-2px)}
+  .toggle{
+    font-family:inherit;font-size:12px;font-weight:700;letter-spacing:.08em;
+    color:var(--ink);background:var(--panel);
+    border:1px solid var(--border);padding:8px 14px;border-radius:3px;
+    cursor:pointer;box-shadow:var(--glow);transition:.2s;text-transform:uppercase;
+  }
+  .toggle:hover{background:var(--bg2)}
+  .toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ---------- BANNER / HEADER ---------- */
+  .banner{
+    border:1px solid var(--border);border-radius:5px;
+    background:linear-gradient(180deg,var(--panel),var(--bg2));
+    padding:clamp(16px,3vw,30px) clamp(16px,3vw,32px);
+    box-shadow:var(--glow);
+    margin-bottom:26px;position:relative;overflow:hidden;
+  }
+  .banner-perfs{
+    position:absolute;left:0;right:0;height:14px;
+    background-image:radial-gradient(circle, var(--bg) 3px, transparent 3.4px);
+    background-size:22px 14px;background-position:center;
+    opacity:.5;
+  }
+  .banner-perfs.top{top:0}
+  .banner-perfs.bot{bottom:0}
+  .ticker{
+    font-size:10px;letter-spacing:.35em;color:var(--ink-dim);
+    text-transform:uppercase;margin-bottom:10px;white-space:nowrap;overflow:hidden;
+  }
+  h1{
+    font-family:'VT323',monospace;
+    font-size:clamp(46px,10vw,108px);line-height:.85;
+    letter-spacing:.01em;color:var(--ink);
+    text-shadow:var(--glow);font-weight:400;
+  }
+  html[data-theme="green"] h1{text-shadow:0 0 22px rgba(92,255,143,.5)}
+  .subhead{
+    display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;
+    margin-top:14px;font-size:12.5px;color:var(--ink-dim);letter-spacing:.05em;
+  }
+  .subhead .photog{color:var(--accent);font-weight:700}
+  .cursor{display:inline-block;width:10px;height:1.05em;background:var(--ink);
+    vertical-align:-2px;margin-left:2px;animation:blink 1s steps(2,start) infinite}
+  @keyframes blink{to{opacity:0}}
+  .hint{
+    display:inline-block;margin-top:14px;font-size:11px;font-weight:700;
+    letter-spacing:.18em;color:var(--bg);background:var(--ink);
+    padding:5px 11px;border-radius:3px;
+  }
+  html[data-theme="green"] .hint{box-shadow:0 0 16px rgba(92,255,143,.45)}
+
+  /* ---------- GRID ---------- */
+  .grid{
+    display:grid;gap:clamp(12px,1.8vw,20px);
+    grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+  }
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    border:1px solid var(--border);border-radius:5px;overflow:hidden;
+    background:var(--card-bg);box-shadow:var(--glow);
+    cursor:pointer;position:relative;
+    transition:transform .25s ease,box-shadow .25s ease;
+  }
+  .card:hover{transform:translateY(-3px)}
+  .card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+  .frame{position:relative;aspect-ratio:4/5;overflow:hidden;background:#000}
+
+  .frame img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    filter:var(--img-filter-dot);
+    transition:filter .7s ease,transform .7s ease;
+    transform:scale(1.02);
+  }
+  .card.bw .frame img{filter:grayscale(1) contrast(1.85) brightness(1.02)}
+
+  /* RESOLVED state: relax to Portra grade */
+  .card.resolved .frame img{
+    filter:contrast(1.04) saturate(1.12) brightness(1.04) sepia(.10) hue-rotate(-6deg);
+    transform:scale(1);
+  }
+  .card.resolved.bw .frame img{
+    filter:grayscale(1) contrast(1.08) brightness(1.02);
+  }
+
+  /* ---- OVERLAY LAYERS (the printed look) ---- */
+  .ov{position:absolute;inset:0;pointer-events:none;transition:opacity .65s ease}
+
+  /* layer 1: halftone dots */
+  .ov-dots{
+    mix-blend-mode:var(--blend);
+    background-image:
+      radial-gradient(var(--dot-color) 38%, transparent 42%),
+      radial-gradient(var(--dot-color) 38%, transparent 42%);
+    background-size:6px 6px, 6px 6px;
+    background-position:0 0, 3px 3px;
+    opacity:.95;
+  }
+  html[data-theme="news"] .ov-dots{opacity:.9}
+
+  /* layer 2: tiled ASCII glyphs (data-URI SVG monospace) */
+  .ov-ascii{
+    mix-blend-mode:var(--blend);
+    opacity:.55;
+    background-repeat:repeat;
+    background-size:72px 48px;
+  }
+  /* layer 3: posterize wash to flatten image tones under print */
+  .ov-wash{
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.05) 40%, rgba(0,0,0,.22));
+    mix-blend-mode:multiply;opacity:.6;
+  }
+  html[data-theme="news"] .ov-wash{
+    background:linear-gradient(180deg,rgba(237,231,216,.30),rgba(237,231,216,.05) 40%,rgba(237,231,216,.34));
+    mix-blend-mode:screen;opacity:.5;
+  }
+
+  /* shimmer drift on dots (cheap CSS) */
+  @keyframes drift{
+    0%{background-position:0 0, 3px 3px}
+    100%{background-position:6px 12px, 9px 15px}
+  }
+  .card .ov-dots{animation:drift 3.2s linear infinite}
+  @keyframes asciiPan{
+    0%{background-position:0 0}
+    100%{background-position:72px 48px}
+  }
+  .card .ov-ascii{animation:asciiPan 9s linear infinite}
+
+  /* hover/resolve: fade overlays */
+  .card.resolved .ov{opacity:0}
+
+  /* corner status chip */
+  .chip{
+    position:absolute;top:8px;left:8px;z-index:3;
+    font-size:9.5px;font-weight:800;letter-spacing:.12em;
+    color:var(--bg);background:var(--ink);padding:3px 7px;border-radius:2px;
+    transition:opacity .4s ease;text-transform:uppercase;
+  }
+  html[data-theme="green"] .chip{box-shadow:0 0 10px rgba(92,255,143,.4)}
+  .card.resolved .chip{opacity:0}
+  .badge-bw{
+    position:absolute;top:8px;right:8px;z-index:3;
+    font-size:9px;font-weight:800;letter-spacing:.12em;
+    color:var(--ink);border:1px solid var(--border);background:var(--panel);
+    padding:3px 6px;border-radius:2px;
+  }
+
+  /* ---- META PRINTOUT ROW ---- */
+  .meta{padding:11px 13px 13px;border-top:1px dashed var(--border);position:relative}
+  .meta .row{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .meta h3{
+    font-size:14px;font-weight:700;letter-spacing:.01em;color:var(--ink);
+    line-height:1.2;max-width:78%;
+  }
+  .meta .yr{font-size:13px;font-weight:800;color:var(--accent)}
+  .meta dl{margin-top:8px;display:grid;grid-template-columns:auto 1fr;gap:2px 8px;
+    font-size:11px;color:var(--ink-dim)}
+  .meta dt{color:var(--ink-faint);letter-spacing:.08em;text-transform:uppercase;font-size:9.5px;align-self:center}
+  .meta dd{color:var(--ink-dim);font-weight:500;text-align:right}
+  html[data-theme="news"] .meta dd{color:var(--ink)}
+  .meta .loc{color:var(--accent);font-weight:600}
+
+  footer{
+    margin-top:40px;border-top:1px solid var(--border);padding-top:16px;
+    font-size:11px;letter-spacing:.1em;color:var(--ink-dim);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card .ov-dots,.card .ov-ascii{animation:none!important}
+    .cursor{animation:none}
+    .card,.frame img,.ov{transition:opacity .25s ease, filter .25s ease}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back" href="../../index.html">&larr; All designs</a>
+    <button class="toggle" id="themeBtn" aria-label="Switch colour theme between green terminal and newsprint" aria-pressed="false">
+      THEME: <span id="themeLabel">GREEN TERMINAL</span>
+    </button>
+  </div>
+
+  <header class="banner">
+    <div class="banner-perfs top" aria-hidden="true"></div>
+    <div class="banner-perfs bot" aria-hidden="true"></div>
+    <div class="ticker" id="ticker">&gt; INITIALIZING DOT-MATRIX RENDER ENGINE &middot; 96 DPI &middot; 30 FRAMES LOADED &middot; HALFTONE SCREEN @ 6px &middot; READY</div>
+    <h1>DOT&nbsp;MATRIX</h1>
+    <div class="subhead">
+      <span class="photog">TOM MILTON</span>
+      <span>// FILM PHOTOGRAPHY ARCHIVE 1995&ndash;2023</span>
+      <span>// 30 EXPOSURES<span class="cursor" aria-hidden="true"></span></span>
+    </div>
+    <span class="hint" id="hint">[ HOVER TO DEVELOP ]</span>
+  </header>
+
+  <main class="grid" id="grid" aria-label="Photo gallery rendered as dot-matrix prints"></main>
+
+  <footer>
+    <span>&copy; TOM MILTON &middot; SILVER-HALIDE &amp; PIXELS</span>
+    <span id="foot">RENDER MODE: HALFTONE / SCREEN BLEND</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- MANIFEST ----
+  var PHOTOS = [
+    ["golden-field-sunburst.jpg","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",""],
+    ["landscape-misty-mountains.jpg","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001","water"],
+    ["lake-cabin-dawn.jpg","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003","water"],
+    ["forest-sunlight.jpg","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",""],
+    ["valley-green-river.jpg","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3","1999","water"],
+    ["cliff-coast-ocean.jpg","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002","water"],
+    ["mountain-road-fog.jpg","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005",""],
+    ["sun-through-leaves.jpg","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004",""],
+    ["lake-mountain-house.jpg","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000","water"],
+    ["rolling-green-hills.jpg","Patchwork","Tuscany, Italy","Fujifilm Pro 400H","Pentax 645","1997",""],
+    ["forest-path-trees.jpg","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F","1995",""],
+    ["waterfall-bridge.jpg","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006","water"],
+    ["autumn-forest-road.jpg","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",""],
+    ["desert-dunes.jpg","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",""],
+    ["misty-pine-forest.jpg","Silence","Norway","Ilford HP5 Plus","Leica M6","2003","bw"],
+    ["succulent-closeup.jpg","Geometry of Growth","Studio","Kodak Portra 160","Hasselblad 500CM","2009",""],
+    ["foggy-pier-lake.jpg","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2","2010","water"],
+    ["woman-portrait-window.jpg","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",""],
+    ["man-portrait-street.jpg","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400","Leica M4","2012","bw"],
+    ["couple-silhouette-sunset.jpg","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V","2013","water"],
+    ["woman-portrait-soft.jpg","Soft Hour","Paris, France","Fujifilm Pro 400H","Contax 645","2014",""],
+    ["woman-portrait-freckles.jpg","Freckles & Sun","Studio","Kodak Portra 160","Mamiya 645","2015",""],
+    ["friends-golden-hour.jpg","Golden Hour, Together","California, USA","Kodak Portra 400","Nikon F100","2016",""],
+    ["woman-curly-portrait.jpg","Curls","Brooklyn, USA","Cinestill 800T","Canon AE-1","2017",""],
+    ["man-bw-portrait.jpg","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6","2018","bw"],
+    ["woman-fashion-portrait.jpg","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67","2019",""],
+    ["street-cafe-paris.jpg","Café de Flore","Paris, France","Kodak Gold 200","Olympus OM-1","2020",""],
+    ["woman-laughing-portrait.jpg","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2","2021",""],
+    ["vintage-car-street.jpg","Sunday Drive","Havana, Cuba","Kodak Ektar 100","Nikon FE","2022",""],
+    ["cozy-interior-window.jpg","Home Light","Copenhagen, Denmark","Kodak Portra 400","Leica M6","2023",""]
+  ];
+
+  // ASCII texture as data-URI SVG (monospace glyph field)
+  function asciiSVG(color){
+    var glyphs = ["@","#","%","8","&","o",":","*",".","+","=","$"];
+    var t = "";
+    var rows = 5, cols = 9, cw = 8, ch = 9.6, x0 = 0, y0 = 9;
+    var i = 0;
+    for(var r=0;r<rows;r++){
+      var line="";
+      for(var c=0;c<cols;c++){ line += glyphs[(i*7+r*3)%glyphs.length]; i++; }
+      t += '<text x="0" y="'+(y0 + r*ch)+'" font-family="monospace" font-size="9" letter-spacing="0" fill="'+color+'">'+line+'</text>';
+    }
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="48">'+t+'</svg>';
+    return 'url("data:image/svg+xml;utf8,'+encodeURIComponent(svg)+'")';
+  }
+
+  var grid = document.getElementById("grid");
+  var isTouch = (window.matchMedia && window.matchMedia("(hover: none)").matches) ||
+                ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
+  var ASSET = "../../assets/img/";
+  var cards = [];
+
+  function makeCard(p, idx){
+    var file=p[0],title=p[1],loc=p[2],film=p[3],cam=p[4],year=p[5],flags=p[6];
+    var bw = flags.indexOf("bw") !== -1;
+    var water = flags.indexOf("water") !== -1;
+
+    var card = document.createElement(isTouch ? "button" : "div");
+    card.className = "card" + (bw ? " bw" : "");
+    card.setAttribute("tabindex","0");
+    card.setAttribute("role","button");
+    var hintTxt = isTouch ? "Tap to resolve" : "Hover to develop";
+    card.setAttribute("aria-label", title + ", " + loc + ", " + year + ". " + (bw?"Black and white. ":"") + hintTxt + ".");
+    if(isTouch){ card.style.textAlign="left"; card.style.font="inherit"; card.style.color="inherit"; }
+
+    var frame = document.createElement("div");
+    frame.className = "frame";
+
+    var img = document.createElement("img");
+    img.src = ASSET + file;
+    img.alt = title;
+    img.loading = "lazy";
+    img.decoding = "async";
+    frame.appendChild(img);
+
+    var wash = document.createElement("div"); wash.className="ov ov-wash"; frame.appendChild(wash);
+    var dots = document.createElement("div"); dots.className="ov ov-dots"; frame.appendChild(dots);
+    var ascii = document.createElement("div"); ascii.className="ov ov-ascii"; frame.appendChild(ascii);
+
+    var chip = document.createElement("span"); chip.className="chip";
+    chip.textContent = isTouch ? "TAP ▸" : "HOVER ▸";
+    frame.appendChild(chip);
+
+    if(bw){ var b=document.createElement("span"); b.className="badge-bw"; b.textContent="B/W"; frame.appendChild(b); }
+
+    card.appendChild(frame);
+
+    var meta = document.createElement("div"); meta.className="meta";
+    var fnum = ("0"+(idx+1)).slice(-2);
+    meta.innerHTML =
+      '<div class="row"><h3>'+title+'</h3><span class="yr">\''+year.slice(2)+'</span></div>'+
+      '<dl>'+
+        '<dt>LOC</dt><dd class="loc">'+loc+'</dd>'+
+        '<dt>FILM</dt><dd>'+film+'</dd>'+
+        '<dt>CAM</dt><dd>'+cam+'</dd>'+
+        '<dt>REF</dt><dd>DM-'+fnum+' &middot; '+year+(water?' &middot; H2O':'')+'</dd>'+
+      '</dl>';
+    card.appendChild(meta);
+
+    // interaction
+    function resolve(on){ card.classList.toggle("resolved", on); }
+    if(isTouch){
+      card.addEventListener("click", function(){ card.classList.toggle("resolved"); });
+    } else {
+      card.addEventListener("pointerenter", function(){ resolve(true); });
+      card.addEventListener("pointerleave", function(){ resolve(false); });
+      card.addEventListener("focus", function(){ resolve(true); });
+      card.addEventListener("blur", function(){ resolve(false); });
+      card.addEventListener("click", function(){ card.classList.toggle("resolved"); });
+    }
+    card.addEventListener("keydown", function(e){
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); card.classList.toggle("resolved"); }
+    });
+
+    cards.push({ascii:ascii});
+    grid.appendChild(card);
+  }
+
+  PHOTOS.forEach(makeCard);
+
+  // ---- THEME ----
+  var html = document.documentElement;
+  var btn = document.getElementById("themeBtn");
+  var label = document.getElementById("themeLabel");
+  var foot = document.getElementById("foot");
+  var theme = "green"; // JS variable, default green terminal
+  html.setAttribute("data-theme", theme);
+
+  function asciiColorForTheme(){
+    return theme === "green" ? "rgba(150,255,180,0.95)" : "rgba(20,16,10,0.9)";
+  }
+  function paintAscii(){
+    var url = asciiSVG(asciiColorForTheme());
+    for(var i=0;i<cards.length;i++){ cards[i].ascii.style.backgroundImage = url; }
+  }
+  paintAscii();
+
+  function applyTheme(){
+    html.setAttribute("data-theme", theme);
+    if(theme==="green"){
+      label.textContent="GREEN TERMINAL";
+      btn.setAttribute("aria-pressed","false");
+      foot.textContent="RENDER MODE: HALFTONE / SCREEN BLEND";
+    } else {
+      label.textContent="NEWSPRINT";
+      btn.setAttribute("aria-pressed","true");
+      foot.textContent="RENDER MODE: HALFTONE / MULTIPLY BLEND";
+    }
+    paintAscii();
+  }
+  btn.addEventListener("click", function(){
+    theme = (theme==="green") ? "news" : "green";
+    applyTheme();
+  });
+
+  // ---- TICKER drift (cheap, pause when hidden, respect reduced motion) ----
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var ticker = document.getElementById("ticker");
+  var baseText = ticker.textContent;
+  if(!reduce){
+    var offset = 0, raf;
+    function tick(){
+      if(document.hidden){ raf=requestAnimationFrame(tick); return; }
+      offset = (offset+1) % baseText.length;
+      ticker.textContent = baseText.slice(offset) + "   " + baseText.slice(0, offset);
+      raf = setTimeout(function(){ requestAnimationFrame(tick); }, 220);
+    }
+    document.addEventListener("visibilitychange", function(){});
+    requestAnimationFrame(tick);
+  }
+})();
+</script>
+</body>
+</html>

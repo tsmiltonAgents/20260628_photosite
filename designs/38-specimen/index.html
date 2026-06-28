@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specimen — Tom Milton, A Catalogue of Film Photographs</title>
+<meta name="description" content="A scholarly specimen catalogue of Tom Milton's film photographs, each lot recorded with provenance, medium and edition.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script>document.documentElement.className="js";</script>
+<style>
+  :root{
+    --paper:#f6f2e9;
+    --paper-2:#efe9dc;
+    --ink:#211d16;
+    --ink-60:#5d564a;
+    --ink-35:#9a9182;
+    --hair:#cfc7b6;
+    --hair-2:#b7ad99;
+    --oxblood:#7a241c;
+    --mar:clamp(20px,6vw,96px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:'EB Garamond','Iowan Old Style',Georgia,serif;
+    font-size:18px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    font-feature-settings:"liga" 1,"onum" 1,"kern" 1;
+  }
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+  ::selection{background:var(--oxblood);color:var(--paper)}
+
+  .smallcaps{font-variant:small-caps;letter-spacing:.08em}
+  .num{font-feature-settings:"lnum" 1,"tnum" 1}
+
+  /* faint paper tone */
+  .tone{position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(120% 90% at 50% 0%,rgba(255,255,255,.5),rgba(0,0,0,0) 55%);
+    mix-blend-mode:soft-light}
+
+  .page{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 var(--mar)}
+
+  /* ===== top bar ===== */
+  .bar{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+    padding:18px 0 14px;border-bottom:1px solid var(--hair)}
+  .bar .back{font-size:12px;color:var(--ink-60);display:inline-flex;gap:.6em;align-items:center;
+    font-variant:small-caps;letter-spacing:.1em;transition:color .2s}
+  .bar .back:hover{color:var(--oxblood)}
+  .bar .sale{font-size:12px;color:var(--ink-60);font-variant:small-caps;letter-spacing:.1em;
+    font-feature-settings:"lnum" 1,"tnum" 1}
+
+  /* ===== masthead ===== */
+  .masthead{text-align:center;padding:clamp(40px,8vw,104px) 0 clamp(30px,5vw,64px);
+    border-bottom:1px solid var(--hair);position:relative}
+  .masthead .house{font-size:12px;font-variant:small-caps;letter-spacing:.34em;color:var(--oxblood);
+    margin-bottom:clamp(16px,3vw,30px)}
+  .masthead h1{font-family:'Playfair Display',Georgia,serif;font-weight:500;
+    font-size:clamp(40px,8vw,104px);line-height:.98;letter-spacing:.005em}
+  .masthead h1 em{font-style:italic;color:var(--ink)}
+  .masthead .strap{margin-top:clamp(16px,3vw,30px);font-style:italic;font-size:clamp(16px,1.8vw,22px);
+    color:var(--ink-60);max-width:46ch;margin-left:auto;margin-right:auto;line-height:1.5}
+  .masthead .rule{width:54px;height:1px;background:var(--hair-2);margin:clamp(22px,4vw,40px) auto 0;position:relative}
+  .masthead .rule::before,.masthead .rule::after{content:"";position:absolute;top:-2px;width:5px;height:5px;
+    border:1px solid var(--hair-2);transform:rotate(45deg)}
+  .masthead .rule::before{left:-12px}.masthead .rule::after{right:-12px}
+  .masthead .terms{margin-top:clamp(22px,4vw,40px);display:flex;justify-content:center;flex-wrap:wrap;
+    gap:6px 30px;font-size:12.5px;font-variant:small-caps;letter-spacing:.1em;color:var(--ink-60);
+    font-feature-settings:"lnum" 1,"tnum" 1}
+  .masthead .terms span{position:relative}
+
+  /* ===== contents preface ===== */
+  .preface{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,72px);
+    padding:clamp(34px,5vw,68px) 0;border-bottom:1px solid var(--hair)}
+  .preface .col h3{font-size:12px;font-variant:small-caps;letter-spacing:.18em;color:var(--oxblood);
+    margin-bottom:14px}
+  .preface .col p{font-size:16.5px;color:var(--ink-60);line-height:1.62;max-width:48ch}
+  .preface .col p + p{margin-top:12px}
+  .preface .toc{font-feature-settings:"lnum" 1,"tnum" 1}
+  .preface .toc .t{display:flex;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px dotted var(--hair-2)}
+  .preface .toc .t .n{color:var(--oxblood);font-variant:small-caps;letter-spacing:.06em;min-width:3.4em}
+  .preface .toc .t .nm{flex:1}
+  .preface .toc .t .yr{color:var(--ink-35)}
+
+  /* ===== lots ===== */
+  .lots{padding:clamp(20px,4vw,40px) 0 0}
+  .lot{display:grid;grid-template-columns:minmax(0,46%) 1fr;gap:clamp(26px,4.5vw,66px);
+    align-items:start;padding:clamp(40px,6vw,86px) 0;border-bottom:1px solid var(--hair);position:relative}
+  .lot:first-child{padding-top:clamp(28px,4vw,52px)}
+
+  .plate{position:relative}
+  .plate .mat{padding:clamp(12px,1.6vw,22px);background:var(--paper-2);
+    border:1px solid var(--hair-2);box-shadow:0 1px 0 rgba(255,255,255,.6) inset}
+  .plate .win{position:relative;overflow:hidden;background:#e3ddcf;border:1px solid var(--hair-2)}
+  .ar45{aspect-ratio:4/5}.ar32{aspect-ratio:3/2}.ar11{aspect-ratio:1/1}
+  .plate img{width:100%;height:100%;object-fit:cover;
+    filter:sepia(.14) saturate(1.02) contrast(.96) brightness(1.02);
+    transition:filter .6s ease,transform 1.4s cubic-bezier(.16,1,.3,1);transform:scale(1.015)}
+  .plate img.bw{filter:grayscale(1) contrast(1.03) brightness(1.0)}
+  .lot:hover .plate img{filter:sepia(.06) saturate(1.06) contrast(.99) brightness(1.04)}
+  .lot:hover .plate img.bw{filter:grayscale(1) contrast(1.05) brightness(1.02)}
+  .plate .pl{margin-top:10px;text-align:center;font-size:11px;font-variant:small-caps;letter-spacing:.18em;
+    color:var(--ink-35);font-feature-settings:"lnum" 1,"tnum" 1}
+
+  .entry{padding-top:clamp(2px,1vw,10px)}
+  .entry .lotno{display:flex;align-items:baseline;gap:.7em;font-variant:small-caps;letter-spacing:.12em;
+    font-size:13px;color:var(--oxblood);font-feature-settings:"lnum" 1,"tnum" 1}
+  .entry .lotno .est{margin-left:auto;color:var(--ink-35)}
+  .entry .lotno::after{content:"";position:absolute}
+  .entry .topline{display:flex;align-items:baseline;gap:.8em;border-bottom:1px solid var(--hair-2);
+    padding-bottom:10px;margin-bottom:14px}
+  .entry .topline .est{margin-left:auto;font-size:12.5px;font-variant:small-caps;letter-spacing:.08em;color:var(--ink-35)}
+
+  .entry h2{font-family:'Playfair Display',Georgia,serif;font-weight:500;
+    font-size:clamp(26px,3.4vw,42px);line-height:1.04;letter-spacing:.005em;margin-top:14px}
+  .entry .latin{font-style:italic;font-size:clamp(17px,1.7vw,21px);color:var(--ink-60);margin-top:5px}
+  .entry .latin .auth{font-style:normal;font-variant:small-caps;letter-spacing:.05em;font-size:.82em;color:var(--ink-35);margin-left:.4em}
+
+  .entry .desc{margin-top:16px;font-size:16.5px;color:var(--ink-60);line-height:1.62;max-width:48ch}
+
+  /* descriptive list */
+  .facts{margin-top:18px;border-top:1px solid var(--hair)}
+  .facts .f{display:grid;grid-template-columns:8.5em 1fr;gap:14px;padding:7px 0;
+    border-bottom:1px solid var(--hair);font-size:15px}
+  .facts .f dt{font-variant:small-caps;letter-spacing:.1em;color:var(--ink-35);font-size:12.5px;padding-top:2px}
+  .facts .f dd{color:var(--ink);font-feature-settings:"lnum" 1,"tnum" 1}
+  .facts .f dd .i{font-style:italic;color:var(--ink-60)}
+
+  /* revealed provenance */
+  .prov{margin-top:0;overflow:hidden}
+  html.js .prov.collapsible{max-height:0;opacity:0;
+    transition:max-height .6s cubic-bezier(.4,0,.2,1),opacity .5s ease,margin-top .5s ease}
+  html.js .lot:hover .prov.collapsible,
+  html.js .lot:focus-within .prov.collapsible{max-height:340px;opacity:1;margin-top:0}
+  .prov .hint{display:block;margin-top:14px;font-style:italic;font-size:13px;color:var(--ink-35);
+    letter-spacing:.01em}
+  html.js .prov.collapsible .hint{display:none}
+  .reveal-hint{margin-top:14px;font-style:italic;font-size:13px;color:var(--ink-35);
+    transition:opacity .4s ease}
+  html.js .lot:hover .reveal-hint,html.js .lot:focus-within .reveal-hint{opacity:0}
+
+  /* gentle scroll-in */
+  html.js .lot{opacity:1}
+  html.js.anim .lot.pre{opacity:0;transform:translateY(18px)}
+  html.js.anim .lot.pre.seen{opacity:1;transform:none;transition:opacity .9s ease,transform .9s cubic-bezier(.16,1,.3,1)}
+
+  /* ===== colophon ===== */
+  .colophon{padding:clamp(48px,7vw,104px) 0 clamp(40px,6vw,80px);text-align:center}
+  .colophon .mk{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(22px,3vw,38px);
+    color:var(--ink)}
+  .colophon .conds{margin:clamp(20px,3vw,34px) auto 0;max-width:64ch;font-size:14px;color:var(--ink-60);
+    line-height:1.7}
+  .colophon .ln{margin-top:26px;display:flex;justify-content:center;flex-wrap:wrap;gap:6px 26px;
+    font-size:12px;font-variant:small-caps;letter-spacing:.12em;color:var(--ink-35);
+    font-feature-settings:"lnum" 1,"tnum" 1}
+
+  /* ===== responsive ===== */
+  @media (max-width:760px){
+    body{font-size:17px}
+    .lot{grid-template-columns:1fr;gap:22px}
+    .preface{grid-template-columns:1fr;gap:30px}
+    .entry .desc{max-width:none}
+    /* touch: always show provenance */
+    html.js .prov.collapsible{max-height:none;opacity:1}
+    .reveal-hint{display:none}
+  }
+  @media (hover:none){
+    html.js .prov.collapsible{max-height:none;opacity:1}
+    .reveal-hint{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html.js.anim .lot.pre{opacity:1;transform:none}
+    html.js .lot.seen{transition:none}
+    .plate img{transition:none;transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="tone" aria-hidden="true"></div>
+
+<div class="page">
+  <header class="bar">
+    <a class="back" href="../../index.html"><span aria-hidden="true">&larr;</span> All designs</a>
+    <span class="sale">Catalogue No. 38 · Single-Owner Collection</span>
+  </header>
+
+  <section class="masthead">
+    <div class="house">Milton &amp; Co. — Photographic Specimens</div>
+    <h1>A Catalogue of<br><em>Film Photographs</em></h1>
+    <p class="strap">Being a record of select silver-halide and chromogenic specimens, exposed and collected by Tom Milton, here offered with full provenance.</p>
+    <div class="rule" aria-hidden="true"></div>
+    <div class="terms">
+      <span>Lots I–X</span><span>1995–2023</span><span>35mm &amp; 120 Roll Film</span><span>Provenance Guaranteed</span>
+    </div>
+  </section>
+
+  <section class="preface">
+    <div class="col">
+      <h3>Note on the Collection</h3>
+      <p>Each specimen herein is a unique photographic exposure upon film, catalogued by locality and date of collection. The taxonomic binomial assigned to each is the cataloguer's own, offered in the natural-history manner as an aid to memory.</p>
+      <p>Hover or focus upon a lot to disclose its full provenance — medium, sheet dimensions and edition.</p>
+    </div>
+    <div class="col toc" id="toc" aria-label="Contents"></div>
+  </section>
+
+  <main class="lots" id="lots" aria-label="Lots"></main>
+
+  <footer class="colophon">
+    <div class="mk">finis</div>
+    <p class="conds">All specimens are sold as catalogued and are the unique property of the photographer. Estimates are stated in the manner of the trade and are exclusive of premium. The cataloguer's Latin is affectionate, not authoritative.</p>
+    <div class="ln">
+      <span>Tom Milton</span><span>Set in Playfair &amp; Garamond</span><span>Catalogue No. 38</span><span>© 2026</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  var S = [
+    {f:'cliff-coast-ocean.jpg', t:'Edge of the World', latin:'Litus occidentale', auth:'Milton',
+     loc:'Big Sur, California, U.S.A.', yr:'2002', film:'Kodak Portra 400', cam:'Contax G2',
+     dim:'40 × 60 cm', ed:'Edition of 7 + 2 A.P.', est:'£1,800–2,400', ar:'ar32',
+     desc:'A solitary headland where the Pacific dissolves the continent; collected at the hour the light turns to brass.'},
+    {f:'desert-dunes.jpg', t:'Wind Lines', latin:'Arena ventosa', auth:'Milton',
+     loc:'Namib Desert, Namibia', yr:'2008', film:'Kodak Ektar 100', cam:'Hasselblad 503CW',
+     dim:'50 × 50 cm', ed:'Edition of 5', est:'£2,200–3,000', ar:'ar11',
+     desc:'The wind’s own draughtsmanship, redrawn nightly upon the dunes and never twice alike.'},
+    {f:'misty-pine-forest.jpg', t:'Silence', latin:'Silentium boreale', auth:'Milton',
+     loc:'Telemark, Norway', yr:'2003', film:'Ilford HP5 Plus', cam:'Leica M6', bw:true,
+     dim:'45 × 56 cm', ed:'Edition of 9', est:'£1,400–1,900', ar:'ar45',
+     desc:'A stand of pines held in suspension; a monochrome specimen of quiet, gelatin silver upon fibre.'},
+    {f:'lake-mountain-house.jpg', t:'Reflections, Still Morning', latin:'Speculum montanum', auth:'Milton',
+     loc:'Hallstatt, Austria', yr:'2000', film:'Kodak Ektar 100', cam:'Mamiya RZ67',
+     dim:'56 × 70 cm', ed:'Edition of 5', est:'£2,600–3,400', ar:'ar32',
+     desc:'The lake holding the mountain twice over, the second copy the more perfect for being unrepeatable.'},
+    {f:'woman-portrait-freckles.jpg', t:'Freckles & Sun', latin:'Lentigo solaris', auth:'Milton',
+     loc:'The Studio', yr:'2015', film:'Kodak Portra 160', cam:'Mamiya 645',
+     dim:'40 × 50 cm', ed:'Edition of 10', est:'£1,200–1,600', ar:'ar45',
+     desc:'A constellation mapped upon the skin by ten thousand mornings; recorded in soft north light.'},
+    {f:'street-cafe-paris.jpg', t:'Café de Flore', latin:'Flora parisiensis', auth:'Milton',
+     loc:'Boulevard Saint-Germain, Paris', yr:'2020', film:'Kodak Gold 200', cam:'Olympus OM-1',
+     dim:'30 × 45 cm', ed:'Edition of 12', est:'£900–1,300', ar:'ar32',
+     desc:'A terrace specimen in its native habitat; observed mid-morning, the waiters as yet unhurried.'},
+    {f:'man-bw-portrait.jpg', t:'Portrait in Shadow', latin:'Umbra berolinensis', auth:'Milton',
+     loc:'Berlin, Germany', yr:'2018', film:'Ilford Delta 3200', cam:'Leica M6', bw:true,
+     dim:'40 × 50 cm', ed:'Edition of 8', est:'£1,500–2,000', ar:'ar45',
+     desc:'Half a face surrendered to darkness; a study of grain at its coarsest and most candid.'},
+    {f:'succulent-closeup.jpg', t:'Geometry of Growth', latin:'Geometria crescens', auth:'Milton',
+     loc:'The Studio', yr:'2009', film:'Kodak Portra 160', cam:'Hasselblad 500CM',
+     dim:'50 × 50 cm', ed:'Edition of 7', est:'£1,000–1,400', ar:'ar11',
+     desc:'A living spiral keeping its own immaculate counsel; the Fibonacci sequence made flesh.'},
+    {f:'lake-cabin-dawn.jpg', t:'The Cabin at Dawn', latin:'Aurora lacustris', auth:'Milton',
+     loc:'Banff, Alberta, Canada', yr:'2003', film:'Kodak Ektar 100', cam:'Mamiya 7 II',
+     dim:'45 × 67 cm', ed:'Edition of 6', est:'£1,700–2,300', ar:'ar32',
+     desc:'A single dwelling at the water’s hem, lit by the first and coldest light of the day.'},
+    {f:'golden-field-sunburst.jpg', t:'Last Light, Wheat Country', latin:'Triticum vespertinum', auth:'Milton',
+     loc:'Tuscany, Italy', yr:'1998', film:'Kodak Portra 400', cam:'Leica M6',
+     dim:'40 × 60 cm', ed:'Edition of 9', est:'£1,300–1,800', ar:'ar32',
+     desc:'The day expended entirely upon a field of grain; a chromogenic specimen of warmth itself.'}
+  ];
+
+  function esc(s){return String(s).replace(/&/g,'&amp;');}
+  var roman=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+
+  /* TOC */
+  var toc = document.getElementById('toc');
+  toc.innerHTML = '<h3>Contents</h3>' + S.map(function(d,i){
+    var no=(i+1<10?'0':'')+(i+1);
+    return '<div class="t"><span class="n">Lot '+no+'</span><span class="nm">'+esc(d.t)+'</span><span class="yr num">'+d.yr+'</span></div>';
+  }).join('');
+
+  /* lots */
+  var lots = document.getElementById('lots');
+  lots.innerHTML = S.map(function(d,i){
+    var no=(i+1<10?'0':'')+(i+1);
+    return '<article class="lot" tabindex="0" aria-label="Lot '+no+', '+esc(d.t)+'">'+
+      '<div class="plate"><div class="mat"><div class="win '+d.ar+'">'+
+        '<img src="../../assets/img/'+d.f+'" alt="'+esc(d.t)+' — '+esc(d.loc)+'"'+(d.bw?' class="bw"':'')+' loading="lazy">'+
+      '</div></div><div class="pl num">Plate '+no+' — '+esc(d.cam)+'</div></div>'+
+      '<div class="entry">'+
+        '<div class="topline"><span class="lotno num">Lot '+no+' &middot; No. '+roman[i]+'</span><span class="est">Estimate '+esc(d.est)+'</span></div>'+
+        '<h2>'+esc(d.t)+'</h2>'+
+        '<div class="latin">'+esc(d.latin)+'<span class="auth">'+esc(d.auth)+'</span></div>'+
+        '<p class="desc">'+esc(d.desc)+'</p>'+
+        '<dl class="facts">'+
+          '<div class="f"><dt>Locality</dt><dd>'+esc(d.loc)+'</dd></div>'+
+          '<div class="f"><dt>Collected</dt><dd class="num">'+d.yr+'</dd></div>'+
+        '</dl>'+
+        '<div class="reveal-hint" aria-hidden="true">Hover or focus to disclose full provenance &mdash;</div>'+
+        '<dl class="facts prov collapsible">'+
+          '<div class="f"><dt>Medium</dt><dd><span class="i">'+esc(d.film)+'</span>, exposed in '+esc(d.cam)+'</dd></div>'+
+          '<div class="f"><dt>Dimensions</dt><dd class="num">'+esc(d.dim)+' (sheet)</dd></div>'+
+          '<div class="f"><dt>Edition</dt><dd class="num">'+esc(d.ed)+'</dd></div>'+
+        '</dl>'+
+      '</div>'+
+    '</article>';
+  }).join('');
+
+  /* gentle scroll-in */
+  var items = Array.prototype.slice.call(lots.querySelectorAll('.lot'));
+  if(!reduce && 'IntersectionObserver' in window){
+    document.documentElement.classList.add('anim');
+    items.forEach(function(it){it.classList.add('pre');});
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('seen'); io.unobserve(e.target); }
+      });
+    },{rootMargin:'0px 0px -10% 0px',threshold:0.06});
+    items.forEach(function(it){io.observe(it);});
+    window.addEventListener('load',function(){
+      setTimeout(function(){
+        var vh=window.innerHeight;
+        items.forEach(function(it){
+          var r=it.getBoundingClientRect();
+          if(r.top<vh && !it.classList.contains('seen')) it.classList.add('seen');
+        });
+      },300);
+    });
+  }
+})();
+</script>
+</body>
+</html>

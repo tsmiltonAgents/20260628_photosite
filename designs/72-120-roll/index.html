@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — 120 Roll</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600&family=Barlow:wght@400;500&family=Cutive+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#0c0a09;
+    --base:#15110d;          /* film base dark */
+    --rebate:#1c1712;
+    --edge:#f0a23c;          /* kodak orange edge print */
+    --edge-dim:#7a5a2e;
+    --paper:#b9742e;         /* 120 backing paper kraft */
+    --paper-d:#8a5118;
+    --paper-ink:#2a1606;
+    --cream:#f3e8d6;
+    --dim:#8a7c66;
+    --cond:'Barlow Condensed',sans-serif;
+    --sans:'Barlow',sans-serif;
+    --mono:'Cutive Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(120% 60% at 50% 0%, #1a140d 0%, var(--dark) 50%),
+      var(--dark);
+    color:var(--cream);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  a{color:inherit}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.05;mix-blend-mode:overlay;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='130' height='130'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* top bar */
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;
+    padding:12px clamp(12px,3vw,30px);
+    background:linear-gradient(180deg,rgba(10,8,6,.9),transparent);pointer-events:none}
+  .topbar a,.brand{pointer-events:auto}
+  .back{text-decoration:none;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--dim);transition:.2s}
+  .back:hover{color:var(--edge)}
+  .brand{text-align:right;line-height:1.1}
+  .brand .nm{font-family:var(--cond);font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:14px}
+  .brand .sub{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--dim);margin-top:2px}
+
+  /* fixed gate brackets at viewport centre */
+  .gate{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:40;pointer-events:none;
+    width:min(74vw,540px);height:min(74vw,540px);max-height:74vh}
+  .gate .br{position:absolute;width:26px;height:26px;border:2px solid var(--edge);opacity:.85}
+  .gate .br.tl{left:-12px;top:-12px;border-right:none;border-bottom:none}
+  .gate .br.tr{right:-12px;top:-12px;border-left:none;border-bottom:none}
+  .gate .br.bl{left:-12px;bottom:-12px;border-right:none;border-top:none}
+  .gate .br.br2{right:-12px;bottom:-12px;border-left:none;border-top:none}
+  .gate .glow{position:absolute;inset:-40px;border-radius:20px;
+    box-shadow:0 0 120px 10px rgba(240,162,60,.10);}
+
+  /* progress + counter */
+  .counter{position:fixed;left:clamp(12px,3vw,30px);top:50%;transform:translateY(-50%);z-index:55;
+    font-family:var(--mono);writing-mode:vertical-rl;text-orientation:mixed;
+    font-size:11px;letter-spacing:.2em;color:var(--dim);display:flex;gap:14px;align-items:center}
+  .counter b{color:var(--edge);font-weight:400}
+  .counter .bar{writing-mode:horizontal-tb;width:3px;height:160px;background:rgba(240,162,60,.14);border-radius:3px;position:relative}
+  .counter .bar i{position:absolute;left:0;top:0;width:100%;background:var(--edge);border-radius:3px;height:0%;
+    box-shadow:0 0 8px rgba(240,162,60,.6)}
+
+  /* caption panel (beside gate) */
+  .caption{position:fixed;right:clamp(12px,3vw,40px);top:50%;transform:translateY(-50%);z-index:55;
+    width:min(30vw,260px);text-align:right;transition:opacity .35s}
+  .caption .num{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--edge-dim)}
+  .caption h2{font-family:var(--cond);font-weight:600;font-size:clamp(20px,3.4vw,32px);line-height:1;margin:.3rem 0;
+    text-transform:uppercase;letter-spacing:.01em}
+  .caption .loc{font-family:var(--sans);font-size:13px;color:var(--cream);opacity:.9}
+  .caption .tech{margin-top:.7rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--dim);line-height:1.7}
+  .caption .tech b{color:var(--edge);font-weight:400}
+  @media (max-width:860px){
+    .caption{display:none}
+    .counter{display:none}
+  }
+
+  /* the roll column */
+  .roll{position:relative;width:min(74vw,540px);margin:0 auto;
+    padding-top:46vh;padding-bottom:46vh;}
+
+  /* backing paper leader / tail */
+  .paper{position:relative;background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.05) 0 4px, transparent 4px 9px),
+      linear-gradient(180deg,var(--paper) 0%,var(--paper-d) 100%);
+    color:var(--paper-ink);overflow:hidden;border-radius:2px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+  .paper.lead{height:62vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:5vh;gap:18px}
+  .paper.tail{height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:6vh;gap:18px}
+  .paper .arrows{font-size:34px;letter-spacing:.3em;line-height:.7;opacity:.8}
+  .paper .ptxt{font-family:var(--cond);font-weight:600;text-transform:uppercase;letter-spacing:.34em;font-size:clamp(15px,3vw,24px)}
+  .paper .pmono{font-family:var(--mono);font-size:11px;letter-spacing:.2em;opacity:.75}
+  .paper .num120{font-family:var(--cond);font-weight:600;font-size:clamp(60px,16vw,120px);line-height:.8;opacity:.22}
+  .paper .tapeedge{position:absolute;left:0;right:0;height:14px;background:
+    repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 7px,transparent 7px 14px)}
+  .paper.lead .tapeedge{bottom:0}
+  .paper.tail .tapeedge{top:0}
+
+  /* film body */
+  .film{position:relative;background:linear-gradient(90deg,#0a0806,var(--base) 12%,var(--base) 88%,#0a0806);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.6),0 0 50px rgba(0,0,0,.5)}
+  /* vertical edge printing both margins */
+  .edgecol{position:absolute;top:0;bottom:0;width:clamp(20px,5vw,34px);overflow:hidden;z-index:3;pointer-events:none;
+    display:flex;align-items:center;justify-content:center}
+  .edgecol.l{left:0}.edgecol.r{right:0}
+  .edgecol span{writing-mode:vertical-rl;text-orientation:mixed;white-space:nowrap;
+    font-family:var(--mono);font-size:clamp(8px,1.6vw,11px);letter-spacing:.32em;
+    color:var(--edge);opacity:.5;text-transform:uppercase}
+  .edgecol.r span{transform:rotate(180deg);color:var(--edge-dim);opacity:.42}
+
+  /* each frame */
+  .frame{position:relative;margin:0 clamp(20px,5vw,34px);padding:26px 0;}
+  .frame .rebate{position:absolute;left:0;right:0;height:26px;display:flex;align-items:center;
+    justify-content:space-between;padding:0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+    color:var(--edge-dim);pointer-events:none}
+  .frame .rebate.top{top:0}
+  .frame .rebate.bot{bottom:0;color:#4a3a22}
+  .frame .rebate .fno{color:var(--edge);font-size:13px;opacity:.85}
+  .frame .rebate .tick{flex:1;height:1px;margin:0 10px;background:repeating-linear-gradient(90deg,rgba(240,162,60,.3) 0 4px,transparent 4px 9px)}
+  .frame .win{position:relative;overflow:hidden;background:#000;border-radius:1px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.03);
+    transform:scale(.965);transition:transform .45s cubic-bezier(.22,.61,.36,1),box-shadow .45s,filter .45s;
+    will-change:transform}
+  .frame .win img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;
+    filter:saturate(1.05) contrast(1.03) brightness(.82) sepia(.04);transition:filter .45s}
+  .frame.bw .win img{filter:grayscale(1) contrast(1.06) brightness(.84)}
+  .frame .win::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 120% at 50% 50%,transparent 60%,rgba(0,0,0,.45))}
+  /* in the gate → enlarge + light up */
+  .frame.active .win{transform:scale(1.012);
+    box-shadow:0 0 0 1px rgba(240,162,60,.4),0 18px 50px -12px rgba(0,0,0,.7),0 0 70px rgba(240,162,60,.12)}
+  .frame.active .win img{filter:saturate(1.12) contrast(1.05) brightness(1.04) sepia(.05)}
+  .frame.active.bw .win img{filter:grayscale(1) contrast(1.1) brightness(1.03)}
+  .frame.active .win::after{opacity:.5}
+
+  /* mobile inline caption under active frame */
+  .mcap{display:none}
+  @media (max-width:860px){
+    .mcap{display:block;text-align:center;margin:10px clamp(20px,5vw,34px) 0;
+      font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--dim);line-height:1.6}
+    .frame .mcap .t{font-family:var(--cond);font-size:16px;letter-spacing:.04em;color:var(--cream);
+      text-transform:uppercase;display:block;opacity:.7;transition:opacity .35s}
+    .frame.active .mcap .t{opacity:1;color:var(--edge)}
+    .frame .mcap .d{opacity:.55}
+    .frame.active .mcap .d{opacity:.95}
+  }
+
+  /* scroll hint */
+  .hint{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:58;
+    font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--edge);
+    display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;transition:opacity .6s;
+    text-shadow:0 0 10px rgba(240,162,60,.4)}
+  .hint .wheel{width:20px;height:30px;border:1.5px solid var(--edge);border-radius:10px;position:relative}
+  .hint .wheel::before{content:"";position:absolute;left:50%;top:6px;width:2px;height:6px;background:var(--edge);
+    transform:translateX(-50%);border-radius:2px;animation:pip 1.5s infinite}
+  @keyframes pip{0%{opacity:0;transform:translate(-50%,0)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,10px)}}
+  .hint.gone{opacity:0}
+  @media (prefers-reduced-motion: reduce){
+    .hint .wheel::before{animation:none}
+    .frame .win{transition:box-shadow .2s,filter .2s}
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a class="back" href="../../index.html">&larr; All designs</a>
+    <div class="brand"><div class="nm">Tom Milton</div><div class="sub">120 ROLL · 72 · MEDIUM FORMAT 6×6</div></div>
+  </div>
+
+  <div class="gate" aria-hidden="true">
+    <div class="glow"></div>
+    <span class="br tl"></span><span class="br tr"></span><span class="br bl"></span><span class="br br2"></span>
+  </div>
+
+  <div class="counter" aria-hidden="true">
+    <span>FRAME <b id="cNum">01</b> / 12</span>
+    <div class="bar"><i id="cBar"></i></div>
+    <span>KODAK PORTRA 400 · 120</span>
+  </div>
+
+  <aside class="caption" id="caption" aria-live="polite">
+    <div class="num" id="capNum">FRAME 01 / 12</div>
+    <h2 id="capTitle">—</h2>
+    <div class="loc" id="capLoc">—</div>
+    <div class="tech" id="capTech">—</div>
+  </aside>
+
+  <main class="roll" id="roll">
+    <div class="paper lead">
+      <div class="num120">120</div>
+      <div class="ptxt">Kodak Portra 400</div>
+      <div class="pmono">Tom Milton — Medium Format Archive</div>
+      <div class="arrows">▼▼▼</div>
+      <div class="pmono">EXPOSED · WIND TO START</div>
+      <div class="tapeedge"></div>
+    </div>
+
+    <div class="film" id="film">
+      <div class="edgecol l"><span id="edgeL"></span></div>
+      <div class="edgecol r"><span id="edgeR"></span></div>
+      <!-- frames injected -->
+    </div>
+
+    <div class="paper tail">
+      <div class="tapeedge"></div>
+      <div class="arrows">▲▲▲</div>
+      <div class="ptxt">End of Roll</div>
+      <div class="pmono">DEVELOP BEFORE · EXPOSE AWAY FROM SUN</div>
+      <div class="num120">120</div>
+    </div>
+  </main>
+
+  <div class="hint" id="hint">Scroll to wind the roll<div class="wheel"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  var REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var BASE="../../assets/img/";
+  // 12 frames — one 120 roll of 6x6
+  var FRAMES=[
+    ["lake-cabin-dawn","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003",0],
+    ["landscape-misty-mountains","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001",0],
+    ["lake-mountain-house","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000",0],
+    ["forest-sunlight","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",0],
+    ["misty-pine-forest","Silence","Norway","Ilford HP5 Plus","Leica M6","2003",1],
+    ["rolling-green-hills","Patchwork","Tuscany, Italy","Fujifilm Pro 400H","Pentax 645","1997",0],
+    ["woman-portrait-window","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",0],
+    ["succulent-closeup","Geometry of Growth","Studio","Kodak Portra 160","Hasselblad 500CM","2009",0],
+    ["woman-portrait-freckles","Freckles & Sun","Studio","Kodak Portra 160","Mamiya 645","2015",0],
+    ["foggy-pier-lake","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2","2010",0],
+    ["man-bw-portrait","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6","2018",1],
+    ["desert-dunes","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",0]
+  ];
+  var N=FRAMES.length;
+
+  var film=document.getElementById('film');
+  var capNum=document.getElementById('capNum'),capTitle=document.getElementById('capTitle'),
+      capLoc=document.getElementById('capLoc'),capTech=document.getElementById('capTech'),caption=document.getElementById('caption');
+  var cNum=document.getElementById('cNum'),cBar=document.getElementById('cBar');
+  var hint=document.getElementById('hint');
+
+  // edge printing text
+  var edgeStr=' KODAK PORTRA 400 ⬩ 120 ⬩ TOM MILTON ⬩ ';
+  var rep='';for(var k=0;k<14;k++)rep+=edgeStr;
+  document.getElementById('edgeL').textContent=rep;
+  document.getElementById('edgeR').textContent=rep;
+
+  // build frames
+  var frameEls=[];
+  for(var i=0;i<N;i++){
+    var f=FRAMES[i];
+    var el=document.createElement('figure');
+    el.className='frame'+(f[6]?' bw':'');
+    el.setAttribute('role','group');
+    var no=('0'+(i+1)).slice(-2);
+    el.innerHTML=
+      '<div class="rebate top"><span class="fno">'+(i+1)+'</span><span class="tick"></span><span>'+f[3].toUpperCase()+'</span></div>'+
+      '<div class="win"><img src="'+BASE+f[0]+'.jpg" alt="'+f[1]+' — '+f[2]+', '+f[5]+(f[6]?', black and white':'')+'" loading="'+(i<3?'eager':'lazy')+'"></div>'+
+      '<div class="rebate bot"><span>'+f[4].toUpperCase()+'</span><span class="tick"></span><span class="fno">'+(i+1)+'A</span></div>'+
+      '<figcaption class="mcap"><span class="t">'+f[1]+'</span><span class="d">'+f[2]+' · '+f[5]+' · '+f[3]+'</span></figcaption>';
+    film.appendChild(el);
+    frameEls.push(el);
+  }
+
+  var active=-1;
+  function setActive(idx){
+    if(idx===active) return;
+    if(active>=0) frameEls[active].classList.remove('active');
+    active=idx;
+    frameEls[active].classList.add('active');
+    var f=FRAMES[idx];
+    capNum.textContent='FRAME '+('0'+(idx+1)).slice(-2)+' / '+N;
+    capTitle.textContent=f[1];
+    capLoc.textContent=f[2];
+    capTech.innerHTML='<b>'+f[3]+'</b><br>'+f[4]+'<br>'+f[5]+(f[6]?' · B&amp;W':'');
+    cNum.textContent=('0'+(idx+1)).slice(-2);
+  }
+
+  var ticking=false;
+  function onScroll(){
+    if(!ticking){ ticking=true; requestAnimationFrame(measure); }
+    if(hint && !hint.classList.contains('gone') && window.scrollY>60) hint.classList.add('gone');
+  }
+  function measure(){
+    ticking=false;
+    var cy=window.innerHeight/2;
+    var best=-1,bestD=1e9;
+    for(var i=0;i<frameEls.length;i++){
+      var r=frameEls[i].querySelector('.win').getBoundingClientRect();
+      var c=r.top+r.height/2;
+      var d=Math.abs(c-cy);
+      if(d<bestD){bestD=d;best=i;}
+    }
+    if(best>=0) setActive(best);
+    // progress bar over full scrollable range
+    var max=document.documentElement.scrollHeight-window.innerHeight;
+    var p=max>0?Math.min(1,Math.max(0,window.scrollY/max)):0;
+    cBar.style.height=(p*100)+'%';
+  }
+
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',function(){requestAnimationFrame(measure);});
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) requestAnimationFrame(measure); });
+
+  // init: place first measure after layout
+  requestAnimationFrame(function(){ requestAnimationFrame(measure); });
+  setTimeout(function(){ if(hint) hint.classList.add('gone'); },9000);
+})();
+</script>
+</body>
+</html>

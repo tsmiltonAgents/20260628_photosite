@@ -10,13 +10,17 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const W = 1440, H = 1080; // 4:3 to match the card aspect-ratio
 const BASE = process.env.BASE; // http base for true same-origin (WebGL) rendering
-const only = process.argv[2]; // optional substring filter
+const only = process.argv[2]; // optional substring filter, OR a numeric low bound
+const hiArg = process.argv[3]; // optional numeric high bound (range mode)
 
 (async () => {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 1.5 });
   let dirs = fs.readdirSync(path.join(ROOT, 'designs')).filter(d => /^\d/.test(d)).sort();
-  if (only) dirs = dirs.filter(d => d.includes(only));
+  if (only && /^\d+$/.test(only) && hiArg) {
+    const lo = +only, hi = +hiArg;
+    dirs = dirs.filter(d => { const m = d.match(/^(\d+)/); return m && +m[1] >= lo && +m[1] <= hi; });
+  } else if (only) dirs = dirs.filter(d => d.includes(only));
   for (const dir of dirs) {
     const f = path.join(ROOT, 'designs', dir, 'index.html');
     if (!fs.existsSync(f)) continue;

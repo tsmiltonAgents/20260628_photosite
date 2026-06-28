@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Gig Poster Series</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Bungee+Inline&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efe7d4;
+    --paper-2:#e5dabf;
+    --ink1:#e2253b; /* poster red */
+    --ink2:#13366e; /* deep blue */
+    --ink3:#f7b500; /* screen yellow */
+    --ink4:#1c1a17; /* near black */
+    --teal:#1aa39a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink4);
+    font-family:'Oswald',system-ui,sans-serif;
+    overflow-x:hidden;position:relative;line-height:1.4;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* rough paper/ink distress over everything */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:9000;pointer-events:none;
+    opacity:.55;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  }
+  /* big blotchy ink-roll mottle */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:8998;pointer-events:none;
+    opacity:.07;mix-blend-mode:multiply;
+    background:
+      radial-gradient(40% 30% at 15% 20%, #000 0%, transparent 60%),
+      radial-gradient(45% 35% at 85% 70%, #000 0%, transparent 60%),
+      radial-gradient(30% 40% at 60% 40%, #000 0%, transparent 60%);
+  }
+  a{color:inherit}
+  .skip{position:absolute;left:-999px;background:var(--ink1);color:#fff;padding:10px 16px;z-index:99999}
+  .skip:focus{left:8px;top:8px}
+
+  /* nav */
+  .nav{
+    position:sticky;top:0;z-index:300;
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+    padding:10px clamp(14px,3.5vw,46px);
+    background:var(--ink4);color:var(--paper);
+    border-bottom:4px solid var(--ink1);
+  }
+  .back{
+    font-family:'Bebas Neue',sans-serif;letter-spacing:.08em;font-size:1.05rem;
+    text-decoration:none;padding:5px 13px;border:2px solid var(--paper);
+    transition:.15s;display:inline-flex;gap:7px;align-items:center;
+  }
+  .back:hover,.back:focus-visible{background:var(--ink3);color:var(--ink4);border-color:var(--ink3)}
+  .nav .lab{font-family:'Bebas Neue',sans-serif;letter-spacing:.22em;font-size:.95rem;color:var(--ink3)}
+
+  /* ---------- HERO POSTER ---------- */
+  .hero{
+    position:relative;overflow:hidden;
+    padding:clamp(34px,7vw,90px) clamp(14px,3.5vw,46px) clamp(40px,8vw,100px);
+    text-align:center;
+    border-bottom:5px solid var(--ink4);
+  }
+  /* concentric screen-printed "sunburst" rings behind headline */
+  .hero canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;mix-blend-mode:multiply;opacity:.9}
+  .hero .inner{position:relative;z-index:2}
+  .kicker{
+    font-family:'Bebas Neue',sans-serif;letter-spacing:.34em;font-size:clamp(.85rem,2vw,1.2rem);
+    color:var(--ink2);margin-bottom:6px;
+  }
+  .kicker b{background:var(--ink1);color:#fff;padding:1px 9px;letter-spacing:.18em}
+  .hero h1{
+    font-family:'Anton',sans-serif;text-transform:uppercase;line-height:.82;
+    font-size:clamp(3.4rem,15vw,12rem);letter-spacing:.01em;
+    position:relative;display:inline-block;color:var(--ink4);
+  }
+  /* misregistered spot-colour echoes of the headline */
+  .hero h1 .ech{position:absolute;inset:0;pointer-events:none}
+  .hero h1 .e1{color:var(--ink1);mix-blend-mode:multiply;transform:translate(-6px,4px)}
+  .hero h1 .e2{color:var(--ink2);mix-blend-mode:multiply;transform:translate(6px,-4px)}
+  .hero h1 .top{position:relative}
+  .hero .down{
+    font-family:'Anton',sans-serif;text-transform:uppercase;line-height:.82;
+    font-size:clamp(2.6rem,11vw,9rem);color:var(--ink1);
+    -webkit-text-stroke:2px var(--ink4);
+  }
+  .hero .billing{
+    margin:clamp(18px,3vw,30px) auto 0;max-width:62ch;
+    font-size:clamp(1rem,1.5vw,1.2rem);font-weight:500;color:var(--ink4);
+  }
+  .hero .billing .y{background:var(--ink3);padding:1px 7px;font-weight:700}
+  .hero .billing .b{background:var(--ink2);color:#fff;padding:1px 7px;font-weight:700}
+  .tix{
+    display:inline-flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:clamp(20px,3vw,32px);
+    font-family:'Bebas Neue',sans-serif;letter-spacing:.12em;font-size:1rem;
+  }
+  .tix span{border:2px solid var(--ink4);padding:5px 14px;background:var(--paper-2)}
+  .tix .hot{background:var(--ink1);color:#fff;border-color:var(--ink1)}
+
+  /* ---------- POSTER WALL ---------- */
+  .wall{
+    padding:clamp(28px,5vw,64px) clamp(14px,3.5vw,46px) clamp(60px,9vw,120px);
+  }
+  .wall-head{
+    display:flex;align-items:center;gap:14px;margin-bottom:clamp(22px,4vw,40px);
+  }
+  .wall-head h2{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(1.6rem,5vw,3.2rem);letter-spacing:.01em}
+  .wall-head .rule{flex:1;height:6px;background:repeating-linear-gradient(90deg,var(--ink4) 0 14px,transparent 14px 22px)}
+  .wall-head .cnt{font-family:'Bebas Neue',sans-serif;letter-spacing:.18em;color:var(--ink2);font-size:1.1rem}
+
+  .posters{
+    display:grid;gap:clamp(18px,2.6vw,34px);
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  }
+  .poster{
+    position:relative;background:var(--paper-2);
+    border:3px solid var(--ink4);
+    box-shadow:7px 7px 0 var(--ink4);
+    display:flex;flex-direction:column;
+    transition:transform .18s ease, box-shadow .18s ease;
+    overflow:hidden;
+  }
+  .poster:nth-child(3n+1){--accent:var(--ink1)}
+  .poster:nth-child(3n+2){--accent:var(--ink2)}
+  .poster:nth-child(3n+3){--accent:var(--teal)}
+  .poster:focus-within,.poster:hover{transform:translate(-2px,-2px);box-shadow:10px 10px 0 var(--accent)}
+
+  .p-top{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:7px 11px;background:var(--ink4);color:var(--paper);
+    font-family:'Bebas Neue',sans-serif;letter-spacing:.12em;font-size:.92rem;
+  }
+  .p-top .no{color:var(--ink3)}
+  .p-top .yr{color:var(--paper)}
+
+  /* posterized 2-3 tone screenprint photo */
+  .p-img{
+    position:relative;overflow:hidden;aspect-ratio:3/4;
+    background:var(--accent);isolation:isolate;
+    border-bottom:3px solid var(--ink4);
+  }
+  .p-img img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    /* posterize-ish: crush to 2-3 tones, tint via blend with accent bg */
+    filter:grayscale(1) contrast(2.1) brightness(1.05);
+    mix-blend-mode:screen;
+    transition:filter .35s ease, transform .5s ease;
+  }
+  /* second offset ink pass for misregistration + posterized shadow */
+  .p-img .pass2{
+    position:absolute;inset:0;background:var(--ink4);mix-blend-mode:multiply;
+    transform:translate(2px,2px);transition:transform .25s ease,opacity .25s ease;
+  }
+  .p-img .pass2 img{
+    filter:grayscale(1) contrast(2.6) brightness(.8);
+    mix-blend-mode:screen;opacity:.65;
+  }
+  /* halftone gradient screen */
+  .p-img .dots{
+    position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.32;
+    background-image:radial-gradient(circle, var(--ink4) 34%, transparent 38%);
+    background-size:6px 6px;
+    -webkit-mask-image:linear-gradient(to top, #000, transparent 70%);
+    mask-image:linear-gradient(to top, #000, transparent 70%);
+  }
+  /* INK BLEED on hover: a soft accent flood that spreads from edges */
+  .p-img .bleed{
+    position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;
+    background:radial-gradient(120% 120% at 50% 110%, var(--accent) 0%, transparent 55%);
+    opacity:0;transition:opacity .45s ease;
+  }
+  .poster:hover .p-img img,.poster:focus-within .p-img img{filter:grayscale(1) contrast(1.5) brightness(1.1) saturate(0);transform:scale(1.03)}
+  .poster:hover .p-img .pass2,.poster:focus-within .p-img .pass2{transform:translate(5px,4px);opacity:.85}
+  .poster:hover .p-img .bleed,.poster:focus-within .p-img .bleed{opacity:.5}
+
+  .p-body{padding:12px 13px 15px;display:flex;flex-direction:column;gap:8px}
+  .p-title{
+    font-family:'Anton',sans-serif;text-transform:uppercase;line-height:.92;
+    font-size:clamp(1.3rem,2.4vw,1.9rem);letter-spacing:.005em;color:var(--ink4);
+  }
+  .p-venue{
+    font-family:'Bebas Neue',sans-serif;letter-spacing:.1em;font-size:1.05rem;color:var(--accent);
+    border-top:2px dashed var(--ink4);padding-top:7px;
+  }
+  .p-line{
+    font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink4);opacity:.85;font-weight:500;line-height:1.5;
+  }
+  .p-foot{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:2px;
+  }
+  .p-foot .door{
+    font-family:'Bebas Neue',sans-serif;letter-spacing:.1em;font-size:.95rem;
+    background:var(--ink4);color:var(--paper);padding:2px 9px;
+  }
+  .badge{
+    font-family:'Bebas Neue',sans-serif;letter-spacing:.12em;font-size:.85rem;
+    padding:2px 9px;border:2px solid var(--ink4);
+  }
+  .badge.bw{background:var(--ink4);color:var(--paper)}
+  .badge.water{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .badge.feat{background:var(--ink3);color:var(--ink4)}
+
+  /* feature posters bigger */
+  .poster.big{grid-column:span 2}
+  .poster.big .p-img{aspect-ratio:16/11}
+  @media(max-width:620px){.poster.big{grid-column:span 1}.poster.big .p-img{aspect-ratio:3/4}}
+
+  footer{
+    background:var(--ink4);color:var(--paper);
+    padding:clamp(34px,6vw,72px) clamp(14px,3.5vw,46px);
+    text-align:center;
+  }
+  footer .fbig{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(2rem,8vw,6rem);line-height:.85;color:var(--ink3)}
+  footer .fbig em{font-style:normal;color:var(--ink1);-webkit-text-stroke:2px var(--paper)}
+  footer .fmeta{font-family:'Bebas Neue',sans-serif;letter-spacing:.18em;margin-top:18px;font-size:1rem;opacity:.9}
+  footer .inks{display:flex;gap:0;justify-content:center;margin-top:18px;border:2px solid var(--paper);width:max-content;margin-inline:auto}
+  footer .inks span{width:40px;height:24px}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#wall">Skip to posters</a>
+
+<nav class="nav">
+  <a class="back" href="../../index.html">&larr; All designs</a>
+  <span class="lab">Screenprint Series · No. 59</span>
+</nav>
+
+<header class="hero">
+  <canvas id="rays" aria-hidden="true"></canvas>
+  <div class="inner">
+    <div class="kicker"><b>Live &amp; Hand-Pulled</b> · Tom Milton Presents</div>
+    <h1 aria-label="Grain">
+      <span class="ech e1" aria-hidden="true">GRAIN</span>
+      <span class="ech e2" aria-hidden="true">GRAIN</span>
+      <span class="top">GRAIN</span>
+    </h1>
+    <div class="down">The Tour · 1995–2023</div>
+    <p class="billing">Thirty frames on the road. Each photograph pulled as a <span class="y">3-colour screenprint</span> — spot inks, halftone gradients, and registration that never quite lined up. From <span class="b">analogue negatives only</span>.</p>
+    <div class="tix">
+      <span class="hot">Doors / 35mm</span>
+      <span>Medium Format</span>
+      <span>All Ages</span>
+      <span>Sold on Newsprint</span>
+    </div>
+  </div>
+</header>
+
+<main id="wall" class="wall">
+  <div class="wall-head">
+    <h2>The Dates</h2>
+    <span class="rule" aria-hidden="true"></span>
+    <span class="cnt" id="cnt">30 SHOWS</span>
+  </div>
+  <div class="posters" id="posters"></div>
+</main>
+
+<footer>
+  <div class="fbig">Encore.<br><em>Pull One More.</em></div>
+  <div class="fmeta">Tom Milton · Screenprint Series · Edition of 50 · © MMXXVI</div>
+  <div class="inks" aria-hidden="true">
+    <span style="background:#e2253b"></span>
+    <span style="background:#13366e"></span>
+    <span style="background:#f7b500"></span>
+    <span style="background:#1aa39a"></span>
+    <span style="background:#efe7d4"></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var PHOTOS=[
+    ["golden-field-sunburst.jpg","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",""],
+    ["landscape-misty-mountains.jpg","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001","water"],
+    ["lake-cabin-dawn.jpg","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003","water"],
+    ["forest-sunlight.jpg","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",""],
+    ["valley-green-river.jpg","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3","1999","water"],
+    ["cliff-coast-ocean.jpg","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002","water"],
+    ["mountain-road-fog.jpg","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005",""],
+    ["sun-through-leaves.jpg","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004",""],
+    ["lake-mountain-house.jpg","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000","water"],
+    ["rolling-green-hills.jpg","Patchwork","Tuscany, Italy","Fujifilm Pro 400H","Pentax 645","1997",""],
+    ["forest-path-trees.jpg","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F","1995",""],
+    ["waterfall-bridge.jpg","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006","water"],
+    ["autumn-forest-road.jpg","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",""],
+    ["desert-dunes.jpg","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",""],
+    ["misty-pine-forest.jpg","Silence","Norway","Ilford HP5 Plus","Leica M6","2003","bw"],
+    ["succulent-closeup.jpg","Geometry of Growth","Studio","Kodak Portra 160","Hasselblad 500CM","2009",""],
+    ["foggy-pier-lake.jpg","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2","2010","water"],
+    ["woman-portrait-window.jpg","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",""],
+    ["man-portrait-street.jpg","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400","Leica M4","2012","bw"],
+    ["couple-silhouette-sunset.jpg","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V","2013","water"],
+    ["woman-portrait-soft.jpg","Soft Hour","Paris, France","Fujifilm Pro 400H","Contax 645","2014",""],
+    ["woman-portrait-freckles.jpg","Freckles & Sun","Studio","Kodak Portra 160","Mamiya 645","2015",""],
+    ["friends-golden-hour.jpg","Golden Hour, Together","California, USA","Kodak Portra 400","Nikon F100","2016",""],
+    ["woman-curly-portrait.jpg","Curls","Brooklyn, USA","Cinestill 800T","Canon AE-1","2017",""],
+    ["man-bw-portrait.jpg","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6","2018","bw"],
+    ["woman-fashion-portrait.jpg","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67","2019",""],
+    ["street-cafe-paris.jpg","Café de Flore","Paris, France","Kodak Gold 200","Olympus OM-1","2020",""],
+    ["woman-laughing-portrait.jpg","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2","2021",""],
+    ["vintage-car-street.jpg","Sunday Drive","Havana, Cuba","Kodak Ektar 100","Nikon FE","2022",""],
+    ["cozy-interior-window.jpg","Home Light","Copenhagen, Denmark","Kodak Portra 400","Leica M6","2023",""]
+  ];
+  var BASE="../../assets/img/";
+  var wrap=document.getElementById("posters");
+  var frag=document.createDocumentFragment();
+
+  PHOTOS.forEach(function(p,i){
+    var file=p[0],title=p[1],loc=p[2],film=p[3],cam=p[4],yr=p[5],flag=p[6];
+    var big=(i%8===0);
+    var no=("0"+(i+1)).slice(-2);
+    var art=document.createElement("article");
+    art.className="poster"+(big?" big":"");
+    var badge="";
+    if(flag==="bw")badge='<span class="badge bw">Mono</span>';
+    else if(flag==="water")badge='<span class="badge water">Water</span>';
+    else badge='<span class="badge feat">3-Colour</span>';
+    var alt=title+", "+loc+", "+yr+" — screenprint of a photograph by Tom Milton on "+film;
+    art.innerHTML=
+      '<div class="p-top"><span class="no">SHOW '+no+'</span><span class="yr">'+yr+'</span></div>'+
+      '<div class="p-img">'+
+        '<img loading="lazy" src="'+BASE+file+'" alt="'+alt.replace(/"/g,"&quot;")+'">'+
+        '<div class="pass2" aria-hidden="true"><img loading="lazy" src="'+BASE+file+'" alt=""></div>'+
+        '<div class="dots" aria-hidden="true"></div>'+
+        '<div class="bleed" aria-hidden="true"></div>'+
+      '</div>'+
+      '<div class="p-body">'+
+        '<div class="p-title">'+title+'</div>'+
+        '<div class="p-venue">'+loc+'</div>'+
+        '<div class="p-line">'+film+' &nbsp;/&nbsp; '+cam+'</div>'+
+        '<div class="p-foot"><span class="door">Pulled '+yr+'</span>'+badge+'</div>'+
+      '</div>';
+    frag.appendChild(art);
+  });
+  wrap.appendChild(frag);
+  document.getElementById("cnt").textContent=PHOTOS.length+" SHOWS";
+
+  /* ---------- hero sunburst rays (MED motion, slow rotate) ---------- */
+  var canvas=document.getElementById("rays");
+  var ctx=canvas.getContext("2d");
+  var DPR=Math.min(window.devicePixelRatio||1,2);
+  var hero=document.querySelector(".hero");
+  var W=0,H=0;
+  function resize(){
+    var r=hero.getBoundingClientRect();
+    W=r.width;H=r.height;
+    canvas.width=W*DPR;canvas.height=H*DPR;
+    canvas.style.width=W+"px";canvas.style.height=H+"px";
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  resize();
+  var reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var ang=0,raf=null,running=false,visible=true;
+  var RAYS=24;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    var cx=W*0.5, cy=H*0.42;
+    var R=Math.hypot(W,H);
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(ang);
+    // alternating spot-ink wedges
+    var cols=["rgba(247,181,0,0.55)","rgba(0,0,0,0)"];
+    for(var i=0;i<RAYS;i++){
+      var a0=(i/RAYS)*Math.PI*2;
+      var a1=((i+1)/RAYS)*Math.PI*2;
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.arc(0,0,R,a0,a1);
+      ctx.closePath();
+      ctx.fillStyle=cols[i%2];
+      ctx.fill();
+    }
+    ctx.restore();
+    // a couple of off-register coloured ring arcs
+    ctx.lineWidth=Math.max(10,W*0.012);
+    ctx.strokeStyle="rgba(226,37,59,0.22)";
+    ctx.beginPath();ctx.arc(cx-6,cy+4,Math.min(W,H)*0.30,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle="rgba(19,54,110,0.20)";
+    ctx.beginPath();ctx.arc(cx+6,cy-4,Math.min(W,H)*0.30,0,Math.PI*2);ctx.stroke();
+  }
+  function tick(){
+    if(!running)return;
+    ang+=0.0016;
+    draw();
+    raf=requestAnimationFrame(tick);
+  }
+  function start(){
+    if(reduce||running||!visible)return;
+    running=true;raf=requestAnimationFrame(tick);
+  }
+  function stop(){running=false;if(raf)cancelAnimationFrame(raf);}
+  draw(); // strong initial state
+  start();
+
+  window.addEventListener("resize",function(){resize();draw();},{passive:true});
+  document.addEventListener("visibilitychange",function(){
+    if(document.hidden){visible=false;stop();}
+    else{visible=true;start();}
+  });
+  // pause when hero scrolled off (perf)
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        visible=e.isIntersecting;
+        if(visible)start();else stop();
+      });
+    },{threshold:0.02});
+    io.observe(hero);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton / Film — Composition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Questrial&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efe9dc;
+    --ink:#1a1814;
+    --red:#d8392b;
+    --blue:#1f4f9c;
+    --yellow:#f2c014;
+    --orange:#df7233;
+    --teal:#1f7a73;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Jost',system-ui,sans-serif;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none;}
+
+  #c{position:fixed;inset:0;display:block;touch-action:none;cursor:grab;}
+  #c.grabbing{cursor:grabbing;}
+
+  /* faint paper grain */
+  .grain{
+    position:fixed;inset:0;pointer-events:none;z-index:5;
+    opacity:.05;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .backlink{
+    position:fixed;top:16px;left:16px;z-index:40;
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+    padding:9px 14px;border:1.5px solid var(--ink);border-radius:30px;
+    background:rgba(239,233,220,.82);backdrop-filter:blur(3px);
+    transition:background .2s ease,color .2s ease,transform .2s ease;
+  }
+  .backlink:hover{background:var(--ink);color:var(--paper);transform:translateY(-1px);}
+
+  .titleblock{position:fixed;top:18px;right:20px;z-index:40;text-align:right;pointer-events:none;}
+  .titleblock h1{font-weight:300;font-size:clamp(22px,3.4vw,40px);letter-spacing:-.01em;text-transform:lowercase;line-height:.95;}
+  .titleblock h1 b{font-weight:700;}
+  .titleblock p{font-size:11px;letter-spacing:.26em;text-transform:uppercase;margin-top:6px;opacity:.7;}
+
+  .hint{
+    position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:40;
+    font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    background:rgba(239,233,220,.8);backdrop-filter:blur(3px);
+    padding:8px 16px;border-radius:30px;border:1px solid rgba(26,24,20,.22);
+    display:flex;align-items:center;gap:10px;
+    transition:opacity .6s ease;
+  }
+  .hint.gone{opacity:0;}
+  .hint b{font-weight:600;}
+  .hint .pulse{width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 1.6s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{transform:scale(.7);opacity:.5;}50%{transform:scale(1.25);opacity:1;}}
+
+  /* caption card */
+  .caption{
+    position:fixed;left:20px;bottom:20px;z-index:42;max-width:330px;
+    background:rgba(239,233,220,.94);backdrop-filter:blur(4px);
+    border:1.5px solid var(--ink);
+    padding:18px 20px 16px;
+    opacity:0;transform:translateY(14px);pointer-events:none;
+    transition:opacity .35s ease,transform .35s ease;
+  }
+  .caption.show{opacity:1;transform:translateY(0);}
+  .caption .swatch{width:26px;height:8px;background:var(--accent,var(--red));margin-bottom:10px;}
+  .caption h2{font-weight:600;font-size:21px;line-height:1.05;letter-spacing:-.01em;}
+  .caption .loc{font-size:13px;font-weight:600;margin-top:6px;}
+  .caption .tech{font-size:12px;opacity:.7;margin-top:3px;line-height:1.5;}
+  .caption .no{font-family:'Questrial';font-size:10px;letter-spacing:.24em;text-transform:uppercase;opacity:.5;margin-top:10px;}
+
+  @media (max-width:560px){
+    .titleblock h1{font-size:20px;}
+    .caption{max-width:62vw;padding:14px 16px;}
+    .caption h2{font-size:17px;}
+  }
+</style>
+</head>
+<body>
+<a class="backlink" href="../../index.html">&larr; All designs</a>
+<div class="titleblock">
+  <h1>compo<b>sition</b></h1>
+  <p>Tom Milton · Film</p>
+</div>
+
+<canvas id="c" role="img" aria-label="An abstract constellation of Tom Milton's photographs as circular nodes connected by lines, arcs and geometric accents. Hover, click or drag a node to enlarge a photograph and reveal its details."></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<aside class="caption" id="caption" aria-live="polite">
+  <div class="swatch"></div>
+  <h2 id="cap-t"></h2>
+  <div class="loc" id="cap-l"></div>
+  <div class="tech" id="cap-x"></div>
+  <div class="no" id="cap-n"></div>
+</aside>
+
+<div class="hint" id="hint"><span class="pulse"></span><span><b>hover</b> · <b>click</b> · <b>drag</b> the nodes</span></div>
+
+<script>
+const PHOTOS = [
+  {f:'golden-field-sunburst.jpg',t:'Last Light, Wheat Country',loc:'Tuscany, Italy',film:'Kodak Portra 400',cam:'Leica M6',yr:'1998'},
+  {f:'landscape-misty-mountains.jpg',t:'Morning Fog, Cascades',loc:'Washington, USA',film:'Fujifilm Pro 400H',cam:'Pentax 67',yr:'2001'},
+  {f:'lake-cabin-dawn.jpg',t:'The Cabin at Dawn',loc:'Banff, Canada',film:'Kodak Ektar 100',cam:'Mamiya 7 II',yr:'2003'},
+  {f:'forest-sunlight.jpg',t:'Cathedral of Pines',loc:'Olympic NP, USA',film:'Kodak Portra 160',cam:'Hasselblad 500CM',yr:'1996'},
+  {f:'valley-green-river.jpg',t:'River Bend, Spring',loc:'Glencoe, Scotland',film:'Fujifilm Velvia 50',cam:'Nikon F3',yr:'1999'},
+  {f:'cliff-coast-ocean.jpg',t:'Edge of the World',loc:'Big Sur, USA',film:'Kodak Portra 400',cam:'Contax G2',yr:'2002'},
+  {f:'mountain-road-fog.jpg',t:'The Long Way Home',loc:'Dolomites, Italy',film:'Cinestill 800T',cam:'Canon AE-1',yr:'2005'},
+  {f:'sun-through-leaves.jpg',t:'Backlit',loc:'Kyoto, Japan',film:'Kodak Portra 800',cam:'Leica M6',yr:'2004'},
+  {f:'lake-mountain-house.jpg',t:'Reflections, Still Morning',loc:'Hallstatt, Austria',film:'Kodak Ektar 100',cam:'Mamiya RZ67',yr:'2000'},
+  {f:'rolling-green-hills.jpg',t:'Patchwork',loc:'Tuscany, Italy',film:'Fujifilm Pro 400H',cam:'Pentax 645',yr:'1997'},
+  {f:'forest-path-trees.jpg',t:'Into the Woods',loc:'Black Forest, Germany',film:'Kodak Portra 160',cam:'Rolleiflex 2.8F',yr:'1995'},
+  {f:'waterfall-bridge.jpg',t:'Hidden Falls',loc:'Iceland',film:'Fujifilm Velvia 50',cam:'Nikon FM2',yr:'2006'},
+  {f:'autumn-forest-road.jpg',t:'October Road',loc:'Vermont, USA',film:'Kodak Portra 400',cam:'Leica M7',yr:'2007'},
+  {f:'desert-dunes.jpg',t:'Wind Lines',loc:'Namibia',film:'Kodak Ektar 100',cam:'Hasselblad 503CW',yr:'2008'},
+  {f:'misty-pine-forest.jpg',t:'Silence',loc:'Norway',film:'Ilford HP5 Plus',cam:'Leica M6',yr:'2003',bw:true},
+  {f:'succulent-closeup.jpg',t:'Geometry of Growth',loc:'Studio',film:'Kodak Portra 160',cam:'Hasselblad 500CM',yr:'2009'},
+  {f:'foggy-pier-lake.jpg',t:'The Quiet Dock',loc:'Lake District, UK',film:'Cinestill 50D',cam:'Contax T2',yr:'2010'},
+  {f:'woman-portrait-window.jpg',t:'By the Window',loc:'Lisbon, Portugal',film:'Kodak Portra 400',cam:'Pentax 67',yr:'2011'},
+  {f:'man-portrait-street.jpg',t:'Stranger, No. 14',loc:'Havana, Cuba',film:'Kodak Tri-X 400',cam:'Leica M4',yr:'2012',bw:true},
+  {f:'couple-silhouette-sunset.jpg',t:'Goodnight',loc:'Santorini, Greece',film:'Kodak Portra 800',cam:'Canon EOS-1V',yr:'2013'},
+  {f:'woman-portrait-soft.jpg',t:'Soft Hour',loc:'Paris, France',film:'Fujifilm Pro 400H',cam:'Contax 645',yr:'2014'},
+  {f:'woman-portrait-freckles.jpg',t:'Freckles & Sun',loc:'Studio',film:'Kodak Portra 160',cam:'Mamiya 645',yr:'2015'},
+  {f:'friends-golden-hour.jpg',t:'Golden Hour, Together',loc:'California, USA',film:'Kodak Portra 400',cam:'Nikon F100',yr:'2016'},
+  {f:'woman-curly-portrait.jpg',t:'Curls',loc:'Brooklyn, USA',film:'Cinestill 800T',cam:'Canon AE-1',yr:'2017'},
+  {f:'man-bw-portrait.jpg',t:'Portrait in Shadow',loc:'Berlin, Germany',film:'Ilford Delta 3200',cam:'Leica M6',yr:'2018',bw:true},
+  {f:'woman-fashion-portrait.jpg',t:'The Red Wall',loc:'Marrakesh, Morocco',film:'Kodak Portra 400',cam:'Pentax 67',yr:'2019'},
+  {f:'street-cafe-paris.jpg',t:'Café de Flore',loc:'Paris, France',film:'Kodak Gold 200',cam:'Olympus OM-1',yr:'2020'},
+  {f:'woman-laughing-portrait.jpg',t:'That Laugh',loc:'Mexico City, Mexico',film:'Kodak Portra 800',cam:'Contax G2',yr:'2021'},
+  {f:'vintage-car-street.jpg',t:'Sunday Drive',loc:'Havana, Cuba',film:'Kodak Ektar 100',cam:'Nikon FE',yr:'2022'},
+  {f:'cozy-interior-window.jpg',t:'Home Light',loc:'Copenhagen, Denmark',film:'Kodak Portra 400',cam:'Leica M6',yr:'2023'},
+];
+
+const PALETTE = ['#d8392b','#1f4f9c','#f2c014','#df7233','#1f7a73','#1a1814'];
+const PORTRA = 'saturate(1.06) contrast(1.04) brightness(1.02) sepia(0.12) hue-rotate(-6deg)';
+const BW = 'grayscale(1) contrast(1.08) brightness(1.02)';
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W=0,H=0,DPR=1;
+
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = Math.floor(W*DPR);
+  canvas.height = Math.floor(H*DPR);
+  canvas.style.width = W+'px';
+  canvas.style.height = H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+resize();
+
+/* ---------- nodes ---------- */
+const SS = 1.6;            // offscreen supersample
+const SELSCALE = 1.62;     // selected enlargement
+let nodes = [];
+
+// simple seeded RNG for stable layout
+let seed = 20260628;
+function rnd(){ seed = (seed*1664525 + 1013904223) & 0x7fffffff; return seed/0x7fffffff; }
+
+function layout(){
+  const margin = Math.min(W,H)*0.07 + 30;
+  const placed = [];
+  nodes.forEach((n,i)=>{
+    let best=null;
+    for(let attempt=0; attempt<40; attempt++){
+      const x = margin + rnd()*(W-2*margin);
+      const y = margin + rnd()*(H-2*margin);
+      let mind = Infinity;
+      for(const p of placed){ const d=Math.hypot(p.x-x,p.y-y); if(d<mind)mind=d; }
+      if(best===null || mind>best.mind){ best={x,y,mind}; }
+      if(mind > n.baseR*2.6) break;
+    }
+    n.x=best.x; n.y=best.y; n.curR=n.baseR;
+    placed.push({x:n.x,y:n.y});
+  });
+}
+
+function buildNodes(){
+  nodes = PHOTOS.map((p,i)=>{
+    const t = i/(PHOTOS.length-1);
+    const baseR = 26 + Math.pow(rnd(),1.4)*44;     // 26..70 varied
+    const ang = rnd()*Math.PI*2;
+    const sp = reduceMotion?0:(0.10+rnd()*0.16);
+    return {
+      i, p, baseR, curR:baseR,
+      x:0,y:0,
+      vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp,
+      color: PALETTE[i % PALETTE.length],
+      accent: PALETTE[(i+2) % PALETTE.length],
+      img:null, ready:false, off:null,
+      phase: rnd()*Math.PI*2,
+    };
+  });
+  layout();
+  buildEdges();
+}
+
+/* ---------- edges (constellation graph) ---------- */
+let edges = [];
+function buildEdges(){
+  edges = [];
+  const seen = new Set();
+  nodes.forEach(n=>{
+    const others = nodes.filter(o=>o!==n)
+      .map(o=>({o,d:Math.hypot(o.x-n.x,o.y-n.y)}))
+      .sort((a,b)=>a.d-b.d);
+    const k = 2 + Math.floor(rnd()*2); // 2-3 connections
+    for(let j=0;j<k && j<others.length;j++){
+      const o = others[j].o;
+      const key = n.i<o.i? n.i+'-'+o.i : o.i+'-'+n.i;
+      if(seen.has(key)) continue;
+      seen.add(key);
+      const styles=['line','arc','dotted'];
+      edges.push({a:n,b:o,prog:0,style:styles[(n.i+o.i)%3],bend:(rnd()-0.5)});
+    }
+  });
+}
+
+/* ---------- decorative geometric accents (Kandinsky) ---------- */
+let accents=[];
+function buildAccents(){
+  accents=[];
+  const n = 10;
+  const kinds=['ring','tri','plus','dot','arc'];
+  for(let i=0;i<n;i++){
+    accents.push({
+      x: rnd()*W, y: rnd()*H,
+      r: 8+rnd()*26,
+      kind: kinds[i%kinds.length],
+      color: PALETTE[i%PALETTE.length],
+      rot: rnd()*Math.PI*2,
+      drift: reduceMotion?0:(0.04+rnd()*0.08),
+      ang: rnd()*Math.PI*2,
+      phase: rnd()*Math.PI*2,
+    });
+  }
+}
+
+/* ---------- offscreen circular photo render ---------- */
+function makeOffscreen(n){
+  const img = n.img;
+  const Rmax = n.baseR*SELSCALE;
+  const size = Math.ceil(Rmax*2*SS);
+  const off = document.createElement('canvas');
+  off.width = size; off.height = size;
+  const o = off.getContext('2d');
+  o.save();
+  o.beginPath();
+  o.arc(size/2,size/2,size/2,0,Math.PI*2);
+  o.clip();
+  // cover fit
+  const iw=img.naturalWidth, ih=img.naturalHeight;
+  const scale = Math.max(size/iw, size/ih);
+  const dw=iw*scale, dh=ih*scale;
+  try{ o.filter = n.p.bw? BW : PORTRA; }catch(e){}
+  o.drawImage(img, (size-dw)/2, (size-dh)/2, dw, dh);
+  o.filter='none';
+  o.restore();
+  n.off = off;
+  n.ready = true;
+}
+
+/* ---------- load images ---------- */
+buildNodes();
+buildAccents();
+nodes.forEach(n=>{
+  const img = new Image();
+  img.decoding='async';
+  img.onload = ()=>{ n.img=img; try{ makeOffscreen(n); }catch(e){ n.ready=false; } };
+  img.onerror = ()=>{ n.ready=false; };
+  img.src = '../../assets/img/'+n.p.f;
+});
+
+/* ---------- interaction ---------- */
+let pointer={x:-9999,y:-9999,down:false};
+let hovered=null, pinned=null, dragging=null, dragDX=0, dragDY=0, moved=false;
+let hintGone=false;
+const hintEl=document.getElementById('hint');
+
+function nodeAt(x,y){
+  // topmost (last drawn = end of array) first
+  for(let i=nodes.length-1;i>=0;i--){
+    const n=nodes[i];
+    if(Math.hypot(n.x-x,n.y-y) <= n.curR+4) return n;
+  }
+  return null;
+}
+function active(){ return dragging || hovered || pinned; }
+
+function dismissHint(){ if(!hintGone){ hintGone=true; hintEl.classList.add('gone'); } }
+
+canvas.addEventListener('pointermove',e=>{
+  const r=canvas.getBoundingClientRect();
+  pointer.x=e.clientX-r.left; pointer.y=e.clientY-r.top;
+  if(dragging){
+    moved=true;
+    dragging.x = pointer.x+dragDX;
+    dragging.y = pointer.y+dragDY;
+    dragging.vx=0; dragging.vy=0;
+  }else{
+    hovered = nodeAt(pointer.x,pointer.y);
+    canvas.style.cursor = hovered? 'grab':'default';
+  }
+});
+canvas.addEventListener('pointerdown',e=>{
+  const r=canvas.getBoundingClientRect();
+  pointer.x=e.clientX-r.left; pointer.y=e.clientY-r.top; pointer.down=true; moved=false;
+  const n=nodeAt(pointer.x,pointer.y);
+  if(n){
+    dragging=n; dragDX=n.x-pointer.x; dragDY=n.y-pointer.y;
+    canvas.classList.add('grabbing');
+    try{canvas.setPointerCapture(e.pointerId);}catch(_){}
+    dismissHint();
+  }
+});
+canvas.addEventListener('pointerup',e=>{
+  pointer.down=false;
+  canvas.classList.remove('grabbing');
+  if(dragging){
+    if(!moved){ // treated as click -> toggle pin
+      pinned = (pinned===dragging)? null : dragging;
+    }else{
+      pinned = dragging; // dropped node stays selected
+    }
+    dragging=null;
+  }else{
+    // click on empty -> clear pin
+    const n=nodeAt(pointer.x,pointer.y);
+    if(!n) pinned=null;
+  }
+  hovered=nodeAt(pointer.x,pointer.y);
+});
+canvas.addEventListener('pointerleave',()=>{ pointer.x=-9999;pointer.y=-9999; if(!dragging){hovered=null;} });
+
+/* ---------- caption ---------- */
+const capEl=document.getElementById('caption');
+const capT=document.getElementById('cap-t'),capL=document.getElementById('cap-l'),capX=document.getElementById('cap-x'),capN=document.getElementById('cap-n');
+let lastCap=null;
+function updateCaption(n){
+  if(n===lastCap) { capEl.classList.toggle('show', !!n); return; }
+  lastCap=n;
+  if(n){
+    capT.textContent=n.p.t;
+    capL.textContent=n.p.loc;
+    capX.innerHTML = n.p.film+' &middot; '+n.p.cam+' &middot; '+n.p.yr;
+    capN.textContent='Frame '+String(n.i+1).padStart(2,'0')+' / 30';
+    capEl.style.setProperty('--accent', n.color);
+    capEl.classList.add('show');
+  }else{
+    capEl.classList.remove('show');
+  }
+}
+
+/* ---------- drawing helpers ---------- */
+function drawEdgeBase(e){
+  const {a,b}=e;
+  ctx.strokeStyle='rgba(26,24,20,0.16)';
+  ctx.lineWidth=1;
+  if(e.style==='dotted'){ ctx.setLineDash([1.5,5]); }
+  ctx.beginPath();
+  ctx.moveTo(a.x,a.y);
+  if(e.style==='arc'){
+    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+    const dx=b.x-a.x, dy=b.y-a.y;
+    const nx=-dy, ny=dx;
+    const len=Math.hypot(dx,dy)||1;
+    const cx=mx+ (nx/len)*len*0.18*e.bend;
+    const cy=my+ (ny/len)*len*0.18*e.bend;
+    ctx.quadraticCurveTo(cx,cy,b.x,b.y);
+  }else{
+    ctx.lineTo(b.x,b.y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawEdgeActive(e){
+  const {a,b}=e;
+  const prog=e.prog;
+  if(prog<=0.001) return;
+  const col = a.color;
+  // compute current point along
+  let cx,cy,mx,my;
+  const dx=b.x-a.x, dy=b.y-a.y;
+  const len=Math.hypot(dx,dy)||1;
+  if(e.style==='arc'){
+    mx=(a.x+b.x)/2; my=(a.y+b.y)/2;
+    const nx=-dy, ny=dx;
+    cx=mx+(nx/len)*len*0.18*e.bend; cy=my+(ny/len)*len*0.18*e.bend;
+  }
+  ctx.strokeStyle=col;
+  ctx.lineWidth=2;
+  ctx.lineCap='round';
+  if(e.style==='dotted') ctx.setLineDash([2,6]);
+  ctx.beginPath();
+  ctx.moveTo(a.x,a.y);
+  // approximate draw-along via sampling
+  const steps=24;
+  const upto=Math.floor(steps*prog);
+  for(let s=1;s<=upto;s++){
+    const t=s/steps;
+    let px,py;
+    if(e.style==='arc'){
+      const it=1-t;
+      px=it*it*a.x+2*it*t*cx+t*t*b.x;
+      py=it*it*a.y+2*it*t*cy+t*t*b.y;
+    }else{ px=a.x+dx*t; py=a.y+dy*t; }
+    ctx.lineTo(px,py);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // travelling accent dot at the head
+  let hx,hy;
+  if(e.style==='arc'){ const t=prog,it=1-t; hx=it*it*a.x+2*it*t*cx+t*t*b.x; hy=it*it*a.y+2*it*t*cy+t*t*b.y; }
+  else { hx=a.x+dx*prog; hy=a.y+dy*prog; }
+  ctx.fillStyle=col;
+  ctx.beginPath(); ctx.arc(hx,hy,3.2,0,Math.PI*2); ctx.fill();
+  // small triangle accent at neighbour when fully drawn
+  if(prog>0.9){
+    ctx.save();
+    ctx.translate(b.x,b.y);
+    ctx.rotate(Math.atan2(dy,dx));
+    ctx.fillStyle=b.color;
+    const ts=Math.max(5,b.curR*0.16);
+    ctx.globalAlpha=(prog-0.9)/0.1;
+    ctx.beginPath();
+    ctx.moveTo(b.curR+3,0); ctx.lineTo(b.curR+3+ts*1.6,-ts); ctx.lineTo(b.curR+3+ts*1.6,ts); ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawNode(n){
+  const r=n.curR;
+  const isActive = (n===active());
+  // ring shadow / halo for active
+  if(isActive){
+    ctx.save();
+    ctx.shadowColor='rgba(26,24,20,0.28)';
+    ctx.shadowBlur=26; ctx.shadowOffsetY=10;
+    ctx.fillStyle=n.color;
+    ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  if(n.ready && n.off){
+    ctx.save();
+    ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2); ctx.clip();
+    ctx.drawImage(n.off, n.x-r, n.y-r, r*2, r*2);
+    ctx.restore();
+  }else{
+    // placeholder colored disc
+    ctx.fillStyle=n.color;
+    ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2); ctx.fill();
+  }
+  // outline ring
+  ctx.lineWidth = isActive? 3 : 1.4;
+  ctx.strokeStyle = isActive? n.color : 'rgba(26,24,20,0.5)';
+  ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2); ctx.stroke();
+  // tiny accent dot orbiting (composition flourish) for active
+  if(isActive){
+    const a=n.phase;
+    const ox=n.x+Math.cos(a)*(r+12), oy=n.y+Math.sin(a)*(r+12);
+    ctx.fillStyle=n.accent;
+    ctx.beginPath(); ctx.arc(ox,oy,4,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function drawAccent(a){
+  ctx.save();
+  ctx.translate(a.x,a.y);
+  ctx.rotate(a.rot);
+  ctx.globalAlpha=0.5;
+  ctx.strokeStyle=a.color; ctx.fillStyle=a.color; ctx.lineWidth=1.4;
+  if(a.kind==='ring'){ ctx.beginPath(); ctx.arc(0,0,a.r,0,Math.PI*2); ctx.stroke(); }
+  else if(a.kind==='dot'){ ctx.globalAlpha=0.6; ctx.beginPath(); ctx.arc(0,0,a.r*0.32,0,Math.PI*2); ctx.fill(); }
+  else if(a.kind==='tri'){ ctx.beginPath(); ctx.moveTo(0,-a.r); ctx.lineTo(a.r*0.86,a.r*0.5); ctx.lineTo(-a.r*0.86,a.r*0.5); ctx.closePath(); ctx.stroke(); }
+  else if(a.kind==='plus'){ ctx.beginPath(); ctx.moveTo(-a.r,0); ctx.lineTo(a.r,0); ctx.moveTo(0,-a.r); ctx.lineTo(0,a.r); ctx.stroke(); }
+  else if(a.kind==='arc'){ ctx.beginPath(); ctx.arc(0,0,a.r,0.2,Math.PI*1.3); ctx.stroke(); }
+  ctx.restore();
+}
+
+/* ---------- main loop ---------- */
+let lastT=performance.now();
+let running=true;
+
+function step(now){
+  if(!running){ return; }
+  const dt=Math.min(40, now-lastT)/16.67; lastT=now;
+  const cur=active();
+
+  // physics
+  const margin=24;
+  nodes.forEach(n=>{
+    if(!reduceMotion && n!==dragging){
+      // slow toward base radius vs target
+      n.x+=n.vx*dt; n.y+=n.vy*dt;
+      n.phase+=0.012*dt;
+      if(n.x< n.baseR+margin){n.x=n.baseR+margin;n.vx*=-1;}
+      if(n.x> W-n.baseR-margin){n.x=W-n.baseR-margin;n.vx*=-1;}
+      if(n.y< n.baseR+margin){n.y=n.baseR+margin;n.vy*=-1;}
+      if(n.y> H-n.baseR-margin){n.y=H-n.baseR-margin;n.vy*=-1;}
+    }
+    // radius lerp
+    const target = (n===cur)? n.baseR*SELSCALE : n.baseR;
+    n.curR += (target-n.curR)* (reduceMotion?1:0.18*dt);
+  });
+
+  // accents drift
+  accents.forEach(a=>{
+    if(!reduceMotion){ a.x+=Math.cos(a.ang)*a.drift*dt; a.y+=Math.sin(a.ang)*a.drift*dt; a.rot+=0.002*dt;
+      if(a.x<-40)a.x=W+40; if(a.x>W+40)a.x=-40; if(a.y<-40)a.y=H+40; if(a.y>H+40)a.y=-40; }
+  });
+
+  // edge progress
+  edges.forEach(e=>{
+    const on = cur && (e.a===cur || e.b===cur);
+    // ensure 'a' is the active node so draw-along emanates outward
+    if(on && e.b===cur){ const tmp=e.a; e.a=e.b; e.b=tmp; }
+    const tgt = on?1:0;
+    if(reduceMotion){ e.prog=tgt; }
+    else e.prog += (tgt-e.prog)*0.12*dt;
+  });
+
+  // ---- render ----
+  ctx.clearRect(0,0,W,H);
+
+  // decorative accents (behind)
+  accents.forEach(drawAccent);
+
+  // base edges
+  edges.forEach(drawEdgeBase);
+  // active edges over
+  if(cur) edges.forEach(e=>{ if(e.a===cur||e.b===cur) drawEdgeActive(e); });
+
+  // nodes: draw non-active first, active last (on top)
+  nodes.forEach(n=>{ if(n!==cur) drawNode(n); });
+  if(cur) drawNode(cur);
+
+  updateCaption(cur||null);
+
+  requestAnimationFrame(step);
+}
+requestAnimationFrame(step);
+
+/* visibility pause */
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){ running=false; }
+  else if(!running){ running=true; lastT=performance.now(); requestAnimationFrame(step); }
+});
+
+/* resize: rescale node positions proportionally */
+let prevW=W, prevH=H;
+window.addEventListener('resize',()=>{
+  const ox=W, oy=H;
+  resize();
+  const sx=W/(prevW||W), sy=H/(prevH||H);
+  nodes.forEach(n=>{ n.x*=sx; n.y*=sy; });
+  accents.forEach(a=>{ a.x*=sx; a.y*=sy; });
+  prevW=W; prevH=H;
+});
+prevW=W; prevH=H;
+
+/* auto-hide hint after a while */
+setTimeout(dismissHint, 9000);
+</script>
+</body>
+</html>

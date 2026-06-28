@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>明暗 — Tom Milton</title>
+<meta name="description" content="Notan — a study of light and dark balance in the film photographs of Tom Milton." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Noto+Serif+JP:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --ink:#0c0b0a;          /* near-pure black */
+    --ink-2:#161413;
+    --paper:#efe9dc;        /* warm white */
+    --paper-2:#e6dfcf;
+    --gray:#8c8475;
+    --gray-d:#5e574c;
+    --serif-jp:'Shippori Mincho','Noto Serif JP',serif;
+    --serif-lat:'EB Garamond',Georgia,serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--serif-lat);line-height:1.7;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none;}
+
+  .back{
+    position:fixed;top:clamp(1.1rem,2.4vw,2.2rem);left:clamp(1.1rem,2.4vw,2.2rem);
+    z-index:200;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gray);
+    padding:.4rem .75rem;border:1px solid currentColor;border-radius:1px;
+    mix-blend-mode:difference;transition:opacity .4s;
+  }
+  .back:hover{opacity:.6;}
+
+  /* ---------------- masthead (a notan in itself) ---------------- */
+  .hero{
+    min-height:100vh;min-height:100svh;background:var(--ink);color:var(--paper);
+    display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden;
+  }
+  .hero__dark{display:flex;align-items:center;justify-content:flex-end;padding:0 clamp(1rem,4vw,4rem);}
+  .hero__light{background:var(--paper);color:var(--ink);position:relative;display:flex;align-items:center;}
+  .hero__glyph{
+    writing-mode:vertical-rl;font-family:var(--serif-jp);font-weight:700;
+    font-size:clamp(6rem,20vw,16rem);line-height:.92;letter-spacing:.05em;margin:0;user-select:none;
+  }
+  .hero__panel{padding:0 clamp(1.4rem,5vw,4.5rem);max-width:30rem;}
+  .hero__title{font-family:var(--serif-jp);font-weight:500;font-size:clamp(1rem,2vw,1.4rem);letter-spacing:.4em;margin:0 0 1rem;}
+  .hero__name{font-family:var(--serif-lat);font-style:italic;letter-spacing:.28em;color:var(--gray-d);font-size:clamp(.95rem,1.6vw,1.2rem);margin:0 0 1.6rem;}
+  .hero__lede{font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;line-height:2.1;color:var(--gray-d);}
+  .hero__enso{position:absolute;left:-7%;bottom:6%;width:min(34vw,260px);opacity:.9;}
+  @media(max-width:760px){
+    .hero{grid-template-columns:1fr;grid-template-rows:1fr 1fr;}
+    .hero__dark{align-items:flex-end;justify-content:center;padding-bottom:2rem;}
+    .hero__glyph{writing-mode:horizontal-tb;}
+  }
+
+  /* the brush accents (enso) */
+  .enso path{fill:none;stroke-linecap:round;}
+  .enso--ink path{stroke:var(--ink);}
+  .enso--paper path{stroke:var(--paper);}
+
+  /* ---------------- the notan panels ---------------- */
+  .panel{
+    position:relative;min-height:100vh;min-height:100svh;width:100%;
+    display:block;overflow:hidden;
+  }
+  .panel.ink{background:var(--ink);color:var(--paper);}
+  .panel.paper{background:var(--paper);color:var(--ink);}
+  /* hairline seam between fields */
+  .panel + .panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:rgba(140,132,117,.25);}
+
+  /* the photograph, absolutely placed for asymmetric balance */
+  .shot{position:absolute;margin:0;}
+  .shot__img{position:relative;overflow:hidden;background:#000;box-shadow:0 30px 60px -28px rgba(0,0,0,.65);}
+  .shot__img img{display:block;width:100%;height:100%;object-fit:cover;
+    filter:sepia(.1) saturate(.78) contrast(1.12) brightness(1.0);}
+  .shot.bw .shot__img img{filter:grayscale(1) contrast(1.16) brightness(1.0);}
+  /* the print sits in a thin keyline that flips with the field */
+  .panel.ink .shot__img{box-shadow:0 30px 60px -28px rgba(0,0,0,.8),0 0 0 1px rgba(239,233,220,.14);}
+  .panel.paper .shot__img{box-shadow:0 30px 60px -28px rgba(0,0,0,.4),0 0 0 1px rgba(12,11,10,.14);}
+
+  /* caption — minimal, letterspaced */
+  .shot__cap{margin-top:1rem;display:flex;align-items:baseline;gap:1rem;}
+  .shot__no{font-family:var(--serif-jp);font-weight:600;font-size:.95rem;letter-spacing:.1em;opacity:.7;}
+  .shot__txt{display:flex;flex-direction:column;gap:.15rem;}
+  .shot__jp{font-family:var(--serif-jp);font-weight:500;font-size:1rem;letter-spacing:.2em;}
+  .shot__en{font-family:var(--serif-lat);font-style:italic;font-size:.95rem;}
+  .shot__meta{font-family:var(--serif-lat);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);margin-top:.2rem;}
+
+  /* accent enso placed to counter-weight the photo */
+  .accent{position:absolute;width:clamp(120px,16vw,230px);opacity:.85;pointer-events:none;}
+
+  /* ---- placement variants (desktop) ---- */
+  .v1 .shot{width:38%;left:8%;top:18%;}
+  .v1 .accent{right:12%;bottom:14%;}
+  .v2 .shot{width:34%;right:9%;top:50%;transform:translateY(-50%);}
+  .v2 .accent{left:11%;top:16%;}
+  .v3 .shot{width:46%;right:7%;top:14%;}
+  .v3 .accent{left:10%;bottom:13%;}
+  .v4 .shot{width:40%;left:9%;bottom:13%;}
+  .v4 .accent{right:11%;top:14%;}
+  .v5 .shot{width:30%;left:13%;top:30%;}
+  .v5 .accent{right:14%;bottom:18%;}
+  .v6 .shot{width:58%;left:50%;top:50%;transform:translate(-50%,-50%);}
+  .v6 .accent{right:8%;bottom:10%;width:clamp(90px,11vw,150px);}
+
+  /* aspect ratios set inline per photo */
+  .shot__img{aspect-ratio:var(--ar,4/5);}
+
+  /* ---- quiet scroll fade (pure CSS, scroll-driven) ---- */
+  /* strong static fallback: visible by default for any engine without view timelines */
+  .fade{opacity:1;transform:none;}
+  @keyframes notanRise{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:none;}}
+  @supports (animation-timeline:view()){
+    .fade{
+      animation:notanRise linear both;
+      animation-timeline:view();
+      animation-range:entry 2% entry 46%;
+    }
+  }
+
+  /* ---- mobile: stack, centered ---- */
+  @media(max-width:760px){
+    .panel{min-height:auto;padding:clamp(4rem,12vh,7rem) 1.4rem;display:flex;flex-direction:column;align-items:center;}
+    .shot{position:static!important;width:min(82vw,420px)!important;transform:none!important;}
+    .accent{position:static;margin:2.4rem auto 0;width:120px;}
+    .shot__cap{justify-content:center;text-align:left;}
+  }
+
+  /* closing */
+  .end{background:var(--ink);color:var(--paper);text-align:center;padding:clamp(6rem,16vh,11rem) 1.5rem;}
+  .end .mark{font-family:var(--serif-jp);font-size:2rem;}
+  .end p{font-family:var(--serif-lat);font-style:italic;color:var(--gray);letter-spacing:.14em;font-size:.9rem;max-width:30rem;margin:1rem auto 0;}
+
+  @media(prefers-reduced-motion:reduce){
+    .fade{animation:none!important;opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">← All designs</a>
+
+<header class="hero">
+  <div class="hero__dark">
+    <h1 class="hero__glyph" aria-label="Notan">明暗</h1>
+  </div>
+  <div class="hero__light">
+    <div class="hero__panel">
+      <p class="hero__title">光と影の均衡</p>
+      <p class="hero__name">Tom Milton — A Study in Notan</p>
+      <p class="hero__lede">Notan: the Japanese art of arranging light and dark. Photographs set into fields of black and warm white, each placed so the picture and the emptiness around it hold one another in balance.</p>
+    </div>
+    <svg class="enso enso--ink hero__enso" viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M70 14 A40 40 0 1 1 58 12" stroke-width="6"/>
+    </svg>
+  </div>
+</header>
+
+<main id="study" aria-label="Photographs as a study in light and dark balance"></main>
+
+<footer class="end">
+  <div class="mark" aria-hidden="true">間</div>
+  <p>Light is only light because of the dark it is given.</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  // curated for light/dark balance — black-and-white frames favoured, plus high-contrast scenes
+  var DATA=[
+    {f:"misty-pine-forest.jpg",jp:"静寂",en:"Silence",loc:"Norway",film:"Ilford HP5 Plus",cam:"Leica M6",yr:2003,bw:true,field:"ink",v:1,ar:"4/5",enso:1},
+    {f:"forest-sunlight.jpg",jp:"杉の聖堂",en:"Cathedral of Pines",loc:"Olympic NP, USA",film:"Kodak Portra 160",cam:"Hasselblad 500CM",yr:1996,field:"paper",v:2,ar:"4/5",enso:0},
+    {f:"man-portrait-street.jpg",jp:"見知らぬ人 第十四",en:"Stranger, No. 14",loc:"Havana, Cuba",film:"Kodak Tri-X 400",cam:"Leica M4",yr:2012,bw:true,field:"ink",v:3,ar:"3/2",enso:1},
+    {f:"desert-dunes.jpg",jp:"風の線",en:"Wind Lines",loc:"Namibia",film:"Kodak Ektar 100",cam:"Hasselblad 503CW",yr:2008,field:"paper",v:4,ar:"3/2",enso:0},
+    {f:"couple-silhouette-sunset.jpg",jp:"おやすみ",en:"Goodnight",loc:"Santorini, Greece",film:"Kodak Portra 800",cam:"Canon EOS-1V",yr:2013,field:"ink",v:5,ar:"3/2",enso:1},
+    {f:"foggy-pier-lake.jpg",jp:"静かな桟橋",en:"The Quiet Dock",loc:"Lake District, UK",film:"Cinestill 50D",cam:"Contax T2",yr:2010,field:"paper",v:3,ar:"3/2",enso:0},
+    {f:"man-bw-portrait.jpg",jp:"影の肖像",en:"Portrait in Shadow",loc:"Berlin, Germany",film:"Ilford Delta 3200",cam:"Leica M6",yr:2018,bw:true,field:"ink",v:2,ar:"4/5",enso:1},
+    {f:"mountain-road-fog.jpg",jp:"帰り道",en:"The Long Way Home",loc:"Dolomites, Italy",film:"Cinestill 800T",cam:"Canon AE-1",yr:2005,field:"paper",v:1,ar:"4/5",enso:0},
+    {f:"sun-through-leaves.jpg",jp:"逆光",en:"Backlit",loc:"Kyoto, Japan",film:"Kodak Portra 800",cam:"Leica M6",yr:2004,field:"ink",v:6,ar:"4/5",enso:1},
+    {f:"landscape-misty-mountains.jpg",jp:"朝霧",en:"Morning Fog, Cascades",loc:"Washington, USA",film:"Fujifilm Pro 400H",cam:"Pentax 67",yr:2001,field:"paper",v:4,ar:"3/2",enso:0},
+    {f:"cliff-coast-ocean.jpg",jp:"世界の縁",en:"Edge of the World",loc:"Big Sur, USA",film:"Kodak Portra 400",cam:"Contax G2",yr:2002,field:"ink",v:3,ar:"3/2",enso:1}
+  ];
+
+  // a couple of brushed enso variants (open circles)
+  var ENSO=[
+    "M70 14 A40 40 0 1 1 58 12",
+    "M30 16 A41 41 0 1 0 44 13"
+  ];
+
+  function pad(n){return (n<10?"〇":"")+n;}
+  var KANNUM=["〇","一","二","三","四","五","六","七","八","九","十","十一"];
+  function num(n){return KANNUM[n]||(""+n);}
+
+  var study=document.getElementById("study");
+
+  DATA.forEach(function(d,i){
+    var sec=document.createElement("section");
+    sec.className="panel "+d.field+" v"+d.v;
+    var alt=d.en+" — "+d.loc+", "+d.yr;
+    var ensoCls=d.field==="ink"?"enso--paper":"enso--ink";
+    var ensoPath=ENSO[(d.enso||0)%ENSO.length];
+    sec.innerHTML=
+      '<figure class="shot fade'+(d.bw?" bw":"")+'">'+
+        '<div class="shot__img" style="--ar:'+d.ar+'">'+
+          '<img src="../../assets/img/'+d.f+'" alt="'+alt+'" loading="lazy" decoding="async" />'+
+        '</div>'+
+        '<figcaption class="shot__cap">'+
+          '<span class="shot__no">'+num(i+1)+'</span>'+
+          '<span class="shot__txt">'+
+            '<span class="shot__jp">'+d.jp+'</span>'+
+            '<span class="shot__en">'+d.en+'</span>'+
+            '<span class="shot__meta">'+d.film+' · '+d.cam+' · '+d.yr+'</span>'+
+          '</span>'+
+        '</figcaption>'+
+      '</figure>'+
+      '<svg class="enso '+ensoCls+' accent fade" viewBox="0 0 100 100" aria-hidden="true">'+
+        '<path d="'+ensoPath+'" stroke-width="5.5"/>'+
+      '</svg>';
+    study.appendChild(sec);
+  });
+
+  // The quiet scroll fade is handled entirely in CSS via a scroll-driven view()
+  // timeline (with a strong visible-by-default fallback), so there is no reveal
+  // logic to run here — keeps the static state bullet-proof.
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>金継ぎ — Tom Milton</title>
+<meta name="description" content="Kintsugi — film photographs of Tom Milton, fractured and rejoined with seams of gold." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Serif+JP:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --char:#211d18;          /* warm charcoal */
+    --char-2:#171410;
+    --char-soft:#332d25;
+    --paper:#ece4d6;         /* aged paper */
+    --paper-dim:#cabfa9;
+    --gray:#8d8475;
+    --gold-1:#f0d68f;
+    --gold-2:#c8a951;
+    --gold-3:#9c7a33;
+    --gold-deep:#74571f;
+    --serif-jp:'Shippori Mincho','Noto Serif JP',serif;
+    --serif-lat:'EB Garamond',Georgia,serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--char);color:var(--paper);
+    font-family:var(--serif-lat);line-height:1.7;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;
+    background-image:
+      radial-gradient(120% 90% at 50% -10%, #2a2620 0%, var(--char) 55%, var(--char-2) 100%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none;}
+
+  .back{
+    position:fixed;top:clamp(1.1rem,2.4vw,2.2rem);left:clamp(1.1rem,2.4vw,2.2rem);
+    z-index:200;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gray);
+    padding:.45rem .8rem;border:1px solid rgba(200,169,81,.25);border-radius:2px;
+    background:rgba(23,20,16,.6);backdrop-filter:blur(3px);transition:color .5s,border-color .5s;
+  }
+  .back:hover{color:var(--gold-1);border-color:rgba(200,169,81,.6);}
+
+  /* ---------------- masthead ---------------- */
+  .hero{min-height:92vh;min-height:92svh;display:grid;place-items:center;text-align:center;padding:7rem 1.5rem 4rem;position:relative;}
+  .hero__glyph{
+    font-family:var(--serif-jp);font-weight:700;font-size:clamp(5rem,18vw,13rem);line-height:.9;
+    background:linear-gradient(150deg,var(--gold-1) 0%,var(--gold-2) 42%,var(--gold-3) 78%,var(--gold-1) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 6px 18px rgba(116,87,31,.45));
+    margin:0;letter-spacing:.04em;
+  }
+  .hero__rule{width:1px;height:clamp(2.4rem,7vh,4.2rem);background:linear-gradient(180deg,transparent,var(--gold-2),transparent);margin:1.6rem auto;}
+  .hero__title{font-family:var(--serif-jp);font-weight:500;font-size:clamp(1rem,2.4vw,1.5rem);letter-spacing:.5em;color:var(--paper);margin:0;}
+  .hero__name{font-family:var(--serif-lat);font-style:italic;letter-spacing:.3em;color:var(--gray);font-size:clamp(.9rem,1.8vw,1.15rem);margin:.8rem 0 0;}
+  .hero__lede{max-width:36rem;margin:2.2rem auto 0;font-size:.82rem;letter-spacing:.14em;line-height:2;text-transform:uppercase;color:var(--paper-dim);}
+
+  /* ---------------- the grid of mended pieces ---------------- */
+  .vault{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,86vw),1fr));
+    gap:clamp(3rem,6vw,6rem);
+    max-width:1320px;margin:0 auto;padding:clamp(2rem,6vh,5rem) clamp(1.2rem,5vw,4rem) clamp(6rem,12vh,10rem);
+    align-items:start;
+  }
+
+  .kt{margin:0;}
+  .kt__frame{
+    position:relative;width:100%;aspect-ratio:var(--ar,4/5);
+    background:var(--char-2);overflow:hidden;
+    box-shadow:0 26px 50px -18px rgba(0,0,0,.7),0 0 0 1px rgba(200,169,81,.12);
+    cursor:default;border-radius:2px;
+  }
+
+  /* shards: same image, each clipped to a polygon */
+  .shard{
+    position:absolute;inset:0;will-change:transform;
+    transform:translate(var(--dx,0),var(--dy,0)) rotate(var(--rot,0deg)) scale(1.012);
+    transition:transform 1.05s cubic-bezier(.16,1,.3,1);
+    transition-delay:var(--d,0s);
+    backface-visibility:hidden;
+  }
+  .kt.active .shard{transform:translate(0,0) rotate(0) scale(1.012);}
+  .shard img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
+    filter:sepia(.14) saturate(.92) contrast(1.02) brightness(1.0);
+  }
+  .kt.bw .shard img{filter:grayscale(1) contrast(1.05) brightness(1.0);}
+  /* thin dark bevel along each shard edge so the breakage reads even before gold */
+  .shard::after{content:"";position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.5);}
+
+  .s1{clip-path:polygon(0% 0%,38% 0%,52% 34%,44% 63%,0% 72%);--dx:-13px;--dy:-9px;--rot:-1.1deg;--d:.0s;}
+  .s2{clip-path:polygon(38% 0%,100% 0%,100% 46%,52% 34%);--dx:12px;--dy:-11px;--rot:1.2deg;--d:.06s;}
+  .s3{clip-path:polygon(52% 34%,100% 46%,100% 100%,58% 100%,44% 63%);--dx:14px;--dy:10px;--rot:.9deg;--d:.12s;}
+  .s4{clip-path:polygon(0% 72%,44% 63%,58% 100%,0% 100%);--dx:-11px;--dy:12px;--rot:-1deg;--d:.18s;}
+
+  /* gold seams */
+  .seams{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;}
+  .seams path{fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .seam-glow{stroke:url(#goldGrad);stroke-width:6;opacity:0;filter:url(#soft);
+    stroke-dasharray:1;stroke-dashoffset:1;}
+  .seam-line{stroke:url(#goldGrad);stroke-width:1.7;opacity:0;
+    stroke-dasharray:1;stroke-dashoffset:1;}
+  .kt.active .seam-glow{opacity:.55;stroke-dashoffset:0;transition:stroke-dashoffset 1.5s ease .15s,opacity .8s ease .15s;}
+  .kt.active .seam-line{opacity:1;stroke-dashoffset:0;transition:stroke-dashoffset 1.5s ease .15s,opacity .8s ease .15s;}
+  /* travelling shimmer on hover/focus */
+  .seam-shimmer{stroke:#fff7df;stroke-width:2.4;opacity:0;filter:url(#soft);
+    stroke-dasharray:.08 .92;stroke-dashoffset:1;}
+  .kt.active .kt__frame:hover .seam-shimmer,
+  .kt.active .kt__frame:focus-within .seam-shimmer{opacity:.9;animation:travel 1.4s linear infinite;}
+  @keyframes travel{from{stroke-dashoffset:1;}to{stroke-dashoffset:0;}}
+  /* gold pooling at the junction nodes */
+  .node{fill:url(#goldGrad);opacity:0;}
+  .kt.active .node{opacity:.9;transition:opacity .7s ease .6s;}
+
+  /* caption */
+  .kt figcaption{padding:1.25rem .2rem 0;display:flex;align-items:baseline;justify-content:space-between;gap:1rem;}
+  .kt__t{display:flex;flex-direction:column;gap:.25rem;}
+  .kt__jp{font-family:var(--serif-jp);font-weight:500;font-size:1.05rem;letter-spacing:.18em;color:var(--gold-1);}
+  .kt__en{font-family:var(--serif-lat);font-style:italic;font-size:1rem;color:var(--paper);}
+  .kt__meta{font-size:.72rem;letter-spacing:.14em;color:var(--gray);text-align:right;line-height:1.7;text-transform:uppercase;white-space:nowrap;}
+  @media(max-width:520px){.kt__meta{white-space:normal;}}
+
+  .colophon{text-align:center;padding:0 1.5rem clamp(5rem,12vh,9rem);}
+  .colophon .mark{font-family:var(--serif-jp);font-size:1.8rem;
+    background:linear-gradient(150deg,var(--gold-1),var(--gold-3));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .colophon p{font-family:var(--serif-lat);font-style:italic;color:var(--gray);letter-spacing:.14em;font-size:.85rem;}
+
+  @media(prefers-reduced-motion:reduce){
+    .shard{transition:none;}
+    .seam-glow,.seam-line{transition:none;stroke-dashoffset:0;}
+    .seam-shimmer{display:none;}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">← All designs</a>
+
+<!-- shared SVG defs (gold gradient + soft glow) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3da99"/>
+      <stop offset="0.35" stop-color="#e9cd86"/>
+      <stop offset="0.6" stop-color="#c8a951"/>
+      <stop offset="1" stop-color="#9c7a33"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.4"/>
+    </filter>
+  </defs>
+</svg>
+
+<header class="hero">
+  <h1 class="hero__glyph" aria-label="Kintsugi">金継ぎ</h1>
+  <div class="hero__rule" aria-hidden="true"></div>
+  <p class="hero__title">継がれた景色</p>
+  <p class="hero__name">Tom Milton — Mended in Gold</p>
+  <p class="hero__lede">Kintsugi. Each photograph broken and rejoined, the fault lines traced in gold — the breakage made part of the picture, not hidden from it.</p>
+</header>
+
+<main class="vault" id="vault" aria-label="Photographs mended with gold"></main>
+
+<footer class="colophon">
+  <div class="mark" aria-hidden="true">繕</div>
+  <p>Nothing whole is as honest as something carefully repaired.</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var DATA=[
+    {f:"woman-fashion-portrait.jpg",jp:"紅い壁",en:"The Red Wall",loc:"Marrakesh, Morocco",film:"Kodak Portra 400",cam:"Pentax 67",yr:2019,ar:"4/5"},
+    {f:"valley-green-river.jpg",jp:"川の曲",en:"River Bend, Spring",loc:"Glencoe, Scotland",film:"Fujifilm Velvia 50",cam:"Nikon F3",yr:1999,ar:"5/4"},
+    {f:"man-bw-portrait.jpg",jp:"影の肖像",en:"Portrait in Shadow",loc:"Berlin, Germany",film:"Ilford Delta 3200",cam:"Leica M6",yr:2018,bw:true,ar:"4/5"},
+    {f:"cliff-coast-ocean.jpg",jp:"世界の縁",en:"Edge of the World",loc:"Big Sur, USA",film:"Kodak Portra 400",cam:"Contax G2",yr:2002,ar:"5/4"},
+    {f:"woman-portrait-freckles.jpg",jp:"雀斑",en:"Freckles & Sun",loc:"Studio",film:"Kodak Portra 160",cam:"Mamiya 645",yr:2015,ar:"4/5"},
+    {f:"succulent-closeup.jpg",jp:"育ちの幾何",en:"Geometry of Growth",loc:"Studio",film:"Kodak Portra 160",cam:"Hasselblad 500CM",yr:2009,ar:"1/1"},
+    {f:"lake-cabin-dawn.jpg",jp:"暁の小屋",en:"The Cabin at Dawn",loc:"Banff, Canada",film:"Kodak Ektar 100",cam:"Mamiya 7 II",yr:2003,ar:"5/4"},
+    {f:"woman-laughing-portrait.jpg",jp:"あの笑い",en:"That Laugh",loc:"Mexico City, Mexico",film:"Kodak Portra 800",cam:"Contax G2",yr:2021,ar:"4/5"},
+    {f:"vintage-car-street.jpg",jp:"日曜の運転",en:"Sunday Drive",loc:"Havana, Cuba",film:"Kodak Ektar 100",cam:"Nikon FE",yr:2022,ar:"5/4"},
+    {f:"rolling-green-hills.jpg",jp:"継ぎ接ぎ",en:"Patchwork",loc:"Tuscany, Italy",film:"Fujifilm Pro 400H",cam:"Pentax 645",yr:1997,ar:"5/4"}
+  ];
+
+  // crack geometry (viewBox 0..100), normalised pathLength = 1 each
+  var CRACKS=[
+    "M38,0 L52,34 L44,63 L58,100",
+    "M52,34 L100,46",
+    "M44,63 L0,72"
+  ];
+  var NODES=[[52,34],[44,63]];
+
+  var vault=document.getElementById("vault");
+  var reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  function seamSVG(){
+    var p="";
+    for(var i=0;i<CRACKS.length;i++){
+      p+='<path class="seam-glow" pathLength="1" d="'+CRACKS[i]+'"/>';
+    }
+    for(i=0;i<CRACKS.length;i++){
+      p+='<path class="seam-line" pathLength="1" d="'+CRACKS[i]+'"/>';
+    }
+    for(i=0;i<CRACKS.length;i++){
+      p+='<path class="seam-shimmer" pathLength="1" d="'+CRACKS[i]+'"/>';
+    }
+    var n="";
+    for(i=0;i<NODES.length;i++){
+      n+='<circle class="node" cx="'+NODES[i][0]+'" cy="'+NODES[i][1]+'" r="1.6"/>';
+    }
+    return '<svg class="seams" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+p+n+'</svg>';
+  }
+
+  DATA.forEach(function(d){
+    var fig=document.createElement("figure");
+    fig.className="kt"+(d.bw?" bw":"");
+    var alt=d.en+" — "+d.loc+", "+d.yr;
+    var img='<img src="../../assets/img/'+d.f+'" alt="'+alt+'" loading="lazy" decoding="async" />';
+    fig.innerHTML=
+      '<div class="kt__frame" style="--ar:'+d.ar+'" tabindex="0" role="img" aria-label="'+alt+', mended with gold">'+
+        '<div class="shard s1">'+img+'</div>'+
+        '<div class="shard s2">'+img+'</div>'+
+        '<div class="shard s3">'+img+'</div>'+
+        '<div class="shard s4">'+img+'</div>'+
+        seamSVG()+
+      '</div>'+
+      '<figcaption>'+
+        '<span class="kt__t"><span class="kt__jp">'+d.jp+'</span><span class="kt__en">'+d.en+'</span></span>'+
+        '<span class="kt__meta">'+d.loc+'<br/>'+d.film+'<br/>'+d.cam+' · '+d.yr+'</span>'+
+      '</figcaption>';
+    vault.appendChild(fig);
+  });
+
+  var pieces=Array.prototype.slice.call(document.querySelectorAll(".kt"));
+
+  if(reduce){ pieces.forEach(function(p){p.classList.add("active");}); return; }
+
+  // reveal on scroll-in; re-trace if it leaves and returns
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add("active");
+        } else if(e.boundingClientRect.top>0){
+          // left below the fold while scrolling up — allow it to re-mend next time
+          e.target.classList.remove("active");
+        }
+      });
+    },{threshold:.32,rootMargin:"0px 0px -8% 0px"});
+    pieces.forEach(function(p){io.observe(p);});
+  } else {
+    pieces.forEach(function(p){p.classList.add("active");});
+  }
+
+  // hover re-trigger: briefly re-run the settle on pointer enter
+  pieces.forEach(function(p){
+    var frame=p.querySelector(".kt__frame");
+    frame.addEventListener("pointerenter",function(){
+      if(!p.classList.contains("active")) return;
+      p.classList.remove("re");void p.offsetWidth;p.classList.add("re");
+    });
+  });
+})();
+</script>
+</body>
+</html>

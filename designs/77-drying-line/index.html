@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Drying Line — Tom Milton, Film Photographer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3e9d8;
+    --ink:#efe3cf;
+    --amber:#e3a85a;
+    --wood:#b07b46;
+    --bg0:#241a13;
+    --bg1:#15100b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg1);
+    color:var(--ink);
+    font-family:'DM Mono',monospace;
+    overflow:hidden;
+    -webkit-user-select:none;user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:none;
+  }
+  #stage{position:fixed;inset:0;}
+  canvas{display:block;width:100%;height:100%;cursor:grab;}
+  canvas.grabbing{cursor:grabbing;}
+
+  /* ---------- Header ---------- */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:20;
+    display:flex;align-items:flex-start;justify-content:space-between;
+    gap:1rem;
+    padding:clamp(.9rem,2.4vw,1.7rem) clamp(1rem,3vw,2.4rem);
+    pointer-events:none;
+  }
+  header *{pointer-events:auto;}
+  .brand{display:flex;flex-direction:column;gap:.15rem;}
+  .brand h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:clamp(1.25rem,3vw,2rem);
+    letter-spacing:.01em;
+    color:var(--ink);
+    line-height:1;
+    text-shadow:0 2px 14px rgba(0,0,0,.55);
+  }
+  .brand h1 em{font-style:italic;color:var(--amber);}
+  .brand .sub{
+    font-size:.66rem;letter-spacing:.34em;text-transform:uppercase;
+    color:#c9b69a;opacity:.85;
+  }
+  .back{
+    font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+    color:#d8c6a8;text-decoration:none;
+    padding:.5rem .85rem;border:1px solid rgba(216,198,168,.28);
+    border-radius:999px;background:rgba(20,14,9,.4);
+    backdrop-filter:blur(4px);
+    transition:background .2s,border-color .2s,color .2s;
+    white-space:nowrap;
+  }
+  .back:hover{background:rgba(227,168,90,.18);border-color:var(--amber);color:#fff;}
+
+  /* ---------- Hint ---------- */
+  #hint{
+    position:fixed;left:50%;bottom:clamp(1rem,4vh,2.4rem);transform:translateX(-50%);
+    z-index:15;text-align:center;pointer-events:none;
+    font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+    color:#d7c4a4;
+    padding:.55rem 1.1rem;border-radius:999px;
+    background:rgba(18,12,8,.46);border:1px solid rgba(216,198,168,.16);
+    backdrop-filter:blur(4px);
+    transition:opacity .8s ease;
+  }
+  #hint b{color:var(--amber);font-weight:500;}
+  #hint.fade{opacity:0;}
+
+  /* ---------- Detail panel ---------- */
+  #detail{
+    position:fixed;left:clamp(1rem,3vw,2.4rem);bottom:clamp(1rem,4vh,2.4rem);
+    z-index:16;max-width:min(86vw,340px);
+    padding:1rem 1.15rem;
+    background:linear-gradient(160deg,rgba(38,27,18,.93),rgba(22,15,10,.95));
+    border:1px solid rgba(227,168,90,.22);
+    border-radius:12px;
+    box-shadow:0 18px 50px rgba(0,0,0,.5);
+    backdrop-filter:blur(8px);
+    opacity:0;transform:translateY(12px) scale(.98);
+    transition:opacity .35s ease,transform .35s ease;
+    pointer-events:none;
+  }
+  #detail.show{opacity:1;transform:none;}
+  #detail .t{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:500;
+    font-size:1.25rem;line-height:1.1;color:var(--ink);margin-bottom:.5rem;
+  }
+  #detail .loc{
+    font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--amber);margin-bottom:.7rem;
+  }
+  #detail .meta{display:grid;grid-template-columns:auto 1fr;gap:.18rem .8rem;
+    font-size:.72rem;color:#cdb99c;line-height:1.35;}
+  #detail .meta .k{color:#8d7a60;letter-spacing:.05em;}
+  #detail .yr{
+    position:absolute;top:.7rem;right:.95rem;
+    font-family:'Fraunces',serif;font-size:1.3rem;color:rgba(227,168,90,.5);
+  }
+
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+  @media (max-width:600px){
+    .brand .sub{letter-spacing:.22em;}
+    #detail{max-width:78vw;}
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="c" aria-hidden="true"></canvas>
+  </div>
+
+  <header>
+    <div class="brand">
+      <h1>Tom&nbsp;Milton — <em>Drying&nbsp;Line</em></h1>
+      <span class="sub">Darkroom · Fresh Prints · Analog</span>
+    </div>
+    <a class="back" href="../../index.html">← All designs</a>
+  </header>
+
+  <div id="hint"><b>Move your mouse</b> for a breeze · <b>drag a print</b> to swing it</div>
+
+  <div id="detail" aria-hidden="true">
+    <span class="yr" id="d-yr"></span>
+    <div class="t" id="d-title"></div>
+    <div class="loc" id="d-loc"></div>
+    <div class="meta">
+      <span class="k">Film</span><span id="d-film"></span>
+      <span class="k">Camera</span><span id="d-cam"></span>
+      <span class="k">Year</span><span id="d-year"></span>
+    </div>
+  </div>
+
+  <!-- Screen-reader accessible catalogue of every print -->
+  <section class="sr-only" aria-label="Photograph catalogue, prints hung on a darkroom drying line">
+    <h2>Photographs by Tom Milton</h2>
+    <ul id="sr-list"></ul>
+  </section>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================ DATA ============================ */
+  var PHOTOS = [
+    {f:"golden-field-sunburst.jpg", t:"Last Light, Wheat Country", loc:"Tuscany, Italy", film:"Kodak Portra 400", cam:"Leica M6", yr:"1998", bw:false},
+    {f:"forest-sunlight.jpg", t:"Cathedral of Pines", loc:"Olympic NP, USA", film:"Kodak Portra 160", cam:"Hasselblad 500CM", yr:"1996", bw:false},
+    {f:"autumn-forest-road.jpg", t:"October Road", loc:"Vermont, USA", film:"Kodak Portra 400", cam:"Leica M7", yr:"2007", bw:false},
+    {f:"woman-portrait-window.jpg", t:"By the Window", loc:"Lisbon, Portugal", film:"Kodak Portra 400", cam:"Pentax 67", yr:"2011", bw:false},
+    {f:"man-portrait-street.jpg", t:"Stranger, No. 14", loc:"Havana, Cuba", film:"Kodak Tri-X 400", cam:"Leica M4", yr:"2012", bw:true},
+    {f:"woman-portrait-freckles.jpg", t:"Freckles & Sun", loc:"Studio", film:"Kodak Portra 160", cam:"Mamiya 645", yr:"2015", bw:false},
+    {f:"friends-golden-hour.jpg", t:"Golden Hour, Together", loc:"California, USA", film:"Kodak Portra 400", cam:"Nikon F100", yr:"2016", bw:false},
+    {f:"street-cafe-paris.jpg", t:"Café de Flore", loc:"Paris, France", film:"Kodak Gold 200", cam:"Olympus OM-1", yr:"2020", bw:false},
+    {f:"woman-laughing-portrait.jpg", t:"That Laugh", loc:"Mexico City, Mexico", film:"Kodak Portra 800", cam:"Contax G2", yr:"2021", bw:false},
+    {f:"vintage-car-street.jpg", t:"Sunday Drive", loc:"Havana, Cuba", film:"Kodak Ektar 100", cam:"Nikon FE", yr:"2022", bw:false},
+    {f:"cozy-interior-window.jpg", t:"Home Light", loc:"Copenhagen, Denmark", film:"Kodak Portra 400", cam:"Leica M6", yr:"2023", bw:false},
+    {f:"desert-dunes.jpg", t:"Wind Lines", loc:"Namibia", film:"Kodak Ektar 100", cam:"Hasselblad 503CW", yr:"2008", bw:false},
+    {f:"man-bw-portrait.jpg", t:"Portrait in Shadow", loc:"Berlin, Germany", film:"Ilford Delta 3200", cam:"Leica M6", yr:"2018", bw:true},
+    {f:"woman-fashion-portrait.jpg", t:"The Red Wall", loc:"Marrakesh, Morocco", film:"Kodak Portra 400", cam:"Pentax 67", yr:"2019", bw:false}
+  ];
+  var ASSET = "../../assets/img/";
+
+  /* Build SR list */
+  (function(){
+    var ul = document.getElementById('sr-list');
+    PHOTOS.forEach(function(p){
+      var li = document.createElement('li');
+      li.textContent = '“'+p.t+'” — '+p.loc+'. '+p.film+', '+p.cam+', '+p.yr+
+        (p.bw?'. Black and white photograph.':'. Colour photograph.');
+      ul.appendChild(li);
+    });
+  })();
+
+  /* ============================ SETUP ============================ */
+  var canvas = document.getElementById('c');
+  var ctx = canvas.getContext('2d');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var W=0,H=0,DPR=1;
+  var GRAV_ROPE = 1100;     // px/s^2 for rope verlet
+  var PEND_K = 13;          // pendulum restoring
+  var PEND_DAMP = 0.62;     // angular damping
+  var WIND_TORQUE = 2.4;    // wind -> torque factor
+  var MAX_ANGLE = 1.05;
+
+  var ropes = [];   // each: {pts:[{x,y,px,py,pin,mass}], seg, baseY, x0,x1}
+  var prints = [];  // each print body
+  var gusts = [];   // travelling wind bumps
+  var images = [];  // loaded HTMLImageElements
+  var loaded = false;
+  var paused = false;
+  var time = 0;
+
+  /* ============================ IMAGE LOAD ============================ */
+  function loadImages(cb){
+    var n = PHOTOS.length, done = 0, ok = true;
+    PHOTOS.forEach(function(p,i){
+      var img = new Image();
+      img.decoding = "async";
+      img.onload = function(){ done++; if(done===n) cb(); };
+      img.onerror = function(){ done++; if(done===n) cb(); };
+      img.src = ASSET + p.f;
+      images[i] = img;
+    });
+    if(n===0) cb();
+  }
+
+  /* ============================ LAYOUT ============================ */
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio||1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.round(W*DPR);
+    canvas.height = Math.round(H*DPR);
+    canvas.style.width = W+'px';
+    canvas.style.height = H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    buildBackground();
+    if(loaded) buildLayout();
+  }
+
+  var bgGrad=null, vignette=null;
+  function buildBackground(){
+    bgGrad = ctx.createLinearGradient(0,0,0,H);
+    bgGrad.addColorStop(0,'#2c2117');
+    bgGrad.addColorStop(0.5,'#1d150e');
+    bgGrad.addColorStop(1,'#120c07');
+    var r = Math.max(W,H);
+    vignette = ctx.createRadialGradient(W*0.5,H*0.18,r*0.1, W*0.5,H*0.45,r*0.85);
+    vignette.addColorStop(0,'rgba(227,168,90,0.16)');
+    vignette.addColorStop(0.4,'rgba(120,80,40,0.02)');
+    vignette.addColorStop(1,'rgba(0,0,0,0.55)');
+  }
+
+  function buildLayout(){
+    ropes = [];
+    prints = [];
+    gusts = [];
+
+    // print size scales with viewport
+    var pw = Math.max(78, Math.min(150, W*0.13));
+    var ph = pw*1.18;
+
+    // number of lines & distribution
+    var nLines, perLine;
+    if(W < 620){ nLines = 3; }
+    else if(W < 1000){ nLines = 3; }
+    else { nLines = 3; }
+    // on very short screens, fewer lines
+    if(H < 520) nLines = 2;
+
+    // choose how many prints based on width
+    var total = PHOTOS.length;
+    if(W < 620) total = Math.min(total, 8);
+    else if(W < 1000) total = Math.min(total, 11);
+
+    // shuffle-ish deterministic order (keep original)
+    var sel = PHOTOS.map(function(_,i){return i;}).slice(0,total);
+
+    // vertical placement of lines
+    var topMargin = Math.max(96, H*0.20);
+    var bottomMargin = H*0.18;
+    var usableH = H - topMargin - bottomMargin - ph;
+    if(usableH < 60){ usableH = Math.max(40, H*0.4); }
+
+    var counts = distribute(sel.length, nLines);
+    var idx = 0;
+    for(var li=0; li<nLines; li++){
+      var lineY = topMargin + (nLines===1 ? usableH*0.5 : (usableH*li/(nLines-1)));
+      var x0 = W*0.06;
+      var x1 = W*0.94;
+      var rope = makeRope(x0, x1, lineY);
+      ropes.push(rope);
+
+      var cnt = counts[li];
+      for(var k=0;k<cnt;k++){
+        var photoIndex = sel[idx++];
+        // peg x: spread along line with margin, jitter
+        var frac = (k+1)/(cnt+1);
+        var jitter = (rng(photoIndex*7+li)*2-1) * (0.5/(cnt+1));
+        frac = Math.min(0.94, Math.max(0.06, frac + jitter));
+        var pegX = x0 + (x1-x0)*frac;
+        // map to nearest rope point
+        var ptIndex = Math.round(frac*(rope.pts.length-1));
+        ptIndex = Math.min(rope.pts.length-2, Math.max(1, ptIndex));
+        rope.pts[ptIndex].mass = 5.5; // heavier where a print hangs -> more sag
+
+        var staticTilt = (rng(photoIndex*3+1)*2-1)*0.16;
+        var sizeJ = 0.86 + rng(photoIndex*5+2)*0.3;
+        prints.push({
+          photo: photoIndex,
+          rope: li,
+          pt: ptIndex,
+          w: pw*sizeJ,
+          h: ph*sizeJ,
+          topGap: 16 + rng(photoIndex)*6, // peg + gap above print
+          angle: reduceMotion ? staticTilt : staticTilt,
+          omega: 0,
+          rest: staticTilt*0.5,
+          dragging:false,
+          dragTheta:0,
+          lastTheta: staticTilt,
+          cache:null,
+          curl: rng(photoIndex*9+4)*0.5+0.4
+        });
+      }
+    }
+    // build print caches
+    for(var i=0;i<prints.length;i++) buildPrintCache(prints[i]);
+    // settle ropes a few steps
+    for(var s=0;s<60;s++) ropes.forEach(stepRope);
+  }
+
+  function distribute(total, lines){
+    var base = Math.floor(total/lines), rem = total%lines, out=[];
+    for(var i=0;i<lines;i++) out.push(base + (i<rem?1:0));
+    return out;
+  }
+
+  function rng(n){ var x = Math.sin(n*99.13+12.7)*43758.5453; return x-Math.floor(x); }
+
+  /* ---------- Rope (verlet) ---------- */
+  function makeRope(x0,x1,baseY){
+    var span = x1-x0;
+    var segCount = Math.max(18, Math.round(span/26));
+    var rest = (span/segCount)*1.045; // a touch longer -> sag
+    var pts = [];
+    for(var i=0;i<=segCount;i++){
+      var x = x0 + span*i/segCount;
+      pts.push({x:x, y:baseY, px:x, py:baseY, pin:(i===0||i===segCount), mass:1});
+    }
+    return {pts:pts, seg:rest, baseY:baseY, x0:x0, x1:x1, end0:{x:x0,y:baseY}, end1:{x:x1,y:baseY}};
+  }
+
+  function stepRope(rope, dt){
+    dt = dt||0.016;
+    var pts = rope.pts, friction = 0.985;
+    for(var i=0;i<pts.length;i++){
+      var p = pts[i];
+      if(p.pin) continue;
+      var vx = (p.x-p.px)*friction;
+      var vy = (p.y-p.py)*friction;
+      p.px = p.x; p.py = p.y;
+      p.x += vx;
+      p.y += vy + GRAV_ROPE*p.mass*0.0001*dt*60*0.0166;
+    }
+    // constraint iterations
+    for(var it=0; it<3; it++){
+      for(var j=0;j<pts.length-1;j++){
+        var a=pts[j], b=pts[j+1];
+        var dx=b.x-a.x, dy=b.y-a.y;
+        var d=Math.sqrt(dx*dx+dy*dy)||0.0001;
+        var diff=(rope.seg-d)/d*0.5;
+        var ox=dx*diff, oy=dy*diff;
+        if(!a.pin){a.x-=ox; a.y-=oy;}
+        if(!b.pin){b.x+=ox; b.y+=oy;}
+      }
+    }
+  }
+
+  /* ---------- Print cache (paper + graded photo) ---------- */
+  function buildPrintCache(pr){
+    var img = images[pr.photo];
+    var p = PHOTOS[pr.photo];
+    var cw = Math.round(pr.w*DPR), ch = Math.round(pr.h*DPR);
+    var off = document.createElement('canvas');
+    off.width = cw; off.height = ch;
+    var o = off.getContext('2d');
+    var m = Math.round(Math.min(cw,ch)*0.07); // white border
+    var bottom = Math.round(m*1.9); // larger bottom margin (classic print)
+
+    // paper
+    o.fillStyle = '#f4ead9';
+    o.fillRect(0,0,cw,ch);
+    var pg = o.createLinearGradient(0,0,cw,ch);
+    pg.addColorStop(0,'#f7eedd');
+    pg.addColorStop(1,'#ece0cb');
+    o.fillStyle = pg;
+    o.fillRect(0,0,cw,ch);
+
+    var ix=m, iy=m, iw=cw-m*2, ih=ch-m-bottom;
+    // photo (cover) with grade
+    if(img && img.complete && img.naturalWidth>0){
+      o.save();
+      o.beginPath(); o.rect(ix,iy,iw,ih); o.clip();
+      o.filter = p.bw
+        ? 'grayscale(1) contrast(1.06) brightness(1.02)'
+        : 'saturate(1.06) sepia(0.14) contrast(1.03) brightness(1.03) hue-rotate(-4deg)';
+      var s = Math.max(iw/img.naturalWidth, ih/img.naturalHeight);
+      var dw = img.naturalWidth*s, dh = img.naturalHeight*s;
+      o.drawImage(img, ix+(iw-dw)/2, iy+(ih-dh)/2, dw, dh);
+      o.filter='none';
+      // gentle warm overlay for bw too keep subtle, but keep neutral on bw
+      if(!p.bw){
+        o.fillStyle='rgba(227,150,70,0.05)';
+        o.fillRect(ix,iy,iw,ih);
+      }
+      o.restore();
+    } else {
+      o.fillStyle='#cdbfa8'; o.fillRect(ix,iy,iw,ih);
+    }
+    // inner frame line
+    o.strokeStyle='rgba(80,60,40,0.18)';
+    o.lineWidth=Math.max(1,DPR);
+    o.strokeRect(ix+0.5,iy+0.5,iw-1,ih-1);
+
+    // paper curl shading (highlight near top, soft shadow lower edge)
+    var cur = o.createLinearGradient(0,0,0,ch);
+    cur.addColorStop(0,'rgba(255,255,255,0.10)');
+    cur.addColorStop(0.5,'rgba(255,255,255,0)');
+    cur.addColorStop(1,'rgba(120,90,55,0.10)');
+    o.fillStyle=cur;
+    o.fillRect(0,0,cw,ch);
+
+    pr.cache = off;
+    pr.m = m; pr.bottom = bottom;
+  }
+
+  /* ============================ WIND ============================ */
+  function windAt(x){
+    var w = 0;
+    if(!reduceMotion){
+      // ambient breeze
+      w += 0.30*Math.sin(time*0.7 + x*0.0042) + 0.16*Math.sin(time*1.35 + x*0.011);
+    }
+    for(var i=0;i<gusts.length;i++){
+      var g=gusts[i];
+      var dx=(x-g.x)/g.width;
+      w += g.dir*g.amp*Math.exp(-dx*dx);
+    }
+    return w;
+  }
+
+  function spawnGust(x, dir, amp){
+    if(reduceMotion) return;
+    if(gusts.length>10) gusts.shift();
+    gusts.push({x:x, dir:dir, amp:amp, width:Math.max(70,W*0.10), vx:dir*Math.max(420,W*0.55)});
+  }
+
+  /* ============================ MAIN UPDATE ============================ */
+  function update(dt){
+    // gusts travel & decay
+    for(var i=gusts.length-1;i>=0;i--){
+      var g=gusts[i];
+      g.x += g.vx*dt;
+      g.amp *= Math.pow(0.42, dt); // ~half-life
+      g.width += 60*dt;
+      if(g.amp<0.04 || g.x< -W*0.3 || g.x> W*1.3) gusts.splice(i,1);
+    }
+    // ropes
+    for(var r=0;r<ropes.length;r++) stepRope(ropes[r], dt);
+
+    if(reduceMotion){
+      for(var k=0;k<prints.length;k++){
+        var prr=prints[k];
+        prr.angle = prr.rest; // static slight tilt
+      }
+      return;
+    }
+
+    // pendulums
+    for(var p=0;p<prints.length;p++){
+      var pr=prints[p];
+      var pivot = ropes[pr.rope].pts[pr.pt];
+      if(pr.dragging){
+        // angle follows pointer; track angular velocity
+        var prev=pr.angle;
+        pr.angle = pr.dragTheta;
+        pr.omega = (pr.angle - prev)/Math.max(dt,0.001);
+        // clamp omega to avoid explosion
+        if(pr.omega>14) pr.omega=14; if(pr.omega<-14) pr.omega=-14;
+        continue;
+      }
+      var wind = windAt(pivot.x);
+      var ang = pr.angle;
+      var angAcc = -PEND_K*Math.sin(ang) - PEND_DAMP*pr.omega + wind*WIND_TORQUE*Math.cos(ang);
+      // small restoring toward rest tilt
+      angAcc += (pr.rest-ang)*0.8;
+      pr.omega += angAcc*dt;
+      pr.angle += pr.omega*dt;
+      if(pr.angle>MAX_ANGLE){pr.angle=MAX_ANGLE; pr.omega*=-0.4;}
+      if(pr.angle<-MAX_ANGLE){pr.angle=-MAX_ANGLE; pr.omega*=-0.4;}
+    }
+  }
+
+  /* ============================ DRAW ============================ */
+  function draw(){
+    // background
+    ctx.fillStyle = bgGrad; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = vignette; ctx.fillRect(0,0,W,H);
+
+    // ropes (strings) + end hooks
+    for(var r=0;r<ropes.length;r++){
+      drawRope(ropes[r]);
+    }
+
+    // prints sorted by rope (top lines first so lower prints overlap)
+    for(var p=0;p<prints.length;p++){
+      drawPrint(prints[p], p===hoverIndex || p===selectedIndex);
+    }
+  }
+
+  function drawRope(rope){
+    var pts=rope.pts;
+    // string shadow
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y+2);
+    for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, pts[i].y+2);
+    ctx.strokeStyle='rgba(0,0,0,0.32)';
+    ctx.lineWidth=3.2; ctx.lineCap='round';
+    ctx.stroke();
+    // string
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for(var j=1;j<pts.length;j++) ctx.lineTo(pts[j].x, pts[j].y);
+    ctx.strokeStyle='#cdb78f';
+    ctx.lineWidth=2;
+    ctx.stroke();
+    // highlight
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y-0.6);
+    for(var k=1;k<pts.length;k++) ctx.lineTo(pts[k].x, pts[k].y-0.6);
+    ctx.strokeStyle='rgba(255,240,210,0.25)';
+    ctx.lineWidth=0.8;
+    ctx.stroke();
+
+    // end hooks / nails
+    drawNail(pts[0].x, pts[0].y);
+    drawNail(pts[pts.length-1].x, pts[pts.length-1].y);
+  }
+
+  function drawNail(x,y){
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x,y,4.5,0,Math.PI*2);
+    var g=ctx.createRadialGradient(x-1.5,y-1.5,0.5,x,y,5);
+    g.addColorStop(0,'#9a9183'); g.addColorStop(1,'#3a342b');
+    ctx.fillStyle=g; ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPrint(pr, highlight){
+    var pivot = ropes[pr.rope].pts[pr.pt];
+    var px=pivot.x, py=pivot.y;
+    var a=pr.angle;
+    var sin=Math.sin(a), cos=Math.cos(a);
+
+    // drop shadow (offset, soft) — draw a rotated rect shadow
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(a);
+    var w=pr.w, h=pr.h, top=pr.topGap;
+
+    // shadow
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,0.45)';
+    ctx.shadowBlur=18;
+    ctx.shadowOffsetX=6*cos;
+    ctx.shadowOffsetY=14;
+    ctx.fillStyle='rgba(20,14,9,0.9)';
+    roundRect(ctx, -w/2, top, w, h, 3);
+    ctx.fill();
+    ctx.restore();
+
+    // the print image
+    if(pr.cache){
+      ctx.drawImage(pr.cache, -w/2, top, w, h);
+    }
+
+    // highlight ring
+    if(highlight){
+      ctx.strokeStyle='rgba(227,168,90,0.9)';
+      ctx.lineWidth=2;
+      roundRect(ctx, -w/2-2, top-2, w+4, h+4, 4);
+      ctx.stroke();
+    }
+
+    // peg / clothespin at top center over the rope
+    drawPeg(ctx, 0, 0, top);
+    ctx.restore();
+  }
+
+  function roundRect(c,x,y,w,h,r){
+    c.beginPath();
+    c.moveTo(x+r,y);
+    c.arcTo(x+w,y,x+w,y+h,r);
+    c.arcTo(x+w,y+h,x,y+h,r);
+    c.arcTo(x,y+h,x,y,r);
+    c.arcTo(x,y,x+w,y,r);
+    c.closePath();
+  }
+
+  function drawPeg(c, cx, ropeY, printTop){
+    // wooden clothespin clamping rope at (cx,ropeY) extending to printTop
+    var pw=9, ph=printTop+8;
+    c.save();
+    // wood body (two halves)
+    var g=c.createLinearGradient(cx-pw/2,0,cx+pw/2,0);
+    g.addColorStop(0,'#7a4f29');
+    g.addColorStop(0.5,'#b3793f');
+    g.addColorStop(1,'#7a4f29');
+    c.fillStyle=g;
+    roundRect(c, cx-pw/2, ropeY-3, pw, ph, 2.5);
+    c.fill();
+    // center seam
+    c.strokeStyle='rgba(60,38,18,0.5)';
+    c.lineWidth=1;
+    c.beginPath(); c.moveTo(cx, ropeY-2); c.lineTo(cx, ropeY+ph-5); c.stroke();
+    // metal spring
+    c.strokeStyle='rgba(220,210,190,0.7)';
+    c.lineWidth=1.4;
+    c.beginPath();
+    c.arc(cx, ropeY+ph*0.42, pw*0.62, 0, Math.PI*2);
+    c.stroke();
+    // top highlight
+    c.fillStyle='rgba(255,235,200,0.25)';
+    roundRect(c, cx-pw/2, ropeY-3, pw, 3, 1.5);
+    c.fill();
+    c.restore();
+  }
+
+  /* ============================ HIT TEST ============================ */
+  function hitTest(mx,my){
+    // iterate from last drawn (topmost overlap) backwards
+    for(var i=prints.length-1;i>=0;i--){
+      var pr=prints[i];
+      var pivot=ropes[pr.rope].pts[pr.pt];
+      var dx=mx-pivot.x, dy=my-pivot.y;
+      var a=-pr.angle;
+      var lx=dx*Math.cos(a)-dy*Math.sin(a);
+      var ly=dx*Math.sin(a)+dy*Math.cos(a);
+      if(lx>=-pr.w/2 && lx<=pr.w/2 && ly>=pr.topGap-6 && ly<=pr.topGap+pr.h+4){
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /* ============================ POINTER ============================ */
+  var hoverIndex=-1, selectedIndex=-1, dragIndex=-1;
+  var lastX=null, lastY=null, lastMoveT=0;
+
+  function pointerPos(e){
+    var rect=canvas.getBoundingClientRect();
+    return {x:e.clientX-rect.left, y:e.clientY-rect.top};
+  }
+
+  function onDown(e){
+    var p=pointerPos(e);
+    var hit=hitTest(p.x,p.y);
+    if(hit>=0){
+      if(reduceMotion){ select(hit); return; }
+      dragIndex=hit;
+      var pr=prints[hit];
+      pr.dragging=true;
+      canvas.classList.add('grabbing');
+      select(hit);
+      hideHint();
+      updateDrag(p);
+    } else {
+      select(-1);
+    }
+  }
+
+  function updateDrag(p){
+    if(dragIndex<0) return;
+    var pr=prints[dragIndex];
+    var pivot=ropes[pr.rope].pts[pr.pt];
+    var dx=p.x-pivot.x, dy=p.y-pivot.y;
+    var th=Math.atan2(dx, Math.max(dy, 10)); // measured from vertical
+    if(th>MAX_ANGLE) th=MAX_ANGLE; if(th<-MAX_ANGLE) th=-MAX_ANGLE;
+    pr.dragTheta=th;
+  }
+
+  function onMove(e){
+    var p=pointerPos(e);
+    if(dragIndex>=0){ updateDrag(p); hideHint(); return; }
+    // gust from movement
+    var now=performance.now();
+    if(lastX!==null && !reduceMotion){
+      var ddx=p.x-lastX;
+      var dt=Math.max(now-lastMoveT,1)/1000;
+      var speed=Math.abs(ddx)/dt; // px/s
+      if(speed>120){
+        var dir=ddx>0?1:-1;
+        var amp=Math.min(1.6, speed/1400);
+        spawnGust(p.x, dir, amp);
+        hideHint();
+      }
+    }
+    lastX=p.x; lastY=p.y; lastMoveT=now;
+    // hover detail
+    var hit=hitTest(p.x,p.y);
+    if(hit!==hoverIndex){
+      hoverIndex=hit;
+      if(hit>=0) showDetail(hit);
+      else if(selectedIndex<0) hideDetail();
+      else showDetail(selectedIndex);
+    }
+  }
+
+  function onUp(){
+    if(dragIndex>=0){
+      var pr=prints[dragIndex];
+      pr.dragging=false;
+      canvas.classList.remove('grabbing');
+      dragIndex=-1;
+    }
+  }
+
+  function select(i){
+    selectedIndex=i;
+    if(i>=0) showDetail(i); else if(hoverIndex<0) hideDetail();
+  }
+
+  /* ---------- Detail panel ---------- */
+  var dEl=document.getElementById('detail');
+  function showDetail(i){
+    var p=PHOTOS[prints[i].photo];
+    document.getElementById('d-title').textContent=p.t;
+    document.getElementById('d-loc').textContent=p.loc;
+    document.getElementById('d-film').textContent=p.film;
+    document.getElementById('d-cam').textContent=p.cam;
+    document.getElementById('d-year').textContent=p.yr;
+    document.getElementById('d-yr').textContent=p.yr;
+    dEl.classList.add('show');
+  }
+  function hideDetail(){ dEl.classList.remove('show'); }
+
+  var hintEl=document.getElementById('hint');
+  var hintHidden=false;
+  function hideHint(){ if(!hintHidden){ hintHidden=true; hintEl.classList.add('fade'); } }
+
+  /* ============================ EVENTS ============================ */
+  canvas.addEventListener('pointerdown', function(e){ canvas.setPointerCapture&&canvas.setPointerCapture(e.pointerId); onDown(e); });
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
+
+  window.addEventListener('resize', debounce(resize, 180));
+  document.addEventListener('visibilitychange', function(){
+    paused = document.hidden;
+    if(!paused){ lastFrame=performance.now(); requestAnimationFrame(loop); }
+  });
+
+  function debounce(fn,ms){ var t; return function(){ clearTimeout(t); var a=arguments,c=this; t=setTimeout(function(){fn.apply(c,a);},ms); }; }
+
+  /* ============================ LOOP ============================ */
+  var lastFrame=0;
+  function loop(now){
+    if(paused) return;
+    var dt=(now-lastFrame)/1000;
+    if(!(dt>0)) dt=0.016;
+    if(dt>0.05) dt=0.05; // clamp
+    lastFrame=now;
+    time+=dt;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  /* ============================ INIT ============================ */
+  resize();
+  loadImages(function(){
+    loaded=true;
+    buildLayout();
+    lastFrame=performance.now();
+    requestAnimationFrame(loop);
+  });
+
+})();
+</script>
+</body>
+</html>

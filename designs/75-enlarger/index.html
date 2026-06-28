@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Enlarger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#0a0708;
+    --panel:#15100f;
+    --metal:#2a2422;
+    --metal-l:#3a322e;
+    --red:#e22b1c;
+    --red-d:#7c130c;
+    --safelight:#ff3b22;
+    --ink:#f0d8c8;
+    --dim:#9a7a6c;
+    --disp:'Oswald',sans-serif;
+    --mono:'DM Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased}
+  body{
+    background:var(--dark);color:var(--ink);font-family:var(--disp);min-height:100vh;
+    overflow-x:hidden;
+    background-image:
+      radial-gradient(140% 90% at 50% -10%, rgba(255,59,34,.10), transparent 55%),
+      radial-gradient(80% 60% at 85% 100%, rgba(226,43,28,.12), transparent 60%);
+  }
+  /* safelight red ambience */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:80;pointer-events:none;mix-blend-mode:multiply;
+    background:radial-gradient(120% 120% at 50% 30%, rgba(255,70,40,.0) 30%, rgba(120,15,8,.30) 100%);
+  }
+  ::selection{background:var(--red);color:#180402}
+  a{color:inherit}
+
+  .back{
+    position:fixed;top:1rem;left:1rem;z-index:120;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+    text-decoration:none;color:var(--dim);padding:.5rem .7rem;border:1px solid #2c2220;
+    background:rgba(10,7,8,.7);transition:.2s;
+  }
+  .back:hover{color:var(--red);border-color:var(--red-d)}
+
+  .room{max-width:920px;margin:0 auto;padding:clamp(3.4rem,7vw,4.5rem) 1rem 3rem;
+    display:flex;flex-direction:column;align-items:center}
+
+  .titlebar{text-align:center;margin-bottom:1.4rem}
+  .titlebar .kick{font-family:var(--mono);font-size:.66rem;letter-spacing:.34em;text-transform:uppercase;color:var(--red)}
+  .titlebar h1{font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:clamp(2rem,7vw,3.4rem);line-height:1;margin-top:.3rem}
+  .titlebar h1 b{color:var(--red)}
+
+  /* ── ENLARGER HEAD ─────────────────────────── */
+  .enlarger{position:relative;width:100%;max-width:680px}
+  .column{position:absolute;right:6%;top:8%;bottom:-2%;width:16px;border-radius:4px;
+    background:linear-gradient(90deg,#1c1614,#3a322e,#1c1614);box-shadow:0 0 0 1px #000, inset 0 0 4px rgba(0,0,0,.6);z-index:1}
+  .column::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%);
+    background:repeating-linear-gradient(180deg,#0a0807 0 6px,#2a2220 6px 8px)}
+  .head{position:relative;z-index:2;width:62%;margin:0 auto;}
+  .lamphouse{height:clamp(46px,9vw,70px);border-radius:10px 10px 6px 6px;
+    background:linear-gradient(180deg,#3a322e,#1a1413 70%,#0e0a09);
+    box-shadow:0 6px 20px -6px #000, inset 0 1px 0 #4a403c;position:relative;
+    display:flex;align-items:center;justify-content:center}
+  .lamphouse .vent{width:64%;height:6px;border-radius:6px;background:repeating-linear-gradient(90deg,#0a0807 0 4px,#2a2220 4px 7px)}
+  .lamphouse .pilot{position:absolute;right:12px;top:10px;width:8px;height:8px;border-radius:50%;
+    background:var(--red);box-shadow:0 0 8px var(--red)}
+  .bellows{width:50%;height:clamp(26px,5vw,40px);margin:0 auto;
+    background:repeating-linear-gradient(180deg,#1a1413 0 4px,#0c0908 4px 6px);
+    clip-path:polygon(8% 0,92% 0,100% 100%,0 100%)}
+  .lensboard{width:34%;height:14px;margin:0 auto;border-radius:0 0 8px 8px;
+    background:linear-gradient(180deg,#3a322e,#15100f);box-shadow:0 4px 10px -4px #000}
+
+  /* light cone */
+  .cone{position:relative;width:100%;display:flex;justify-content:center;margin-top:-2px}
+  .cone .beam{width:34%;height:clamp(26px,6vw,48px);
+    background:linear-gradient(180deg, rgba(255,245,230,var(--beam,.16)), rgba(255,240,225,calc(var(--beam,.16)*.25)));
+    clip-path:polygon(34% 0,66% 0,100% 100%,0 100%);filter:blur(2px);transition:opacity .2s}
+
+  /* ── EASEL / BASEBOARD ─────────────────────── */
+  .baseboard{position:relative;width:100%;max-width:640px;margin-top:-4px;
+    padding:clamp(18px,4vw,30px);border-radius:6px;
+    background:linear-gradient(180deg,#241b18,#140d0c);
+    box-shadow:0 30px 60px -30px #000, inset 0 1px 0 #3a2e2a;}
+  .easel{position:relative;background:#0c0908;padding:clamp(10px,2.4vw,18px);border-radius:2px;
+    box-shadow:inset 0 0 0 1px #000, inset 0 0 40px rgba(0,0,0,.7)}
+  /* the print paper */
+  .paper{position:relative;background:#f4efe6;padding:clamp(8px,1.6vw,14px);border-radius:1px;
+    box-shadow:0 10px 30px -12px rgba(0,0,0,.8);}
+  .printwin{position:relative;overflow:hidden;background:#111;aspect-ratio:4/3}
+  .printwin img{display:block;width:100%;height:100%;object-fit:cover;will-change:filter;
+    /* base warm grade; JS appends focus/exposure/contrast */
+    filter:blur(4px) brightness(1.28) contrast(.82) saturate(.7) sepia(.14)}
+  /* easel blade arms */
+  .blade{position:absolute;background:#1a1412;z-index:3;box-shadow:0 0 6px rgba(0,0,0,.6)}
+  .blade.l{left:-2px;top:-2px;bottom:-2px;width:clamp(8px,1.6vw,14px)}
+  .blade.t{top:-2px;left:-2px;right:-2px;height:clamp(8px,1.6vw,14px)}
+  /* projected-light wash on paper while exposing */
+  .printwin::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(130% 110% at 50% 40%, rgba(255,250,240,var(--proj,.10)), transparent 70%);
+    mix-blend-mode:screen;opacity:var(--exposing,0);transition:opacity .25s}
+
+  .platecap{display:flex;justify-content:space-between;align-items:baseline;margin-top:.7rem;
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;color:var(--dim)}
+  .platecap .tt{font-family:var(--disp);font-size:.9rem;letter-spacing:.06em;color:var(--ink);text-transform:uppercase}
+  .platecap .grade-chip{color:var(--red)}
+
+  /* ── CONTROL DECK ──────────────────────────── */
+  .deck{width:100%;max-width:640px;margin-top:1.4rem;padding:clamp(1rem,3vw,1.6rem);
+    border-radius:8px;background:linear-gradient(180deg,#1c1513,#100b0a);
+    box-shadow:0 20px 50px -24px #000, inset 0 1px 0 #352a26}
+  .deck-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:1rem}
+  .readout{font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;color:var(--red);
+    background:#0a0606;padding:.45rem .7rem;border-radius:3px;border:1px solid #2a1310;
+    box-shadow:inset 0 0 10px rgba(226,43,28,.18);white-space:nowrap}
+  .dialedin{font-family:var(--mono);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;
+    color:#2c2420;transition:color .3s}
+  .dialedin.on{color:#7CFF8A;text-shadow:0 0 12px rgba(124,255,138,.5)}
+
+  .ctrl{margin:1rem 0}
+  .ctrl label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.68rem;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:.5rem}
+  .ctrl label b{color:var(--ink);font-weight:500}
+  .ctrl .ends{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.56rem;
+    letter-spacing:.1em;text-transform:uppercase;color:#5c4842;margin-top:.35rem}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:6px;
+    background:linear-gradient(90deg,#0a0606,#3a2e2a);outline:none;cursor:pointer;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.7)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#5a4f49,#15100f);border:2px solid #0a0606;
+    box-shadow:0 3px 8px rgba(0,0,0,.7), inset 0 1px 1px rgba(255,255,255,.15);cursor:grab}
+  input[type=range]::-webkit-slider-thumb:active{cursor:grabbing}
+  input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#5a4f49,#15100f);border:2px solid #0a0606;
+    box-shadow:0 3px 8px rgba(0,0,0,.7)}
+  input[type=range]:focus-visible{box-shadow:0 0 0 2px var(--red), inset 0 1px 3px rgba(0,0,0,.7)}
+
+  .deck-bottom{display:flex;gap:.8rem;margin-top:1.4rem;flex-wrap:wrap}
+  .btn{flex:1;min-width:140px;font-family:var(--disp);font-weight:500;text-transform:uppercase;letter-spacing:.16em;
+    font-size:.8rem;padding:.85rem 1rem;border:none;border-radius:4px;cursor:pointer;transition:.18s;color:var(--ink)}
+  .btn.expose{background:linear-gradient(180deg,#e22b1c,#9c1c11);color:#fff;box-shadow:0 6px 16px -6px rgba(226,43,28,.6)}
+  .btn.expose:hover{filter:brightness(1.12)}
+  .btn.expose:active{transform:translateY(1px)}
+  .btn.next{background:#241b18;box-shadow:inset 0 0 0 1px #3a2e2a}
+  .btn.next:hover{background:#2e231f;color:var(--red)}
+
+  .hint{margin-top:1rem;text-align:center;font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;color:var(--dim)}
+  .hint b{color:var(--red)}
+
+  @media(prefers-reduced-motion:reduce){
+    *{transition:none!important}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">&larr; All designs</a>
+
+<div class="room">
+  <div class="titlebar">
+    <div class="kick">Tom Milton · Darkroom No. 75</div>
+    <h1>En<b>larger</b></h1>
+  </div>
+
+  <!-- enlarger head -->
+  <div class="enlarger" aria-hidden="true">
+    <div class="column"></div>
+    <div class="head">
+      <div class="lamphouse"><span class="vent"></span><span class="pilot"></span></div>
+      <div class="bellows"></div>
+      <div class="lensboard"></div>
+    </div>
+    <div class="cone"><div class="beam" id="beam"></div></div>
+  </div>
+
+  <!-- easel / baseboard with the print -->
+  <div class="baseboard">
+    <div class="easel">
+      <span class="blade l"></span><span class="blade t"></span>
+      <div class="paper">
+        <div class="printwin" id="printwin" role="img" aria-label="Projected print on the darkroom easel">
+          <img id="print" alt="" src="">
+        </div>
+      </div>
+    </div>
+    <div class="platecap">
+      <span class="tt" id="ptitle">—</span>
+      <span id="pmeta"></span>
+      <span class="grade-chip" id="pgrade">GRADE 2½</span>
+    </div>
+  </div>
+
+  <!-- control deck -->
+  <div class="deck">
+    <div class="deck-top">
+      <div class="readout" id="readout">f /5.6 · 12s · G2½</div>
+      <div class="dialedin" id="dialed">○ dialing…</div>
+    </div>
+
+    <div class="ctrl">
+      <label for="focus">Focus <b id="vFocus">soft</b></label>
+      <input type="range" id="focus" min="0" max="100" value="30" aria-label="Focus from soft to sharp">
+      <div class="ends"><span>Soft</span><span>Sharp</span></div>
+    </div>
+
+    <div class="ctrl">
+      <label for="exposure">Exposure <b id="vExp">thin</b></label>
+      <input type="range" id="exposure" min="0" max="100" value="22" aria-label="Exposure time from pale to dark">
+      <div class="ends"><span>Pale</span><span>Dark</span></div>
+    </div>
+
+    <div class="ctrl">
+      <label for="contrast">Contrast / Grade <b id="vGrade">0</b></label>
+      <input type="range" id="contrast" min="0" max="100" value="28" aria-label="Paper contrast grade from low to high">
+      <div class="ends"><span>Grade 0</span><span>Grade 5</span></div>
+    </div>
+
+    <div class="deck-bottom">
+      <button class="btn expose" id="exposeBtn" type="button">Expose Print</button>
+      <button class="btn next" id="nextBtn" type="button">Next Negative ▸</button>
+    </div>
+    <div class="hint">Start soft &amp; pale &mdash; <b>dial in</b> focus, exposure &amp; grade until the print snaps.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var DATA=[
+    ["lake-cabin-dawn.jpg","The Cabin at Dawn","Banff · Ektar 100","2003",0],
+    ["man-bw-portrait.jpg","Portrait in Shadow","Berlin · Delta 3200","2018",1],
+    ["forest-sunlight.jpg","Cathedral of Pines","Olympic NP · Portra 160","1996",0],
+    ["woman-portrait-window.jpg","By the Window","Lisbon · Portra 400","2011",0],
+    ["misty-pine-forest.jpg","Silence","Norway · HP5 Plus","2003",1],
+    ["mountain-road-fog.jpg","The Long Way Home","Dolomites · 800T","2005",0],
+    ["waterfall-bridge.jpg","Hidden Falls","Iceland · Velvia 50","2006",0],
+    ["man-portrait-street.jpg","Stranger, No. 14","Havana · Tri-X 400","2012",1],
+    ["desert-dunes.jpg","Wind Lines","Namibia · Ektar 100","2008",0],
+    ["street-cafe-paris.jpg","Café de Flore","Paris · Gold 200","2020",0]
+  ];
+
+  var print=document.getElementById("print");
+  var ptitle=document.getElementById("ptitle"), pmeta=document.getElementById("pmeta"), pgrade=document.getElementById("pgrade");
+  var focus=document.getElementById("focus"), exposure=document.getElementById("exposure"), contrast=document.getElementById("contrast");
+  var vFocus=document.getElementById("vFocus"), vExp=document.getElementById("vExp"), vGrade=document.getElementById("vGrade");
+  var readout=document.getElementById("readout"), dialed=document.getElementById("dialed");
+  var beam=document.getElementById("beam"), printwin=document.getElementById("printwin");
+  var exposeBtn=document.getElementById("exposeBtn"), nextBtn=document.getElementById("nextBtn");
+
+  var idx=0, bw=false;
+
+  function load(i){
+    idx=((i%DATA.length)+DATA.length)%DATA.length;
+    var d=DATA[idx];
+    bw=d[4]===1;
+    print.src="../../assets/img/"+d[0];
+    print.alt=d[1]+", "+d[2]+", "+d[3];
+    ptitle.textContent=d[1];
+    pmeta.textContent=d[2];
+    apply();
+  }
+
+  function clamp(v,a,b){return v<a?a:v>b?b:v;}
+
+  function gradeName(t){
+    var g=t*5; // 0..5
+    var labels=["0","½","1","1½","2","2½","3","3½","4","4½","5"];
+    return labels[Math.round(g*2)];
+  }
+
+  var fstops=["f/4","f/4.5","f/5.6","f/6.3","f/8","f/9","f/11","f/13","f/16"];
+
+  function apply(){
+    var tf=focus.value/100;       // 0 soft -> 1 sharp
+    var te=exposure.value/100;    // 0 pale -> 1 dark
+    var tc=contrast.value/100;    // 0 grade0 -> 1 grade5
+
+    var blur=((1-tf)*6).toFixed(2);
+    var bright=(1.40-te*0.66).toFixed(3);   // 1.40 pale -> 0.74 dark
+    var con=(0.74+tc*0.86).toFixed(3);      // 0.74 flat -> 1.60 hard
+    var sat=bw?0:(0.66+tc*0.5).toFixed(3);
+
+    var f;
+    if(bw){
+      f="blur("+blur+"px) grayscale(1) brightness("+bright+") contrast("+con+")";
+    }else{
+      f="blur("+blur+"px) brightness("+bright+") contrast("+con+") saturate("+sat+") sepia("+(0.16-tc*0.08).toFixed(3)+") hue-rotate(-5deg)";
+    }
+    print.style.filter=f;
+
+    // beam brightness eases with exposure
+    printwin.style.setProperty("--proj",(0.06+te*0.10).toFixed(3));
+    beam.style.setProperty("--beam",(0.12+te*0.10).toFixed(3));
+
+    // labels
+    vFocus.textContent= tf>0.9?"sharp":tf>0.6?"crisp":tf>0.35?"soft":"out";
+    vExp.textContent= te>0.78?"dark":te>0.5?"rich":te>0.3?"thin":"pale";
+    var gn=gradeName(tc);
+    vGrade.textContent=gn;
+    pgrade.textContent="GRADE "+gn;
+
+    var sec=Math.round(6+te*30);
+    var ap=fstops[Math.round(tf*(fstops.length-1))];
+    readout.textContent=ap+" · "+sec+"s · G"+gn;
+
+    // "dialed in" sweet spot
+    var ok = tf>0.86 && te>=0.48 && te<=0.72 && tc>=0.45 && tc<=0.72;
+    if(ok){dialed.textContent="● dialed in";dialed.classList.add("on");}
+    else{dialed.textContent="○ dialing…";dialed.classList.remove("on");}
+  }
+
+  // exposing flash on the paper
+  var flashing=false;
+  function expose(){
+    if(flashing)return;flashing=true;
+    printwin.style.setProperty("--exposing","1");
+    setTimeout(function(){printwin.style.setProperty("--exposing","0");flashing=false;},650);
+  }
+
+  [focus,exposure,contrast].forEach(function(el){
+    el.addEventListener("input",apply,{passive:true});
+  });
+  exposeBtn.addEventListener("click",expose);
+  nextBtn.addEventListener("click",function(){
+    load(idx+1);
+    // each new negative arrives slightly soft & pale to re-dial
+    focus.value=clamp(+focus.value-22,0,100);
+    exposure.value=clamp(+exposure.value-14,0,100);
+    apply();
+  });
+
+  load(0);
+})();
+</script>
+</body>
+</html>

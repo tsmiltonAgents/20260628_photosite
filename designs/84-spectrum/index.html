@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spectrum — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e0d12;
+    --bg2:#16141b;
+    --ink:#f3eee7;
+    --muted:#a39db0;
+    --line:rgba(255,255,255,.10);
+    --portra:saturate(1.06) contrast(1.03) brightness(1.03) sepia(.10) hue-rotate(-6deg);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(120% 90% at 50% -10%, #1c1a23 0%, var(--bg) 60%);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    min-height:100%;
+  }
+  a{color:inherit}
+  .back{
+    position:fixed;top:18px;left:20px;z-index:50;
+    font-size:13px;letter-spacing:.02em;color:var(--muted);
+    text-decoration:none;padding:8px 12px;border:1px solid var(--line);
+    border-radius:999px;background:rgba(20,18,26,.6);backdrop-filter:blur(8px);
+    transition:color .25s,border-color .25s,background .25s;
+  }
+  .back:hover{color:var(--ink);border-color:rgba(255,255,255,.3)}
+
+  header.top{
+    text-align:center;padding:78px 20px 14px;
+  }
+  .kicker{
+    font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--muted);
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-weight:500;
+    font-size:clamp(38px,8vw,86px);line-height:.95;letter-spacing:-.02em;
+    background:linear-gradient(90deg,#ff8a5c,#ffd166,#9ad36b,#5cc6c9,#7aa6ff,#c79bff,#ff7fb0);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    background-size:200% 100%;
+    animation:hueflow 18s linear infinite;
+  }
+  @keyframes hueflow{to{background-position:200% 0}}
+  .sub{margin-top:16px;color:var(--muted);font-size:15px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+  /* controls */
+  .controls{
+    position:sticky;top:0;z-index:40;
+    display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:center;
+    padding:18px 20px;margin-top:18px;
+    background:linear-gradient(180deg,rgba(14,13,18,.92),rgba(14,13,18,.55));
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .segwrap{display:flex;align-items:center;gap:10px}
+  .seglabel{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .seg{
+    display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:4px;gap:2px;
+  }
+  .seg button{
+    font:inherit;font-size:13px;font-weight:500;color:var(--muted);
+    background:transparent;border:0;cursor:pointer;
+    padding:8px 16px;border-radius:999px;transition:color .2s;
+    position:relative;letter-spacing:.01em;
+  }
+  .seg button[aria-pressed="true"]{color:#15131a}
+  .seg .pill{
+    position:absolute;inset:0;border-radius:999px;z-index:-1;
+    background:linear-gradient(90deg,#ffd166,#9ad36b,#5cc6c9);
+    opacity:0;transition:opacity .2s;
+  }
+  .seg button[aria-pressed="true"] .pill{opacity:1}
+
+  .now{
+    text-align:center;color:var(--muted);font-size:13px;
+    padding:20px 20px 4px;letter-spacing:.02em;
+  }
+  .now b{color:var(--ink);font-weight:600}
+
+  /* color key */
+  .key{
+    display:flex;justify-content:center;gap:0;flex-wrap:wrap;
+    max-width:680px;margin:14px auto 0;padding:0 20px;
+  }
+  .key .swatch{flex:1 1 0;min-width:14px;height:8px}
+  .keylabels{display:flex;justify-content:space-between;max-width:680px;margin:8px auto 0;padding:0 20px;color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+
+  /* stage */
+  .stage{
+    position:relative;max-width:1280px;margin:30px auto 90px;padding:0 22px;
+  }
+  /* the layout flow container — items are absolutely positioned, JS sets transforms;
+     but for responsiveness we use a flex/grid measured layout then FLIP. */
+  .flow{position:relative;width:100%}
+  .card{
+    position:absolute;top:0;left:0;
+    border-radius:10px;overflow:hidden;cursor:pointer;
+    background:var(--bg2);
+    box-shadow:0 10px 30px rgba(0,0,0,.45);
+    will-change:transform;
+    transition:box-shadow .3s;
+  }
+  .card:hover{box-shadow:0 18px 50px rgba(0,0,0,.6)}
+  .card .imgwrap{position:relative;width:100%;height:100%;overflow:hidden}
+  .card img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:var(--portra);
+    transition:transform .6s cubic-bezier(.2,.7,.2,1);
+  }
+  .card.bw img{filter:grayscale(1) contrast(1.05) brightness(1.02)}
+  .card:hover img{transform:scale(1.05)}
+  .card .hue-edge{
+    position:absolute;left:0;right:0;bottom:0;height:5px;z-index:3;
+  }
+  .card .meta{
+    position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;
+    padding:12px 13px;
+    background:linear-gradient(0deg,rgba(8,7,11,.82) 0%,rgba(8,7,11,.18) 45%,transparent 70%);
+    opacity:0;transition:opacity .3s;
+  }
+  .card:hover .meta,.card:focus-within .meta{opacity:1}
+  .card .t{font-family:'Fraunces',serif;font-size:15px;line-height:1.15;font-weight:500}
+  .card .d{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.02em}
+  .card:focus-visible{outline:2px solid #ffd166;outline-offset:2px}
+
+  .hint{
+    text-align:center;color:var(--muted);font-size:12.5px;letter-spacing:.04em;
+    padding:0 20px 60px;
+  }
+  .hint kbd{font-family:'Inter';background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-size:11px}
+
+  @media (max-width:600px){
+    .controls{gap:10px}
+    .seg button{padding:7px 11px;font-size:12px}
+    .seglabel{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    h1{animation:none;background-position:0 0}
+    .card img{transition:none}
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">← All designs</a>
+
+<header class="top">
+  <div class="kicker">Tom Milton · Film Archive</div>
+  <h1>Spectrum</h1>
+  <p class="sub">A collection sorted by light itself. Thirty frames flow from warm to cool — re-sort them and watch the colours rearrange.</p>
+</header>
+
+<div class="controls" role="region" aria-label="Sort controls">
+  <div class="segwrap">
+    <span class="seglabel">Sort by</span>
+    <div class="seg" role="group" aria-label="Sort mode">
+      <button data-sort="hue" aria-pressed="true">Hue<span class="pill"></span></button>
+      <button data-sort="year" aria-pressed="false">Year<span class="pill"></span></button>
+      <button data-sort="film" aria-pressed="false">Film<span class="pill"></span></button>
+    </div>
+  </div>
+</div>
+
+<p class="now" id="now">Arranged across the visible spectrum — <b>warm reds</b> through to <b>cool violets</b>, with monochrome at the close.</p>
+
+<div class="key" id="key" aria-hidden="true"></div>
+<div class="keylabels" id="keylabels"><span>Red</span><span>Yellow</span><span>Green</span><span>Cyan</span><span>Blue</span><span>Violet</span></div>
+
+<main class="stage">
+  <div class="flow" id="flow"></div>
+</main>
+
+<p class="hint">Tap a sort to re-choreograph the wall · Hover a frame for its story · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> switch sorts</p>
+
+<script>
+(function(){
+  "use strict";
+  const DATA = [
+    ["golden-field-sunburst","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6",1998,"",45],
+    ["landscape-misty-mountains","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67",2001,"water",210],
+    ["lake-cabin-dawn","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II",2003,"water",190],
+    ["forest-sunlight","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM",1996,"",110],
+    ["valley-green-river","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3",1999,"water",130],
+    ["cliff-coast-ocean","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2",2002,"water",195],
+    ["mountain-road-fog","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1",2005,"",215],
+    ["sun-through-leaves","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6",2004,"",90],
+    ["lake-mountain-house","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67",2000,"water",185],
+    ["rolling-green-hills","Patchwork","Tuscany, Italy","Fujifilm Pro 400H","Pentax 645",1997,"",120],
+    ["forest-path-trees","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F",1995,"",115],
+    ["waterfall-bridge","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2",2006,"water",165],
+    ["autumn-forest-road","October Road","Vermont, USA","Kodak Portra 400","Leica M7",2007,"",30],
+    ["desert-dunes","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW",2008,"",35],
+    ["misty-pine-forest","Silence","Norway","Ilford HP5 Plus","Leica M6",2003,"bw",0],
+    ["succulent-closeup","Geometry of Growth","Studio","Kodak Portra 160","Hasselblad 500CM",2009,"",140],
+    ["foggy-pier-lake","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2",2010,"water",205],
+    ["woman-portrait-window","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67",2011,"",25],
+    ["man-portrait-street","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400","Leica M4",2012,"bw",0],
+    ["couple-silhouette-sunset","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V",2013,"water",15],
+    ["woman-portrait-soft","Soft Hour","Paris, France","Fujifilm Pro 400H","Contax 645",2014,"",350],
+    ["woman-portrait-freckles","Freckles & Sun","Studio","Kodak Portra 160","Mamiya 645",2015,"",30],
+    ["friends-golden-hour","Golden Hour, Together","California, USA","Kodak Portra 400","Nikon F100",2016,"",40],
+    ["woman-curly-portrait","Curls","Brooklyn, USA","Cinestill 800T","Canon AE-1",2017,"",320],
+    ["man-bw-portrait","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6",2018,"bw",0],
+    ["woman-fashion-portrait","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67",2019,"",5],
+    ["street-cafe-paris","Café de Flore","Paris, France","Kodak Gold 200","Olympus OM-1",2020,"",45],
+    ["woman-laughing-portrait","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2",2021,"",20],
+    ["vintage-car-street","Sunday Drive","Havana, Cuba","Kodak Ektar 100","Nikon FE",2022,"",10],
+    ["cozy-interior-window","Home Light","Copenhagen, Denmark","Kodak Portra 400","Leica M6",2023,"",35]
+  ].map(r=>({file:r[0],title:r[1],loc:r[2],film:r[3],cam:r[4],year:r[5],flag:r[6],hue:r[7]}));
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const flow = document.getElementById('flow');
+  const nowEl = document.getElementById('now');
+  const keyEl = document.getElementById('key');
+
+  // build color key
+  for(let h=0;h<=360;h+=8){
+    const s=document.createElement('span');
+    s.className='swatch';
+    s.style.background = `hsl(${h},62%,55%)`;
+    keyEl.appendChild(s);
+  }
+
+  function hueColor(d){
+    if(d.flag==='bw') return 'hsl(0,0%,55%)';
+    return `hsl(${d.hue},65%,56%)`;
+  }
+
+  // create cards
+  const cards = new Map();
+  DATA.forEach((d,i)=>{
+    const a=document.createElement('a');
+    a.className='card'+(d.flag==='bw'?' bw':'');
+    a.href='#';
+    a.setAttribute('role','img');
+    a.setAttribute('aria-label',`${d.title}. ${d.loc}. ${d.film}, ${d.year}.`);
+    a.tabIndex=0;
+    a.innerHTML=`
+      <div class="imgwrap">
+        <img src="../../assets/img/${d.file}.jpg" alt="${d.title} — ${d.loc}" loading="lazy" decoding="async">
+        <div class="meta">
+          <div class="t">${d.title}</div>
+          <div class="d">${d.loc} · ${d.film} · ${d.year}</div>
+        </div>
+        <div class="hue-edge" style="background:${hueColor(d)}"></div>
+      </div>`;
+    a.addEventListener('click',e=>e.preventDefault());
+    flow.appendChild(a);
+    cards.set(d.file,a);
+  });
+
+  // SORT comparators
+  const sorters = {
+    hue:(a,b)=>{
+      const ka = a.flag==='bw'? 1000 : a.hue;
+      const kb = b.flag==='bw'? 1000 : b.hue;
+      return ka-kb || a.year-b.year;
+    },
+    year:(a,b)=> a.year-b.year || a.title.localeCompare(b.title),
+    film:(a,b)=> a.film.localeCompare(b.film) || a.year-b.year
+  };
+
+  const NOWTEXT = {
+    hue:'Arranged across the visible spectrum — <b>warm reds</b> through to <b>cool violets</b>, with monochrome at the close.',
+    year:'Ordered chronologically — <b>1995</b> at the first frame, <b>2023</b> at the last. Watch the eye travel through time.',
+    film:'Grouped by <b>film stock</b> — each emulsion has its own palette, clustered together.'
+  };
+
+  let current='hue';
+
+  // LAYOUT: compute column count + positions, return map file->{x,y,w,h}
+  function computeLayout(order){
+    const stageW = flow.clientWidth;
+    let cols;
+    if(stageW<540) cols=2;
+    else if(stageW<860) cols=3;
+    else if(stageW<1100) cols=4;
+    else cols=5;
+    const gap=14;
+    const colW = (stageW - gap*(cols-1))/cols;
+    const colH = []; for(let i=0;i<cols;i++) colH[i]=0;
+    const pos={};
+    order.forEach(d=>{
+      // shortest column
+      let c=0; for(let i=1;i<cols;i++) if(colH[i]<colH[c]) c=i;
+      // tile height variation: portraits taller. Use deterministic ratio by index of file
+      const isPortrait = /woman|man|couple|friends/.test(d.file);
+      const ratio = isPortrait? 1.28 : 0.74;
+      const w=colW, h=Math.round(colW*ratio);
+      pos[d.file]={x:c*(colW+gap), y:colH[c], w, h};
+      colH[c]+= h+gap;
+    });
+    const maxH=Math.max.apply(null,colH);
+    return {pos, height:maxH};
+  }
+
+  // FLIP relayout: measure first rects, set final positions, animate the delta.
+  function relayoutSimple(animate){
+    const first=new Map();
+    cards.forEach((el,file)=>first.set(file, el.getBoundingClientRect()));
+    const order=DATA.slice().sort(sorters[current]);
+    const {pos,height}=computeLayout(order);
+    flow.style.height=height+'px';
+    let z=order.length;
+    order.forEach(d=>{
+      const el=cards.get(d.file), p=pos[d.file];
+      el.style.width=p.w+'px';
+      el.style.height=p.h+'px';
+      el.style.zIndex=z--;
+      el.style.transform=`translate(${p.x}px,${p.y}px)`;
+    });
+    if(!animate||reduceMotion) return;
+    cards.forEach((el,file)=>{
+      const f=first.get(file);
+      const l=el.getBoundingClientRect();
+      const dx=f.left-l.left, dy=f.top-l.top;
+      const sx=l.width? f.width/l.width:1, sy=l.height? f.height/l.height:1;
+      if(Math.abs(dx)<0.5&&Math.abs(dy)<0.5&&Math.abs(sx-1)<0.01&&Math.abs(sy-1)<0.01)return;
+      el.animate([
+        {transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`, easing:'cubic-bezier(.22,.85,.18,1)'},
+        {transform:'translate(0,0) scale(1,1)'}
+      ],{duration:740, fill:'none', composite:'add'});
+    });
+  }
+
+  // buttons
+  const btns=[...document.querySelectorAll('.seg button')];
+  function setSort(mode){
+    if(mode===current) return;
+    current=mode;
+    btns.forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.sort===mode)));
+    nowEl.innerHTML = NOWTEXT[mode];
+    relayoutSimple(true);
+  }
+  btns.forEach(b=>b.addEventListener('click',()=>setSort(b.dataset.sort)));
+  window.addEventListener('keydown',e=>{
+    if(e.key==='1')setSort('hue');
+    if(e.key==='2')setSort('year');
+    if(e.key==='3')setSort('film');
+  });
+
+  // responsive relayout
+  let rt;
+  window.addEventListener('resize',()=>{
+    clearTimeout(rt);
+    rt=setTimeout(()=>relayoutSimple(false),120);
+  });
+
+  // wait for first image-ish; layout immediately (heights are computed, not measured)
+  relayoutSimple(false);
+  // re-layout once fonts/images settle
+  window.addEventListener('load',()=>relayoutSimple(false));
+  // entrance: fade cards in
+  if(!reduceMotion){
+    const order=DATA.slice().sort(sorters.hue);
+    order.forEach((d,i)=>{
+      const el=cards.get(d.file);
+      el.style.opacity='0';
+      el.animate([{opacity:0,transform:el.style.transform+' translateY(18px)'},{opacity:1,transform:el.style.transform}],
+        {duration:600,delay:Math.min(i*32,900),fill:'forwards',easing:'cubic-bezier(.2,.7,.2,1)'});
+      el.style.opacity='1';
+    });
+  }
+})();
+</script>
+</body>
+</html>

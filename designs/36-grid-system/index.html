@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grid System — Tom Milton, Photographs</title>
+<meta name="description" content="A rigorously constructed grid of film photographs by Tom Milton, set in the International Typographic Style.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>document.documentElement.className="js";</script>
+<style>
+  :root{
+    --paper:#f3f1ec;
+    --ink:#16150f;
+    --ink-55:#62605a;
+    --ink-30:#a8a59d;
+    --guide:rgba(22,21,15,.10);
+    --guide-strong:rgba(22,21,15,.22);
+    --red:#d8261c;
+    --cols:12;
+    --gutter:clamp(10px,1.6vw,22px);
+    --pad:clamp(16px,4.5vw,64px);
+    --unit:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:16px;line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    font-feature-settings:"tnum" 1,"cv05" 1;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+
+  /* ===== fixed column guides that draw in ===== */
+  .guides{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    padding:0 var(--pad);
+  }
+  .guides .gi{
+    max-width:1640px;margin:0 auto;height:100%;
+    display:grid;grid-template-columns:repeat(var(--cols),1fr);
+    column-gap:var(--gutter);
+  }
+  .guides .col{position:relative;height:100%}
+  .guides .col::before,.guides .col::after{
+    content:"";position:absolute;top:0;bottom:0;width:1px;
+    background:var(--guide);
+    transform:scaleY(0);transform-origin:top;
+  }
+  .guides .col::before{left:calc(var(--gutter)/-2)}
+  .guides .col::after{right:calc(var(--gutter)/-2);display:none}
+  .guides .col:last-child::after{display:block}
+  html.js .guides .col::before,
+  html.js .guides .col::after{
+    animation:drawY .9s cubic-bezier(.7,0,.2,1) forwards;
+    animation-delay:var(--d,0s);
+  }
+  @keyframes drawY{to{transform:scaleY(1)}}
+
+  /* horizontal baseline ticks (top + foot) */
+  .hrule{position:relative;z-index:1;height:1px;background:var(--guide-strong);
+    transform:scaleX(0);transform-origin:left}
+  html.js .hrule{animation:drawX 1s cubic-bezier(.7,0,.2,1) .15s forwards}
+  @keyframes drawX{to{transform:scaleX(1)}}
+
+  /* ===== shell ===== */
+  .wrap{position:relative;z-index:1;max-width:1640px;margin:0 auto;padding:0 var(--pad)}
+  .grid{display:grid;grid-template-columns:repeat(var(--cols),1fr);column-gap:var(--gutter)}
+
+  /* ===== top bar ===== */
+  .top{
+    grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;
+    gap:16px;padding:14px 0;
+  }
+  .back{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-55);
+    display:inline-flex;gap:.6em;align-items:center;transition:color .18s}
+  .back:hover{color:var(--red)}
+  .top .tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-55);
+    font-variant-numeric:tabular-nums}
+
+  /* ===== masthead ===== */
+  .mast{padding:clamp(20px,5vw,64px) 0 clamp(18px,3vw,36px)}
+  .mast .num{
+    grid-column:1/4;
+    font-size:clamp(64px,13vw,190px);font-weight:800;line-height:.8;
+    letter-spacing:-.04em;color:var(--red);font-variant-numeric:tabular-nums;
+  }
+  .mast .ttl{grid-column:4/10;align-self:end}
+  .mast .ttl h1{
+    font-size:clamp(30px,5.2vw,78px);font-weight:700;line-height:.92;
+    letter-spacing:-.035em;text-transform:uppercase;
+  }
+  .mast .ttl .sub{
+    margin-top:calc(var(--unit)*1.5);font-size:clamp(12px,1.2vw,15px);
+    color:var(--ink-55);max-width:42ch;letter-spacing:.005em;line-height:1.5;
+  }
+  .mast .spec{grid-column:10/13;align-self:end}
+  .mast .spec dl{display:grid;grid-template-columns:1fr;row-gap:7px}
+  .mast .spec .k{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
+  .mast .spec .v{font-size:12px;font-weight:500;letter-spacing:.01em;font-variant-numeric:tabular-nums;
+    border-bottom:1px solid var(--guide-strong);padding-bottom:6px;margin-bottom:1px}
+
+  /* ===== plate field ===== */
+  .field{padding:clamp(28px,4vw,56px) 0 0;row-gap:clamp(34px,4.5vw,62px);align-items:start}
+  figure.plate{display:flex;flex-direction:column;min-width:0}
+  /* default spans (desktop) */
+  .s7{grid-column:span 7}.s5{grid-column:span 5}
+  .s6{grid-column:span 6}.s4{grid-column:span 4}
+  .s8{grid-column:span 8}.s3{grid-column:span 3}
+  .s12{grid-column:span 12}
+
+  .plate .mod{position:relative;width:100%;overflow:hidden;background:#e4e1da}
+  .ar32{aspect-ratio:3/2}.ar23{aspect-ratio:2/3}.ar11{aspect-ratio:1/1}
+  .ar169{aspect-ratio:16/9}.ar45{aspect-ratio:4/5}
+  .plate img{width:100%;height:100%;object-fit:cover;
+    filter:sepia(.12) saturate(1.05) contrast(.97) brightness(1.03);
+    transform:scale(1.06);transition:transform 1.1s cubic-bezier(.16,1,.3,1)}
+  .plate img.bw{filter:grayscale(1) contrast(1.04) brightness(1.0)}
+
+  .plate .modwrap{position:relative;overflow:hidden}
+  /* snap-in reveal */
+  html.js .plate .modwrap{clip-path:inset(0 0 100% 0)}
+  html.js .plate.in .modwrap{clip-path:inset(0 0 0 0);transition:clip-path 1s cubic-bezier(.16,1,.3,1)}
+  html.js .plate.in img{transform:scale(1)}
+
+  .plate .pn{position:absolute;top:0;left:0;z-index:2;
+    background:var(--paper);color:var(--ink);font-size:10px;font-weight:600;
+    letter-spacing:.12em;padding:4px 7px;font-variant-numeric:tabular-nums}
+  .plate .pn b{color:var(--red)}
+
+  /* caption — tabular small-caps on baseline */
+  figcaption{margin-top:calc(var(--unit)*1.25);border-top:1.5px solid var(--ink);padding-top:7px}
+  figcaption .ttl{font-size:13px;font-weight:600;letter-spacing:.005em;line-height:1.25}
+  figcaption .meta{
+    margin-top:6px;display:flex;flex-wrap:wrap;gap:0;
+    font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-55);
+    font-variant-numeric:tabular-nums;
+  }
+  figcaption .meta span{position:relative;padding:0 8px;white-space:nowrap}
+  figcaption .meta span:first-child{padding-left:0}
+  figcaption .meta span:not(:last-child)::after{content:"";position:absolute;right:0;top:1px;bottom:1px;
+    width:1px;background:var(--ink-30)}
+
+  /* ===== running figure between rows ===== */
+  .interline{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;
+    gap:16px;border-top:1.5px solid var(--ink);padding-top:8px;margin-top:clamp(8px,1.5vw,18px)}
+  .interline .l{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+  .interline .r{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-55);
+    font-variant-numeric:tabular-nums}
+  .interline .r b{color:var(--red);font-weight:600}
+
+  /* ===== colophon ===== */
+  .colophon{padding:clamp(54px,7vw,108px) 0 clamp(40px,6vw,90px)}
+  .colophon .big{grid-column:1/8;font-size:clamp(26px,4.6vw,66px);font-weight:700;
+    line-height:.92;letter-spacing:-.035em;text-transform:uppercase}
+  .colophon .big em{font-style:normal;color:var(--red)}
+  .colophon .cmeta{grid-column:9/13;align-self:end}
+  .colophon .cmeta .row{display:flex;justify-content:space-between;gap:12px;
+    font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-55);
+    padding:7px 0;border-bottom:1px solid var(--guide-strong);font-variant-numeric:tabular-nums}
+  .colophon .cmeta .row b{color:var(--ink);font-weight:600}
+  .copy{grid-column:1/-1;margin-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;
+    gap:8px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-30)}
+
+  /* ===== responsive ===== */
+  @media (max-width:1024px){
+    :root{--cols:8}
+    .s7,.s8{grid-column:span 8}.s5,.s6{grid-column:span 4}
+    .s4{grid-column:span 4}.s3{grid-column:span 4}
+    .mast .num{grid-column:1/3}.mast .ttl{grid-column:3/9}
+    .mast .spec{grid-column:1/9;margin-top:18px}
+    .mast .spec dl{grid-template-columns:repeat(3,1fr);column-gap:var(--gutter)}
+    .colophon .big{grid-column:1/9}.colophon .cmeta{grid-column:1/9;margin-top:22px}
+  }
+  @media (max-width:600px){
+    :root{--cols:4}
+    .s7,.s8,.s5,.s6,.s4,.s3,.s12{grid-column:span 4}
+    .mast .num{grid-column:1/3}.mast .ttl{grid-column:1/5;margin-top:10px}
+    .mast .spec dl{grid-template-columns:repeat(2,1fr)}
+    .colophon .cmeta .row{font-size:9.5px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html.js .guides .col::before,html.js .guides .col::after{animation:none;transform:scaleY(1)}
+    html.js .hrule{animation:none;transform:scaleX(1)}
+    html.js .plate .modwrap{clip-path:none}
+    html.js .plate img{transform:none;transition:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- faint fixed column guides -->
+<div class="guides" aria-hidden="true"><div class="gi" id="gi"></div></div>
+
+<div class="wrap">
+  <div class="grid">
+    <header class="top">
+      <a class="back" href="../../index.html"><span aria-hidden="true">&larr;</span> All designs</a>
+      <span class="tag">Cat. 36 / Grid System / International Style</span>
+    </header>
+  </div>
+
+  <div class="hrule"></div>
+
+  <section class="grid mast" aria-label="Title">
+    <div class="num">36</div>
+    <div class="ttl">
+      <h1>Grid<br>System</h1>
+      <p class="sub">Twenty-nine film photographs ordered on a strict mathematical grid. Each plate is snapped to its module; nothing is approximate.</p>
+    </div>
+    <div class="spec">
+      <dl>
+        <div><dt class="k">Author</dt><dd class="v">Tom Milton</dd></div>
+        <div><dt class="k">System</dt><dd class="v">12-column modular</dd></div>
+        <div><dt class="k">Years</dt><dd class="v">1995–2023</dd></div>
+        <div><dt class="k">Accent</dt><dd class="v">Red / #D8261C</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <main class="grid field" id="field" aria-label="Plates"></main>
+
+  <footer class="grid colophon">
+    <div class="big">Tom <em>Milton</em><br>Photographs<br>on Film</div>
+    <div class="cmeta">
+      <div class="row"><span>Typeface</span><b>Inter</b></div>
+      <div class="row"><span>Grid</span><b>12 col · 8px baseline</b></div>
+      <div class="row"><span>Plates</span><b>Twelve shown</b></div>
+      <div class="row"><span>Edition</span><b>Cat. No. 36</b></div>
+    </div>
+    <div class="copy">
+      <span>© 2026 Tom Milton — all works catalogued</span>
+      <span>Designed to the grid</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* build column guides (count read from CSS var) */
+  function buildGuides(){
+    var gi = document.getElementById('gi');
+    var cols = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cols'),10) || 12;
+    gi.innerHTML = '';
+    for(var i=0;i<cols;i++){
+      var c = document.createElement('div');
+      c.className='col';
+      c.style.setProperty('--d',(0.04*i)+'s');
+      gi.appendChild(c);
+    }
+  }
+  buildGuides();
+  var rb; window.addEventListener('resize',function(){clearTimeout(rb);rb=setTimeout(buildGuides,180);});
+
+  /* plate data: span class + aspect ratio class */
+  var P = [
+    {f:'desert-dunes.jpg',          t:'Wind Lines',                 loc:'Namibia',            film:'Kodak Ektar 100',   yr:'2008', s:'s7', ar:'ar169', cat:'Landscape'},
+    {f:'woman-portrait-freckles.jpg',t:'Freckles & Sun',            loc:'Studio',             film:'Kodak Portra 160',  yr:'2015', s:'s5', ar:'ar45',  cat:'Portrait'},
+    {f:'lake-cabin-dawn.jpg',       t:'The Cabin at Dawn',          loc:'Banff, Canada',      film:'Kodak Ektar 100',   yr:'2003', s:'s6', ar:'ar32',  cat:'Landscape'},
+    {f:'forest-sunlight.jpg',       t:'Cathedral of Pines',         loc:'Olympic NP, USA',    film:'Kodak Portra 160',  yr:'1996', s:'s6', ar:'ar32',  cat:'Nature'},
+    {il:true, l:'Field I — Land & Light', r:'Plates 01—04'},
+    {f:'rolling-green-hills.jpg',   t:'Patchwork',                  loc:'Tuscany, Italy',     film:'Fujifilm Pro 400H', yr:'1997', s:'s8', ar:'ar169', cat:'Landscape'},
+    {f:'succulent-closeup.jpg',     t:'Geometry of Growth',         loc:'Studio',             film:'Kodak Portra 160',  yr:'2009', s:'s4', ar:'ar45',  cat:'Nature'},
+    {f:'misty-pine-forest.jpg',     t:'Silence',                    loc:'Norway',             film:'Ilford HP5 Plus',   yr:'2003', s:'s5', ar:'ar45',  cat:'Nature', bw:true},
+    {f:'cliff-coast-ocean.jpg',     t:'Edge of the World',          loc:'Big Sur, USA',       film:'Kodak Portra 400',  yr:'2002', s:'s7', ar:'ar32',  cat:'Landscape'},
+    {il:true, l:'Field II — Modules', r:'Plates 05—08'},
+    {f:'man-bw-portrait.jpg',       t:'Portrait in Shadow',         loc:'Berlin, Germany',    film:'Ilford Delta 3200', yr:'2018', s:'s4', ar:'ar45',  cat:'Portrait', bw:true},
+    {f:'lake-mountain-house.jpg',   t:'Reflections, Still Morning', loc:'Hallstatt, Austria', film:'Kodak Ektar 100',   yr:'2000', s:'s8', ar:'ar169', cat:'Landscape'},
+    {f:'street-cafe-paris.jpg',     t:'Café de Flore',              loc:'Paris, France',      film:'Kodak Gold 200',    yr:'2020', s:'s7', ar:'ar32',  cat:'Street'},
+    {f:'woman-fashion-portrait.jpg',t:'The Red Wall',               loc:'Marrakesh, Morocco', film:'Kodak Portra 400',  yr:'2019', s:'s5', ar:'ar45',  cat:'Portrait'}
+  ];
+
+  var field = document.getElementById('field');
+  var n = 0;
+  var html = '';
+  for(var i=0;i<P.length;i++){
+    var d = P[i];
+    if(d.il){
+      html += '<div class="interline"><span class="l">'+d.l+'</span><span class="r"><b>/ </b>'+d.r+'</span></div>';
+      continue;
+    }
+    n++;
+    var nn = (n<10?'0':'')+n;
+    html += '<figure class="plate '+d.s+'">'+
+      '<div class="modwrap"><div class="mod '+d.ar+'">'+
+        '<span class="pn">PL <b>'+nn+'</b></span>'+
+        '<img src="../../assets/img/'+d.f+'" alt="'+d.t.replace(/&/g,'&amp;')+', '+d.loc+'"'+(d.bw?' class="bw"':'')+' loading="lazy">'+
+      '</div></div>'+
+      '<figcaption>'+
+        '<div class="ttl">'+d.t.replace(/&/g,'&amp;')+'</div>'+
+        '<div class="meta"><span>No. '+nn+'</span><span>'+d.loc+'</span><span>'+d.film+'</span><span>'+d.yr+'</span></div>'+
+      '</figcaption>'+
+    '</figure>';
+  }
+  field.innerHTML = html;
+
+  /* snap-in on scroll */
+  var plates = field.querySelectorAll('.plate');
+  if(reduce || !('IntersectionObserver' in window)){
+    for(var k=0;k<plates.length;k++) plates[k].classList.add('in');
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    },{rootMargin:'0px 0px -8% 0px',threshold:0.08});
+    for(var j=0;j<plates.length;j++) io.observe(plates[j]);
+    /* safety: reveal anything still hidden after load */
+    window.addEventListener('load',function(){
+      setTimeout(function(){
+        var vh = window.innerHeight;
+        plates.forEach(function(p){
+          var r = p.getBoundingClientRect();
+          if(r.top < vh && !p.classList.contains('in')) p.classList.add('in');
+        });
+      },300);
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overprint — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@600;800&family=Archivo:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cyan:#00aeef; --magenta:#ec008c; --yellow:#fff200; --key:#1a1a1a;
+    --bg:#0d0e10; --panel:#15171a; --ink:#e8e6e1; --dim:#8a8d92;
+    --line:rgba(255,255,255,.1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'Archivo',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    background-image:radial-gradient(circle at 20% 0%,rgba(0,174,239,.05),transparent 50%),
+                     radial-gradient(circle at 90% 100%,rgba(236,0,140,.05),transparent 55%);
+  }
+  a{color:inherit;}
+  .backlink{
+    position:fixed; top:18px; left:20px; z-index:200;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.04em;
+    text-decoration:none; color:var(--ink); background:rgba(13,14,16,.7);
+    backdrop-filter:blur(8px); padding:8px 12px; border:1px solid var(--line);
+    border-radius:30px; transition:background .2s,border-color .2s;
+  }
+  .backlink:hover{background:rgba(236,0,140,.18); border-color:var(--magenta);}
+
+  header.masthead{
+    max-width:1280px; margin:0 auto; padding:120px 32px 40px;
+  }
+  .chips{display:flex; gap:8px; margin-bottom:26px; font-family:'IBM Plex Mono',monospace; font-size:11px;}
+  .chip{padding:4px 10px; border-radius:20px; letter-spacing:.12em; font-weight:500;}
+  .chip.c{background:var(--cyan); color:#002b3a;}
+  .chip.m{background:var(--magenta); color:#3a0021;}
+  .chip.y{background:var(--yellow); color:#3a3700;}
+  .chip.k{background:#2a2c30; color:var(--ink); border:1px solid var(--line);}
+  h1.title{
+    font-family:'Archivo Expanded',sans-serif; font-weight:800;
+    font-size:clamp(2.6rem,9vw,6.2rem); line-height:.92; letter-spacing:-.02em;
+    text-transform:uppercase; position:relative;
+  }
+  h1.title .layer{position:absolute; inset:0; mix-blend-mode:screen; pointer-events:none;}
+  h1.title .c{color:var(--cyan); transform:translate(-3px,2px);}
+  h1.title .m{color:var(--magenta); transform:translate(3px,-1px);}
+  h1.title .y{color:var(--yellow); transform:translate(1px,3px);}
+  h1.title .base{position:relative; color:var(--ink);}
+  .sub{
+    margin-top:24px; max-width:620px; color:var(--dim); font-size:clamp(1rem,1.6vw,1.18rem);
+    line-height:1.55;
+  }
+  .sub b{color:var(--ink); font-weight:700;}
+
+  /* HERO */
+  .hero-wrap{max-width:1280px; margin:30px auto 0; padding:0 32px;}
+  .hero{
+    position:relative; width:100%; aspect-ratio:16/10; max-height:74vh;
+    border-radius:6px; overflow:hidden; background:#000;
+    cursor:grab; touch-action:none; user-select:none;
+    box-shadow:0 40px 90px -40px rgba(0,0,0,.9);
+  }
+  .hero.dragging{cursor:grabbing;}
+  .sep-stack{position:absolute; inset:0;}
+  .sep-stack .plate{
+    position:absolute; inset:0; will-change:transform;
+  }
+  .plate img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    pointer-events:none; user-select:none;
+  }
+  /* process ink tinting via colored overlay multiplied with image */
+  .plate{mix-blend-mode:screen;}
+  .plate .ink{
+    position:absolute; inset:0; mix-blend-mode:multiply;
+  }
+  /* Each plate: image desaturated then tinted by its process colour through a colored layer */
+  .plate.cyan img{filter:brightness(1.05);}
+  .plate.cyan{mix-blend-mode:screen;}
+  .plate.cyan .ink{background:var(--cyan); mix-blend-mode:multiply;}
+  .plate.magenta .ink{background:var(--magenta); mix-blend-mode:multiply;}
+  .plate.yellow .ink{background:var(--yellow); mix-blend-mode:multiply;}
+
+  .hint{
+    position:absolute; left:50%; bottom:18px; transform:translateX(-50%);
+    z-index:6; font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.06em;
+    color:#fff; background:rgba(0,0,0,.45); backdrop-filter:blur(6px);
+    padding:9px 16px; border-radius:30px; border:1px solid rgba(255,255,255,.16);
+    display:flex; align-items:center; gap:9px; pointer-events:none;
+    transition:opacity .5s;
+  }
+  .hint .dot{width:7px;height:7px;border-radius:50%;background:var(--magenta); animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+  .hero.touched .hint{opacity:0;}
+
+  .reg-mark{
+    position:absolute; z-index:7; width:34px; height:34px; pointer-events:none; opacity:.55;
+    transition:opacity .3s;
+  }
+  .reg-mark::before,.reg-mark::after{content:""; position:absolute; background:rgba(255,255,255,.7);}
+  .reg-mark::before{left:50%; top:0; width:1px; height:100%; transform:translateX(-.5px);}
+  .reg-mark::after{top:50%; left:0; height:1px; width:100%; transform:translateY(-.5px);}
+  .reg-circle{position:absolute; inset:8px; border:1px solid rgba(255,255,255,.7); border-radius:50%;}
+  .reg-tl{top:14px; left:14px;} .reg-br{bottom:14px; right:14px;}
+
+  .hero-meta{
+    display:flex; flex-wrap:wrap; gap:6px 26px; align-items:baseline;
+    margin:18px 4px 0; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--dim);
+  }
+  .hero-meta .t{font-family:'Archivo Expanded',sans-serif; font-size:18px; color:var(--ink); font-weight:600; letter-spacing:.01em; text-transform:uppercase;}
+  .hero-meta span b{color:var(--ink); font-weight:500;}
+
+  .sepbar{
+    display:flex; align-items:center; gap:14px; margin:22px 4px 0;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--dim);
+  }
+  .sepbar .track{flex:1; height:3px; background:#2a2c30; border-radius:3px; position:relative; overflow:hidden;}
+  .sepbar .fill{position:absolute; left:0; top:0; bottom:0; width:0%;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--yellow)); border-radius:3px;}
+  .sepbar .pct{width:42px; text-align:right; color:var(--ink);}
+
+  /* GALLERY */
+  .gallery-head{max-width:1280px; margin:90px auto 26px; padding:0 32px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;}
+  .gallery-head h2{font-family:'Archivo Expanded',sans-serif; font-weight:800; text-transform:uppercase; font-size:clamp(1.4rem,3.5vw,2.4rem); letter-spacing:-.01em;}
+  .gallery-head p{color:var(--dim); font-family:'IBM Plex Mono',monospace; font-size:12px; max-width:340px;}
+  .grid{
+    max-width:1280px; margin:0 auto; padding:0 32px 110px;
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:26px;
+  }
+  .card{
+    position:relative; border-radius:5px; overflow:hidden; background:#000;
+    cursor:grab; touch-action:none; user-select:none;
+    border:1px solid var(--line);
+  }
+  .card.dragging{cursor:grabbing;}
+  .card .frame{position:relative; width:100%; aspect-ratio:4/5; overflow:hidden;}
+  .card .sep-stack{position:absolute; inset:0;}
+  .card .cap{
+    padding:14px 16px 16px; background:var(--panel);
+    border-top:1px solid var(--line);
+  }
+  .card .cap .t{font-family:'Archivo Expanded',sans-serif; font-weight:600; text-transform:uppercase; font-size:14px; letter-spacing:.01em;}
+  .card .cap .meta{margin-top:6px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--dim); line-height:1.5;}
+  .card .cmyk-tag{
+    position:absolute; top:10px; right:10px; z-index:6; display:flex; gap:4px; opacity:0; transition:opacity .25s;
+  }
+  .card:hover .cmyk-tag,.card.dragging .cmyk-tag{opacity:1;}
+  .cmyk-tag i{width:10px;height:10px;border-radius:50%; display:block; box-shadow:0 1px 4px rgba(0,0,0,.5);}
+  .cmyk-tag .ic{background:var(--cyan);} .cmyk-tag .im{background:var(--magenta);} .cmyk-tag .iy{background:var(--yellow);} .cmyk-tag .ik{background:#000;border:1px solid #555;}
+
+  footer{
+    border-top:1px solid var(--line); padding:34px 32px 60px; max-width:1280px; margin:0 auto;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--dim);
+  }
+  footer b{color:var(--ink);}
+
+  @media (max-width:640px){
+    header.masthead{padding:96px 20px 30px;}
+    .hero-wrap,.grid,.gallery-head{padding-left:20px; padding-right:20px;}
+    .hero{aspect-ratio:4/5;}
+    .reg-tl,.reg-br{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hint .dot{animation:none;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+<a class="backlink" href="../../index.html">&larr; All designs</a>
+
+<header class="masthead">
+  <div class="chips">
+    <span class="chip c">CYAN</span><span class="chip m">MAGENTA</span><span class="chip y">YELLOW</span><span class="chip k">KEY</span>
+  </div>
+  <h1 class="title" aria-label="Overprint">
+    <span class="layer c" aria-hidden="true">OVER<br>PRINT</span>
+    <span class="layer m" aria-hidden="true">OVER<br>PRINT</span>
+    <span class="layer y" aria-hidden="true">OVER<br>PRINT</span>
+    <span class="base">OVER<br>PRINT</span>
+  </h1>
+  <p class="sub"><b>Tom Milton</b> — process-colour separations from thirty years of film.
+  Every frame here is printed as overlapping cyan, magenta and yellow inks. At rest they
+  register into a single image; move your pointer to pull the plates apart.</p>
+</header>
+
+<div class="hero-wrap">
+  <figure class="hero" id="hero" tabindex="0" aria-label="Interactive colour-separation print. Move pointer or drag to separate the ink plates.">
+    <div class="sep-stack" data-stack></div>
+    <span class="reg-mark reg-tl" aria-hidden="true"><span class="reg-circle"></span></span>
+    <span class="reg-mark reg-br" aria-hidden="true"><span class="reg-circle"></span></span>
+    <figcaption class="hint" id="hint"><span class="dot"></span> Move to pull the inks apart &nbsp;·&nbsp; drag on touch</figcaption>
+  </figure>
+  <div class="hero-meta" id="heroMeta"></div>
+  <div class="sepbar">
+    <span>SEPARATION</span>
+    <span class="track"><span class="fill" id="sepFill"></span></span>
+    <span class="pct" id="sepPct">0%</span>
+  </div>
+</div>
+
+<div class="gallery-head">
+  <h2>The Plates</h2>
+  <p>Hover any frame — or drag on touch — to register and un-register the inks.</p>
+</div>
+<section class="grid" id="grid" aria-label="Photograph gallery"></section>
+
+<footer>
+  <span>TOM MILTON &nbsp;·&nbsp; <b>OVERPRINT</b> &nbsp;·&nbsp; C/M/Y/K SEPARATIONS</span>
+  <span>FILM ARCHIVE 1995&ndash;2023</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var BASE = "../../assets/img/";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var HERO = {file:"golden-field-sunburst.jpg", title:"Last Light, Wheat Country", loc:"Tuscany, Italy", film:"Kodak Portra 400", cam:"Leica M6", year:"1998"};
+  var PHOTOS = [
+    {file:"cliff-coast-ocean.jpg", title:"Edge of the World", loc:"Big Sur, USA", film:"Kodak Portra 400", cam:"Contax G2", year:"2002"},
+    {file:"woman-fashion-portrait.jpg", title:"The Red Wall", loc:"Marrakesh, Morocco", film:"Kodak Portra 400", cam:"Pentax 67", year:"2019"},
+    {file:"waterfall-bridge.jpg", title:"Hidden Falls", loc:"Iceland", film:"Fujifilm Velvia 50", cam:"Nikon FM2", year:"2006"},
+    {file:"desert-dunes.jpg", title:"Wind Lines", loc:"Namibia", film:"Kodak Ektar 100", cam:"Hasselblad 503CW", year:"2008"},
+    {file:"lake-cabin-dawn.jpg", title:"The Cabin at Dawn", loc:"Banff, Canada", film:"Kodak Ektar 100", cam:"Mamiya 7 II", year:"2003"},
+    {file:"sun-through-leaves.jpg", title:"Backlit", loc:"Kyoto, Japan", film:"Kodak Portra 800", cam:"Leica M6", year:"2004"},
+    {file:"woman-laughing-portrait.jpg", title:"That Laugh", loc:"Mexico City, Mexico", film:"Kodak Portra 800", cam:"Contax G2", year:"2021"},
+    {file:"vintage-car-street.jpg", title:"Sunday Drive", loc:"Havana, Cuba", film:"Kodak Ektar 100", cam:"Nikon FE", year:"2022"},
+    {file:"valley-green-river.jpg", title:"River Bend, Spring", loc:"Glencoe, Scotland", film:"Fujifilm Velvia 50", cam:"Nikon F3", year:"1999"}
+  ];
+
+  // per-channel direction vectors (unit-ish). Inks fan in distinct directions.
+  var DIRS = {
+    cyan:    {x:-1.0, y:-0.45},
+    magenta: {x: 0.95, y: 0.5},
+    yellow:  {x:-0.2, y: 1.0}
+  };
+
+  function buildStack(container, photo, alt){
+    container.innerHTML = "";
+    var order = ["yellow","magenta","cyan"]; // paint order; cyan on top via screen
+    order.forEach(function(ch){
+      var plate = document.createElement("div");
+      plate.className = "plate " + ch;
+      plate.setAttribute("data-ch", ch);
+      var img = document.createElement("img");
+      img.src = BASE + photo.file;
+      img.alt = ch === "yellow" ? alt : "";
+      if(ch !== "yellow") img.setAttribute("aria-hidden","true");
+      img.loading = "lazy"; img.decoding = "async"; img.draggable = false;
+      var ink = document.createElement("span");
+      ink.className = "ink";
+      plate.appendChild(img); plate.appendChild(ink);
+      container.appendChild(plate);
+    });
+  }
+
+  // Controller for a single interactive separation surface
+  function Separator(el, stackEl, opts){
+    opts = opts || {};
+    var maxSep = opts.maxSep || 26;        // px max offset at full pull
+    var plates = stackEl.querySelectorAll(".plate");
+    var cur = 0, target = 0;               // 0..1 separation amount
+    var px = 0, py = 0;                     // pointer offset -1..1 from center
+    var tpx = 0, tpy = 0;
+    var running = false, visible = true, dragging = false;
+    var onProgress = opts.onProgress || null;
+
+    function setTargetFromEvent(e){
+      var r = el.getBoundingClientRect();
+      var cx = e.clientX - r.left, cy = e.clientY - r.top;
+      tpx = Math.max(-1, Math.min(1, (cx / r.width) * 2 - 1));
+      tpy = Math.max(-1, Math.min(1, (cy / r.height) * 2 - 1));
+      // distance from center drives separation amount
+      var d = Math.min(1, Math.sqrt(tpx*tpx + tpy*tpy));
+      target = d;
+    }
+    function clear(){ target = 0; tpx = 0; tpy = 0; }
+
+    function frame(){
+      if(!running) return;
+      // lerp
+      var ease = 0.14;
+      cur += (target - cur) * ease;
+      px += (tpx - px) * ease;
+      py += (tpy - py) * ease;
+      if(Math.abs(target-cur) < 0.001 && Math.abs(tpx-px)<0.001 && Math.abs(tpy-py)<0.001 && target===0){
+        cur = 0; px = 0; py = 0; apply(); running = false; if(onProgress) onProgress(0); return;
+      }
+      apply();
+      if(onProgress) onProgress(cur);
+      requestAnimationFrame(frame);
+    }
+    function apply(){
+      for(var i=0;i<plates.length;i++){
+        var ch = plates[i].getAttribute("data-ch");
+        var d = DIRS[ch] || {x:0,y:0};
+        var amt = cur * maxSep;
+        // blend radial pull (px,py) with channel's intrinsic fan direction
+        var ox = (d.x * amt) + (px * amt * 0.55);
+        var oy = (d.y * amt) + (py * amt * 0.55);
+        plates[i].style.transform = "translate(" + ox.toFixed(2) + "px," + oy.toFixed(2) + "px)";
+      }
+    }
+    function kick(){ if(!running && visible){ running = true; requestAnimationFrame(frame); } }
+
+    if(reduce){
+      // static slight offset, no motion loop
+      cur = 0.18; apply();
+      if(onProgress) onProgress(cur);
+      return { setVisible:function(v){visible=v;}, destroy:function(){} };
+    }
+
+    // pointer (covers mouse + touch with touch-action:none)
+    el.addEventListener("pointermove", function(e){
+      if(e.pointerType !== "touch"){ setTargetFromEvent(e); kick(); }
+      else if(dragging){ setTargetFromEvent(e); kick(); }
+    });
+    el.addEventListener("pointerenter", function(e){ if(e.pointerType!=="touch"){ kick(); }});
+    el.addEventListener("pointerleave", function(){ if(!dragging){ clear(); kick(); }});
+    el.addEventListener("pointerdown", function(e){
+      dragging = true; el.classList.add("dragging");
+      el.setPointerCapture && el.setPointerCapture(e.pointerId);
+      setTargetFromEvent(e); kick();
+    });
+    function up(){ dragging = false; el.classList.remove("dragging"); clear(); kick(); }
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", up);
+    // keyboard accessibility: focus pulses a separation
+    el.addEventListener("keydown", function(e){
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); target = target>0?0:0.85; tpx=0.4; tpy=-0.3; kick(); }
+    });
+
+    return {
+      setVisible:function(v){ visible = v; if(v && (target!==0||cur!==0)) kick(); },
+      destroy:function(){}
+    };
+  }
+
+  // ---- HERO ----
+  var hero = document.getElementById("hero");
+  var heroStack = hero.querySelector("[data-stack]");
+  buildStack(heroStack, HERO, "Last Light, Wheat Country — golden wheat field at sunset, Tuscany, photographed on Kodak Portra 400");
+  document.getElementById("heroMeta").innerHTML =
+    '<span class="t">'+HERO.title+'</span>'+
+    '<span><b>'+HERO.loc+'</b></span>'+
+    '<span>'+HERO.film+'</span>'+
+    '<span>'+HERO.cam+'</span>'+
+    '<span>'+HERO.year+'</span>';
+  hero.addEventListener("pointerdown", function(){ hero.classList.add("touched"); }, {once:true});
+  hero.addEventListener("pointerenter", function(){ hero.classList.add("touched"); }, {once:true});
+
+  var fill = document.getElementById("sepFill");
+  var pct = document.getElementById("sepPct");
+  var heroSep = Separator(hero, heroStack, {maxSep:34, onProgress:function(p){
+    var v = Math.round(p*100);
+    fill.style.width = v + "%"; pct.textContent = v + "%";
+  }});
+
+  // ---- GALLERY ----
+  var grid = document.getElementById("grid");
+  var separators = [];
+  PHOTOS.forEach(function(p){
+    var card = document.createElement("figure");
+    card.className = "card";
+    card.tabIndex = 0;
+    card.setAttribute("aria-label", p.title + ", " + p.loc + ". Interactive colour separation — hover or drag to separate ink plates.");
+    var frame = document.createElement("div"); frame.className = "frame";
+    var stack = document.createElement("div"); stack.className = "sep-stack";
+    frame.appendChild(stack);
+    var tag = document.createElement("div"); tag.className = "cmyk-tag"; tag.setAttribute("aria-hidden","true");
+    tag.innerHTML = '<i class="ic"></i><i class="im"></i><i class="iy"></i><i class="ik"></i>';
+    frame.appendChild(tag);
+    var cap = document.createElement("figcaption"); cap.className = "cap";
+    cap.innerHTML = '<div class="t">'+p.title+'</div>'+
+      '<div class="meta">'+p.loc+' &nbsp;·&nbsp; '+p.year+'<br>'+p.film+' &nbsp;·&nbsp; '+p.cam+'</div>';
+    card.appendChild(frame); card.appendChild(cap);
+    grid.appendChild(card);
+    buildStack(stack, p, p.title + " — " + p.loc + ", photographed on " + p.film);
+    separators.push({el:card, ctrl:Separator(card, stack, {maxSep:22})});
+  });
+
+  // IntersectionObserver: pause off-screen
+  if("IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        var match = separators.filter(function(s){return s.el===en.target;})[0];
+        if(match) match.ctrl.setVisible(en.isIntersecting);
+      });
+    }, {threshold:0.05});
+    separators.forEach(function(s){ io.observe(s.el); });
+    var heroIO = new IntersectionObserver(function(e){ heroSep.setVisible(e[0].isIntersecting); },{threshold:0.02});
+    heroIO.observe(hero);
+  }
+
+  // pause everything when tab hidden
+  document.addEventListener("visibilitychange", function(){
+    var vis = !document.hidden;
+    heroSep.setVisible(vis);
+    separators.forEach(function(s){ s.ctrl.setVisible(vis); });
+  });
+})();
+</script>
+</body>
+</html>

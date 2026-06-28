@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tom Milton — 25 Ways to Show Film Photographs</title>
-<meta name="description" content="Twenty-five distinct design concepts for a film photography portfolio — from Tufte-styled marginalia to Kodak Portra warmth, contact sheets, darkrooms and beyond." />
+<title>Tom Milton — 85 Ways to Show Film Photographs</title>
+<meta name="description" content="Eighty-five distinct design concepts for a film photography portfolio — Swiss typography, Bauhaus geometry, brutalism, risograph, Japanese minimalism, analog-film apparatus and interactive experiments." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -169,11 +169,11 @@
 <body>
 <header class="hero">
   <div class="eyebrow">Tom Milton — Photography &nbsp;·&nbsp; A Design Study</div>
-  <h1 class="title">Thirty-five ways<br/>to show a <em>photograph</em>.</h1>
-  <p class="lede">One body of work, shot on film between 1995 and 2023 — reimagined through thirty-five design languages, ten of them alive with motion. For someone who loves Tufte CSS and Kodak Portra in equal measure.</p>
+  <h1 class="title">Eighty-five ways<br/>to show a <em>photograph</em>.</h1>
+  <p class="lede">One body of work, shot on film between 1995 and 2023 — reimagined through eighty-five complete design languages, many alive with motion. For someone who loves Tufte CSS and Kodak Portra in equal measure.</p>
   <div class="meta-row">
-    <span><b>35</b> design concepts</span>
-    <span><b>10</b> interactive</span>
+    <span><b>85</b> design concepts</span>
+    <span><b>36</b> interactive</span>
     <span><b>30</b> photographs</span>
     <span>Pick a look &nbsp;→</span>
   </div>
@@ -195,6 +195,14 @@
       <p class="section-sub">Boundary-pushing, interactive ways to touch the photographs — develop a print with your cursor, ripple a reflection, run film through a projector, set the frame alight. Best on a desktop, but they work on touch too.</p>
     </div>
     <div class="grid" id="grid-motion"></div>
+  </section>
+  <section class="section" id="explore">
+    <div class="section-head">
+      <span class="section-kicker accent">✦ The Deep Cut</span>
+      <h2 class="section-title">Fifty more explorations</h2>
+      <p class="section-sub">Fifty further directions, leaning into the looks worth chasing — Swiss &amp; editorial, Bauhaus &amp; geometric, brutalist, risograph, Japanese minimalism, analog-film apparatus, and weirder interactive experiments. Animation ranges from near-still to fully playable; the interactive ones carry a badge.</p>
+    </div>
+    <div class="grid" id="grid-explore"></div>
   </section>
 </main>
 
@@ -257,8 +265,61 @@ const card = (d, isMotion) => `
       <span class="card-foot">View design <span class="arrow">→</span></span>
     </div>
   </a>`;
+const explore = [
+  {n:"36", slug:"36-grid-system",     title:"Grid System",      kicker:"Swiss · Typographic",  desc:"Müller-Brockmann to the letter — faint guides draw in and photos snap to their modules."},
+  {n:"37", slug:"37-akzidenz",        title:"Akzidenz",         kicker:"Swiss · Reductive",    desc:"Black, white, one red — giant place names scroll-snap past their photographs."},
+  {n:"38", slug:"38-specimen",        title:"Specimen",         kicker:"Catalogue · Auction",  desc:"A natural-history specimen catalogue: lot numbers, Latin binomials and hidden provenance."},
+  {n:"39", slug:"39-datasheet",       title:"Datasheet",        kicker:"Technical · Drawing",  desc:"An engineering datasheet with dimension lines and exposure callouts drawn over each frame."},
+  {n:"40", slug:"40-counterpoint",    title:"Counterpoint",     kicker:"Editorial · Warm",     desc:"A quiet, literary take on Portra — serif prose with monospace marginal notes."},
+  {n:"41", slug:"41-wide-scroll",     title:"Lateral",          kicker:"Horizontal · Type",    desc:"A sideways typographic journey through enormous kerned place names.", mo:true},
+  {n:"42", slug:"42-ledger",          title:"Ledger",           kicker:"Index · Tabular",      desc:"A green-bar accounting register of every negative, printing in row by row."},
+  {n:"43", slug:"43-colour-field",    title:"Colour Field",     kicker:"Swiss · Chromatic",    desc:"Each photo paired with a swatch sampled from its film stock's signature palette."},
+  {n:"44", slug:"44-bauhaus-machine", title:"Bauhaus Machine",  kicker:"Bauhaus · Interactive",desc:"Drag primary shapes that mask the photographs to recompose the poster.", mo:true},
+  {n:"45", slug:"45-de-stijl",        title:"De Stijl",         kicker:"Mondrian · Grid",      desc:"A Mondrian of primary blocks and photo cells that reflow when you open one.", mo:true},
+  {n:"46", slug:"46-red-wedge",       title:"Red Wedge",        kicker:"Constructivist",       desc:"Russian agitprop — bold diagonals and photomontage flying in off-axis."},
+  {n:"47", slug:"47-suprematist",     title:"Suprematist",      kicker:"Malevich · Float",     desc:"Geometric forms and photo-discs drifting in weightless orbital balance."},
+  {n:"48", slug:"48-aperture",        title:"Aperture",         kicker:"Geometric · Reveal",   desc:"Each photo unveiled by a different geometric mask — irises, bars, diamonds.", mo:true},
+  {n:"49", slug:"49-memphis",         title:"Memphis",          kicker:"1980s · Playful",      desc:"Squiggles, terrazzo and bouncy springs — postmodern joy."},
+  {n:"50", slug:"50-composition",     title:"Composition",      kicker:"Kandinsky · Network",  desc:"Photos as circular nodes in a musical-geometric constellation you can pull.", mo:true},
+  {n:"51", slug:"51-futura",          title:"Futura",           kicker:"Bauhaus · Posters",    desc:"A series of geometric typographic posters, one per photograph."},
+  {n:"52", slug:"52-monospace-os",    title:"Finder",           kicker:"System · Windows",     desc:"A faux desktop file-manager with draggable windows and EXIF previews.", mo:true},
+  {n:"53", slug:"53-html-1.0",        title:"index.html, 1996", kicker:"Retro · Web",          desc:"Lovingly hand-coded 1996 web — Times, blue links and a visitor counter."},
+  {n:"54", slug:"54-wireframe",       title:"Wireframe",        kicker:"Blueprint · Dev",      desc:"A blueprint of a gallery whose placeholders develop into real photos."},
+  {n:"55", slug:"55-raw-json",        title:"GET /photos",      kicker:"Code · API",           desc:"The portfolio as a syntax-highlighted JSON response that streams in."},
+  {n:"56", slug:"56-manifesto",       title:"Manifesto",        kicker:"Brutalist · Type",     desc:"Giant declarations about film and light, photographs punched between."},
+  {n:"57", slug:"57-ascii",           title:"Dot Matrix",       kicker:"Halftone · Retro",     desc:"Photos printed as dot-matrix glyphs that resolve to clarity on hover.", mo:true},
+  {n:"58", slug:"58-press",           title:"Press",            kicker:"Risograph · Teal",     desc:"A two-ink riso in teal and fluoro orange with animated registration marks."},
+  {n:"59", slug:"59-screenprint",     title:"Gig Poster",       kicker:"Screenprint · Loud",   desc:"Distressed spot-ink gig posters with halftone and ink-bleed on hover."},
+  {n:"60", slug:"60-cyanotype",       title:"Cyanotype",        kicker:"Process · Blue",       desc:"Prussian-blue sun-prints on deckled cold-pressed watercolour paper."},
+  {n:"61", slug:"61-misregister",     title:"Misregister",      kicker:"CMYK · Newsprint",     desc:"Halftone prints whose CMYK channels pull apart under your pointer.", mo:true},
+  {n:"62", slug:"62-zine-flip",       title:"Flipbook",         kicker:"Zine · Page-turn",     desc:"A riso zine you physically flip through with a 3D page-turn.", mo:true},
+  {n:"63", slug:"63-overprint",       title:"Overprint",        kicker:"CMYK · Separation",    desc:"Pull a print apart into its translucent ink separations, and back.", mo:true},
+  {n:"64", slug:"64-yohaku",          title:"余白 / Yohaku",     kicker:"Ma · Ink-wash",        desc:"The deepest negative space — photos bloom in through a sumi-e ink wash."},
+  {n:"65", slug:"65-shoji",           title:"障子 / Shōji",      kicker:"Japanese · Screens",   desc:"Rice-paper screens that slide open to reveal the photographs behind.", mo:true},
+  {n:"66", slug:"66-enso",            title:"圓相 / Ensō",       kicker:"Zen · Brush",          desc:"Each photo ringed by a hand-brushed ink circle that draws itself."},
+  {n:"67", slug:"67-kakemono",        title:"Hanging Scroll",   kicker:"Japanese · Unroll",    desc:"Kakemono scrolls that unroll downward as you descend."},
+  {n:"68", slug:"68-kintsugi",        title:"金継ぎ / Kintsugi", kicker:"Wabi-sabi · Gold",     desc:"Photos broken and rejoined with gold seams that trace along the cracks."},
+  {n:"69", slug:"69-notan",           title:"明暗 / Notan",      kicker:"Ink · Balance",        desc:"A printmaking study in pure light-and-dark balance."},
+  {n:"70", slug:"70-carousel",        title:"Carousel",         kicker:"Projector · Slides",   desc:"A Kodak slide projector — advance with the mechanical ka-chunk.", mo:true},
+  {n:"71", slug:"71-light-table",     title:"Light Table",      kicker:"Slides · Loupe",       desc:"Drag mounted slides on a glowing table and inspect them with a loupe.", mo:true},
+  {n:"72", slug:"72-120-roll",        title:"120 Roll",         kicker:"Film · Vertical",      desc:"Scroll down a medium-format roll, frame by frame through the gate."},
+  {n:"73", slug:"73-develop",         title:"Develop",          kicker:"Negatives · Scroll",   desc:"Orange negatives that develop to true positive as you scroll.", mo:true},
+  {n:"74", slug:"74-double-exposure", title:"Double Exposure",  kicker:"Blend · Pointer",      desc:"Sculpt a live in-camera double exposure with your cursor.", mo:true},
+  {n:"75", slug:"75-enlarger",        title:"Enlarger",         kicker:"Darkroom · Dials",     desc:"Dial in focus, exposure and contrast to make the perfect print.", mo:true},
+  {n:"76", slug:"76-still-water",     title:"Still Water",      kicker:"Context-aware · Water",desc:"Only the photographs that contain water get a live rippling reflection.", mo:true},
+  {n:"77", slug:"77-drying-line",     title:"Drying Line",      kicker:"Physics · Wind",       desc:"Prints pegged to drying lines that sway in a mouse-made breeze.", mo:true},
+  {n:"78", slug:"78-gravity",         title:"Gravity",          kicker:"Physics · Orbit",      desc:"The cursor is a gravity well; photos orbit and gather, or scatter on click.", mo:true},
+  {n:"79", slug:"79-magnetic",        title:"Magnetic",         kicker:"Type · Physics",       desc:"Caption letters swarm to your cursor like iron filings, then snap back.", mo:true},
+  {n:"80", slug:"80-liquid",          title:"Liquid",           kicker:"Shader · Warp",        desc:"Hover any frame and it bends like light through moving water.", mo:true},
+  {n:"81", slug:"81-focus-plane",     title:"Focus Plane",      kicker:"Tilt-shift · DOF",     desc:"Move the focal plane; everything off it falls into soft bokeh.", mo:true},
+  {n:"82", slug:"82-timeline",        title:"1995—2023",        kicker:"Data · Scrub",         desc:"Scrub a playhead along the years and watch a life on film unfold.", mo:true},
+  {n:"83", slug:"83-atlas",           title:"Atlas",            kicker:"Map · Travelogue",     desc:"Photographs pinned to a world map, joined by a route through time.", mo:true},
+  {n:"84", slug:"84-spectrum",        title:"Spectrum",         kicker:"Colour · Sort",        desc:"Re-sort the whole collection by hue, year or film with a FLIP dance.", mo:true},
+  {n:"85", slug:"85-generative-grid", title:"Generative",       kicker:"Algorithm · FLIP",     desc:"A layout engine that deals a brand-new composition every time you ask.", mo:true},
+];
 document.getElementById('grid').innerHTML = designs.map(d => card(d, false)).join('');
 document.getElementById('grid-motion').innerHTML = motion.map(d => card(d, true)).join('');
+document.getElementById('grid-explore').innerHTML = explore.map(d => card(d, d.mo)).join('');
 </script>
 </body>
 </html>

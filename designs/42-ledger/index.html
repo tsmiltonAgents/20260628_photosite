@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEDGER — Tom Milton, Photographs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3f1e7;          /* tractor-feed cream */
+    --bar:#cfe3cc;            /* green bar */
+    --bar-line:#a9cda4;       /* ruled line */
+    --ink:#1f2a22;            /* dark green-black ink */
+    --ink-faint:#5f6b5e;
+    --ink-ghost:#9aa595;
+    --red:#b3402e;            /* stamp red */
+    --edge:#e7e3d4;           /* sprocket margin */
+    --hl:#f4e58c;             /* highlighter */
+    --sprocket:#d8d4c4;
+    --gap: clamp(10px, 1.6vw, 18px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:#d9d6c8;
+    color:var(--ink);
+    font-family:'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size:15px;
+    line-height:1.4;
+    -webkit-font-smoothing:antialiased;
+    font-feature-settings:"tnum" 1;
+    padding:clamp(14px,3vw,40px) clamp(8px,3vw,40px) 80px;
+  }
+  a{color:inherit}
+  ::selection{background:var(--hl)}
+
+  /* paper background texture via subtle noise */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    opacity:.5;
+  }
+
+  .topnav{
+    max-width:1180px;margin:0 auto 18px;display:flex;justify-content:space-between;
+    align-items:baseline;font-size:13px;letter-spacing:.04em;position:relative;z-index:2;
+    color:#46503f;
+  }
+  .topnav a{ text-decoration:none;border-bottom:1px dashed #46503f;padding-bottom:2px }
+  .topnav a:hover{ color:var(--red);border-color:var(--red) }
+  .topnav .stamp{ color:var(--red); border:1.5px solid var(--red); padding:2px 8px; border-radius:3px; transform:rotate(-2deg); letter-spacing:.12em; font-weight:600 }
+
+  /* ---- the ledger sheet ---- */
+  .sheet{
+    max-width:1180px;margin:0 auto;position:relative;z-index:1;
+    background:var(--paper);
+    padding:0 clamp(22px,3.4vw,40px);
+    box-shadow:0 2px 0 #c5c1b2, 0 18px 40px -18px rgba(0,0,0,.45);
+    border:1px solid #ded9c8;
+  }
+  /* sprocket feed edges */
+  .sheet::before, .sheet::after{
+    content:"";position:absolute;top:0;bottom:0;width:clamp(14px,2vw,22px);
+    background:var(--edge);
+    background-image:radial-gradient(circle at center, #b9b4a2 0 3px, transparent 3.6px),
+                     radial-gradient(circle at center, rgba(0,0,0,.18) 0 3.4px, transparent 4px);
+    background-size:100% 26px;
+    background-position:center 13px;
+    box-shadow:inset 0 0 0 1px #d6d1c0;
+  }
+  .sheet::before{ left:0; border-right:1px dashed #c9c4b3 }
+  .sheet::after{ right:0; border-left:1px dashed #c9c4b3 }
+  @media(max-width:640px){ .sheet::before,.sheet::after{ display:none } }
+
+  /* masthead */
+  header.head{
+    padding:clamp(20px,3vw,34px) 0 14px;border-bottom:3px double var(--ink);
+    display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;
+  }
+  .title-block h1{
+    font-size:clamp(26px,5vw,46px);font-weight:700;letter-spacing:.14em;line-height:.95;
+    text-transform:uppercase;
+  }
+  .title-block .sub{ font-size:12px;color:var(--ink-faint);letter-spacing:.22em;margin-top:8px;text-transform:uppercase }
+  .meta-block{ font-size:12px;text-align:right;color:var(--ink-faint);letter-spacing:.05em;line-height:1.7 }
+  .meta-block b{ color:var(--ink) }
+  .meta-block .form{ color:var(--red) }
+
+  /* column header */
+  .colhead{
+    display:grid;align-items:end;
+    grid-template-columns: 52px minmax(180px,2.1fr) minmax(120px,1.4fr) minmax(120px,1.5fr) minmax(110px,1.3fr) 64px;
+    gap:var(--gap);
+    padding:14px 6px 8px;border-bottom:2px solid var(--ink);
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--ink);
+  }
+  .colhead .r{ text-align:right }
+
+  /* rows container */
+  .rows{ counter-reset:none }
+  .row{
+    display:grid;align-items:center;
+    grid-template-columns: 52px minmax(180px,2.1fr) minmax(120px,1.4fr) minmax(120px,1.5fr) minmax(110px,1.3fr) 64px;
+    gap:var(--gap);
+    padding:7px 6px;
+    border-bottom:1px solid var(--bar-line);
+    position:relative;cursor:pointer;
+    transition:background .12s ease;
+  }
+  .row:nth-child(odd){ background:var(--bar) }
+  .row .no{ color:var(--ink-faint);font-size:13px }
+  .row .ttl{ font-weight:600;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+  .row .loc,.row .cam{ color:var(--ink-faint);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+  .row .film{ font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+  .row .yr{ text-align:right;font-size:13px }
+  .row .bwflag{ color:var(--red);font-weight:700;font-size:10px;margin-left:6px;vertical-align:2px }
+
+  .row:hover, .row:focus-visible{ background:var(--hl); outline:none }
+  .row:hover .loc,.row:hover .cam,.row:hover .film,.row:hover .no{ color:var(--ink) }
+  .row::after{ /* left bracket on hover */
+    content:"";position:absolute;left:-6px;top:4px;bottom:4px;width:3px;background:var(--red);
+    opacity:0;transition:opacity .12s;
+  }
+  .row:hover::after,.row:focus-visible::after{ opacity:1 }
+
+  /* typewriter reveal */
+  .row[data-reveal]{ opacity:0; transform:translateY(4px) }
+  .row.in{ opacity:1; transform:none; transition:opacity .28s ease, transform .28s ease }
+
+  /* footer tally */
+  .tally{
+    margin-top:0;border-top:3px double var(--ink);padding:18px 6px 30px;
+  }
+  .tally h2{ font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px;color:var(--ink) }
+  .tgrid{ display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 26px }
+  .trow{
+    display:flex;justify-content:space-between;align-items:baseline;
+    border-bottom:1px dotted var(--ink-ghost);padding:5px 0;font-size:13px;gap:10px;
+  }
+  .trow .nm{ color:var(--ink-faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap }
+  .trow .ct{ font-weight:700;font-variant-numeric:tabular-nums }
+  .trow .ct::before{ content:"";display:inline-block }
+  .totals{
+    margin-top:22px;display:flex;flex-wrap:wrap;gap:10px 40px;justify-content:flex-end;
+    border-top:2px solid var(--ink);padding-top:14px;font-size:13px;
+  }
+  .totals .t{ letter-spacing:.04em }
+  .totals .t b{ font-size:18px;margin-left:8px }
+  .totals .grand{ color:var(--red) }
+  .signoff{ margin-top:26px;font-size:11px;color:var(--ink-faint);letter-spacing:.1em;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px }
+
+  /* floating thumbnail */
+  .thumb{
+    position:fixed;z-index:50;pointer-events:none;
+    width:200px;background:var(--paper);padding:7px 7px 26px;
+    border:1px solid #cfcab8;box-shadow:0 14px 34px -10px rgba(0,0,0,.55);
+    opacity:0;transform:scale(.96) translateY(6px);transition:opacity .12s ease, transform .12s ease;
+    transform-origin:top left;
+  }
+  .thumb.show{ opacity:1;transform:scale(1) translateY(0) }
+  .thumb img{
+    display:block;width:100%;height:140px;object-fit:cover;background:#ddd;
+    filter:saturate(1.05) contrast(1.02) sepia(.12) brightness(1.02);
+  }
+  .thumb.bw img{ filter:grayscale(1) contrast(1.06) brightness(1.02) }
+  .thumb .cap{ position:absolute;left:7px;right:7px;bottom:7px;font-size:9.5px;letter-spacing:.05em;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+  @media(hover:none){ .thumb{ display:none } }
+
+  /* mobile: collapse some columns */
+  @media(max-width:760px){
+    .colhead, .row{ grid-template-columns: 38px minmax(0,2fr) minmax(0,1.3fr) 50px; }
+    .col-loc, .col-cam, .row .loc, .row .cam{ display:none }
+  }
+  @media(max-width:760px){
+    .row{ row-gap:2px }
+  }
+  @media(prefers-reduced-motion:reduce){
+    .row[data-reveal]{ opacity:1;transform:none }
+    .thumb{ transition:none }
+  }
+</style>
+</head>
+<body>
+  <nav class="topnav">
+    <a href="../../index.html">&larr; All designs</a>
+    <span class="stamp">RECEIVED</span>
+    <span>FORM 35-A · PHOTOGRAPHIC REGISTER</span>
+  </nav>
+
+  <main class="sheet" role="main">
+    <header class="head">
+      <div class="title-block">
+        <h1>Ledger</h1>
+        <div class="sub">Tom Milton &middot; Catalogue of Photographs</div>
+      </div>
+      <div class="meta-block">
+        <div class="form">ACCT. NO. TM&ndash;0001</div>
+        <div>PERIOD <b>1995&ndash;2023</b></div>
+        <div>PREPARED <b id="today">&mdash;</b></div>
+        <div>SHEET <b>1 OF 1</b></div>
+      </div>
+    </header>
+
+    <div class="colhead" aria-hidden="true">
+      <div>No.</div>
+      <div>Title / Entry</div>
+      <div class="col-loc">Location</div>
+      <div>Film Stock</div>
+      <div class="col-cam">Camera</div>
+      <div class="r">Year</div>
+    </div>
+
+    <div class="rows" id="rows" role="table" aria-label="Catalogue of photographs"></div>
+
+    <section class="tally" aria-label="Running totals">
+      <h2>Summary &mdash; Exposures by Film Stock</h2>
+      <div class="tgrid" id="tgrid"></div>
+      <div class="totals">
+        <span class="t">COLOUR <b id="totColour">0</b></span>
+        <span class="t">B&amp;W <b id="totBw">0</b></span>
+        <span class="t">STOCKS <b id="totStocks">0</b></span>
+        <span class="t grand">TOTAL ENTRIES <b id="totAll">0</b></span>
+      </div>
+      <div class="signoff">
+        <span>CHECKED &amp; FOUND CORRECT &mdash; T.M.</span>
+        <span>END OF REGISTER &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</span>
+      </div>
+    </section>
+  </main>
+
+  <div class="thumb" id="thumb" aria-hidden="true">
+    <img id="thumbImg" alt="" src="">
+    <div class="cap" id="thumbCap"></div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  var RAW = [
+    "golden-field-sunburst.jpg|Last Light, Wheat Country|Tuscany, Italy|Kodak Portra 400|Leica M6|1998|",
+    "landscape-misty-mountains.jpg|Morning Fog, Cascades|Washington, USA|Fujifilm Pro 400H|Pentax 67|2001|water",
+    "lake-cabin-dawn.jpg|The Cabin at Dawn|Banff, Canada|Kodak Ektar 100|Mamiya 7 II|2003|water",
+    "forest-sunlight.jpg|Cathedral of Pines|Olympic NP, USA|Kodak Portra 160|Hasselblad 500CM|1996|",
+    "valley-green-river.jpg|River Bend, Spring|Glencoe, Scotland|Fujifilm Velvia 50|Nikon F3|1999|water",
+    "cliff-coast-ocean.jpg|Edge of the World|Big Sur, USA|Kodak Portra 400|Contax G2|2002|water",
+    "mountain-road-fog.jpg|The Long Way Home|Dolomites, Italy|Cinestill 800T|Canon AE-1|2005|",
+    "sun-through-leaves.jpg|Backlit|Kyoto, Japan|Kodak Portra 800|Leica M6|2004|",
+    "lake-mountain-house.jpg|Reflections, Still Morning|Hallstatt, Austria|Kodak Ektar 100|Mamiya RZ67|2000|water",
+    "rolling-green-hills.jpg|Patchwork|Tuscany, Italy|Fujifilm Pro 400H|Pentax 645|1997|",
+    "forest-path-trees.jpg|Into the Woods|Black Forest, Germany|Kodak Portra 160|Rolleiflex 2.8F|1995|",
+    "waterfall-bridge.jpg|Hidden Falls|Iceland|Fujifilm Velvia 50|Nikon FM2|2006|water",
+    "autumn-forest-road.jpg|October Road|Vermont, USA|Kodak Portra 400|Leica M7|2007|",
+    "desert-dunes.jpg|Wind Lines|Namibia|Kodak Ektar 100|Hasselblad 503CW|2008|",
+    "misty-pine-forest.jpg|Silence|Norway|Ilford HP5 Plus|Leica M6|2003|bw",
+    "succulent-closeup.jpg|Geometry of Growth|Studio|Kodak Portra 160|Hasselblad 500CM|2009|",
+    "foggy-pier-lake.jpg|The Quiet Dock|Lake District, UK|Cinestill 50D|Contax T2|2010|water",
+    "woman-portrait-window.jpg|By the Window|Lisbon, Portugal|Kodak Portra 400|Pentax 67|2011|",
+    "man-portrait-street.jpg|Stranger, No. 14|Havana, Cuba|Kodak Tri-X 400|Leica M4|2012|bw",
+    "couple-silhouette-sunset.jpg|Goodnight|Santorini, Greece|Kodak Portra 800|Canon EOS-1V|2013|water",
+    "woman-portrait-soft.jpg|Soft Hour|Paris, France|Fujifilm Pro 400H|Contax 645|2014|",
+    "woman-portrait-freckles.jpg|Freckles & Sun|Studio|Kodak Portra 160|Mamiya 645|2015|",
+    "friends-golden-hour.jpg|Golden Hour, Together|California, USA|Kodak Portra 400|Nikon F100|2016|",
+    "woman-curly-portrait.jpg|Curls|Brooklyn, USA|Cinestill 800T|Canon AE-1|2017|",
+    "man-bw-portrait.jpg|Portrait in Shadow|Berlin, Germany|Ilford Delta 3200|Leica M6|2018|bw",
+    "woman-fashion-portrait.jpg|The Red Wall|Marrakesh, Morocco|Kodak Portra 400|Pentax 67|2019|",
+    "street-cafe-paris.jpg|Café de Flore|Paris, France|Kodak Gold 200|Olympus OM-1|2020|",
+    "woman-laughing-portrait.jpg|That Laugh|Mexico City, Mexico|Kodak Portra 800|Contax G2|2021|",
+    "vintage-car-street.jpg|Sunday Drive|Havana, Cuba|Kodak Ektar 100|Nikon FE|2022|",
+    "cozy-interior-window.jpg|Home Light|Copenhagen, Denmark|Kodak Portra 400|Leica M6|2023|"
+  ];
+  var DATA = RAW.map(function(r){
+    var p = r.split("|");
+    return { file:p[0], title:p[1], loc:p[2], film:p[3], cam:p[4], year:p[5], flags:(p[6]||"") };
+  });
+  var IMG = "../../assets/img/";
+
+  // date
+  var d = new Date(2026,5,28);
+  var months=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+  document.getElementById("today").textContent = ("0"+d.getDate()).slice(-2)+" "+months[d.getMonth()]+" "+d.getFullYear();
+
+  // build rows
+  var rowsEl = document.getElementById("rows");
+  var reduced = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  DATA.forEach(function(it, i){
+    var bw = it.flags.indexOf("bw")>=0;
+    var row = document.createElement("div");
+    row.className="row";
+    row.setAttribute("role","row");
+    row.setAttribute("tabindex","0");
+    if(!reduced) row.setAttribute("data-reveal","");
+    row.dataset.file = it.file;
+    row.dataset.bw = bw ? "1":"0";
+    row.dataset.cap = it.title + " · " + it.year;
+    row.innerHTML =
+      '<div class="no">'+("00"+(i+1)).slice(-3)+'</div>'+
+      '<div class="ttl">'+esc(it.title)+(bw?'<span class="bwflag">B&amp;W</span>':'')+'</div>'+
+      '<div class="loc col-loc">'+esc(it.loc)+'</div>'+
+      '<div class="film">'+esc(it.film)+'</div>'+
+      '<div class="cam col-cam">'+esc(it.cam)+'</div>'+
+      '<div class="yr">'+it.year+'</div>';
+    rowsEl.appendChild(row);
+  });
+
+  // tally
+  var byFilm = {};
+  var colour=0, bw=0;
+  DATA.forEach(function(it){
+    byFilm[it.film] = (byFilm[it.film]||0)+1;
+    if(it.flags.indexOf("bw")>=0) bw++; else colour++;
+  });
+  var films = Object.keys(byFilm).sort(function(a,b){
+    return byFilm[b]-byFilm[a] || a.localeCompare(b);
+  });
+  var tgrid = document.getElementById("tgrid");
+  films.forEach(function(f){
+    var n = byFilm[f];
+    var row = document.createElement("div");
+    row.className="trow";
+    var dots = "·".repeat(Math.min(n,12));
+    row.innerHTML = '<span class="nm">'+esc(f)+'</span><span class="ct">'+("0"+n).slice(-2)+'</span>';
+    tgrid.appendChild(row);
+  });
+  document.getElementById("totColour").textContent = ("0"+colour).slice(-2);
+  document.getElementById("totBw").textContent = ("0"+bw).slice(-2);
+  document.getElementById("totStocks").textContent = films.length;
+  document.getElementById("totAll").textContent = DATA.length;
+
+  // typewriter reveal
+  if(!reduced){
+    var rows = Array.prototype.slice.call(rowsEl.children);
+    var idx = 0;
+    function tick(){
+      if(idx>=rows.length) return;
+      rows[idx].classList.add("in");
+      idx++;
+      setTimeout(tick, 55);
+    }
+    // start when sheet visible
+    if("IntersectionObserver" in window){
+      var io = new IntersectionObserver(function(es){
+        if(es[0].isIntersecting){ io.disconnect(); setTimeout(tick,180); }
+      },{threshold:.02});
+      io.observe(rowsEl);
+    } else { setTimeout(tick,180); }
+  }
+
+  // floating thumbnail
+  var thumb = document.getElementById("thumb");
+  var thumbImg = document.getElementById("thumbImg");
+  var thumbCap = document.getElementById("thumbCap");
+  var curFile = null, mx=0, my=0, rafPending=false;
+
+  function placeThumb(){
+    rafPending=false;
+    var w = thumb.offsetWidth, h = thumb.offsetHeight;
+    var x = mx + 18, y = my + 18;
+    if(x + w > window.innerWidth - 8) x = mx - w - 18;
+    if(y + h > window.innerHeight - 8) y = window.innerHeight - h - 8;
+    if(y < 8) y = 8;
+    thumb.style.left = x+"px";
+    thumb.style.top = y+"px";
+  }
+  function onMove(e){
+    mx = e.clientX; my = e.clientY;
+    if(!rafPending){ rafPending=true; requestAnimationFrame(placeThumb); }
+  }
+
+  rowsEl.addEventListener("pointerover", function(e){
+    var row = e.target.closest(".row");
+    if(!row) return;
+    var f = row.dataset.file;
+    if(f !== curFile){
+      curFile = f;
+      thumbImg.src = IMG + f;
+      thumbImg.alt = row.dataset.cap;
+      thumbCap.textContent = row.dataset.cap;
+      thumb.classList.toggle("bw", row.dataset.bw==="1");
+    }
+    thumb.classList.add("show");
+    window.addEventListener("pointermove", onMove);
+    placeThumb();
+  });
+  rowsEl.addEventListener("pointermove", onMove);
+  rowsEl.addEventListener("pointerout", function(e){
+    var row = e.target.closest(".row");
+    if(!row) return;
+    if(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".row")) return;
+    thumb.classList.remove("show");
+    curFile = null;
+    window.removeEventListener("pointermove", onMove);
+  });
+
+  // keyboard focus also shows row (no floating thumb on keyboard, just highlight via CSS)
+})();
+</script>
+</body>
+</html>

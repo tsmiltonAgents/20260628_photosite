@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>document.documentElement.classList.add('js');</script>
+  <title>障子 Shōji — Tom Milton · Film Photography</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       障子 SHŌJI — Tom Milton Film Photography
+       Japanese Minimal · 間 Ma · Sliding Paper Screens
+    ============================================================ */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --paper:       #f7efd9;
+      --paper-glow:  #fef8e8;
+      --wood:        #7c5618;
+      --wood-light:  #c9a04a;
+      --wood-dark:   #3c2008;
+      --wood-mid:    #a07030;
+      --bg:          #e6dbc8;
+      --tatami:      #cfc0a2;
+      --text:        #1c1008;
+      --text-muted:  #6a4c28;
+      --shadow:      rgba(40, 22, 4, 0.22);
+      --mullion:     rgba(110, 75, 22, 0.62);
+      --glow-warm:   rgba(255, 238, 168, 0.55);
+      --ease-open:   cubic-bezier(0.22, 0.61, 0.36, 1);
+      --ease-close:  cubic-bezier(0.55, 0, 0.45, 1);
+      --dur-open:    820ms;
+      --dur-close:   680ms;
+    }
+
+    html {
+      font-size: clamp(14.5px, 1.3vw, 17px);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'EB Garamond', Georgia, serif;
+      min-height: 100svh;
+      overflow-x: hidden;
+      /* Washi paper grain via SVG feTurbulence */
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.038'/%3E%3C/svg%3E");
+    }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    /* ============================================================
+       BACK LINK
+    ============================================================ */
+
+    .back-link {
+      position: fixed;
+      top: 1.3rem;
+      left: 1.4rem;
+      z-index: 200;
+      font-family: 'EB Garamond', serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+      color: var(--wood);
+      text-decoration: none;
+      opacity: 0.65;
+      transition: opacity 0.3s ease;
+      mix-blend-mode: multiply;
+    }
+    .back-link:hover, .back-link:focus-visible { opacity: 1; text-decoration: underline; }
+
+    /* ============================================================
+       MASTHEAD
+    ============================================================ */
+
+    .masthead {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: clamp(5.5rem, 13vw, 9rem) 2rem clamp(2.5rem, 6vw, 4.5rem);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .masthead::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 85% 65% at 50% 25%,
+        rgba(255, 248, 222, 0.6) 0%,
+        rgba(240, 228, 200, 0.2) 55%,
+        transparent 80%);
+      pointer-events: none;
+    }
+
+    .masthead-kanji {
+      font-family: 'Shippori Mincho', serif;
+      font-weight: 400;
+      font-size: clamp(5.5rem, 15vw, 11rem);
+      line-height: 1;
+      letter-spacing: 0.06em;
+      color: var(--wood-dark);
+      opacity: 0.82;
+      margin-bottom: 1.4rem;
+      text-shadow:
+        0 1px 0 rgba(200, 160, 80, 0.4),
+        0 3px 12px rgba(60, 32, 8, 0.12);
+    }
+
+    .masthead-name {
+      font-family: 'EB Garamond', serif;
+      font-weight: 500;
+      font-size: clamp(1.1rem, 2.8vw, 1.7rem);
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 0.55rem;
+    }
+
+    .masthead-sub {
+      font-family: 'Shippori Mincho', serif;
+      font-size: clamp(0.78rem, 1.6vw, 0.98rem);
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      margin-bottom: 2.8rem;
+    }
+
+    /* Decorative kumiko strip divider */
+    .kumiko-strip {
+      width: min(580px, 88vw);
+      height: 26px;
+      overflow: visible;
+    }
+
+    /* ============================================================
+       GALLERY GRID
+    ============================================================ */
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr));
+      gap: clamp(1.6rem, 4vw, 3.2rem);
+      padding: clamp(1rem, 4vw, 2.5rem) clamp(1.2rem, 5vw, 4rem) clamp(2rem, 6vw, 5rem);
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 860px) {
+      .gallery { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ============================================================
+       SHŌJI DOORWAY (outer container — the tategu wooden frame)
+    ============================================================ */
+
+    .shoji-doorway {
+      position: relative;
+      aspect-ratio: 3 / 2;
+      overflow: hidden;
+      cursor: pointer;
+      border-radius: 2px;
+      /* Tategu joinery frame */
+      border: 5px solid var(--wood);
+      outline: none;
+      box-shadow:
+        0 0 0 1px var(--wood-dark),
+        inset 0 0 0 3px var(--wood-light),
+        inset 0 0 0 4px var(--wood-mid),
+        0 6px 28px var(--shadow),
+        0 2px 8px rgba(60, 32, 8, 0.18);
+      transition:
+        box-shadow 0.35s ease,
+        transform 0.35s ease;
+      /* Ensure content is reachable without JS */
+    }
+
+    .shoji-doorway:hover {
+      box-shadow:
+        0 0 0 1px var(--wood-dark),
+        inset 0 0 0 3px var(--wood-light),
+        inset 0 0 0 4px var(--wood-mid),
+        0 10px 40px var(--shadow),
+        0 4px 12px rgba(60, 32, 8, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .shoji-doorway:focus-visible {
+      box-shadow:
+        0 0 0 1px var(--wood-dark),
+        inset 0 0 0 3px var(--wood-light),
+        inset 0 0 0 4px var(--wood-mid),
+        0 6px 28px var(--shadow),
+        0 0 0 4px rgba(124, 86, 24, 0.55);
+    }
+
+    /* ============================================================
+       PHOTO LAYER (beneath the shōji)
+    ============================================================ */
+
+    .photo-wrap {
+      position: absolute;
+      inset: 0;
+    }
+
+    .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      /* Warm Portra grade for colour photos */
+      filter: saturate(1.06) contrast(1.02) sepia(0.1) brightness(1.01);
+      transition: transform 0.6s ease;
+    }
+
+    .shoji-doorway.open .photo-wrap img {
+      transform: scale(1.012);
+    }
+
+    /* B&W grade */
+    .photo-wrap img.bw {
+      filter: grayscale(1) contrast(1.08) brightness(1.02);
+    }
+
+    /* ============================================================
+       CAPTION (slides up on open)
+    ============================================================ */
+
+    .caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 5;
+      padding: 2.2rem 1.4rem 1.3rem;
+      background: linear-gradient(
+        to top,
+        rgba(18, 9, 2, 0.80) 0%,
+        rgba(18, 9, 2, 0.42) 50%,
+        transparent 100%
+      );
+      color: #f4e8d4;
+      /* Default: hidden below frame */
+      transform: translateY(110%);
+      transition: transform 0.52s var(--ease-open) 0.44s;
+    }
+
+    /* Caption always visible without JS */
+    html:not(.js) .caption { transform: translateY(0); transition: none; }
+
+    .shoji-doorway.open .caption {
+      transform: translateY(0);
+    }
+
+    .caption-title {
+      font-family: 'EB Garamond', serif;
+      font-weight: 400;
+      font-style: italic;
+      font-size: clamp(0.95rem, 2vw, 1.22rem);
+      letter-spacing: 0.015em;
+      line-height: 1.25;
+      margin-bottom: 0.35rem;
+    }
+
+    .caption-meta {
+      font-family: 'Shippori Mincho', serif;
+      font-size: clamp(0.6rem, 1.1vw, 0.75rem);
+      letter-spacing: 0.1em;
+      opacity: 0.78;
+      line-height: 1.5;
+    }
+
+    /* ============================================================
+       SHŌJI SCREEN PANELS (the rice-paper + kumiko lattice)
+    ============================================================ */
+
+    .shoji-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      z-index: 10;
+      pointer-events: none; /* click passes to doorway */
+    }
+
+    .panel {
+      position: relative;
+      flex: 1;
+      /* Rice paper warm base */
+      background-color: rgba(250, 242, 220, 0.94);
+      /* Kumiko lattice — horizontal & vertical mullions */
+      background-image:
+        linear-gradient(to bottom, var(--mullion) 1.5px, transparent 1.5px),
+        linear-gradient(to right,  var(--mullion) 1.5px, transparent 1.5px);
+      background-size: 46px 33px;
+      /* Warm backlight glow — like afternoon sun through paper */
+      box-shadow:
+        inset 0 0 60px rgba(255, 228, 140, 0.38),
+        inset 0 0 24px rgba(255, 248, 200, 0.22);
+      /* GPU-friendly transition */
+      will-change: transform;
+    }
+
+    /* Radial warm backlight overlay */
+    .panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        ellipse 95% 75% at 50% 42%,
+        rgba(255, 254, 238, 0.60) 0%,
+        rgba(255, 242, 195, 0.28) 45%,
+        transparent 78%
+      );
+      pointer-events: none;
+    }
+
+    /* Subtle paper grain overlay */
+    .panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.055;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .panel-left  { border-right: 2px solid var(--wood-mid); }
+    .panel-right { border-left:  2px solid var(--wood-mid); }
+
+    /* ============================================================
+       PANEL STATES
+       Without JS → panels start OPEN (photos always accessible)
+       With JS    → panels start CLOSED, open on scroll/click
+    ============================================================ */
+
+    /* No-JS default: OPEN */
+    .panel-left  { transform: translateX(-100%); }
+    .panel-right { transform: translateX(100%);  }
+
+    /* JS present: CLOSED by default */
+    html.js .panel-left  { transform: translateX(0); transition: transform var(--dur-close) var(--ease-close); }
+    html.js .panel-right { transform: translateX(0); transition: transform var(--dur-close) var(--ease-close); }
+
+    /* OPEN state: panels slide apart */
+    html.js .shoji-doorway.open .panel-left  { transform: translateX(-100%); transition: transform var(--dur-open) var(--ease-open); }
+    html.js .shoji-doorway.open .panel-right { transform: translateX(100%);  transition: transform var(--dur-open) var(--ease-open); }
+
+    /* HOVER NUDGE — desktop only, closed doorway */
+    @media (hover: hover) {
+      html.js .shoji-doorway:not(.open):hover .panel-left  {
+        transform: translateX(-14%);
+        transition: transform 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+      html.js .shoji-doorway:not(.open):hover .panel-right {
+        transform: translateX(14%);
+        transition: transform 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+    }
+
+    /* REDUCED MOTION: panels always open, no transitions */
+    @media (prefers-reduced-motion: reduce) {
+      html.js .panel-left  { transform: translateX(-100%) !important; }
+      html.js .panel-right { transform: translateX(100%)  !important; }
+      .panel    { transition: none !important; }
+      .caption  { transform: translateY(0) !important; transition: none !important; }
+      .photo-wrap img { transition: none !important; }
+    }
+
+    /* ============================================================
+       OPEN / CLOSE HINTS
+    ============================================================ */
+
+    .open-hint {
+      position: absolute;
+      inset: 0;
+      z-index: 12;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Shippori Mincho', serif;
+      font-size: clamp(0.68rem, 1.3vw, 0.88rem);
+      letter-spacing: 0.22em;
+      color: var(--wood-dark);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      text-shadow: 0 1px 4px rgba(255, 240, 180, 0.9);
+      gap: 0.6em;
+      user-select: none;
+    }
+
+    .open-hint span { display: inline-block; }
+
+    @media (hover: hover) {
+      html.js .shoji-doorway:not(.open):hover .open-hint { opacity: 0.75; }
+    }
+    html.js .shoji-doorway:not(.open):focus-visible .open-hint { opacity: 0.85; }
+
+    .close-hint {
+      position: absolute;
+      top: 0.65rem;
+      right: 0.9rem;
+      z-index: 15;
+      font-family: 'Shippori Mincho', serif;
+      font-size: clamp(0.58rem, 1vw, 0.7rem);
+      letter-spacing: 0.14em;
+      color: rgba(250, 235, 205, 0.72);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease 0.65s;
+      user-select: none;
+    }
+
+    html.js .shoji-doorway.open .close-hint { opacity: 1; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+
+    .footer {
+      text-align: center;
+      padding: clamp(2.5rem, 7vw, 5rem) 2rem clamp(2rem, 5vw, 3.5rem);
+      border-top: 1px solid rgba(124, 86, 24, 0.18);
+      margin-top: clamp(1rem, 4vw, 2rem);
+    }
+
+    .footer-kanji {
+      display: block;
+      font-family: 'Shippori Mincho', serif;
+      font-size: 2rem;
+      color: var(--wood-dark);
+      opacity: 0.3;
+      margin-bottom: 1rem;
+    }
+
+    .footer p {
+      font-family: 'Shippori Mincho', serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      opacity: 0.85;
+    }
+
+    .footer p + p {
+      margin-top: 0.35rem;
+      font-size: 0.68rem;
+      opacity: 0.5;
+    }
+
+    /* ============================================================
+       NOSCRIPT
+    ============================================================ */
+
+    noscript .ns-bar {
+      display: block;
+      text-align: center;
+      padding: 0.4rem 1rem;
+      background: rgba(124, 86, 24, 0.08);
+      font-family: 'EB Garamond', serif;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(124, 86, 24, 0.12);
+    }
+
+  </style>
+</head>
+<body>
+
+  <a href="../../index.html" class="back-link" aria-label="Back to all designs">← All designs</a>
+
+  <noscript><span class="ns-bar">JavaScript is disabled — all shōji screens are shown open.</span></noscript>
+
+  <!-- ============================================================
+       MASTHEAD
+  ============================================================ -->
+  <header class="masthead" role="banner">
+
+    <div class="masthead-kanji" aria-label="Shōji">障子</div>
+
+    <p class="masthead-name">Tom Milton</p>
+    <p class="masthead-sub">Shōji &thinsp;·&thinsp; Film Photography &thinsp;·&thinsp; 障子の向こうに</p>
+
+    <!-- Decorative kumiko strip — SVG pattern -->
+    <svg class="kumiko-strip" viewBox="0 0 580 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <defs>
+        <pattern id="kp" x="0" y="0" width="40" height="26" patternUnits="userSpaceOnUse">
+          <rect width="40" height="26" fill="rgba(248,240,218,0.44)"/>
+          <line x1="0" y1="13" x2="40" y2="13" stroke="rgba(124,86,24,0.3)" stroke-width="0.8"/>
+          <line x1="0" y1="0"  x2="0"  y2="26" stroke="rgba(124,86,24,0.42)" stroke-width="1"/>
+        </pattern>
+      </defs>
+      <rect width="580" height="26" fill="url(#kp)"/>
+      <line x1="0"   y1="1"  x2="580" y2="1"  stroke="#7c5618" stroke-width="1.4" opacity="0.55"/>
+      <line x1="0"   y1="25" x2="580" y2="25" stroke="#7c5618" stroke-width="1.4" opacity="0.55"/>
+      <line x1="0"   y1="0"  x2="0"   y2="26" stroke="#3c2008" stroke-width="2"   opacity="0.6"/>
+      <line x1="579" y1="0"  x2="579" y2="26" stroke="#3c2008" stroke-width="2"   opacity="0.6"/>
+    </svg>
+
+  </header>
+
+  <!-- ============================================================
+       SHŌJI GALLERY
+  ============================================================ -->
+  <main class="gallery" id="gallery" aria-label="Shōji photograph gallery — click any screen to open">
+
+    <!-- 1 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Last Light, Wheat Country — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/golden-field-sunburst.jpg"
+             alt="Last Light, Wheat Country — golden wheat fields under a sunburst sky, Tuscany, Italy, 1998"
+             loading="eager" decoding="async">
+      </div>
+      <div class="caption" aria-live="polite">
+        <h2 class="caption-title">Last Light, Wheat Country</h2>
+        <p class="caption-meta">Tuscany, Italy &nbsp;·&nbsp; Kodak Portra 400 &nbsp;·&nbsp; Leica M6 &nbsp;·&nbsp; 1998</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 2 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Morning Fog, Cascades — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/landscape-misty-mountains.jpg"
+             alt="Morning Fog, Cascades — layers of mist over mountain ridges, Washington, USA, 2001"
+             loading="eager" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Morning Fog, Cascades</h2>
+        <p class="caption-meta">Washington, USA &nbsp;·&nbsp; Fujifilm Pro 400H &nbsp;·&nbsp; Pentax 67 &nbsp;·&nbsp; 2001</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 3 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: The Cabin at Dawn — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/lake-cabin-dawn.jpg"
+             alt="The Cabin at Dawn — a lone cabin by a still mountain lake at first light, Banff, Canada, 2003"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">The Cabin at Dawn</h2>
+        <p class="caption-meta">Banff, Canada &nbsp;·&nbsp; Kodak Ektar 100 &nbsp;·&nbsp; Mamiya 7 II &nbsp;·&nbsp; 2003</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 4 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Cathedral of Pines — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/forest-sunlight.jpg"
+             alt="Cathedral of Pines — shafts of golden light through towering old-growth pines, Olympic NP, USA, 1996"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Cathedral of Pines</h2>
+        <p class="caption-meta">Olympic NP, USA &nbsp;·&nbsp; Kodak Portra 160 &nbsp;·&nbsp; Hasselblad 500CM &nbsp;·&nbsp; 1996</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 5 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: River Bend, Spring — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/valley-green-river.jpg"
+             alt="River Bend, Spring — a green valley river winding through lush hillside, Glencoe, Scotland, 1999"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">River Bend, Spring</h2>
+        <p class="caption-meta">Glencoe, Scotland &nbsp;·&nbsp; Fujifilm Velvia 50 &nbsp;·&nbsp; Nikon F3 &nbsp;·&nbsp; 1999</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 6 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Edge of the World — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/cliff-coast-ocean.jpg"
+             alt="Edge of the World — dramatic coastal cliffs meeting the Pacific Ocean, Big Sur, USA, 2002"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Edge of the World</h2>
+        <p class="caption-meta">Big Sur, USA &nbsp;·&nbsp; Kodak Portra 400 &nbsp;·&nbsp; Contax G2 &nbsp;·&nbsp; 2002</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 7 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: The Long Way Home — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/mountain-road-fog.jpg"
+             alt="The Long Way Home — a winding mountain road disappearing into fog, Dolomites, Italy, 2005"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">The Long Way Home</h2>
+        <p class="caption-meta">Dolomites, Italy &nbsp;·&nbsp; Cinestill 800T &nbsp;·&nbsp; Canon AE-1 &nbsp;·&nbsp; 2005</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 8 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Backlit — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/sun-through-leaves.jpg"
+             alt="Backlit — dappled autumn light filtering through maple leaves, Kyoto, Japan, 2004"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Backlit</h2>
+        <p class="caption-meta">Kyoto, Japan &nbsp;·&nbsp; Kodak Portra 800 &nbsp;·&nbsp; Leica M6 &nbsp;·&nbsp; 2004</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 9 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Reflections, Still Morning — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/lake-mountain-house.jpg"
+             alt="Reflections, Still Morning — a lakeside house perfectly mirrored in glassy water, Hallstatt, Austria, 2000"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Reflections, Still Morning</h2>
+        <p class="caption-meta">Hallstatt, Austria &nbsp;·&nbsp; Kodak Ektar 100 &nbsp;·&nbsp; Mamiya RZ67 &nbsp;·&nbsp; 2000</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 10 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Patchwork — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/rolling-green-hills.jpg"
+             alt="Patchwork — rolling green hills divided by hedgerows in the Tuscan countryside, Tuscany, Italy, 1997"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Patchwork</h2>
+        <p class="caption-meta">Tuscany, Italy &nbsp;·&nbsp; Fujifilm Pro 400H &nbsp;·&nbsp; Pentax 645 &nbsp;·&nbsp; 1997</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 11 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Into the Woods — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/forest-path-trees.jpg"
+             alt="Into the Woods — a narrow path winding through dense Black Forest pine stands, Germany, 1995"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Into the Woods</h2>
+        <p class="caption-meta">Black Forest, Germany &nbsp;·&nbsp; Kodak Portra 160 &nbsp;·&nbsp; Rolleiflex 2.8F &nbsp;·&nbsp; 1995</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 12 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Hidden Falls — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/waterfall-bridge.jpg"
+             alt="Hidden Falls — a stone bridge arching over a rushing waterfall, Iceland, 2006"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Hidden Falls</h2>
+        <p class="caption-meta">Iceland &nbsp;·&nbsp; Fujifilm Velvia 50 &nbsp;·&nbsp; Nikon FM2 &nbsp;·&nbsp; 2006</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 13 — B&W -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Silence — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/misty-pine-forest.jpg"
+             alt="Silence — lone pine silhouettes vanishing into a white winter mist, Norway, 2003"
+             loading="lazy" decoding="async"
+             class="bw">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Silence</h2>
+        <p class="caption-meta">Norway &nbsp;·&nbsp; Ilford HP5 Plus &nbsp;·&nbsp; Leica M6 &nbsp;·&nbsp; 2003</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 14 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: By the Window — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/woman-portrait-window.jpg"
+             alt="By the Window — a woman in soft window light, Lisbon, Portugal, 2011"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">By the Window</h2>
+        <p class="caption-meta">Lisbon, Portugal &nbsp;·&nbsp; Kodak Portra 400 &nbsp;·&nbsp; Pentax 67 &nbsp;·&nbsp; 2011</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 15 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Soft Hour — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/woman-portrait-soft.jpg"
+             alt="Soft Hour — a portrait bathed in diffused afternoon light, Paris, France, 2014"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Soft Hour</h2>
+        <p class="caption-meta">Paris, France &nbsp;·&nbsp; Fujifilm Pro 400H &nbsp;·&nbsp; Contax 645 &nbsp;·&nbsp; 2014</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 16 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: October Road — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/autumn-forest-road.jpg"
+             alt="October Road — a flame-canopied New England road in peak autumn colour, Vermont, USA, 2007"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">October Road</h2>
+        <p class="caption-meta">Vermont, USA &nbsp;·&nbsp; Kodak Portra 400 &nbsp;·&nbsp; Leica M7 &nbsp;·&nbsp; 2007</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+    <!-- 17 -->
+    <div class="shoji-doorway"
+         role="button" tabindex="0"
+         aria-expanded="false"
+         aria-label="Shōji screen: Home Light — click to reveal">
+      <div class="photo-wrap">
+        <img src="../../assets/img/cozy-interior-window.jpg"
+             alt="Home Light — warm interior light spilling through a condensation-blurred window, Copenhagen, Denmark, 2023"
+             loading="lazy" decoding="async">
+      </div>
+      <div class="caption">
+        <h2 class="caption-title">Home Light</h2>
+        <p class="caption-meta">Copenhagen, Denmark &nbsp;·&nbsp; Kodak Portra 400 &nbsp;·&nbsp; Leica M6 &nbsp;·&nbsp; 2023</p>
+      </div>
+      <div class="shoji-screen" aria-hidden="true">
+        <div class="panel panel-left"></div>
+        <div class="panel panel-right"></div>
+      </div>
+      <span class="open-hint" aria-hidden="true"><span>開く</span><span>·</span><span>open</span></span>
+      <span class="close-hint" aria-hidden="true">閉じる</span>
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer" role="contentinfo">
+    <span class="footer-kanji" aria-hidden="true">障</span>
+    <p>Tom Milton &nbsp;·&nbsp; Film Photography</p>
+    <p>&copy; All rights reserved</p>
+  </footer>
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+  (function () {
+    'use strict';
+
+    // Reduced-motion preference
+    var mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var reducedMotion = mq.matches;
+
+    var doorways = document.querySelectorAll('.shoji-doorway');
+
+    // If reduced motion, open everything immediately and exit
+    if (reducedMotion) {
+      doorways.forEach(function (d) {
+        d.classList.add('open');
+        d.setAttribute('aria-expanded', 'true');
+      });
+      return;
+    }
+
+    // ── Toggle open/close ──────────────────────────────────────
+    function openDoor(d) {
+      d.classList.add('open');
+      d.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeDoor(d) {
+      d.classList.remove('open');
+      d.setAttribute('aria-expanded', 'false');
+      d.dataset.manuallyClosed = '1';
+    }
+
+    function toggleDoor(d) {
+      if (d.classList.contains('open')) {
+        closeDoor(d);
+      } else {
+        d.removeAttribute('data-manually-closed');
+        delete d.dataset.manuallyClosed;
+        openDoor(d);
+      }
+    }
+
+    // ── IntersectionObserver — auto-open on scroll ─────────────
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var d = entry.target;
+          observer.unobserve(d);
+          // Don't auto-open if user manually closed this specific one
+          if (d.dataset.manuallyClosed) return;
+          var delay = parseInt(d.dataset.delay || '0', 10);
+          setTimeout(function () {
+            if (!d.dataset.manuallyClosed) {
+              openDoor(d);
+            }
+          }, delay);
+        }
+      });
+    }, {
+      threshold: 0.28,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    // ── Wire up each doorway ───────────────────────────────────
+    doorways.forEach(function (d, i) {
+      // Stagger pairs side-by-side for a nice reveal rhythm
+      d.dataset.delay = String((i % 2) * 160);
+
+      // Click / tap
+      d.addEventListener('click', function () {
+        toggleDoor(d);
+      });
+
+      // Keyboard: Enter + Space
+      d.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleDoor(d);
+        }
+      });
+
+      // Observe
+      observer.observe(d);
+    });
+
+    // ── Pause transitions when tab hidden (avoids stale states) ─
+    document.addEventListener('visibilitychange', function () {
+      // CSS transitions don't run in hidden tabs, so nothing needed;
+      // but if returning to a half-animated tab we nudge a reflow:
+      if (!document.hidden) {
+        document.body.offsetHeight; // eslint-disable-line no-unused-expressions
+      }
+    });
+
+    // ── Live update reduced-motion preference ──────────────────
+    mq.addEventListener('change', function (e) {
+      if (e.matches) {
+        doorways.forEach(function (d) {
+          d.classList.add('open');
+          d.setAttribute('aria-expanded', 'true');
+        });
+      }
+    });
+
+  }());
+  </script>
+
+</body>
+</html>

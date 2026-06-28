@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Milton — Carousel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600&family=Cutive+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --room:#08070a;
+    --room2:#100c0a;
+    --amber:#ffb24d;
+    --tungsten:#ffce86;
+    --cream:#f4e7cf;
+    --dim:#8a7860;
+    --mount:#d9cdb6;     /* cardboard slide mount */
+    --mount-d:#b3a586;
+    --metal:#211a15;
+    --metal-hi:#463a2d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  html{overscroll-behavior:none}
+  body{
+    background:radial-gradient(130% 100% at 50% -8%, #1a130d 0%, var(--room2) 42%, var(--room) 100%);
+    color:var(--cream);font-family:'Oswald',sans-serif;
+    overflow:hidden;position:fixed;inset:0;width:100%;
+    -webkit-user-select:none;user-select:none;
+  }
+  a{color:inherit}
+  /* faint room grain */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:80;opacity:.05;mix-blend-mode:overlay;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* top bar */
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;
+    padding:14px clamp(14px,3vw,34px);pointer-events:none;}
+  .topbar a,.brand,.ctrls{pointer-events:auto}
+  .back{text-decoration:none;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+    display:inline-flex;align-items:center;gap:.5em;transition:color .25s}
+  .back:hover{color:var(--amber)}
+  .brand{text-align:center;line-height:1.05;position:absolute;left:50%;transform:translateX(-50%)}
+  .brand .nm{font-weight:600;letter-spacing:.34em;font-size:14px;text-transform:uppercase}
+  .brand .sub{font-family:'Cutive Mono',monospace;font-size:10px;letter-spacing:.28em;color:var(--dim);margin-top:3px}
+  .ctrls{display:flex;gap:8px;align-items:center}
+  .btn{font-family:'Cutive Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--dim);background:rgba(20,16,12,.6);border:1px solid var(--metal-hi);border-radius:4px;
+    padding:6px 10px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{color:var(--amber);border-color:var(--amber)}
+  .btn .led{width:7px;height:7px;border-radius:50%;background:#5a4a36;box-shadow:none;transition:.2s}
+  .btn.on .led{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+
+  /* projector beam from behind viewer */
+  .beam{position:fixed;left:50%;top:-6%;transform:translateX(-50%);width:min(94vw,1100px);height:78vh;
+    z-index:1;pointer-events:none;
+    background:radial-gradient(58% 70% at 50% 28%, rgba(255,186,96,.16), rgba(255,150,60,.06) 48%, transparent 72%);
+    filter:blur(6px);clip-path:polygon(38% 0,62% 0,100% 100%,0% 100%);opacity:.9}
+
+  /* stage */
+  .stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding-top:52px;z-index:3}
+
+  .screenwrap{position:relative;width:min(80vw,72vh*1.5,940px);width:min(80vw,940px);max-width:min(80vw,940px);}
+  .gate{position:relative;width:min(80vw,940px);max-width:90vw;aspect-ratio:3/2;max-height:60vh;
+    border-radius:3px;overflow:hidden;background:#000;
+    box-shadow:0 0 0 2px #000,0 0 0 12px var(--metal),0 0 0 13px var(--metal-hi),
+      0 30px 80px -14px rgba(0,0,0,.85),0 0 120px 16px rgba(255,150,60,.12);}
+  .slide{position:absolute;inset:0;will-change:transform,opacity}
+  .slide .mount{position:absolute;inset:-7% -5%;background:
+    linear-gradient(180deg,var(--mount) 0%,var(--mount-d) 100%);
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.25)}
+  .slide .ap{position:absolute;inset:0;overflow:hidden;background:#000}
+  .slide img{width:100%;height:100%;object-fit:cover;display:block;
+    filter:saturate(1.1) contrast(1.05) brightness(1.04)}
+  .slide.bw img{filter:grayscale(1) contrast(1.08) brightness(1.05)}
+  .slide .ptitle{position:absolute;left:0;right:0;bottom:0;text-align:center;
+    font-family:'Cutive Mono',monospace;font-size:9px;letter-spacing:.1em;color:#3a2c1c;
+    padding:1px 0;opacity:.0}
+  /* projector character overlays on gate */
+  .warm{position:absolute;inset:0;z-index:6;pointer-events:none;
+    background:linear-gradient(0deg,rgba(255,140,40,.12),rgba(255,205,120,.07));mix-blend-mode:soft-light}
+  .vig{position:absolute;inset:0;z-index:7;pointer-events:none;
+    background:radial-gradient(120% 120% at 50% 50%,transparent 50%,rgba(0,0,0,.6) 100%);mix-blend-mode:multiply}
+  #dust{position:absolute;inset:0;z-index:8;pointer-events:none;mix-blend-mode:screen;opacity:.55}
+  .blackout{position:absolute;inset:0;z-index:9;background:#000;opacity:0;pointer-events:none}
+  .flash{position:absolute;inset:0;z-index:10;background:#fff;opacity:0;pointer-events:none;mix-blend-mode:screen}
+
+  /* click zones */
+  .zone{position:absolute;top:0;bottom:0;width:34%;z-index:12;cursor:pointer}
+  .zone.prev{left:0}.zone.next{right:0}
+  .zone .arr{position:absolute;top:50%;transform:translateY(-50%);font-size:34px;color:var(--cream);
+    opacity:0;transition:opacity .25s;text-shadow:0 2px 10px #000}
+  .zone.prev .arr{left:14px}.zone.next .arr{right:14px}
+  .gate:hover .zone .arr{opacity:.35}
+  .zone:hover .arr{opacity:.85}
+
+  /* caption slate */
+  .slate{margin-top:26px;width:min(80vw,940px);max-width:90vw;display:flex;align-items:flex-end;
+    justify-content:space-between;gap:18px;font-family:'Cutive Mono',monospace;z-index:4}
+  .slate .ttl{font-family:'Oswald',sans-serif;font-weight:500;font-size:clamp(17px,2.6vw,26px);line-height:1.05}
+  .slate .meta{font-size:11px;letter-spacing:.12em;color:var(--dim);margin-top:6px;text-transform:uppercase}
+  .slate .meta b{color:var(--amber);font-weight:400}
+  .slate .rt{text-align:right;font-size:11px;letter-spacing:.1em;color:var(--dim);white-space:nowrap}
+  .slate .rt .stk{color:var(--tungsten)}
+
+  /* carousel tray indicator */
+  .tray{position:fixed;right:clamp(14px,3vw,34px);bottom:clamp(14px,3vw,30px);z-index:30;width:118px;height:118px}
+  .tray svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 8px 18px rgba(0,0,0,.6))}
+  .tray .cap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:'Cutive Mono',monospace;pointer-events:none}
+  .tray .cap .n{font-size:20px;color:var(--amber);text-shadow:0 0 8px rgba(255,160,60,.5)}
+  .tray .cap .t{font-size:8px;letter-spacing:.18em;color:var(--dim);margin-top:1px}
+
+  /* hint */
+  .hint{position:fixed;left:50%;bottom:clamp(14px,3vw,30px);transform:translateX(-50%);z-index:35;
+    font-family:'Cutive Mono',monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--tungsten);
+    pointer-events:none;transition:opacity .6s;text-shadow:0 0 10px rgba(255,150,60,.4);text-align:center}
+  .hint kbd{border:1px solid var(--metal-hi);border-radius:3px;padding:1px 6px;color:var(--cream);margin:0 2px}
+  .hint.gone{opacity:0}
+
+  /* fan hum indicator dot bottom-left */
+  .status{position:fixed;left:clamp(14px,3vw,34px);bottom:14px;z-index:30;
+    font-family:'Cutive Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--dim);pointer-events:none}
+  .status .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#c84;margin-right:7px;
+    vertical-align:middle;box-shadow:0 0 8px #fa3;animation:hum 1.1s ease-in-out infinite}
+  @keyframes hum{0%,100%{opacity:.4;transform:scale(.9)}50%{opacity:1;transform:scale(1)}}
+
+  @media (max-width:680px){
+    .gate{max-height:46vh}
+    .slate{flex-direction:column;align-items:flex-start;gap:4px;margin-top:16px}
+    .slate .rt{text-align:left}
+    .tray{width:88px;height:88px;bottom:64px}
+    .brand{display:none}
+    .hint{bottom:120px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .status .dot{animation:none}
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a class="back" href="../../index.html">&larr; All designs</a>
+    <div class="brand"><div class="nm">Tom Milton</div><div class="sub">CAROUSEL · 70 · KODAK SLIDE PROJECTOR</div></div>
+    <div class="ctrls">
+      <button class="btn" id="playBtn" aria-label="Toggle auto-play"><span class="led"></span><span id="playTxt">Auto</span></button>
+      <button class="btn" id="sndBtn" aria-label="Toggle projector sound"><span class="led"></span>Sound</button>
+    </div>
+  </div>
+
+  <div class="beam" aria-hidden="true"></div>
+
+  <div class="stage">
+    <div class="gate" id="gate" role="img" aria-live="polite" aria-label="Projected slide">
+      <div class="slide" id="slideA"><div class="mount"></div><div class="ap"><img alt=""></div></div>
+      <div class="slide" id="slideB" style="opacity:0"><div class="mount"></div><div class="ap"><img alt=""></div></div>
+      <canvas id="dust"></canvas>
+      <div class="warm"></div>
+      <div class="vig"></div>
+      <div class="blackout" id="blackout"></div>
+      <div class="flash" id="flash"></div>
+      <div class="zone prev" id="zPrev" aria-label="Previous slide"><span class="arr">‹</span></div>
+      <div class="zone next" id="zNext" aria-label="Next slide"><span class="arr">›</span></div>
+    </div>
+    <div class="slate">
+      <div><div class="ttl" id="slTitle">—</div><div class="meta" id="slMeta">—</div></div>
+      <div class="rt" id="slRt">—</div>
+    </div>
+  </div>
+
+  <div class="tray" aria-hidden="true">
+    <svg id="traySvg" viewBox="-60 -60 120 120"></svg>
+    <div class="cap"><span class="n" id="trayN">1</span><span class="t" id="trayT">/ 30</span></div>
+  </div>
+
+  <div class="hint" id="hint">Click a side · <kbd>←</kbd><kbd>→</kbd> · <kbd>Space</kbd> to advance · ka-chunk</div>
+  <div class="status"><span class="dot"></span><span id="statusTxt">PROJECTOR RUNNING · LAMP HOT</span></div>
+
+<script>
+(function(){
+  "use strict";
+  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var BASE = "../../assets/img/";
+  var FRAMES = [
+    ["golden-field-sunburst","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",0],
+    ["landscape-misty-mountains","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001",0],
+    ["lake-cabin-dawn","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003",0],
+    ["forest-sunlight","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",0],
+    ["valley-green-river","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3","1999",0],
+    ["cliff-coast-ocean","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002",0],
+    ["mountain-road-fog","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005",0],
+    ["sun-through-leaves","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004",0],
+    ["lake-mountain-house","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000",0],
+    ["rolling-green-hills","Patchwork","Tuscany, Italy","Fujifilm Pro 400H","Pentax 645","1997",0],
+    ["forest-path-trees","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F","1995",0],
+    ["waterfall-bridge","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006",0],
+    ["autumn-forest-road","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",0],
+    ["desert-dunes","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",0],
+    ["misty-pine-forest","Silence","Norway","Ilford HP5 Plus","Leica M6","2003",1],
+    ["succulent-closeup","Geometry of Growth","Studio","Kodak Portra 160","Hasselblad 500CM","2009",0],
+    ["foggy-pier-lake","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2","2010",0],
+    ["woman-portrait-window","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",0],
+    ["man-portrait-street","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400","Leica M4","2012",1],
+    ["couple-silhouette-sunset","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V","2013",0],
+    ["woman-portrait-soft","Soft Hour","Paris, France","Fujifilm Pro 400H","Contax 645","2014",0],
+    ["woman-portrait-freckles","Freckles & Sun","Studio","Kodak Portra 160","Mamiya 645","2015",0],
+    ["friends-golden-hour","Golden Hour, Together","California, USA","Kodak Portra 400","Nikon F100","2016",0],
+    ["woman-curly-portrait","Curls","Brooklyn, USA","Cinestill 800T","Canon AE-1","2017",0],
+    ["man-bw-portrait","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6","2018",1],
+    ["woman-fashion-portrait","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67","2019",0],
+    ["street-cafe-paris","Café de Flore","Paris, France","Kodak Gold 200","Olympus OM-1","2020",0],
+    ["woman-laughing-portrait","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2","2021",0],
+    ["vintage-car-street","Sunday Drive","Havana, Cuba","Kodak Ektar 100","Nikon FE","2022",0],
+    ["cozy-interior-window","Home Light","Copenhagen, Denmark","Kodak Portra 400","Leica M6","2023",0]
+  ];
+  var N = FRAMES.length;
+
+  var slideA=document.getElementById('slideA'), slideB=document.getElementById('slideB');
+  var imgA=slideA.querySelector('img'), imgB=slideB.querySelector('img');
+  var blackout=document.getElementById('blackout'), flash=document.getElementById('flash');
+  var dust=document.getElementById('dust'), dctx=dust.getContext('2d');
+  var gate=document.getElementById('gate');
+  var slTitle=document.getElementById('slTitle'), slMeta=document.getElementById('slMeta'), slRt=document.getElementById('slRt');
+  var trayN=document.getElementById('trayN'), trayT=document.getElementById('trayT'), traySvg=document.getElementById('traySvg');
+  var hint=document.getElementById('hint');
+  var playBtn=document.getElementById('playBtn'), playTxt=document.getElementById('playTxt');
+  var sndBtn=document.getElementById('sndBtn'), statusTxt=document.getElementById('statusTxt');
+
+  var cur=0;
+  var front=slideA, frontImg=imgA, back=slideB, backImg=imgB;
+  var animating=false;
+
+  // ---- build tray dots ----
+  var dots=[];
+  (function buildTray(){
+    var R=46, ns='http://www.w3.org/2000/svg';
+    var ring=document.createElementNS(ns,'circle');
+    ring.setAttribute('r',R);ring.setAttribute('cx',0);ring.setAttribute('cy',0);
+    ring.setAttribute('fill','none');ring.setAttribute('stroke','#2a2118');ring.setAttribute('stroke-width','11');
+    traySvg.appendChild(ring);
+    var ring2=document.createElementNS(ns,'circle');
+    ring2.setAttribute('r',R);ring2.setAttribute('cx',0);ring2.setAttribute('cy',0);
+    ring2.setAttribute('fill','none');ring2.setAttribute('stroke','#0c0a08');ring2.setAttribute('stroke-width','11');
+    ring2.setAttribute('stroke-dasharray','1 '+(2*Math.PI*R/N - 1).toFixed(2));
+    ring2.setAttribute('stroke-dashoffset','0');traySvg.appendChild(ring2);
+    var g=document.createElementNS(ns,'g');g.setAttribute('id','dotG');traySvg.appendChild(g);
+    for(var i=0;i<N;i++){
+      var a=(i/N)*2*Math.PI - Math.PI/2;
+      var d=document.createElementNS(ns,'circle');
+      d.setAttribute('cx',(Math.cos(a)*R).toFixed(2));
+      d.setAttribute('cy',(Math.sin(a)*R).toFixed(2));
+      d.setAttribute('r','2.1');d.setAttribute('fill','#5a4a36');
+      g.appendChild(d);dots.push(d);
+    }
+    // fixed gate marker (top) — a notch
+    var mk=document.createElementNS(ns,'path');
+    mk.setAttribute('d','M -5 -56 L 5 -56 L 0 -47 Z');mk.setAttribute('fill','#ffb24d');
+    traySvg.appendChild(mk);
+    window._dotG=g;
+  })();
+  function paintTray(){
+    for(var i=0;i<N;i++){
+      dots[i].setAttribute('fill', i===cur?'#ffb24d':(i<cur?'#7a5a30':'#5a4a36'));
+      dots[i].setAttribute('r', i===cur?'3.4':'2.1');
+    }
+    // rotate dot group so current sits at top
+    var deg = -(cur/N)*360;
+    window._dotG.style.transition = REDUCED?'none':'transform .5s cubic-bezier(.5,.05,.2,1)';
+    window._dotG.style.transform = 'rotate('+deg+'deg)';
+    trayN.textContent=(cur+1);trayT.textContent='/ '+N;
+  }
+
+  function applyMeta(idx){
+    var f=FRAMES[idx];
+    slTitle.textContent=f[1];
+    slMeta.innerHTML='<b>'+f[3]+'</b> · '+f[2];
+    slRt.innerHTML='<span class="stk">'+f[4]+'</span><br>'+f[5]+(f[6]?' · B&amp;W':'');
+    gate.setAttribute('aria-label','Projected slide: '+f[1]+', '+f[2]+', '+f[5]);
+  }
+  function loadInto(imgEl, slideEl, idx){
+    var f=FRAMES[idx];
+    imgEl.src=BASE+f[0]+'.jpg';
+    imgEl.alt=f[1]+' — '+f[2]+', '+f[5];
+    slideEl.classList.toggle('bw', !!f[6]);
+  }
+
+  // preload neighbours quietly
+  var pre=new Image();
+  function preload(idx){ var f=FRAMES[((idx%N)+N)%N]; pre.src=BASE+f[0]+'.jpg'; }
+
+  // ---- ka-chunk slide change ----
+  function go(dir){
+    if(animating) return;
+    var nextIdx=((cur+dir)%N+N)%N;
+    hideHint();
+    if(REDUCED){
+      loadInto(frontImg, front, nextIdx);
+      cur=nextIdx; applyMeta(cur); paintTray(); chunkSound(); return;
+    }
+    animating=true;
+    loadInto(backImg, back, nextIdx);
+    back.style.opacity='1';
+    // outgoing direction sign: forward => up/out top, comes from top; backward => mirror
+    var sgn = dir>0 ? -1 : 1;
+    var start=null, T1=170, GAP=70, T2=200, total=T1+GAP+T2;
+    back.style.transform='translateY('+(sgn*130)+'%)';
+    chunkScheduled=false;
+    function step(ts){
+      if(start===null) start=ts;
+      var t=ts-start;
+      // blackout ramps as outgoing leaves, clears as incoming settles
+      if(t<T1){
+        var p=t/T1, e=p*p; // ease-in accelerate up
+        front.style.transform='translateY('+(sgn*130*e)+'%)';
+        blackout.style.opacity=(0.15+0.85*p).toFixed(3);
+      } else if(t<T1+GAP){
+        front.style.transform='translateY('+(sgn*130)+'%)';
+        blackout.style.opacity='1';
+        if(!chunkScheduled){ chunkSound(); chunkScheduled=true; flick(); }
+      } else if(t<total){
+        var p2=(t-T1-GAP)/T2;
+        // ease-out with tiny settle bounce
+        var e2=1-Math.pow(1-p2,3);
+        var settle = p2>0.82 ? Math.sin((p2-0.82)/0.18*Math.PI)*1.4 : 0;
+        back.style.transform='translateY('+((sgn*130)*(1-e2) + settle)+'%)';
+        blackout.style.opacity=(1-p2).toFixed(3);
+      } else {
+        // finalize
+        back.style.transform='translateY(0%)';
+        blackout.style.opacity='0';
+        front.style.transform='translateY(0%)';
+        front.style.opacity='0';
+        // swap front/back refs
+        var ts1=front;front=back;back=ts1;
+        var ti=frontImg;frontImg=backImg;backImg=ti;
+        cur=nextIdx;
+        applyMeta(cur);
+        animating=false;
+        if(autoplay) scheduleAuto();
+        return;
+      }
+      requestAnimationFrame(step);
+    }
+    applyMetaPending(nextIdx); // update tray immediately for responsiveness
+    requestAnimationFrame(step);
+  }
+  var chunkScheduled=false;
+  // advance cur immediately so the tray indicator responds; go() recomputed nextIdx up-front
+  function applyMetaPending(idx){ cur=idx; paintTray(); }
+
+  function flick(){
+    flash.style.opacity='0.4';
+    setTimeout(function(){flash.style.opacity='0';},55);
+  }
+
+  // ---- dust in beam ----
+  var particles=[], dpr=Math.min(2,window.devicePixelRatio||1);
+  function sizeDust(){
+    var r=gate.getBoundingClientRect();
+    dust.width=Math.round(r.width*dpr);dust.height=Math.round(r.height*dpr);
+    dust.style.width=r.width+'px';dust.style.height=r.height+'px';
+    dctx.setTransform(dpr,0,0,dpr,0,0);
+    if(particles.length===0){
+      var n=34;
+      for(var i=0;i<n;i++) particles.push({x:Math.random()*r.width,y:Math.random()*r.height,
+        r:Math.random()*1.3+0.3,vx:(Math.random()-.5)*0.18,vy:(Math.random()-.5)*0.12+0.04,
+        a:Math.random()*0.4+0.1});
+    }
+  }
+  var running=true;
+  function loop(){
+    if(running && !REDUCED){
+      var w=dust.clientWidth,h=dust.clientHeight;
+      dctx.clearRect(0,0,w,h);
+      for(var i=0;i<particles.length;i++){
+        var p=particles[i];
+        p.x+=p.vx;p.y+=p.vy;
+        if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;
+        var tw=p.a*(0.6+0.4*Math.sin((performance.now()*0.002)+i));
+        dctx.fillStyle='rgba(255,225,180,'+tw.toFixed(3)+')';
+        dctx.beginPath();dctx.arc(p.x,p.y,p.r,0,6.28);dctx.fill();
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+
+  // ---- input ----
+  document.getElementById('zNext').addEventListener('click',function(){go(1);});
+  document.getElementById('zPrev').addEventListener('click',function(){go(-1);});
+  window.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='ArrowDown'){go(1);e.preventDefault();}
+    else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){go(-1);e.preventDefault();}
+  });
+  // swipe
+  var tsx=0,tsy=0;
+  gate.addEventListener('touchstart',function(e){tsx=e.touches[0].clientX;tsy=e.touches[0].clientY;},{passive:true});
+  gate.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-tsx, dy=e.changedTouches[0].clientY-tsy;
+    if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)){ go(dx<0?1:-1); }
+  },{passive:true});
+
+  // ---- autoplay ----
+  var autoplay=false, autoTimer=null;
+  function scheduleAuto(){ clearTimeout(autoTimer); autoTimer=setTimeout(function(){ if(autoplay&&!document.hidden) go(1); }, 3800); }
+  playBtn.addEventListener('click',function(){
+    autoplay=!autoplay; playBtn.classList.toggle('on',autoplay);
+    playTxt.textContent=autoplay?'Auto ▶':'Auto';
+    if(autoplay){ hideHint(); scheduleAuto(); } else clearTimeout(autoTimer);
+  });
+
+  // ---- sound (WebAudio, gated) ----
+  var actx=null, fanGain=null, soundOn=false;
+  function ensureAudio(){
+    if(actx) return;
+    try{
+      actx=new (window.AudioContext||window.webkitAudioContext)();
+      // fan hum: two low oscillators + filtered noise
+      fanGain=actx.createGain();fanGain.gain.value=0;fanGain.connect(actx.destination);
+      var o1=actx.createOscillator();o1.type='sawtooth';o1.frequency.value=58;
+      var o2=actx.createOscillator();o2.type='triangle';o2.frequency.value=117;
+      var hg=actx.createGain();hg.gain.value=0.06;
+      var lp=actx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=320;
+      o1.connect(hg);o2.connect(hg);hg.connect(lp);lp.connect(fanGain);
+      o1.start();o2.start();
+    }catch(e){ actx=null; }
+  }
+  function chunkSound(){
+    if(!soundOn||!actx) return;
+    try{
+      var t=actx.currentTime;
+      // mechanical thunk: short noise burst + low thump
+      var len=0.09, buf=actx.createBuffer(1,actx.sampleRate*len,actx.sampleRate);
+      var d=buf.getChannelData(0);
+      for(var i=0;i<d.length;i++){ d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2.5); }
+      var src=actx.createBufferSource();src.buffer=buf;
+      var bp=actx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1400;bp.Q.value=0.8;
+      var g=actx.createGain();g.gain.value=0.5;
+      src.connect(bp);bp.connect(g);g.connect(actx.destination);src.start(t);
+      var th=actx.createOscillator();th.type='sine';th.frequency.setValueAtTime(160,t);
+      th.frequency.exponentialRampToValueAtTime(55,t+0.12);
+      var tg=actx.createGain();tg.gain.setValueAtTime(0.5,t);tg.gain.exponentialRampToValueAtTime(0.001,t+0.16);
+      th.connect(tg);tg.connect(actx.destination);th.start(t);th.stop(t+0.17);
+    }catch(e){}
+  }
+  sndBtn.addEventListener('click',function(){
+    ensureAudio();
+    soundOn=!soundOn; sndBtn.classList.toggle('on',soundOn);
+    if(actx){ try{ if(actx.state==='suspended')actx.resume(); fanGain.gain.setTargetAtTime(soundOn?0.5:0, actx.currentTime, 0.4);}catch(e){} }
+    statusTxt.textContent = soundOn? 'PROJECTOR RUNNING · FAN ON':'PROJECTOR RUNNING · LAMP HOT';
+  });
+
+  function hideHint(){ if(hint&&!hint.classList.contains('gone')) hint.classList.add('gone'); }
+
+  document.addEventListener('visibilitychange',function(){
+    running=!document.hidden;
+    if(document.hidden){ clearTimeout(autoTimer); if(fanGain&&actx) try{fanGain.gain.setTargetAtTime(0,actx.currentTime,0.2);}catch(e){} }
+    else { if(autoplay) scheduleAuto(); if(soundOn&&fanGain&&actx) try{fanGain.gain.setTargetAtTime(0.5,actx.currentTime,0.3);}catch(e){} }
+  });
+  window.addEventListener('resize',sizeDust);
+
+  // ---- init ----
+  loadInto(frontImg, front, 0);
+  applyMeta(0); paintTray();
+  sizeDust();
+  preload(1);
+  requestAnimationFrame(loop);
+  setTimeout(hideHint, 9000);
+})();
+</script>
+</body>
+</html>
