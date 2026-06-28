@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tom Milton — Burn (Motion 33)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#f4e6d4;
+    --ember:#ff7a1a;
+    --paper:#0b0806;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;width:100%;overflow:hidden;background:#0b0806;color:#f4e6d4;
+    font-family:'Inter',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+  #stage{position:fixed;inset:0;background:#0b0806;cursor:pointer;}
+  canvas{position:fixed;inset:0;width:100%;height:100%;display:block;}
+  #embers{pointer-events:none;}
+
+  /* vignette + grain overlay */
+  #vignette{position:fixed;inset:0;pointer-events:none;z-index:3;
+    background:radial-gradient(ellipse 120% 120% at 50% 46%,
+      transparent 52%, rgba(8,5,3,.28) 78%, rgba(6,3,1,.62) 100%);
+    mix-blend-mode:multiply;}
+
+  /* --- UI --- */
+  .ui{position:fixed;z-index:6;pointer-events:none;}
+  .ui a,.ui button{pointer-events:auto;}
+
+  #topbar{top:0;left:0;right:0;display:flex;justify-content:space-between;
+    align-items:flex-start;padding:clamp(16px,3vw,30px);}
+  #brand{font-family:'Cormorant Garamond',serif;font-weight:500;letter-spacing:.04em;
+    font-size:clamp(17px,2.1vw,23px);text-shadow:0 1px 16px rgba(0,0,0,.7);}
+  #brand small{display:block;font-family:'Inter';font-weight:300;letter-spacing:.42em;
+    text-transform:uppercase;font-size:9px;opacity:.6;margin-top:3px;}
+  #back{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#e8d8c2;
+    text-decoration:none;opacity:.72;padding:8px 12px;border:1px solid rgba(244,230,212,.18);
+    border-radius:30px;transition:.3s;backdrop-filter:blur(3px);white-space:nowrap;}
+  #back:hover{opacity:1;border-color:rgba(255,122,26,.55);color:#ffd9a8;}
+
+  /* caption */
+  #caption{left:0;right:0;bottom:0;padding:clamp(18px,4vw,46px);
+    display:flex;justify-content:space-between;align-items:flex-end;gap:24px;
+    background:linear-gradient(transparent, rgba(7,4,2,.55) 70%, rgba(5,3,1,.78));}
+  #cap-main{max-width:60vw;}
+  #cap-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;
+    font-size:clamp(26px,5.6vw,58px);line-height:.98;letter-spacing:.005em;
+    text-shadow:0 2px 26px rgba(0,0,0,.7);}
+  #cap-loc{font-size:clamp(11px,1.5vw,14px);letter-spacing:.16em;text-transform:uppercase;
+    opacity:.78;margin-top:10px;}
+  #cap-meta{font-size:11px;letter-spacing:.05em;text-align:right;line-height:1.85;
+    opacity:.66;min-width:170px;font-variant-numeric:tabular-nums;}
+  #cap-meta b{font-weight:500;color:#ffd9a8;opacity:.92;}
+  .cap-fade{transition:opacity .5s, transform .5s;}
+  .burning #cap-main, .burning #cap-meta{opacity:.32;}
+
+  /* counter */
+  #counter{position:fixed;left:clamp(18px,4vw,46px);bottom:auto;top:50%;
+    transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;z-index:6;
+    font-size:12px;letter-spacing:.4em;opacity:.5;font-variant-numeric:tabular-nums;
+    pointer-events:none;text-shadow:0 1px 8px #000;}
+  #counter b{color:#ffcaa0;font-weight:500;}
+
+  /* controls */
+  #controls{right:clamp(16px,3vw,30px);bottom:clamp(80px,16vw,120px);z-index:6;
+    display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
+  .ctl{pointer-events:auto;background:rgba(20,12,7,.5);border:1px solid rgba(244,230,212,.16);
+    color:#f0e2cf;width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:15px;
+    display:grid;place-items:center;backdrop-filter:blur(4px);transition:.25s;}
+  .ctl:hover{border-color:rgba(255,122,26,.6);color:#ffd9a8;box-shadow:0 0 18px rgba(255,122,26,.25);}
+  .ctl svg{width:16px;height:16px;fill:currentColor;}
+
+  /* hint */
+  #hint{position:fixed;left:50%;bottom:clamp(96px,20vw,150px);transform:translateX(-50%);
+    z-index:6;font-size:12px;letter-spacing:.22em;text-transform:uppercase;opacity:.85;
+    display:flex;align-items:center;gap:10px;pointer-events:none;
+    text-shadow:0 1px 12px rgba(0,0,0,.8);transition:opacity .8s;}
+  #hint .flame{display:inline-block;font-size:15px;animation:flick 1.6s infinite;}
+  #hint .dot{width:5px;height:5px;border-radius:50%;background:#ff8a33;
+    box-shadow:0 0 10px #ff7a1a;animation:pulse 1.8s infinite;}
+  @keyframes flick{0%,100%{opacity:1;transform:translateY(0) scale(1)}
+    50%{opacity:.7;transform:translateY(-1px) scale(1.08)}}
+  @keyframes pulse{0%,100%{opacity:.4;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}
+  #hint.gone{opacity:0;}
+
+  /* loader */
+  #loader{position:fixed;inset:0;z-index:20;background:#0b0806;display:grid;place-items:center;
+    transition:opacity .9s;}
+  #loader.done{opacity:0;pointer-events:none;}
+  #loader .ring{width:54px;height:54px;border-radius:50%;
+    border:2px solid rgba(255,122,26,.18);border-top-color:#ff7a1a;animation:spin 1s linear infinite;}
+  #loader p{position:absolute;bottom:18%;font-size:11px;letter-spacing:.4em;text-transform:uppercase;opacity:.5;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+    white-space:nowrap;border:0;padding:0;margin:-1px;}
+
+  @media (max-width:680px){
+    #cap-meta{display:none;}#cap-main{max-width:80vw;}
+    #counter{display:none;}
+    #controls{bottom:clamp(70px,18vw,110px);}
+  }
+</style>
+</head>
+<body>
+  <div id="stage" role="img" aria-label="Film-burn slideshow of Tom Milton's photographs">
+    <canvas id="gl"></canvas>
+    <canvas id="embers"></canvas>
+  </div>
+  <div id="vignette"></div>
+
+  <div id="loader"><div class="ring"></div><p>Loading film</p></div>
+
+  <!-- accessible photo list -->
+  <ul class="vh" id="photolist" aria-label="Photographs in this slideshow"></ul>
+
+  <header class="ui" id="topbar">
+    <div id="brand">Tom Milton<small>Film Photography</small></div>
+    <a id="back" href="../../index.html">&larr; All designs</a>
+  </header>
+
+  <div id="counter" aria-hidden="true"><b id="cidx">01</b> / <span id="ctot">10</span></div>
+
+  <div id="hint"><span class="dot"></span><span class="flame">&#128293;</span> Click, scroll or press &rarr; to burn through</div>
+
+  <div class="ui" id="controls">
+    <button class="ctl" id="btn-prev" aria-label="Previous photograph" title="Previous">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7z"/></svg></button>
+    <button class="ctl" id="btn-play" aria-label="Toggle auto-play" title="Auto-play">
+      <svg id="ic-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+    <button class="ctl" id="btn-next" aria-label="Next photograph" title="Next">
+      <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7z"/></svg></button>
+  </div>
+
+  <footer class="ui" id="caption">
+    <div id="cap-main" class="cap-fade">
+      <h1 id="cap-title">Last Light, Wheat Country</h1>
+      <div id="cap-loc">Tuscany, Italy</div>
+    </div>
+    <div id="cap-meta" class="cap-fade">
+      <span id="m-film"></span><br><span id="m-cam"></span><br><b id="m-year"></b>
+    </div>
+  </footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- data ---------------- */
+var PHOTOS = [
+  {f:"golden-field-sunburst.jpg",  t:"Last Light, Wheat Country", l:"Tuscany, Italy",   film:"Kodak Portra 400", cam:"Leica M6",      y:"1998", bw:false},
+  {f:"couple-silhouette-sunset.jpg",t:"Goodnight",                l:"Santorini, Greece",film:"Kodak Portra 800", cam:"Canon EOS-1V",  y:"2013", bw:false},
+  {f:"mountain-road-fog.jpg",      t:"The Long Way Home",         l:"Dolomites, Italy", film:"Cinestill 800T",   cam:"Canon AE-1",    y:"2005", bw:false},
+  {f:"desert-dunes.jpg",           t:"Wind Lines",                l:"Namibia",          film:"Kodak Ektar 100",  cam:"Hasselblad 503CW",y:"2008",bw:false},
+  {f:"sun-through-leaves.jpg",     t:"Backlit",                   l:"Kyoto, Japan",     film:"Kodak Portra 800", cam:"Leica M6",      y:"2004", bw:false},
+  {f:"cliff-coast-ocean.jpg",      t:"Edge of the World",         l:"Big Sur, USA",     film:"Kodak Portra 400", cam:"Contax G2",     y:"2002", bw:false},
+  {f:"woman-fashion-portrait.jpg", t:"The Red Wall",              l:"Marrakesh, Morocco",film:"Kodak Portra 400",cam:"Pentax 67",     y:"2019", bw:false},
+  {f:"autumn-forest-road.jpg",     t:"October Road",              l:"Vermont, USA",     film:"Kodak Portra 400", cam:"Leica M7",      y:"2007", bw:false},
+  {f:"friends-golden-hour.jpg",    t:"Golden Hour, Together",     l:"California, USA",  film:"Kodak Portra 400", cam:"Nikon F100",    y:"2016", bw:false},
+  {f:"man-portrait-street.jpg",    t:"Stranger, No. 14",          l:"Havana, Cuba",     film:"Kodak Tri-X 400",  cam:"Leica M4",      y:"2012", bw:true}
+];
+var IMG_DIR = "../../assets/img/";
+var DUR = 2500;          // burn duration ms
+var AUTO_MS = 7000;      // auto-advance interval
+var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------------- DOM ---------------- */
+var glCanvas = document.getElementById("gl");
+var emCanvas = document.getElementById("embers");
+var ectx = emCanvas.getContext("2d");
+var loader = document.getElementById("loader");
+var hintEl = document.getElementById("hint");
+var capTitle=document.getElementById("cap-title"), capLoc=document.getElementById("cap-loc");
+var mFilm=document.getElementById("m-film"), mCam=document.getElementById("m-cam"), mYear=document.getElementById("m-year");
+var cidx=document.getElementById("cidx"), ctot=document.getElementById("ctot");
+var stage=document.getElementById("stage");
+
+ctot.textContent = ("0"+PHOTOS.length).slice(-2);
+
+// accessible list
+(function(){var ul=document.getElementById("photolist");
+  PHOTOS.forEach(function(p){var li=document.createElement("li");
+    li.textContent=p.t+" — "+p.l+". "+p.film+", "+p.cam+", "+p.y+(p.bw?" (black & white).":".");
+    ul.appendChild(li);});})();
+
+/* ---------------- state ---------------- */
+var images=[], texs=[];
+var cur=0, nxt=0, burning=false, t0=0, prog=0, seed={x:0.5,y:0.42};
+var dir=1, autoplay=false, autoTimer=null, raf=null, lastT=0;
+var settleT=0; // gate weave settle clock
+var gl=null, prog2=null, mode="gl"; // gl | 2d
+var WHITE_FLASH=0;
+
+/* ---------------- preload ---------------- */
+var loaded=0;
+PHOTOS.forEach(function(p,i){
+  var im=new Image();
+  im.onload=im.onerror=function(){loaded++; if(loaded===PHOTOS.length) start();};
+  im.src=IMG_DIR+p.f;
+  images[i]=im;
+});
+
+function start(){
+  resize();
+  if(!reduced){ try{ initGL(); }catch(e){ gl=null; } }
+  if(!gl) mode="2d";
+  updateCaption(0,true);
+  loader.classList.add("done");
+  window.addEventListener("resize", resize);
+  document.addEventListener("visibilitychange", onVis);
+  bindInput();
+  lastT=performance.now();
+  raf=requestAnimationFrame(loop);
+  // hide hint after a while
+  setTimeout(function(){hintEl.classList.add("gone");}, 9000);
+}
+
+/* ---------------- WebGL ---------------- */
+var VERT="attribute vec2 p;varying vec2 uv;void main(){uv=p*0.5+0.5;gl_Position=vec4(p,0.,1.);}";
+var FRAG=[
+"precision highp float;",
+"varying vec2 uv;",
+"uniform sampler2D curTex,nxtTex;",
+"uniform vec2 res;",            // canvas px
+"uniform vec2 curSize,nxtSize;",// image px
+"uniform vec2 seed;",           // burn origin 0..1
+"uniform float front;",         // burn front level
+"uniform float time;",
+"uniform float weave;",         // gate weave amplitude
+"uniform float curBW,nxtBW;",
+"uniform float flash;",         // white-hot global
+"uniform float reduced;",       // 1 = simple dissolve
+"",
+"// hash + value noise",
+"float hash(vec2 p){p=fract(p*vec2(123.34,345.45));p+=dot(p,p+34.345);return fract(p.x*p.y);}",
+"float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);",
+"  float a=hash(i),b=hash(i+vec2(1,0)),c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));",
+"  return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);}",
+"float fbm(vec2 p){float v=0.0,a=0.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);",
+"  for(int i=0;i<5;i++){v+=a*vnoise(p);p=m*p;a*=0.5;}return v;}",
+"",
+"vec3 sampleImg(sampler2D tx,vec2 u,vec2 img,float bw){",
+"  float ca=res.x/res.y, ia=img.x/img.y; vec2 sc=vec2(1.0);",
+"  if(ca>ia){sc.y=ca/ia;}else{sc.x=ia/ca;}",   // object-fit cover
+"  vec2 cu=(u-0.5)/sc+0.5;",
+"  vec3 c=texture2D(tx,cu).rgb;",
+"  if(bw>0.5){float g=dot(c,vec3(0.32,0.55,0.13));c=vec3(g)*vec3(1.02,1.0,0.97);}",
+"  return c;",
+"}",
+"",
+"void main(){",
+"  float ca=res.x/res.y;",
+"  // subtle gate weave + flicker on whole frame",
+"  vec2 wv=vec2(sin(time*1.3)*0.0011+sin(time*0.7)*0.0009, cos(time*1.1)*0.0010)*weave;",
+"  vec2 u=uv+wv;",
+"",
+"  if(reduced>0.5){",
+"    vec3 a=sampleImg(curTex,u,curSize,curBW);",
+"    vec3 b=sampleImg(nxtTex,u,nxtSize,nxtBW);",
+"    gl_FragColor=vec4(mix(a,b,clamp(front,0.0,1.0)),1.0);return;",
+"  }",
+"",
+"  // ragged burn field: radial distance from seed minus noise",
+"  vec2 d2=vec2((u.x-seed.x)*ca,(u.y-seed.y));",
+"  float d=length(d2);",
+"  float n=fbm(u*7.0+vec2(time*0.12,-time*0.18));",
+"  float n2=fbm(u*16.0-vec2(time*0.25,time*0.2));",
+"  float burn=d - n*0.34 - n2*0.10;",        // ragged radius
+"  float charge=front - burn;",               // >0 burnt through
+"",
+"  float ember=0.16;",                        // ember band width
+"  // heat shimmer near the front, applied to current image",
+"  float near=exp(-pow(charge/(ember*1.7),2.0));",
+"  vec2 shim=vec2(fbm(u*22.0+time*1.4)-0.5, fbm(u*22.0-time*1.6+5.0)-0.5)*0.018*near;",
+"",
+"  vec3 curC=sampleImg(curTex,u+shim,curSize,curBW);",
+"  vec3 nxtC=sampleImg(nxtTex,u,nxtSize,nxtBW);",
+"",
+"  // base reveal",
+"  float rev=smoothstep(0.0,0.045,charge);",
+"  vec3 col=mix(curC,nxtC,rev);",
+"",
+"  // charring/browning on current side just before the front",
+"  float ch=clamp(-charge,0.0,0.22)/0.22;",   // 0 far, 1 at front (current side)
+"  float charAmt=(charge<0.0)? pow(1.0-ch,1.5):0.0;",
+"  vec3 charCol=vec3(0.05,0.025,0.012);",
+"  // brown scorch ring slightly wider",
+"  float scorch=(charge<0.0)? smoothstep(0.30,0.0,-charge)*0.55:0.0;",
+"  vec3 brown=mix(curC,vec3(0.16,0.07,0.03),0.7);",
+"  col=mix(col,brown,scorch);",
+"  col=mix(col,charCol,charAmt*0.92);",
+"",
+"  // ember edge glow (gaussian around front)",
+"  float g1=exp(-pow(charge/(ember*0.85),2.0));",     // hot core
+"  float g2=exp(-pow(charge/(ember*1.9),2.0));",      // outer glow
+"  // colour: white-hot at front -> orange -> deep red on burnt side",
+"  float heat=clamp(0.5 - charge*2.2,0.0,1.0);",      // 1 toward burnt-through(hotter trailing)
+"  vec3 hotCol=mix(vec3(1.0,0.42,0.06), vec3(1.0,0.95,0.78), g1);",
+"  hotCol=mix(vec3(1.0,0.30,0.04),hotCol,heat);",
+"  float edgeMask=smoothstep(-0.02,0.02,front)*smoothstep(1.95,1.7,front);", // fade in/out
+"  float glow=(g1*1.5+g2*0.55)*edgeMask;",
+"  col+=hotCol*glow;",
+"",
+"  // tiny bright flecks riding the front",
+"  float spk=fbm(u*60.0+time*2.0);",
+"  col+=vec3(1.0,0.7,0.3)*g1*smoothstep(0.72,0.92,spk)*1.4*edgeMask;",
+"",
+"  // global white-hot bloom pulse",
+"  col+=vec3(1.0,0.85,0.65)*flash*g2*edgeMask;",
+"",
+"  // warm tungsten flicker over the whole projected frame",
+"  float fl=0.96+0.04*sin(time*42.0)+0.025*sin(time*11.0);",
+"  col*=fl;",
+"  col*=vec3(1.03,1.0,0.95);",                // warm tungsten cast
+"",
+"  gl_FragColor=vec4(col,1.0);",
+"}"
+].join("\n");
+
+function compile(type,src){var s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);
+  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));return s;}
+
+var U={};
+function initGL(){
+  gl=glCanvas.getContext("webgl",{antialias:false,preserveDrawingBuffer:false,alpha:false})
+    ||glCanvas.getContext("experimental-webgl");
+  if(!gl) throw new Error("no webgl");
+  var vs=compile(gl.VERTEX_SHADER,VERT), fs=compile(gl.FRAGMENT_SHADER,FRAG);
+  prog2=gl.createProgram();gl.attachShader(prog2,vs);gl.attachShader(prog2,fs);gl.linkProgram(prog2);
+  if(!gl.getProgramParameter(prog2,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog2));
+  gl.useProgram(prog2);
+  var buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+  var loc=gl.getAttribLocation(prog2,"p");gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  ["curTex","nxtTex","res","curSize","nxtSize","seed","front","time","weave","curBW","nxtBW","flash","reduced"]
+    .forEach(function(k){U[k]=gl.getUniformLocation(prog2,k);});
+  // build textures
+  for(var i=0;i<PHOTOS.length;i++) texs[i]=makeTex(images[i]);
+  gl.uniform1i(U.curTex,0); gl.uniform1i(U.nxtTex,1);
+}
+function makeTex(img){
+  var t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  try{ gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img); }
+  catch(e){ // placeholder
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,1,1,0,gl.RGB,gl.UNSIGNED_BYTE,new Uint8Array([40,24,12]));
+  }
+  return {tex:t,w:img.naturalWidth||1,h:img.naturalHeight||1};
+}
+
+/* ---------------- size ---------------- */
+function resize(){
+  var dpr=Math.min(window.devicePixelRatio||1, 2);
+  var w=window.innerWidth, h=window.innerHeight;
+  glCanvas.width=Math.round(w*dpr);glCanvas.height=Math.round(h*dpr);
+  emCanvas.width=Math.round(w*dpr);emCanvas.height=Math.round(h*dpr);
+  emCanvas.style.width=glCanvas.style.width=w+"px";
+  emCanvas.style.height=glCanvas.style.height=h+"px";
+  if(gl) gl.viewport(0,0,glCanvas.width,glCanvas.height);
+  EW=emCanvas.width; EH=emCanvas.height;
+}
+var EW=1,EH=1;
+
+/* ---------------- captions ---------------- */
+function updateCaption(i,instant){
+  var p=PHOTOS[i];
+  capTitle.textContent=p.t; capLoc.textContent=p.l;
+  mFilm.textContent=p.film; mCam.textContent=p.cam; mYear.textContent=p.y+(p.bw?" · B&W":"");
+  cidx.textContent=("0"+(i+1)).slice(-2);
+}
+
+/* ---------------- transition ---------------- */
+function go(d,sx,sy){
+  if(burning) return;
+  dir=d;
+  nxt=(cur+d+PHOTOS.length)%PHOTOS.length;
+  seed.x=(sx==null)?0.5:sx; seed.y=(sy==null)?0.42:sy;
+  burning=true; t0=performance.now(); prog=0;
+  document.body.classList.add("burning");
+  hintEl.classList.add("gone");
+  embers.length=0; emberAcc=0;
+}
+function finishBurn(){
+  burning=false; cur=nxt; settleT=performance.now();
+  document.body.classList.remove("burning");
+  updateCaption(cur);
+  if(autoplay) scheduleAuto();
+}
+
+/* ---------------- embers (2d overlay) ---------------- */
+var embers=[], emberAcc=0;
+function spawnEmbers(frontPx,dt){
+  if(reduced) return;
+  // emit along an expanding ring around seed
+  emberAcc+=dt*0.09;
+  var dpr=EW/window.innerWidth;
+  var sx=seed.x*EW, sy=(1-0 + (seed.y))*0; // computed below
+  sx=seed.x*EW; sy=seed.y*EH;
+  while(emberAcc>1){
+    emberAcc-=1;
+    var ang=Math.random()*Math.PI*2;
+    var rad=frontPx*(0.82+Math.random()*0.3);
+    var px=sx+Math.cos(ang)*rad*(EW/EH<1?1:1);
+    var py=sy+Math.sin(ang)*rad;
+    if(px<-20||px>EW+20||py<-20||py>EH+20) continue;
+    embers.push({x:px,y:py,
+      vx:(Math.random()-0.5)*0.4*dpr,
+      vy:-(0.25+Math.random()*0.9)*dpr,
+      life:1, decay:0.006+Math.random()*0.012,
+      r:(0.7+Math.random()*1.8)*dpr,
+      hot:Math.random()});
+  }
+}
+function drawEmbers(dt){
+  ectx.clearRect(0,0,EW,EH);
+  if(reduced) return;
+  ectx.globalCompositeOperation="lighter";
+  for(var i=embers.length-1;i>=0;i--){
+    var e=embers[i];
+    e.x+=e.vx*dt*0.06; e.y+=e.vy*dt*0.06;
+    e.vy-=0.0009*dt*0.06*(EH/900); // buoyancy
+    e.vx+=(Math.random()-0.5)*0.02;
+    e.life-=e.decay*dt*0.06;
+    if(e.life<=0){embers.splice(i,1);continue;}
+    var a=e.life*e.life;
+    var rr=e.r*(0.6+e.life*0.8);
+    var g=ectx.createRadialGradient(e.x,e.y,0,e.x,e.y,rr*4);
+    var hot=e.hot*e.life;
+    g.addColorStop(0,"rgba(255,"+(180+hot*60|0)+","+(120*hot|0)+","+(0.9*a)+")");
+    g.addColorStop(0.4,"rgba(255,120,20,"+(0.45*a)+")");
+    g.addColorStop(1,"rgba(255,60,0,0)");
+    ectx.fillStyle=g;
+    ectx.beginPath();ectx.arc(e.x,e.y,rr*4,0,6.2832);ectx.fill();
+  }
+  ectx.globalCompositeOperation="source-over";
+}
+
+/* ---------------- main loop ---------------- */
+function easeIO(x){return x<0.5?2*x*x:1-Math.pow(-2*x+2,2)/2;}
+function loop(now){
+  raf=requestAnimationFrame(loop);
+  var dt=Math.min(64, now-lastT); lastT=now;
+  var time=now*0.001;
+
+  if(burning){
+    var raw=(now-t0)/DUR;
+    if(raw>=1){ prog=1; render(time,1); drawEmbers(dt); finishBurn(); return; }
+    prog=easeIO(raw);
+    // white-hot pulse peaks around 40%
+    WHITE_FLASH = Math.exp(-Math.pow((raw-0.42)/0.22,2))*1.1;
+    // front travels from -ember to ~2.05 (covers corners)
+    var front = -0.12 + prog*2.18;
+    // ember front radius in px for particles (approx where charge~0 at avg)
+    var frontR = (front*0.9) * Math.min(EW,EH); // approximate
+    spawnEmbers(frontR, dt);
+    render(time, front);
+    drawEmbers(dt);
+  } else {
+    WHITE_FLASH=0;
+    render(time, -10);
+    if(embers.length) drawEmbers(dt); else ectx.clearRect(0,0,EW,EH);
+  }
+}
+
+function render(time, front){
+  if(mode==="2d"){ render2d(front); return; }
+  if(!gl) return;
+  var ct=texs[cur], nt=texs[nxt];
+  gl.useProgram(prog2);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, ct.tex);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, nt.tex);
+  gl.uniform2f(U.res, glCanvas.width, glCanvas.height);
+  gl.uniform2f(U.curSize, ct.w, ct.h);
+  gl.uniform2f(U.nxtSize, nt.w, nt.h);
+  gl.uniform2f(U.seed, seed.x, seed.y);
+  gl.uniform1f(U.front, front);
+  gl.uniform1f(U.time, time);
+  // gate weave: stronger right after settle, decays
+  var settle = Math.max(0,1-(performance.now()-settleT)/1400);
+  gl.uniform1f(U.weave, 0.5 + settle*2.2);
+  gl.uniform1f(U.curBW, PHOTOS[cur].bw?1:0);
+  gl.uniform1f(U.nxtBW, PHOTOS[nxt].bw?1:0);
+  gl.uniform1f(U.flash, WHITE_FLASH);
+  gl.uniform1f(U.reduced, reduced?1:0);
+  gl.drawArrays(gl.TRIANGLES,0,6);
+}
+
+/* ---------- canvas2d fallback: cover-draw + cross-dissolve ---------- */
+function render2d(front){
+  var ctx=glCanvas.getContext("2d");
+  if(!ctx) return;
+  var W=glCanvas.width,H=glCanvas.height;
+  drawCover(ctx,images[cur],W,H,PHOTOS[cur].bw);
+  if(burning||front>=0){
+    var a=Math.max(0,Math.min(1, (front+0.12)/2.18));
+    a=easeIO(a);
+    ctx.save(); ctx.globalAlpha=a;
+    drawCover(ctx,images[nxt],W,H,PHOTOS[nxt].bw);
+    ctx.restore();
+    if(!reduced){
+      // simple warm glow ring as a nod to the burn
+      var r=a*Math.hypot(W,H)*0.7;
+      var g=ctx.createRadialGradient(seed.x*W,seed.y*H,r*0.7,seed.x*W,seed.y*H,r);
+      g.addColorStop(0,"rgba(255,140,40,0)");
+      g.addColorStop(0.85,"rgba(255,120,30,0.35)");
+      g.addColorStop(1,"rgba(255,90,10,0)");
+      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    }
+  }
+}
+function drawCover(ctx,img,W,H,bw){
+  if(!img||!img.naturalWidth){ctx.fillStyle="#140c07";ctx.fillRect(0,0,W,H);return;}
+  var ia=img.naturalWidth/img.naturalHeight, ca=W/H, dw,dh,dx,dy;
+  if(ca>ia){dw=W;dh=W/ia;}else{dh=H;dw=H*ia;}
+  dx=(W-dw)/2;dy=(H-dh)/2;
+  ctx.drawImage(img,dx,dy,dw,dh);
+  if(bw){ctx.save();ctx.globalCompositeOperation="saturation";ctx.fillStyle="#777";ctx.fillRect(0,0,W,H);ctx.restore();}
+}
+
+/* ---------------- auto-play ---------------- */
+function scheduleAuto(){ clearTimeout(autoTimer);
+  if(autoplay) autoTimer=setTimeout(function(){ go(1, 0.5, 0.42); }, AUTO_MS); }
+function toggleAuto(){
+  autoplay=!autoplay;
+  document.getElementById("ic-play").innerHTML = autoplay
+    ? '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>'   // pause
+    : '<path d="M8 5v14l11-7z"/>';               // play
+  if(autoplay) scheduleAuto(); else clearTimeout(autoTimer);
+}
+
+/* ---------------- input ---------------- */
+function bindInput(){
+  stage.addEventListener("click", function(e){
+    var r=stage.getBoundingClientRect();
+    go(1, (e.clientX-r.left)/r.width, (e.clientY-r.top)/r.height);
+  });
+  // wheel
+  var wlock=false;
+  window.addEventListener("wheel", function(e){
+    if(wlock||burning) return;
+    wlock=true; setTimeout(function(){wlock=false;},650);
+    go(e.deltaY<0?-1:1, 0.5, 0.42);
+  }, {passive:true});
+  // keyboard
+  window.addEventListener("keydown", function(e){
+    if(e.key==="ArrowRight"||e.key===" "){e.preventDefault();go(1,0.5,0.42);}
+    else if(e.key==="ArrowLeft"){e.preventDefault();go(-1,0.5,0.42);}
+    else if(e.key.toLowerCase()==="p"){toggleAuto();}
+  });
+  // touch swipe
+  var tsx=0,tsy=0,tt=0;
+  window.addEventListener("touchstart",function(e){var t=e.touches[0];tsx=t.clientX;tsy=t.clientY;tt=Date.now();},{passive:true});
+  window.addEventListener("touchend",function(e){
+    var t=e.changedTouches[0];var dx=t.clientX-tsx,dy=t.clientY-tsy;
+    if(Date.now()-tt<700 && Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)){
+      go(dx<0?1:-1, 0.5, 0.42);
+    }
+  },{passive:true});
+  document.getElementById("btn-next").addEventListener("click",function(e){e.stopPropagation();go(1,0.5,0.42);});
+  document.getElementById("btn-prev").addEventListener("click",function(e){e.stopPropagation();go(-1,0.5,0.42);});
+  document.getElementById("btn-play").addEventListener("click",function(e){e.stopPropagation();toggleAuto();});
+}
+
+function onVis(){
+  if(document.hidden){ if(raf){cancelAnimationFrame(raf);raf=null;} clearTimeout(autoTimer); }
+  else if(!raf){ lastT=performance.now(); raf=requestAnimationFrame(loop); if(autoplay) scheduleAuto(); }
+}
+
+})();
+</script>
+</body>
+</html>

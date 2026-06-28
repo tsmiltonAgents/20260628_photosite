@@ -8,13 +8,15 @@ const OUT = path.join(ROOT, '.shots');
 fs.mkdirSync(OUT, { recursive: true });
 
 const only = process.argv[2]; // optional substring filter
+const BASE = process.env.BASE; // e.g. http://127.0.0.1:8099 — use http for true same-origin (WebGL) rendering
 
 (async () => {
   const browser = await chromium.launch();
-  const pages = [{ name: '00-index', url: 'file://' + path.join(ROOT, 'index.html') }];
+  const mk = (rel) => BASE ? (BASE.replace(/\/$/, '') + '/' + rel) : ('file://' + path.join(ROOT, rel));
+  const pages = [{ name: '00-index', url: mk('index.html') }];
   for (const dir of fs.readdirSync(path.join(ROOT, 'designs')).sort()) {
     const f = path.join(ROOT, 'designs', dir, 'index.html');
-    if (fs.existsSync(f)) pages.push({ name: dir, url: 'file://' + f });
+    if (fs.existsSync(f)) pages.push({ name: dir, url: mk('designs/' + dir + '/index.html') });
   }
   const list = only ? pages.filter(p => p.name.includes(only)) : pages;
 
@@ -22,7 +24,8 @@ const only = process.argv[2]; // optional substring filter
   for (const p of list) {
     const page = await ctx.newPage();
     const errors = [];
-    page.on('pageerror', e => errors.push(String(e)));
+    page.on('pageerror', e => errors.push('PAGEERR: ' + String(e)));
+    page.on('console', m => { if (m.type() === 'error') errors.push('CONSOLE: ' + m.text()); });
     try { await page.goto(p.url, { waitUntil: 'load', timeout: 25000 }); } catch(e){}
     // scroll through to trigger lazy-load / IntersectionObserver
     await page.evaluate(async () => {

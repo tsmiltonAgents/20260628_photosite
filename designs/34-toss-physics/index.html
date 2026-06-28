@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Toss — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --table-a:#3a2f26;
+    --table-b:#2a221b;
+    --paper:#fbf8f1;
+    --ink:#2b2620;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;width:100%;overflow:hidden;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(140% 120% at 50% -10%, #4a3d31 0%, var(--table-a) 38%, var(--table-b) 100%);
+    color:#f3ece1;
+    -webkit-user-select:none;user-select:none;
+    touch-action:none;
+    position:fixed;inset:0;
+  }
+  /* felt / wood grain texture */
+  #table{
+    position:absolute;inset:0;
+    background-image:
+      repeating-linear-gradient(94deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 7px),
+      repeating-linear-gradient(2deg, rgba(0,0,0,0.05) 0 3px, transparent 3px 11px);
+    overflow:hidden;
+  }
+  #table::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 200px 40px rgba(0,0,0,0.55);
+  }
+
+  /* Header / chrome */
+  .chrome{
+    position:absolute;top:0;left:0;right:0;z-index:9000;
+    display:flex;align-items:flex-start;justify-content:space-between;
+    padding:18px 22px;pointer-events:none;
+  }
+  .chrome a,.chrome button{pointer-events:auto;}
+  .back{
+    font-size:13px;letter-spacing:.02em;color:#e9ddca;text-decoration:none;
+    opacity:.78;transition:opacity .2s;background:rgba(0,0,0,.22);
+    padding:7px 13px;border-radius:20px;backdrop-filter:blur(4px);
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .back:hover{opacity:1;}
+  .brand{text-align:right;line-height:1.15;}
+  .brand .name{
+    font-family:'Caveat',cursive;font-size:30px;color:#fff5e6;
+    text-shadow:0 2px 8px rgba(0,0,0,.4);
+  }
+  .brand .sub{font-size:11px;letter-spacing:.34em;text-transform:uppercase;opacity:.6;margin-top:2px;}
+
+  /* Controls */
+  .controls{
+    position:absolute;bottom:0;left:0;right:0;z-index:9000;
+    display:flex;gap:12px;justify-content:center;align-items:center;
+    padding:20px;pointer-events:none;flex-wrap:wrap;
+  }
+  .btn{
+    pointer-events:auto;cursor:pointer;
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;
+    color:#2b2620;background:linear-gradient(#fdfcf8,#efe7d7);
+    border:1px solid rgba(0,0,0,.18);border-radius:30px;
+    padding:11px 22px;
+    box-shadow:0 6px 16px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.7);
+    transition:transform .12s ease, box-shadow .12s ease;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.7);}
+  .btn:active{transform:translateY(1px) scale(.97);}
+  .btn svg{width:15px;height:15px;}
+
+  .hint{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    z-index:200;pointer-events:none;text-align:center;
+    transition:opacity .8s ease;
+  }
+  .hint .h-text{
+    font-family:'Caveat',cursive;font-size:34px;color:#fff;
+    text-shadow:0 2px 12px rgba(0,0,0,.55);
+  }
+  .hint .h-sub{font-size:12px;letter-spacing:.28em;text-transform:uppercase;opacity:.65;margin-top:6px;}
+  .hint.gone{opacity:0;}
+
+  /* Polaroid */
+  .polaroid{
+    position:absolute;top:0;left:0;
+    width:200px;
+    background:var(--paper);
+    padding:11px 11px 0 11px;
+    border-radius:3px;
+    will-change:transform;
+    cursor:grab;
+    box-shadow:0 6px 14px rgba(0,0,0,.38), 0 1px 3px rgba(0,0,0,.3);
+    transition:box-shadow .18s ease;
+    transform-origin:center center;
+    /* faint warm paper grain */
+    background-image:
+      radial-gradient(120% 120% at 30% 10%, rgba(255,248,233,.6), rgba(247,240,228,0) 60%),
+      linear-gradient(180deg,#fdfaf3,#f4ecdc);
+  }
+  .polaroid:active{cursor:grabbing;}
+  .polaroid.held{
+    cursor:grabbing;
+    box-shadow:0 26px 48px rgba(0,0,0,.5), 0 6px 14px rgba(0,0,0,.4);
+  }
+  .polaroid .frame{
+    position:relative;width:100%;
+    aspect-ratio:1/1;
+    background:#1c1712;overflow:hidden;border-radius:1px;
+  }
+  .polaroid img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:saturate(1.08) contrast(1.03) brightness(1.02);
+    pointer-events:none;
+  }
+  .polaroid.bw img{filter:grayscale(1) contrast(1.08) brightness(1.02);}
+  .polaroid .frame::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 26px rgba(0,0,0,.28);
+    background:linear-gradient(120deg, rgba(255,255,255,.05), transparent 40%);
+  }
+  .caption{
+    font-family:'Caveat',cursive;
+    font-size:21px;line-height:1;color:#33302b;
+    padding:9px 4px 11px;text-align:center;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .meta{
+    font-family:'Inter',sans-serif;font-size:8.5px;letter-spacing:.06em;
+    color:#8a8174;text-transform:uppercase;text-align:center;
+    padding:0 6px 9px;line-height:1.4;font-weight:500;
+  }
+
+  @media (max-width:600px){
+    .polaroid{width:150px;}
+    .caption{font-size:17px;padding:7px 3px 8px;}
+    .brand .name{font-size:24px;}
+    .hint .h-text{font-size:26px;}
+  }
+</style>
+</head>
+<body>
+  <div id="table"></div>
+
+  <div class="chrome">
+    <a class="back" href="../../index.html">← All designs</a>
+    <div class="brand">
+      <div class="name">Tom Milton</div>
+      <div class="sub">Motion · Toss</div>
+    </div>
+  </div>
+
+  <div class="hint" id="hint">
+    <div class="h-text">grab &amp; throw the prints</div>
+    <div class="h-sub">drag · fling · let them spin</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="shuffle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+      Shuffle
+    </button>
+    <button class="btn" id="tidy">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16M4 14h16"/></svg>
+      Tidy
+    </button>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PHOTOS = [
+    {f:"friends-golden-hour.jpg",   t:"Golden Hour, Together", loc:"California, USA",     film:"Kodak Portra 400", cam:"Nikon F100",   y:"2016", bw:false},
+    {f:"woman-laughing-portrait.jpg",t:"That Laugh",            loc:"Mexico City, Mexico", film:"Kodak Portra 800", cam:"Contax G2",    y:"2021", bw:false},
+    {f:"couple-silhouette-sunset.jpg",t:"Goodnight",            loc:"Santorini, Greece",   film:"Kodak Portra 800", cam:"Canon EOS-1V", y:"2013", bw:false},
+    {f:"woman-curly-portrait.jpg",  t:"Curls",                  loc:"Brooklyn, USA",       film:"Cinestill 800T",   cam:"Canon AE-1",   y:"2017", bw:false},
+    {f:"vintage-car-street.jpg",    t:"Sunday Drive",           loc:"Havana, Cuba",        film:"Kodak Ektar 100",  cam:"Nikon FE",     y:"2022", bw:false},
+    {f:"street-cafe-paris.jpg",     t:"Café de Flore",          loc:"Paris, France",       film:"Kodak Gold 200",   cam:"Olympus OM-1", y:"2020", bw:false},
+    {f:"golden-field-sunburst.jpg", t:"Last Light",             loc:"Tuscany, Italy",      film:"Kodak Portra 400", cam:"Leica M6",     y:"1998", bw:false},
+    {f:"sun-through-leaves.jpg",    t:"Backlit",                loc:"Kyoto, Japan",        film:"Kodak Portra 800", cam:"Leica M6",     y:"2004", bw:false},
+    {f:"woman-portrait-window.jpg", t:"By the Window",          loc:"Lisbon, Portugal",    film:"Kodak Portra 400", cam:"Pentax 67",    y:"2011", bw:false},
+    {f:"man-portrait-street.jpg",   t:"Stranger, No. 14",       loc:"Havana, Cuba",        film:"Kodak Tri-X 400",  cam:"Leica M4",     y:"2012", bw:true},
+    {f:"cozy-interior-window.jpg",  t:"Home Light",             loc:"Copenhagen, Denmark", film:"Kodak Portra 400", cam:"Leica M6",     y:"2023", bw:false},
+    {f:"autumn-forest-road.jpg",    t:"October Road",           loc:"Vermont, USA",        film:"Kodak Portra 400", cam:"Leica M7",     y:"2007", bw:false},
+    {f:"woman-fashion-portrait.jpg",t:"The Red Wall",           loc:"Marrakesh, Morocco",  film:"Kodak Portra 400", cam:"Pentax 67",    y:"2019", bw:false}
+  ];
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var table = document.getElementById('table');
+  var hintEl = document.getElementById('hint');
+  var bodies = [];
+  var zCounter = 1;
+
+  // bounds
+  var W = window.innerWidth, H = window.innerHeight;
+
+  // physics constants
+  var FRICTION = 0.94;        // linear damping per frame
+  var ANG_FRICTION = 0.93;
+  var RESTITUTION = 0.62;     // wall bounce energy keep
+  var SLEEP_V = 0.06;
+  var SLEEP_AV = 0.0009;
+
+  function rand(a,b){return a+Math.random()*(b-a);}
+
+  // measure a polaroid size from CSS (width fixed, height computed once built)
+  var PW=200, PH=250; // updated after build
+
+  function buildPolaroid(p){
+    var el = document.createElement('div');
+    el.className = 'polaroid' + (p.bw ? ' bw' : '');
+    el.innerHTML =
+      '<div class="frame"><img src="../../assets/img/'+p.f+'" alt="'+p.t+' — '+p.loc+', shot on '+p.film+'" draggable="false"></div>'+
+      '<div class="caption">'+p.t+'</div>'+
+      '<div class="meta">'+p.loc+' · '+p.y+'</div>';
+    table.appendChild(el);
+    return el;
+  }
+
+  // create bodies
+  PHOTOS.forEach(function(p,i){
+    var el = buildPolaroid(p);
+    var b = {
+      el:el, x:0, y:0, angle:0,
+      vx:0, vy:0, vAngle:0,
+      z:++zCounter, asleep:false,
+      // animation tween (for shuffle/tidy)
+      tween:null
+    };
+    bodies.push(b);
+  });
+
+  // After layout, get real dimensions
+  function measure(){
+    if(bodies.length){
+      var r = bodies[0].el.getBoundingClientRect();
+      if(r.width){ PW = r.width; PH = r.height; }
+    }
+  }
+
+  // radius for simple circle collision
+  function bRadius(){ return Math.min(PW,PH)*0.42; }
+
+  function clampInit(){
+    W = window.innerWidth; H = window.innerHeight;
+  }
+
+  // initial scattered-but-settled pile near center
+  function scatterInitial(){
+    measure();
+    var cx = W/2, cy = H/2;
+    bodies.forEach(function(b,i){
+      var ang = (i/bodies.length)*Math.PI*2;
+      var rad = rand(20, Math.min(W,H)*0.22);
+      b.x = cx + Math.cos(ang)*rad + rand(-30,30);
+      b.y = cy + Math.sin(ang)*rad*0.7 + rand(-26,26);
+      b.angle = rand(-26,26)*Math.PI/180;
+      b.vx=b.vy=b.vAngle=0;
+      b.asleep=true;
+      b.z = ++zCounter;
+      keepInBounds(b);
+      render(b);
+    });
+    applyZ();
+  }
+
+  function keepInBounds(b){
+    var hw = PW/2, hh = PH/2;
+    // use a slightly forgiving margin (rotated prints can poke out; that's ok-ish)
+    var pad = Math.min(hw,hh)*0.55;
+    if(b.x < pad){ b.x = pad; }
+    if(b.x > W-pad){ b.x = W-pad; }
+    if(b.y < pad+10){ b.y = pad+10; }
+    if(b.y > H-pad){ b.y = H-pad; }
+  }
+
+  function render(b){
+    // x,y are CENTER coords; translate to top-left
+    var tx = b.x - PW/2;
+    var ty = b.y - PH/2;
+    b.el.style.transform = 'translate('+tx.toFixed(2)+'px,'+ty.toFixed(2)+'px) rotate('+b.angle.toFixed(4)+'rad)';
+  }
+
+  function applyZ(){
+    // sort bodies by z and assign style zIndex
+    var sorted = bodies.slice().sort(function(a,b){return a.z-b.z;});
+    sorted.forEach(function(b,i){ b.el.style.zIndex = 10 + i; });
+  }
+
+  function raise(b){
+    b.z = ++zCounter;
+    applyZ();
+  }
+
+  // ---------- Physics loop ----------
+  function step(){
+    var anyAwake = false;
+    var hw = PW/2, hh = PH/2;
+    var pad = Math.min(hw,hh)*0.55;
+
+    for(var i=0;i<bodies.length;i++){
+      var b = bodies[i];
+      if(b===held) { anyAwake = true; continue; }
+      if(b.tween){ anyAwake = true; continue; }
+      if(b.asleep) continue;
+
+      b.x += b.vx;
+      b.y += b.vy;
+      b.angle += b.vAngle;
+
+      b.vx *= FRICTION;
+      b.vy *= FRICTION;
+      b.vAngle *= ANG_FRICTION;
+
+      // wall bounce
+      if(b.x < pad){ b.x = pad; b.vx = Math.abs(b.vx)*RESTITUTION; b.vAngle += b.vy*0.0006; }
+      else if(b.x > W-pad){ b.x = W-pad; b.vx = -Math.abs(b.vx)*RESTITUTION; b.vAngle -= b.vy*0.0006; }
+      if(b.y < pad+10){ b.y = pad+10; b.vy = Math.abs(b.vy)*RESTITUTION; b.vAngle += b.vx*0.0006; }
+      else if(b.y > H-pad){ b.y = H-pad; b.vy = -Math.abs(b.vy)*RESTITUTION; b.vAngle -= b.vx*0.0006; }
+
+      // sleep check
+      if(Math.abs(b.vx)<SLEEP_V && Math.abs(b.vy)<SLEEP_V && Math.abs(b.vAngle)<SLEEP_AV){
+        b.vx=b.vy=b.vAngle=0;
+        b.asleep=true;
+      } else {
+        anyAwake = true;
+      }
+      render(b);
+    }
+
+    // simple collision nudge (circle) — only among awake / recently moved bodies
+    collide();
+
+    // tweens (shuffle/tidy)
+    if(updateTweens()) anyAwake = true;
+
+    if(anyAwake || held){
+      rafId = requestAnimationFrame(step);
+    } else {
+      rafId = 0;
+    }
+  }
+
+  function collide(){
+    var r = bRadius();
+    var minD = r*2*0.78;
+    for(var i=0;i<bodies.length;i++){
+      var a = bodies[i];
+      if(a.tween) continue;
+      // only process bodies that are moving or held to limit cost
+      var aActive = (a===held) || !a.asleep;
+      for(var j=i+1;j<bodies.length;j++){
+        var c = bodies[j];
+        if(c.tween) continue;
+        if(!aActive && c.asleep) continue;
+        var dx = c.x - a.x, dy = c.y - a.y;
+        var d2 = dx*dx+dy*dy;
+        if(d2 < minD*minD && d2 > 0.0001){
+          var d = Math.sqrt(d2);
+          var overlap = (minD - d);
+          var nx = dx/d, ny = dy/d;
+          var push = overlap*0.5;
+          if(a===held){
+            // push other away fully
+            c.x += nx*overlap; c.y += ny*overlap;
+            c.vx += nx*overlap*0.18; c.vy += ny*overlap*0.18;
+            c.vAngle += rand(-0.004,0.004);
+            c.asleep=false;
+          } else {
+            a.x -= nx*push; a.y -= ny*push;
+            c.x += nx*push; c.y += ny*push;
+            // transfer a little velocity
+            var imp = overlap*0.06;
+            a.vx -= nx*imp; a.vy -= ny*imp;
+            c.vx += nx*imp; c.vy += ny*imp;
+            a.vAngle += rand(-0.003,0.003);
+            c.vAngle += rand(-0.003,0.003);
+            a.asleep=false; c.asleep=false;
+          }
+        }
+      }
+    }
+  }
+
+  var rafId = 0;
+  function wake(){
+    if(!rafId) rafId = requestAnimationFrame(step);
+  }
+
+  // ---------- Tweens for shuffle / tidy ----------
+  function updateTweens(){
+    var active=false;
+    var now = performance.now();
+    for(var i=0;i<bodies.length;i++){
+      var b = bodies[i];
+      if(!b.tween) continue;
+      active=true;
+      var tw = b.tween;
+      var t = (now - tw.start)/tw.dur;
+      if(t>=1) t=1;
+      var e = easeOutCubic(t);
+      b.x = tw.fx + (tw.tx-tw.fx)*e;
+      b.y = tw.fy + (tw.ty-tw.fy)*e;
+      b.angle = tw.fa + (tw.ta-tw.fa)*e;
+      render(b);
+      if(t>=1){
+        b.tween=null;
+        b.vx=b.vy=b.vAngle=0;
+        b.asleep=true;
+      }
+    }
+    return active;
+  }
+  function easeOutCubic(t){return 1-Math.pow(1-t,3);}
+
+  function startTween(b, tx, ty, ta, dur, delay){
+    b.asleep=false;
+    b.tween = {
+      fx:b.x, fy:b.y, fa:b.angle,
+      tx:tx, ty:ty, ta:ta,
+      start:performance.now()+ (delay||0),
+      dur:dur
+    };
+  }
+
+  function doShuffle(){
+    hideHint();
+    measure();
+    var cx=W/2, cy=H/2;
+    // randomize z order for cascade feel
+    bodies.forEach(function(b){ b.z = ++zCounter; });
+    applyZ();
+    bodies.forEach(function(b,i){
+      if(reduced){
+        b.x = rand(PW*0.4, W-PW*0.4);
+        b.y = rand(PH*0.4+30, H-PH*0.4-30);
+        b.angle = rand(-30,30)*Math.PI/180;
+        b.vx=b.vy=b.vAngle=0; b.asleep=true;
+        keepInBounds(b); render(b);
+      } else {
+        // toss outward with velocity from center
+        var ang = rand(0, Math.PI*2);
+        var spd = rand(7, 16);
+        b.asleep=false;
+        b.tween=null;
+        b.x = cx + rand(-40,40);
+        b.y = cy + rand(-40,40);
+        b.vx = Math.cos(ang)*spd;
+        b.vy = Math.sin(ang)*spd;
+        b.vAngle = rand(-0.18,0.18);
+        b.angle = rand(-0.5,0.5);
+      }
+    });
+    if(reduced) applyZ(); else wake();
+  }
+
+  function doTidy(){
+    hideHint();
+    measure();
+    var cx=W/2, cy=H/2;
+    var order = bodies.slice().sort(function(a,b){return a.z-b.z;});
+    order.forEach(function(b,i){
+      var off = (i - order.length/2);
+      var tx = cx + off*0.6;
+      var ty = cy + off*1.1;
+      var ta = (i%2? 1:-1) * rand(0.5,2.2)*Math.PI/180;
+      if(reduced){
+        b.x=tx;b.y=ty;b.angle=ta;b.asleep=true;b.tween=null;b.vx=b.vy=b.vAngle=0;render(b);
+      } else {
+        b.tween=null; b.vx=b.vy=b.vAngle=0;
+        startTween(b, tx, ty, ta, 520, i*22);
+      }
+    });
+    if(reduced) applyZ(); else wake();
+  }
+
+  // ---------- Pointer interaction ----------
+  var held = null;
+  var grabOffX=0, grabOffY=0;
+  var lastPX=0, lastPY=0, lastT=0;
+  var velSamples=[];
+  var pointerId=null;
+
+  function topBodyAt(px, py){
+    // iterate from highest z to lowest
+    var sorted = bodies.slice().sort(function(a,b){return b.z-a.z;});
+    for(var i=0;i<sorted.length;i++){
+      var b = sorted[i];
+      if(b.tween) continue;
+      // transform point into body local space
+      var dx = px - b.x, dy = py - b.y;
+      var ca = Math.cos(-b.angle), sa = Math.sin(-b.angle);
+      var lx = dx*ca - dy*sa;
+      var ly = dx*sa + dy*ca;
+      if(Math.abs(lx) <= PW/2 && Math.abs(ly) <= PH/2){
+        return b;
+      }
+    }
+    return null;
+  }
+
+  function onDown(e){
+    var px, py, id;
+    if(e.touches){ var t=e.touches[0]; px=t.clientX; py=t.clientY; id=t.identifier; }
+    else { px=e.clientX; py=e.clientY; id='mouse'; }
+
+    var b = topBodyAt(px,py);
+    if(!b) return;
+    e.preventDefault();
+    hideHint();
+    pointerId = id;
+    held = b;
+    b.tween=null;
+    b.asleep=false;
+    b.vx=b.vy=b.vAngle=0;
+    grabOffX = px - b.x;
+    grabOffY = py - b.y;
+    lastPX=px; lastPY=py; lastT=performance.now();
+    velSamples=[];
+    b.el.classList.add('held');
+    // slight scale up on grab
+    raise(b);
+    wake();
+  }
+
+  function getPoint(e){
+    if(e.touches){
+      for(var i=0;i<e.touches.length;i++){
+        var t=e.touches[i];
+        if(t.identifier===pointerId) return {x:t.clientX,y:t.clientY};
+      }
+      return null;
+    }
+    return {x:e.clientX,y:e.clientY};
+  }
+
+  function onMove(e){
+    if(!held) return;
+    var p = getPoint(e);
+    if(!p) return;
+    e.preventDefault();
+    var now = performance.now();
+    var nx = p.x - grabOffX;
+    var ny = p.y - grabOffY;
+
+    var dt = now - lastT;
+    if(dt>0){
+      var vx = (p.x - lastPX);
+      var vy = (p.y - lastPY);
+      velSamples.push({vx:vx, vy:vy, dt:dt});
+      if(velSamples.length>5) velSamples.shift();
+    }
+    // gentle angular follow based on horizontal motion
+    held.vAngle = (p.x - lastPX) * 0.0009;
+    held.angle += held.vAngle;
+
+    held.x = nx;
+    held.y = ny;
+    lastPX=p.x; lastPY=p.y; lastT=now;
+    render(held);
+  }
+
+  function onUp(e){
+    if(!held) return;
+    // confirm this pointer
+    if(e.changedTouches){
+      var found=false;
+      for(var i=0;i<e.changedTouches.length;i++){
+        if(e.changedTouches[i].identifier===pointerId){found=true;break;}
+      }
+      if(!found) return;
+    }
+    var b = held;
+    b.el.classList.remove('held');
+
+    if(reduced){
+      b.vx=b.vy=b.vAngle=0;
+      b.asleep=true;
+      keepInBounds(b); render(b);
+    } else {
+      // compute fling velocity from recent samples
+      var vx=0, vy=0, n=0;
+      var now = performance.now();
+      for(var j=0;j<velSamples.length;j++){
+        // weight recent samples more, ignore stale
+        vx += velSamples[j].vx;
+        vy += velSamples[j].vy;
+        n++;
+      }
+      if(n>0){ vx/=n; vy/=n; }
+      // if pointer was idle at release (old sample), damp throw
+      if(now - lastT > 60){ vx*=0.3; vy*=0.3; }
+      var speed = Math.sqrt(vx*vx+vy*vy);
+      var MAXV = 42;
+      if(speed>MAXV){ vx*=MAXV/speed; vy*=MAXV/speed; }
+      b.vx = vx;
+      b.vy = vy;
+      b.vAngle = (vx)*0.0016 + rand(-0.02,0.02);
+      if(speed<0.4){ b.vx=b.vy=0; b.vAngle*=0.2; }
+      b.asleep=false;
+    }
+    held=null;
+    pointerId=null;
+    velSamples=[];
+    wake();
+  }
+
+  // ---------- Hint ----------
+  var hintHidden=false;
+  function hideHint(){
+    if(hintHidden) return;
+    hintHidden=true;
+    hintEl.classList.add('gone');
+    setTimeout(function(){ if(hintEl.parentNode) hintEl.parentNode.removeChild(hintEl); }, 900);
+  }
+
+  // ---------- Events ----------
+  table.addEventListener('mousedown', onDown);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+
+  table.addEventListener('touchstart', onDown, {passive:false});
+  window.addEventListener('touchmove', onMove, {passive:false});
+  window.addEventListener('touchend', onUp, {passive:false});
+  window.addEventListener('touchcancel', onUp, {passive:false});
+
+  document.getElementById('shuffle').addEventListener('click', doShuffle);
+  document.getElementById('tidy').addEventListener('click', doTidy);
+
+  var resizeTimer;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){
+      var oldW=W, oldH=H;
+      clampInit();
+      measure();
+      // scale positions proportionally to keep prints on table
+      var sx = W/(oldW||W), sy=H/(oldH||H);
+      bodies.forEach(function(b){
+        b.x *= sx; b.y *= sy;
+        keepInBounds(b);
+        if(!b.tween) render(b);
+      });
+    }, 120);
+  });
+
+  // ---------- Init ----------
+  function init(){
+    clampInit();
+    measure();
+    scatterInitial();
+    // a gentle settle: nudge prints slightly so it feels alive on load
+    if(!reduced){
+      bodies.forEach(function(b){
+        b.vx = rand(-0.6,0.6);
+        b.vy = rand(-0.6,0.6);
+        b.vAngle = rand(-0.004,0.004);
+        b.asleep=false;
+      });
+      wake();
+    }
+  }
+
+  // wait for first image-ish layout; use load + small delay fallback
+  if(document.readyState==='complete'){ requestAnimationFrame(init); }
+  else { window.addEventListener('load', function(){ requestAnimationFrame(init); }); }
+  // also run early so something shows even before images fully load
+  requestAnimationFrame(function(){ clampInit(); measure(); scatterInitial(); });
+
+})();
+</script>
+</body>
+</html>

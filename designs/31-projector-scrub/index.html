@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tom Milton — Projector / Motion 31</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600&family=Cutive+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bench:#0d0b09;
+    --bench2:#171210;
+    --metal:#2a221c;
+    --metal-hi:#4a3c30;
+    --amber:#ffb24d;
+    --tungsten:#ffca7a;
+    --cream:#f3e6cf;
+    --dim:#8c7a63;
+    --line:rgba(255,200,140,.14);
+    --gate-w: min(78vw, 70vh, 880px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  html{overscroll-behavior:none}
+  body{
+    background:
+      radial-gradient(120% 90% at 50% -10%, #221913 0%, var(--bench2) 38%, var(--bench) 100%);
+    color:var(--cream);
+    font-family:'Oswald',sans-serif;
+    overflow:hidden;
+    -webkit-user-select:none;user-select:none;
+    touch-action:none;
+    position:fixed;inset:0;width:100%;
+  }
+  a{color:inherit}
+
+  /* film grain / bench texture overlay */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:60;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 4px);
+    opacity:.35;mix-blend-mode:overlay;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px clamp(14px,3vw,34px);
+    pointer-events:none;
+  }
+  .topbar a,.brand{pointer-events:auto}
+  .back{
+    text-decoration:none;font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--dim);display:inline-flex;align-items:center;gap:.5em;
+    transition:color .25s;
+  }
+  .back:hover{color:var(--amber)}
+  .brand{
+    text-align:right;line-height:1.05;
+  }
+  .brand .nm{font-weight:600;letter-spacing:.32em;font-size:14px;text-transform:uppercase;color:var(--cream)}
+  .brand .sub{font-family:'Cutive Mono',monospace;font-size:10px;letter-spacing:.28em;color:var(--dim);margin-top:3px}
+
+  /* ---------- Stage ---------- */
+  .stage{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding-top:54px;padding-bottom:0;
+  }
+
+  /* projector head / lamp glow above gate */
+  .lamp{
+    position:absolute;top:46px;left:50%;width:var(--gate-w);height:60%;
+    transform:translateX(-50%);
+    pointer-events:none;z-index:1;
+    background:radial-gradient(60% 80% at 50% 0%, rgba(255,170,80,.16), transparent 62%);
+    filter:blur(8px);
+  }
+
+  /* ---------- The Gate (projected frame) ---------- */
+  .gate-wrap{
+    position:relative;z-index:3;
+    width:var(--gate-w);
+    aspect-ratio:3/2;
+    max-height:62vh;
+  }
+  .gate{
+    position:absolute;inset:0;
+    border-radius:3px;
+    overflow:hidden;
+    /* the metal gate housing */
+    box-shadow:
+      0 0 0 2px #000,
+      0 0 0 10px var(--metal),
+      0 0 0 11px var(--metal-hi),
+      0 24px 60px -10px rgba(0,0,0,.8),
+      0 0 90px 10px rgba(255,150,60,.10);
+    background:#000;
+  }
+  .gate .frame{
+    position:absolute;inset:0;
+    opacity:0;
+    transition:opacity .12s linear;
+    will-change:transform,opacity,filter;
+  }
+  .gate .frame.on{opacity:1}
+  .gate .frame img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:saturate(1.08) contrast(1.04) brightness(1.02);
+  }
+  .gate .frame.bw img{filter:grayscale(1) contrast(1.08) brightness(1.04)}
+
+  /* projector vignette + tungsten warmth + flicker layer */
+  .gate .vig{
+    position:absolute;inset:0;pointer-events:none;z-index:5;
+    background:
+      radial-gradient(120% 120% at 50% 50%, transparent 52%, rgba(0,0,0,.55) 100%);
+    mix-blend-mode:multiply;
+  }
+  .gate .warm{
+    position:absolute;inset:0;pointer-events:none;z-index:6;
+    background:linear-gradient(0deg, rgba(255,140,40,.10), rgba(255,200,120,.06));
+    mix-blend-mode:soft-light;
+  }
+  .gate .flick{
+    position:absolute;inset:0;pointer-events:none;z-index:7;
+    background:#fff;opacity:0;mix-blend-mode:overlay;
+  }
+  #dust{position:absolute;inset:0;z-index:8;pointer-events:none;mix-blend-mode:screen;opacity:.5}
+
+  /* gate "open" mask corners — rounded film aperture feel */
+  .gate .aperture{
+    position:absolute;inset:0;z-index:9;pointer-events:none;
+    box-shadow:inset 0 0 22px 4px rgba(0,0,0,.6);
+    border-radius:4px;
+  }
+
+  /* slate / caption */
+  .slate{
+    position:absolute;left:0;bottom:-1px;transform:translateY(108%);
+    z-index:4;width:100%;
+    display:flex;align-items:flex-end;justify-content:space-between;gap:18px;
+    font-family:'Cutive Mono',monospace;
+  }
+  .slate .ttl{
+    font-family:'Oswald',sans-serif;font-weight:500;
+    font-size:clamp(17px,2.6vw,26px);letter-spacing:.02em;color:var(--cream);
+    line-height:1.05;
+  }
+  .slate .meta{
+    font-size:11px;letter-spacing:.12em;color:var(--dim);margin-top:6px;text-transform:uppercase;
+  }
+  .slate .meta b{color:var(--amber);font-weight:400}
+  .slate .rt{text-align:right;font-size:11px;letter-spacing:.1em;color:var(--dim);white-space:nowrap}
+  .slate .rt .stk{color:var(--tungsten)}
+
+  /* ---------- Counter (mechanical odometer) ---------- */
+  .counter{
+    position:absolute;top:64px;left:50%;transform:translateX(-50%);
+    z-index:30;display:flex;gap:18px;align-items:center;
+    background:linear-gradient(#1c1612,#0e0a08);
+    border:1px solid var(--metal-hi);border-radius:6px;
+    padding:7px 16px;
+    box-shadow:0 8px 24px -8px #000, inset 0 1px 0 rgba(255,200,140,.08);
+  }
+  .counter .grp{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .counter .lab{font-family:'Cutive Mono',monospace;font-size:8px;letter-spacing:.26em;color:var(--dim)}
+  .odo{
+    font-family:'Cutive Mono',monospace;font-size:19px;letter-spacing:.06em;
+    color:var(--amber);text-shadow:0 0 8px rgba(255,160,60,.5);
+    background:#070504;border-radius:3px;padding:2px 8px;border:1px solid #000;
+    display:inline-block;min-width:1ch;
+  }
+  .counter .div{width:1px;height:30px;background:var(--metal-hi)}
+
+  /* ---------- Film strip (physical) ---------- */
+  .deck{
+    position:absolute;left:0;right:0;bottom:0;z-index:20;
+    padding-bottom:14px;
+  }
+  /* gate marker — the fixed window the strip runs through */
+  .marker{
+    position:absolute;left:50%;top:-8px;transform:translateX(-50%);
+    width:calc(var(--cell) * 1px);max-width:46vw;height:calc(100% + 8px);
+    border-left:2px solid rgba(255,180,90,.55);
+    border-right:2px solid rgba(255,180,90,.55);
+    box-shadow:0 0 30px rgba(255,160,70,.25);
+    pointer-events:none;z-index:24;
+  }
+  .marker::before,.marker::after{
+    content:"";position:absolute;left:-7px;right:-7px;height:6px;
+    background:linear-gradient(var(--amber),transparent);
+  }
+  .marker::before{top:-3px}
+  .marker::after{bottom:-3px;transform:rotate(180deg)}
+
+  .strip-window{
+    position:relative;overflow:hidden;
+    height:118px;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
+  }
+  .strip{
+    position:absolute;left:0;top:0;height:100%;
+    display:flex;
+    will-change:transform;
+    background:#0a0806;
+  }
+  .cell{
+    position:relative;flex:0 0 auto;
+    height:100%;
+    background:#0a0806;
+    border-left:1px solid rgba(0,0,0,.7);
+    border-right:1px solid rgba(0,0,0,.7);
+    padding:18px 6px;
+  }
+  /* sprocket rows */
+  .cell::before,.cell::after{
+    content:"";position:absolute;left:0;right:0;height:16px;
+    background-image:radial-gradient(circle at center, #000 0 5px, transparent 5.5px);
+    background-size:22px 16px;background-repeat:repeat-x;background-position:center;
+    opacity:.9;
+  }
+  .cell::before{top:1px}
+  .cell::after{bottom:1px}
+  .cell .img{
+    height:100%;width:100%;object-fit:cover;display:block;border-radius:1px;
+    filter:saturate(1.05) brightness(.84) contrast(1.02);
+    opacity:.62;transition:opacity .2s, filter .2s;
+  }
+  .cell.bw .img{filter:grayscale(1) brightness(.86) contrast(1.05)}
+  .cell.active .img{opacity:1;filter:saturate(1.1) brightness(1) contrast(1.03)}
+  .cell.bw.active .img{filter:grayscale(1) brightness(1) contrast(1.08)}
+  .cell .fno{
+    position:absolute;top:2px;left:6px;font-family:'Cutive Mono',monospace;
+    font-size:8px;color:rgba(255,190,110,.7);letter-spacing:.1em;
+  }
+  .cell .edge{
+    position:absolute;bottom:2px;left:6px;font-family:'Cutive Mono',monospace;
+    font-size:8px;color:rgba(255,190,110,.5);letter-spacing:.1em;
+  }
+
+  /* ---------- Scrubber ---------- */
+  .scrub{
+    position:relative;margin:10px auto 0;width:min(86vw,760px);
+    height:24px;display:flex;align-items:center;cursor:ew-resize;
+  }
+  .scrub .track{
+    position:relative;width:100%;height:4px;border-radius:3px;
+    background:linear-gradient(90deg,#3a2e24,#22190f);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.6);
+  }
+  .scrub .fill{position:absolute;left:0;top:0;height:100%;border-radius:3px;
+    background:linear-gradient(90deg,#7a4a18,var(--amber));}
+  .scrub .ticks{position:absolute;inset:0;display:flex;justify-content:space-between;pointer-events:none}
+  .scrub .ticks i{width:1px;height:10px;margin-top:-3px;background:rgba(255,190,110,.25)}
+  .scrub .knob{
+    position:absolute;top:50%;width:14px;height:22px;border-radius:3px;
+    transform:translate(-50%,-50%);
+    background:linear-gradient(#f0d9b4,#b98a52);
+    box-shadow:0 2px 8px rgba(0,0,0,.6),inset 0 1px 0 #fff7;
+    border:1px solid #5c4326;
+  }
+
+  /* ---------- Hint ---------- */
+  .hint{
+    position:fixed;left:50%;bottom:178px;transform:translateX(-50%);
+    z-index:35;font-family:'Cutive Mono',monospace;font-size:12px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--tungsten);
+    display:flex;align-items:center;gap:10px;
+    pointer-events:none;transition:opacity .6s;
+    text-shadow:0 0 10px rgba(255,150,60,.4);
+  }
+  .hint .wheel{
+    width:20px;height:30px;border:1.5px solid var(--tungsten);border-radius:10px;position:relative;
+  }
+  .hint .wheel::before{content:"";position:absolute;left:50%;top:6px;width:2px;height:6px;
+    background:var(--tungsten);transform:translateX(-50%);border-radius:2px;
+    animation:scrollpip 1.5s infinite}
+  @keyframes scrollpip{0%{opacity:0;transform:translate(-50%,0)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,10px)}}
+  .hint.gone{opacity:0}
+
+  /* small status / reel id bottom-left */
+  .reelid{
+    position:fixed;left:clamp(14px,3vw,34px);bottom:14px;z-index:30;
+    font-family:'Cutive Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--dim);
+    pointer-events:none;
+  }
+  .reelid .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#c33;
+    margin-right:7px;vertical-align:middle;box-shadow:0 0 8px #f00;animation:rec 1.4s infinite}
+  @keyframes rec{0%,100%{opacity:.25}50%{opacity:1}}
+
+  @media (max-width:680px){
+    :root{--gate-w:90vw}
+    .gate-wrap{max-height:46vh}
+    .slate{flex-direction:column;align-items:flex-start;gap:4px}
+    .slate .rt{text-align:left}
+    .counter{top:58px;gap:10px;padding:6px 10px}
+    .odo{font-size:15px;padding:2px 5px}
+    .strip-window{height:96px}
+    .hint{bottom:150px}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .gate .frame{transition:opacity .2s linear}
+    .hint .wheel::before{animation:none}
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="back" href="../../index.html">&larr; All designs</a>
+    <div class="brand">
+      <div class="nm">Tom Milton</div>
+      <div class="sub">MOTION · 31 · PROJECTOR</div>
+    </div>
+  </div>
+
+  <div class="counter" aria-hidden="true">
+    <div class="grp"><span class="lab">FRAME</span><span class="odo" id="odoFrame">01</span></div>
+    <div class="div"></div>
+    <div class="grp"><span class="lab">FOOTAGE FT+FR</span><span class="odo" id="odoFoot">0000+00</span></div>
+    <div class="div"></div>
+    <div class="grp"><span class="lab">REEL 1 · 24 FPS</span><span class="odo" id="odoStk">PORTRA</span></div>
+  </div>
+
+  <div class="stage">
+    <div class="lamp"></div>
+    <div class="gate-wrap">
+      <div class="gate" id="gate" role="img" aria-label="Projector gate showing the current photograph">
+        <!-- two frame layers, crossfade -->
+        <div class="frame on" id="fA"><img alt=""></div>
+        <div class="frame" id="fB"><img alt=""></div>
+        <canvas id="dust"></canvas>
+        <div class="warm"></div>
+        <div class="vig"></div>
+        <div class="flick" id="flick"></div>
+        <div class="aperture"></div>
+      </div>
+      <div class="slate">
+        <div>
+          <div class="ttl" id="slTitle">—</div>
+          <div class="meta" id="slMeta">—</div>
+        </div>
+        <div class="rt" id="slRt">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint" id="hint">
+    <div class="wheel"></div>
+    Scroll · drag the strip to run the film
+  </div>
+
+  <div class="deck">
+    <div class="marker"></div>
+    <div class="strip-window" id="stripWin">
+      <div class="strip" id="strip"></div>
+    </div>
+    <div class="scrub" id="scrub">
+      <div class="track">
+        <div class="fill" id="scrubFill"></div>
+        <div class="ticks" id="scrubTicks"></div>
+        <div class="knob" id="scrubKnob"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reelid"><span class="dot"></span>RUNNING · TOM MILTON FILM ARCHIVE</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var BASE = "../../assets/img/";
+
+  var FRAMES = [
+    ["golden-field-sunburst","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",false],
+    ["forest-sunlight","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",false],
+    ["forest-path-trees","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F","1995",false],
+    ["valley-green-river","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3","1999",false],
+    ["lake-mountain-house","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000",false],
+    ["landscape-misty-mountains","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001",false],
+    ["cliff-coast-ocean","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002",false],
+    ["lake-cabin-dawn","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003",false],
+    ["sun-through-leaves","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004",false],
+    ["mountain-road-fog","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005",false],
+    ["waterfall-bridge","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006",false],
+    ["autumn-forest-road","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",false],
+    ["desert-dunes","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",false],
+    ["couple-silhouette-sunset","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V","2013",false],
+    ["street-cafe-paris","Café de Flore","Paris, France","Kodak Gold 200","Olympus OM-1","2020",false],
+    ["misty-pine-forest","Silence","Norway","Ilford HP5 Plus","Leica M6","2003",true]
+  ];
+  var N = FRAMES.length;
+
+  // ---- DOM refs ----
+  var strip = document.getElementById('strip');
+  var stripWin = document.getElementById('stripWin');
+  var fA = document.getElementById('fA'), fB = document.getElementById('fB');
+  var imgA = fA.querySelector('img'), imgB = fB.querySelector('img');
+  var flick = document.getElementById('flick');
+  var dust = document.getElementById('dust');
+  var dctx = dust.getContext('2d');
+  var slTitle = document.getElementById('slTitle');
+  var slMeta = document.getElementById('slMeta');
+  var slRt = document.getElementById('slRt');
+  var odoFrame = document.getElementById('odoFrame');
+  var odoFoot = document.getElementById('odoFoot');
+  var odoStk = document.getElementById('odoStk');
+  var scrub = document.getElementById('scrub');
+  var scrubFill = document.getElementById('scrubFill');
+  var scrubKnob = document.getElementById('scrubKnob');
+  var scrubTicks = document.getElementById('scrubTicks');
+  var marker = document.querySelector('.marker');
+  var hint = document.getElementById('hint');
+  var gateWrap = document.querySelector('.gate-wrap');
+
+  // ---- build film strip cells ----
+  var CELL = 168; // base px; responsive recompute
+  function buildStrip(){
+    strip.innerHTML='';
+    for(var i=0;i<N;i++){
+      var f=FRAMES[i];
+      var c=document.createElement('div');
+      c.className='cell'+(f[6]?' bw':'');
+      c.dataset.i=i;
+      var im=document.createElement('img');
+      im.className='img'; im.src=BASE+f[0]+'.jpg'; im.alt=f[1]+' — '+f[2]+', '+f[5];
+      im.loading = i<4 ? 'eager':'lazy'; im.draggable=false;
+      var no=document.createElement('span'); no.className='fno'; no.textContent=('0'+(i+1)).slice(-2);
+      var ed=document.createElement('span'); ed.className='edge'; ed.textContent='KODAK '+f[5];
+      c.appendChild(no); c.appendChild(im); c.appendChild(ed);
+      strip.appendChild(c);
+    }
+  }
+  buildStrip();
+  var cells = strip.querySelectorAll('.cell');
+
+  // ticks on scrubber
+  for(var t=0;t<N;t++){ scrubTicks.appendChild(document.createElement('i')); }
+
+  // ---- position model ----
+  var pos = 0;          // current film position in frame units (0..N-1)
+  var target = 0;       // snap target
+  var velocity = 0;
+  var dragging = false;
+  var snapMode = true;  // when true, ease toward integer target
+  var lastFrame = -1;
+  var curStock = "";
+
+  function measure(){
+    // choose a cell width so the active cell roughly matches gate width fraction
+    var ww = stripWin.clientWidth;
+    CELL = Math.max(120, Math.min(220, Math.round(ww/5)));
+    var h = stripWin.clientHeight;
+    var ratio = 3/2;
+    var imgW = Math.round((h-36)*ratio); // cell content area, sprocket pad ~18 each
+    CELL = Math.min(CELL, Math.max(110, imgW+14));
+    for(var i=0;i<cells.length;i++){ cells[i].style.width = CELL+'px'; }
+    // marker width tracks cell
+    marker.style.width = CELL+'px';
+    // dust canvas size
+    var r = gateWrap.getBoundingClientRect();
+    dust.width = Math.round(r.width); dust.height = Math.round(r.height);
+  }
+
+  // map pos -> strip translateX so the active cell centers under the marker
+  function layoutStrip(){
+    var center = stripWin.clientWidth/2;
+    var x = center - (pos+0.5)*CELL;
+    strip.style.transform = 'translate3d('+x+'px,0,0)';
+    // scrubber
+    var p = N>1 ? pos/(N-1) : 0;
+    scrubFill.style.width = (p*100)+'%';
+    scrubKnob.style.left = (p*100)+'%';
+  }
+
+  function frmAtPos(){ var f=Math.round(pos); return Math.max(0,Math.min(N-1,f)); }
+
+  // odometer footage: 16 frames per foot (35mm 4-perf)
+  function setReadout(fr){
+    var totalFrames = Math.round(pos*16)/16; // smoothish
+    var idx = fr;
+    odoFrame.textContent = ('0'+(idx+1)).slice(-2);
+    var ff = pos*16; // total perf-frames from start, using 16/foot
+    var feet = Math.floor(ff/16);
+    var frames = Math.floor(ff - feet*16);
+    odoFoot.textContent = ('0000'+feet).slice(-4)+'+'+('0'+frames).slice(-2);
+    var stock = FRAMES[idx][3].split(' ')[0].toUpperCase();
+    if(stock!==curStock){ curStock=stock; odoStk.textContent = FRAMES[idx][6] ? 'HP5' : stock; }
+  }
+
+  // update gate image + slate when integer frame changes
+  var activeImgEl = imgA, idleImgEl = imgB, activeLayer = fA, idleLayer = fB;
+  function showFrame(idx){
+    if(idx===lastFrame) return;
+    var f = FRAMES[idx];
+    // load into idle layer then crossfade
+    idleImgEl.src = BASE+f[0]+'.jpg';
+    idleImgEl.alt = f[1]+' — '+f[2]+', '+f[5];
+    idleLayer.classList.toggle('bw', !!f[6]);
+    // swap on/off
+    idleLayer.classList.add('on');
+    activeLayer.classList.remove('on');
+    // swap refs
+    var ti=activeImgEl; activeImgEl=idleImgEl; idleImgEl=ti;
+    var tl=activeLayer; activeLayer=idleLayer; idleLayer=tl;
+
+    // slate
+    slTitle.textContent = f[1];
+    slMeta.innerHTML = '<b>'+f[3]+'</b> · '+f[2];
+    slRt.innerHTML = '<span class="stk">'+f[4]+'</span><br>'+f[5]+(f[6]?' · B&amp;W':'');
+
+    // active cell highlight
+    for(var i=0;i<cells.length;i++) cells[i].classList.toggle('active', i===idx);
+
+    // gate change flash (projector cut)
+    if(!REDUCED){ flick.style.opacity='0.35'; setTimeout(function(){flick.style.opacity='0';},60); }
+
+    lastFrame = idx;
+  }
+
+  // ---- input: wheel (run the film) ----
+  var WHEEL_SCALE = 0.0016; // delta px -> frame units
+  function onWheel(e){
+    e.preventDefault();
+    hideHint();
+    snapMode=false;
+    var d = e.deltaY;
+    if(e.deltaMode===1) d*=16; // line mode
+    pos += d*WHEEL_SCALE;
+    clampPos();
+    velocity = 0;
+    armSnap();
+  }
+
+  var snapTimer=null;
+  function armSnap(){
+    if(snapTimer) clearTimeout(snapTimer);
+    snapTimer=setTimeout(function(){
+      target = frmAtPos();
+      snapMode=true;
+    }, 120);
+  }
+
+  function clampPos(){ if(pos<0)pos=0; if(pos>N-1)pos=N-1; }
+
+  // ---- drag the strip ----
+  var dragStartX=0, dragStartPos=0, lastX=0, lastT=0;
+  function pointerDown(e, fromScrub){
+    dragging=true; snapMode=false; hideHint();
+    var x = pointX(e);
+    dragStartX=x; lastX=x; lastT=performance.now();
+    dragStartPos=pos;
+    if(fromScrub){ setPosFromScrub(x); dragStartPos=pos; dragStartX=x; }
+    document.addEventListener('pointermove', pointerMove);
+    document.addEventListener('pointerup', pointerUp);
+    e.preventDefault();
+  }
+  function pointerMove(e){
+    if(!dragging) return;
+    var x=pointX(e);
+    if(scrubActive){ setPosFromScrub(x); }
+    else {
+      var dx = x - dragStartX;
+      pos = dragStartPos - dx/CELL;
+      clampPos();
+    }
+    var now=performance.now();
+    var dt=now-lastT;
+    if(dt>0){ velocity = (scrubActive?0:(lastX-x)/CELL)/dt*16; }
+    lastX=x; lastT=now;
+  }
+  function pointerUp(){
+    dragging=false; scrubActive=false;
+    document.removeEventListener('pointermove', pointerMove);
+    document.removeEventListener('pointerup', pointerUp);
+    // momentum then snap
+    armSnapFromVelocity();
+  }
+  function pointX(e){ return e.touches?e.touches[0].clientX:e.clientX; }
+
+  function armSnapFromVelocity(){
+    snapMode=false;
+    if(snapTimer) clearTimeout(snapTimer);
+    // let momentum decay in rAF; then snap
+    momentum=true;
+  }
+  var momentum=false;
+
+  // ---- scrubber ----
+  var scrubActive=false;
+  function setPosFromScrub(clientX){
+    var r=scrub.getBoundingClientRect();
+    var p=(clientX-r.left)/r.width;
+    p=Math.max(0,Math.min(1,p));
+    pos=p*(N-1);
+  }
+  scrub.addEventListener('pointerdown', function(e){ scrubActive=true; pointerDown(e,true); });
+
+  // strip drag
+  stripWin.addEventListener('pointerdown', function(e){ scrubActive=false; pointerDown(e,false); });
+  // prevent image drag ghost
+  stripWin.addEventListener('dragstart', function(e){e.preventDefault();});
+
+  // wheel
+  window.addEventListener('wheel', onWheel, {passive:false});
+
+  // touch wheel-like (vertical swipe over stage runs film too)
+  var stage=document.querySelector('.stage');
+  var tStartY=0,tStartPos=0,touching=false;
+  stage.addEventListener('touchstart', function(e){
+    touching=true; tStartY=e.touches[0].clientY; tStartPos=pos; snapMode=false; hideHint();
+  }, {passive:true});
+  stage.addEventListener('touchmove', function(e){
+    if(!touching) return;
+    var dy = e.touches[0].clientY - tStartY;
+    pos = tStartPos - dy*0.012;
+    clampPos();
+  }, {passive:true});
+  stage.addEventListener('touchend', function(){ touching=false; armSnap(); });
+
+  // ---- keyboard ----
+  window.addEventListener('keydown', function(e){
+    var k=e.key;
+    if(k==='ArrowRight'||k==='ArrowDown'||k===' '){ target=Math.min(N-1,frmAtPos()+1); snapMode=true; momentum=false; hideHint(); e.preventDefault(); }
+    else if(k==='ArrowLeft'||k==='ArrowUp'){ target=Math.max(0,frmAtPos()-1); snapMode=true; momentum=false; hideHint(); e.preventDefault(); }
+    else if(k==='Home'){ target=0; snapMode=true; momentum=false; }
+    else if(k==='End'){ target=N-1; snapMode=true; momentum=false; }
+  });
+
+  function hideHint(){ if(hint && !hint.classList.contains('gone')){ hint.classList.add('gone'); } }
+
+  // ---- main loop ----
+  var jx=0,jy=0,jrot=0;       // gate weave
+  var dustTick=0;
+  function loop(now){
+    // physics
+    if(snapMode){
+      pos += (target - pos) * 0.18;
+      if(Math.abs(target-pos)<0.001) pos=target;
+    } else if(momentum){
+      pos += velocity;
+      velocity *= 0.9;
+      clampPos();
+      if(Math.abs(velocity)<0.004){ momentum=false; target=frmAtPos(); snapMode=true; }
+    }
+
+    layoutStrip();
+    var fr = frmAtPos();
+    showFrame(fr);
+    setReadout(fr);
+
+    // projector character on the gate (skip when reduced)
+    if(!REDUCED){
+      // gate weave: tiny sub-pixel jitter, occasional bigger hop
+      jx += (Math.random()-0.5)*0.6; jx*=0.82;
+      jy += (Math.random()-0.5)*0.6; jy*=0.82;
+      jrot += (Math.random()-0.5)*0.05; jrot*=0.8;
+      // motion blur-ish: scale up slightly while moving fast
+      var moving = Math.abs(target-pos) + Math.abs(velocity);
+      var scl = 1.012 + Math.min(0.05, moving*0.04);
+      var bx = Math.max(-2, Math.min(2,jx)), by=Math.max(-2,Math.min(2,jy));
+      activeLayer.style.transform = 'translate('+bx.toFixed(2)+'px,'+by.toFixed(2)+'px) rotate('+jrot.toFixed(3)+'deg) scale('+scl.toFixed(3)+')';
+      // flicker: subtle brightness on the active img
+      var fl = 0.94 + Math.random()*0.10;
+      activeLayer.style.filter = 'brightness('+fl.toFixed(3)+')';
+
+      // dust specks — redraw every ~3 frames, light
+      dustTick++;
+      if(dustTick%3===0){
+        dctx.clearRect(0,0,dust.width,dust.height);
+        var specks = 2 + (Math.random()*4|0);
+        for(var s=0;s<specks;s++){
+          var dx=Math.random()*dust.width, dy=Math.random()*dust.height;
+          var rad=Math.random()*1.4+0.3;
+          dctx.fillStyle = Math.random()<0.5?'rgba(255,255,255,0.5)':'rgba(20,12,6,0.55)';
+          dctx.beginPath(); dctx.arc(dx,dy,rad,0,6.28); dctx.fill();
+        }
+        // occasional hair / scratch line
+        if(Math.random()<0.06){
+          dctx.strokeStyle='rgba(255,255,255,0.25)'; dctx.lineWidth=0.8;
+          var lx=Math.random()*dust.width;
+          dctx.beginPath(); dctx.moveTo(lx,0); dctx.lineTo(lx+ (Math.random()-0.5)*8, dust.height); dctx.stroke();
+        }
+      }
+    } else {
+      activeLayer.style.transform='';
+      activeLayer.style.filter='';
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  // ---- init ----
+  function init(){
+    measure();
+    // seed first frame
+    imgA.src = BASE+FRAMES[0][0]+'.jpg';
+    imgA.alt = FRAMES[0][1];
+    layoutStrip();
+    showFrame(0);
+    setReadout(0);
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize', function(){ measure(); layoutStrip(); });
+  window.addEventListener('orientationchange', function(){ setTimeout(function(){measure();layoutStrip();},200); });
+
+  // ensure first image element loaded before sizing dust etc.
+  init();
+
+  // auto-hide hint after a while
+  setTimeout(hideHint, 9000);
+})();
+</script>
+</body>
+</html>

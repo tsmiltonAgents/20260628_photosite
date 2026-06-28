@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tom Milton — Depth of Field</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg0:#1c1714;
+    --bg1:#2a221d;
+    --paper:#f6efe3;
+    --ink:#2b2018;
+    --accent:#c98a4b;
+    --frame:#fbf7ee;
+    --shadow:rgba(0,0,0,.55);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Inter',sans-serif;
+    color:#efe6da;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #3a2f27 0%, var(--bg1) 38%, var(--bg0) 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+  }
+  /* warm vignette + subtle grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(140% 110% at 50% 30%, transparent 40%, rgba(0,0,0,.45) 100%),
+      radial-gradient(60% 50% at 80% 0%, rgba(201,138,75,.10), transparent 60%);
+  }
+  body::after{
+    content:"";position:fixed;inset:-50%;pointer-events:none;z-index:1;opacity:.06;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  header.top{
+    position:relative;z-index:5;
+    display:flex;align-items:flex-end;justify-content:space-between;
+    gap:20px;flex-wrap:wrap;
+    padding:34px clamp(20px,5vw,72px) 6px;
+  }
+  .back{
+    font-size:13px;letter-spacing:.04em;color:#d9cbb9;text-decoration:none;
+    display:inline-flex;align-items:center;gap:7px;
+    padding:8px 14px;border:1px solid rgba(255,255,255,.13);border-radius:40px;
+    transition:.3s;backdrop-filter:blur(4px);background:rgba(255,255,255,.03);
+  }
+  .back:hover{color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.07)}
+  .masthead{flex:1;min-width:260px;text-align:center}
+  .masthead .name{
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(34px,6vw,66px);font-weight:600;letter-spacing:.01em;
+    line-height:.95;color:#fbf3e6;
+    text-shadow:0 2px 30px rgba(0,0,0,.5);
+  }
+  .masthead .sub{
+    margin-top:10px;font-size:clamp(11px,1.4vw,13px);letter-spacing:.42em;
+    text-transform:uppercase;color:var(--accent);font-weight:400;
+    padding-left:.42em;
+  }
+  .set-tag{
+    font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#9a8a78;
+    white-space:nowrap;
+  }
+
+  .hint{
+    position:relative;z-index:5;text-align:center;margin:22px auto 4px;
+    font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:#bcab97;
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    transition:opacity .6s;
+  }
+  .hint .dot{
+    width:7px;height:7px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 0 0 rgba(201,138,75,.6);
+    animation:pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(201,138,75,.55)}
+    70%{box-shadow:0 0 0 12px rgba(201,138,75,0)}
+    100%{box-shadow:0 0 0 0 rgba(201,138,75,0)}
+  }
+  .hint.gone{opacity:0;pointer-events:none}
+
+  /* the wall — perspective field */
+  .wall{
+    position:relative;z-index:4;
+    perspective:1600px;
+    perspective-origin:calc(50% + var(--fieldX,0px)) calc(40% + var(--fieldY,0px));
+    padding:clamp(30px,5vw,70px) clamp(18px,5vw,72px) 120px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+    gap:clamp(34px,4.5vw,72px);
+    max-width:1500px;margin:0 auto;
+    transform-style:preserve-3d;
+  }
+
+  .print{
+    --rx:0deg; --ry:0deg; --mx:50%; --my:50%; --lift:0;
+    position:relative;
+    aspect-ratio:4/5;
+    transform-style:preserve-3d;
+    transform:
+      translateZ(0)
+      rotateX(var(--rx)) rotateY(var(--ry))
+      translateZ(calc(var(--lift) * 46px))
+      scale(calc(1 + var(--lift) * 0.045));
+    transition:transform .12s linear;
+    cursor:pointer;
+    outline:none;
+    will-change:transform;
+  }
+  /* the physical paper */
+  .card{
+    position:absolute;inset:0;
+    transform-style:preserve-3d;
+    border-radius:4px;
+    background:var(--frame);
+    padding:14px 14px 56px;
+    box-shadow:
+      0 calc(8px + var(--lift)*30px) calc(20px + var(--lift)*50px) rgba(0,0,0,calc(.35 + var(--lift)*.28)),
+      0 calc(2px + var(--lift)*8px) calc(6px + var(--lift)*14px) rgba(0,0,0,.4);
+    transition:box-shadow .25s ease;
+  }
+  /* layered drop-shadow behind, deeper Z */
+  .print .floor-shadow{
+    position:absolute;left:8%;right:8%;bottom:-6%;height:30%;
+    background:radial-gradient(60% 100% at 50% 0%, rgba(0,0,0,.55), transparent 72%);
+    transform:translateZ(-60px) scale(calc(1 + var(--lift)*0.12));
+    filter:blur(calc(6px + var(--lift)*10px));
+    opacity:calc(.35 + var(--lift)*.4);
+    transition:opacity .25s;
+  }
+  .photo-well{
+    position:relative;width:100%;height:100%;
+    transform-style:preserve-3d;
+    border-radius:2px;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.08), inset 0 2px 14px rgba(0,0,0,.22);
+    background:#0c0a08;
+  }
+  .photo-well img{
+    position:absolute;inset:-6%;
+    width:112%;height:112%;
+    object-fit:cover;display:block;
+    transform:translateZ(18px) translate(calc((var(--mx) - 50%) * -0.12), calc((var(--my) - 50%) * -0.12));
+    transition:transform .12s linear, filter .4s;
+    filter:saturate(1.06) contrast(1.03);
+  }
+  .print.bw .photo-well img{filter:grayscale(1) contrast(1.08) brightness(1.02)}
+
+  /* specular glare on the glass */
+  .glass{
+    position:absolute;inset:0;border-radius:2px;pointer-events:none;
+    transform:translateZ(30px);
+    background:
+      radial-gradient(120px 120px at var(--mx) var(--my), rgba(255,255,255,.55), rgba(255,255,255,0) 60%),
+      linear-gradient(105deg, transparent 35%, rgba(255,255,255,.22) calc(var(--sheen,50%)), transparent 66%);
+    mix-blend-mode:screen;
+    opacity:calc(.25 + var(--lift)*.6);
+    transition:opacity .3s;
+  }
+  /* soft tint at edges to sell the gloss */
+  .glass::after{
+    content:"";position:absolute;inset:0;border-radius:2px;
+    box-shadow:inset 0 0 30px rgba(255,255,255,.10);
+    background:linear-gradient(160deg, rgba(255,255,255,.12), transparent 30%);
+  }
+
+  /* floating caption — highest Z */
+  .caption{
+    position:absolute;left:14px;right:14px;bottom:12px;
+    transform:translateZ(56px);
+    text-align:left;color:var(--ink);
+    pointer-events:none;
+    transform-origin:bottom left;
+  }
+  .caption .title{
+    font-family:'Cormorant Garamond',serif;
+    font-size:21px;font-weight:600;line-height:1;color:#231a12;
+    letter-spacing:.005em;
+  }
+  .caption .loc{
+    font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#8a6a44;
+    margin-top:3px;
+  }
+  /* metadata that reveals on hover/focus */
+  .meta{
+    margin-top:0;max-height:0;overflow:hidden;opacity:0;
+    transform:translateY(4px);
+    transition:max-height .45s cubic-bezier(.2,.7,.2,1), opacity .4s, transform .45s, margin-top .45s;
+  }
+  .print:hover .meta, .print:focus-visible .meta, .print.touched .meta{
+    max-height:80px;opacity:1;transform:translateY(0);margin-top:7px;
+  }
+  .meta .row{
+    display:flex;gap:8px;flex-wrap:wrap;
+    font-size:10px;letter-spacing:.06em;color:#5e4a37;
+    border-top:1px solid rgba(90,60,30,.18);padding-top:6px;
+  }
+  .meta .chip{white-space:nowrap}
+  .meta .chip b{color:#2b2018;font-weight:500}
+  .meta .chip::after{content:"·";margin-left:8px;color:#c0a988}
+  .meta .chip:last-child::after{content:""}
+
+  /* focus ring */
+  .print:focus-visible{filter:drop-shadow(0 0 0 transparent)}
+  .print:focus-visible .card{box-shadow:0 0 0 2px var(--accent), 0 30px 60px rgba(0,0,0,.55)}
+
+  footer{
+    position:relative;z-index:4;text-align:center;
+    padding:8px 20px 60px;color:#7c6c5a;font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;
+  }
+
+  @media (max-width:560px){
+    .wall{gap:46px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+    .caption .title{font-size:18px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .print{transform:none!important;transition:none}
+    .glass{display:none}
+    .photo-well img{transform:none!important}
+    .hint .dot{animation:none}
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back" href="../../index.html">&larr; All designs</a>
+    <div class="masthead">
+      <div class="name">Tom Milton</div>
+      <div class="sub">Depth of Field</div>
+    </div>
+    <div class="set-tag">Motion · 28</div>
+  </header>
+
+  <p class="hint" id="hint"><span class="dot"></span> Move your cursor across the prints &mdash; tilt to feel the glass</p>
+
+  <main class="wall" id="wall" aria-label="Photographic prints"></main>
+
+  <footer>Hand-printed · Archival pigment · Tom Milton Studio</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var PHOTOS = [
+    ["golden-field-sunburst","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",false],
+    ["lake-cabin-dawn","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003",false],
+    ["woman-portrait-window","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",false],
+    ["sun-through-leaves","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004",false],
+    ["man-bw-portrait","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6","2018",true],
+    ["friends-golden-hour","Golden Hour, Together","California, USA","Kodak Portra 400","Nikon F100","2016",false],
+    ["cliff-coast-ocean","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002",false],
+    ["woman-fashion-portrait","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67","2019",false],
+    ["autumn-forest-road","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",false],
+    ["woman-laughing-portrait","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2","2021",false],
+    ["couple-silhouette-sunset","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V","2013",false],
+    ["woman-curly-portrait","Curls","Brooklyn, USA","Cinestill 800T","Canon AE-1","2017",false]
+  ];
+
+  var wall = document.getElementById('wall');
+  var hint = document.getElementById('hint');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // build cards
+  var cards = [];
+  PHOTOS.forEach(function(p, i){
+    var file=p[0], title=p[1], loc=p[2], film=p[3], cam=p[4], year=p[5], bw=p[6];
+    var print = document.createElement('article');
+    print.className = 'print' + (bw ? ' bw' : '');
+    print.tabIndex = 0;
+    print.setAttribute('aria-label', title + ', ' + loc + '. ' + film + ', ' + cam + ', ' + year);
+    print.innerHTML =
+      '<div class="floor-shadow"></div>' +
+      '<div class="card">' +
+        '<div class="photo-well">' +
+          '<img src="../../assets/img/'+file+'.jpg" alt="'+title+' — '+loc+'" loading="lazy" draggable="false">' +
+        '</div>' +
+        '<div class="glass"></div>' +
+        '<div class="caption">' +
+          '<div class="title">'+title+'</div>' +
+          '<div class="loc">'+loc+'</div>' +
+          '<div class="meta"><div class="row">' +
+            '<span class="chip"><b>'+film+'</b></span>' +
+            '<span class="chip">'+cam+'</span>' +
+            '<span class="chip">'+year+'</span>' +
+          '</div></div>' +
+        '</div>' +
+      '</div>';
+    wall.appendChild(print);
+
+    cards.push({
+      el: print,
+      // target and current values for lerp
+      trx:0, try_:0, tmx:50, tmy:50, tlift:0, tsheen:50,
+      rx:0, ry:0, mx:50, my:50, lift:0, sheen:50,
+      hot:false
+    });
+  });
+
+  if(reduced){
+    // static, no animation — captions stay revealed via :hover only; done.
+    return;
+  }
+
+  var maxTilt = 11; // degrees
+
+  function setTargetsFromPoint(c, px, py){
+    var r = c.el.getBoundingClientRect();
+    var cx = r.left + r.width/2;
+    var cy = r.top + r.height/2;
+    // normalized -1..1 relative to card center
+    var nx = (px - cx) / (r.width/2);
+    var ny = (py - cy) / (r.height/2);
+    nx = Math.max(-1.6, Math.min(1.6, nx));
+    ny = Math.max(-1.6, Math.min(1.6, ny));
+    c.try_ = nx * maxTilt;
+    c.trx = -ny * maxTilt;
+    // pointer position within card for glare (clamped 0..100)
+    c.tmx = Math.max(0, Math.min(100, ((px - r.left)/r.width)*100));
+    c.tmy = Math.max(0, Math.min(100, ((py - r.top)/r.height)*100));
+    c.tsheen = c.tmx; // sheen band follows horizontal
+  }
+
+  // proximity-based field response: every card reacts to global pointer,
+  // strongest when pointer is near/over it.
+  var pointer = {x: window.innerWidth/2, y: window.innerHeight*0.4, active:false};
+  var fieldX=0, fieldY=0, fieldTX=0, fieldTY=0;
+
+  function onMove(px, py){
+    pointer.x = px; pointer.y = py; pointer.active = true;
+    dismissHint();
+    // whole-wall parallax origin shift
+    fieldTX = ((px / window.innerWidth) - 0.5) * 40;
+    fieldTY = ((py / window.innerHeight) - 0.5) * 28;
+
+    for(var i=0;i<cards.length;i++){
+      var c = cards[i];
+      var r = c.el.getBoundingClientRect();
+      var cx = r.left + r.width/2, cy = r.top + r.height/2;
+      var dist = Math.hypot(px - cx, py - cy);
+      var radius = r.width * 1.25;
+      var over = (px>=r.left && px<=r.right && py>=r.top && py<=r.bottom);
+      if(over){
+        c.tlift = 1;
+        c.hot = true;
+        setTargetsFromPoint(c, px, py);
+      } else if(dist < radius){
+        // nearby: gentle tilt toward pointer, partial lift
+        var f = 1 - (dist / radius);
+        c.tlift = f * 0.32;
+        c.hot = false;
+        // tilt toward pointer but softened
+        var nx = (px - cx)/(r.width/2);
+        var ny = (py - cy)/(r.height/2);
+        c.try_ = Math.max(-1.4,Math.min(1.4,nx)) * maxTilt * 0.5 * f;
+        c.trx = -Math.max(-1.4,Math.min(1.4,ny)) * maxTilt * 0.5 * f;
+        c.tmx = Math.max(0,Math.min(100, ((px - r.left)/r.width)*100));
+        c.tmy = Math.max(0,Math.min(100, ((py - r.top)/r.height)*100));
+        c.tsheen = c.tmx;
+      } else {
+        c.tlift = 0; c.hot = false;
+        c.trx = 0; c.try_ = 0; c.tmx = 50; c.tmy = 50; c.tsheen = 50;
+      }
+    }
+  }
+
+  function resetAll(){
+    pointer.active = false;
+    fieldTX = 0; fieldTY = 0;
+    for(var i=0;i<cards.length;i++){
+      var c = cards[i];
+      c.trx=0; c.try_=0; c.tmx=50; c.tmy=50; c.tsheen=50; c.tlift=0; c.hot=false;
+    }
+  }
+
+  // pointer events
+  window.addEventListener('pointermove', function(e){
+    onMove(e.clientX, e.clientY);
+  }, {passive:true});
+  window.addEventListener('pointerleave', resetAll);
+  document.addEventListener('mouseleave', resetAll);
+
+  // touch: drag updates pointer; keep a card touched for caption reveal
+  window.addEventListener('touchmove', function(e){
+    if(e.touches && e.touches[0]){
+      onMove(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, {passive:true});
+  window.addEventListener('touchend', resetAll, {passive:true});
+
+  // keyboard focus drives lift + caption
+  cards.forEach(function(c){
+    c.el.addEventListener('focus', function(){
+      dismissHint();
+      c.tlift = 1; c.try_ = -4; c.trx = 3; c.tmx = 40; c.tmy = 35; c.tsheen=40;
+    });
+    c.el.addEventListener('blur', function(){
+      c.tlift = 0; c.try_=0; c.trx=0; c.tmx=50; c.tmy=50; c.tsheen=50;
+    });
+  });
+
+  // device orientation (mobile gyro)
+  var gyroOn = false;
+  function handleOrient(e){
+    if(e.gamma==null || e.beta==null) return;
+    gyroOn = true;
+    dismissHint();
+    var g = Math.max(-1,Math.min(1, e.gamma/30)); // left-right
+    var b = Math.max(-1,Math.min(1, (e.beta-45)/30)); // front-back
+    fieldTX = g * 30; fieldTY = b * 22;
+    for(var i=0;i<cards.length;i++){
+      var c = cards[i];
+      c.try_ = g * maxTilt;
+      c.trx = -b * maxTilt;
+      c.tmx = 50 + g*45;
+      c.tmy = 50 + b*45;
+      c.tsheen = c.tmx;
+      c.tlift = Math.max(c.tlift, 0.25);
+    }
+  }
+  function enableGyro(){
+    if(typeof DeviceOrientationEvent !== 'undefined' &&
+       typeof DeviceOrientationEvent.requestPermission === 'function'){
+      DeviceOrientationEvent.requestPermission().then(function(s){
+        if(s==='granted') window.addEventListener('deviceorientation', handleOrient);
+      }).catch(function(){});
+    } else if('ondeviceorientation' in window){
+      window.addEventListener('deviceorientation', handleOrient);
+    }
+  }
+  // iOS needs a user gesture to grant orientation permission
+  if('ontouchstart' in window){
+    window.addEventListener('touchstart', function once(){
+      enableGyro();
+      window.removeEventListener('touchstart', once);
+    }, {passive:true});
+  } else {
+    enableGyro();
+  }
+
+  function dismissHint(){
+    if(hint && !hint.classList.contains('gone')){
+      hint.classList.add('gone');
+    }
+  }
+
+  // lerp helper
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  function frame(){
+    // field parallax
+    fieldX = lerp(fieldX, fieldTX, 0.08);
+    fieldY = lerp(fieldY, fieldTY, 0.08);
+    wall.style.setProperty('--fieldX', fieldX.toFixed(2)+'px');
+    wall.style.setProperty('--fieldY', fieldY.toFixed(2)+'px');
+
+    for(var i=0;i<cards.length;i++){
+      var c = cards[i];
+      var k = 0.16;
+      c.rx = lerp(c.rx, c.trx, k);
+      c.ry = lerp(c.ry, c.try_, k);
+      c.mx = lerp(c.mx, c.tmx, k);
+      c.my = lerp(c.my, c.tmy, k);
+      c.sheen = lerp(c.sheen, c.tsheen, k);
+      c.lift = lerp(c.lift, c.tlift, 0.14);
+
+      var s = c.el.style;
+      s.setProperty('--rx', c.rx.toFixed(2)+'deg');
+      s.setProperty('--ry', c.ry.toFixed(2)+'deg');
+      s.setProperty('--mx', c.mx.toFixed(1)+'%');
+      s.setProperty('--my', c.my.toFixed(1)+'%');
+      s.setProperty('--sheen', c.sheen.toFixed(1)+'%');
+      s.setProperty('--lift', c.lift.toFixed(3));
+
+      // toggle caption-reveal class when sufficiently lifted (covers touch)
+      if(c.lift > 0.6){
+        if(!c.el.classList.contains('touched')) c.el.classList.add('touched');
+      } else if(c.lift < 0.3){
+        if(c.el.classList.contains('touched')) c.el.classList.remove('touched');
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // auto-dismiss hint after a while regardless
+  setTimeout(dismissHint, 9000);
+})();
+</script>
+</body>
+</html>

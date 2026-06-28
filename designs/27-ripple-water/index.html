@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Reflections — Tom Milton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --warm: #f3e6d0;
+    --warm-dim: #d8c3a3;
+    --ink: #1c1610;
+    --gold: #e7b56a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    background: #0b0908;
+    color: var(--warm);
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+  #stage { position: fixed; inset: 0; }
+  canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+  /* ---- Fallback (no WebGL) ---- */
+  #fallback { position: fixed; inset: 0; display: none; overflow: hidden; background: #0b0908; }
+  #fallback.show { display: block; }
+  .fb-top, .fb-ref {
+    position: absolute; left: 0; right: 0;
+    background-size: cover; background-position: center;
+  }
+  .fb-top { top: 0; height: 58%; }
+  .fb-ref {
+    bottom: 0; height: 42%;
+    transform: scaleY(-1);
+    filter: blur(1.5px) brightness(0.7) saturate(1.05) sepia(0.18);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.25));
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.25));
+    animation: fbwave 7s ease-in-out infinite alternate;
+  }
+  @keyframes fbwave {
+    0%   { transform: scaleY(-1) translateY(0) skewX(0deg); }
+    50%  { transform: scaleY(-1) translateY(-4px) skewX(0.6deg); }
+    100% { transform: scaleY(-1) translateY(2px) skewX(-0.6deg); }
+  }
+  .fb-line { position: absolute; left: 0; right: 0; top: 58%; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(231,181,106,0.85), transparent);
+    box-shadow: 0 0 24px 4px rgba(231,181,106,0.35); }
+  @media (prefers-reduced-motion: reduce) { .fb-ref { animation: none; } }
+
+  /* ---- UI overlay ---- */
+  .ui { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+  .ui a, .ui button { pointer-events: auto; }
+
+  .topbar {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: clamp(16px, 2.4vw, 30px) clamp(18px, 3vw, 40px);
+  }
+  .back {
+    color: var(--warm-dim); text-decoration: none; font-size: 13px;
+    letter-spacing: 0.04em; font-weight: 400;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: color 0.3s; text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  }
+  .back:hover { color: var(--warm); }
+  .brand { text-align: right; text-shadow: 0 1px 10px rgba(0,0,0,0.6); }
+  .brand .name {
+    font-family: 'Cormorant Garamond', serif; font-size: clamp(18px, 2.3vw, 26px);
+    letter-spacing: 0.06em; line-height: 1; color: var(--warm);
+  }
+  .brand .series {
+    font-size: 10px; letter-spacing: 0.42em; text-transform: uppercase;
+    color: var(--gold); margin-top: 6px; opacity: 0.9;
+  }
+
+  /* caption */
+  .caption {
+    position: absolute; left: clamp(18px, 3vw, 40px);
+    top: 50%; transform: translateY(-50%);
+    max-width: min(74vw, 420px);
+    text-shadow: 0 2px 14px rgba(0,0,0,0.7);
+    transition: opacity 0.7s ease;
+  }
+  .caption .title {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: clamp(28px, 5.2vw, 56px); line-height: 1.04;
+    color: #fff; font-weight: 500;
+  }
+  .caption .loc {
+    font-size: clamp(12px, 1.5vw, 14px); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--gold); margin-top: 14px;
+  }
+  .caption .meta {
+    font-size: 12px; color: var(--warm-dim); margin-top: 10px;
+    letter-spacing: 0.03em; line-height: 1.7;
+  }
+  .caption.fading { opacity: 0; }
+
+  /* bottom controls */
+  .controls {
+    position: absolute; left: 0; right: 0; bottom: clamp(16px, 3vh, 34px);
+    display: flex; align-items: center; justify-content: center; gap: 22px;
+  }
+  .nav {
+    pointer-events: auto; width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid rgba(243,230,208,0.35); background: rgba(20,15,10,0.32);
+    color: var(--warm); cursor: pointer; backdrop-filter: blur(6px);
+    display: grid; place-items: center; transition: all 0.3s; font-size: 16px;
+  }
+  .nav:hover { background: rgba(231,181,106,0.22); border-color: var(--gold); }
+  .nav:active { transform: scale(0.93); }
+  .counter {
+    font-size: 12px; letter-spacing: 0.22em; color: var(--warm-dim);
+    min-width: 64px; text-align: center; text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+    font-variant-numeric: tabular-nums;
+  }
+  .counter b { color: var(--warm); font-weight: 500; }
+
+  /* hint */
+  .hint {
+    position: absolute; left: 50%; bottom: clamp(78px, 13vh, 110px);
+    transform: translateX(-50%);
+    font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--warm-dim); display: flex; align-items: center; gap: 9px;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+    transition: opacity 1s ease; opacity: 0.9;
+  }
+  .hint .drop {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--gold);
+    box-shadow: 0 0 0 0 rgba(231,181,106,0.6);
+    animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(231,181,106,0.55); }
+    70%  { box-shadow: 0 0 0 16px rgba(231,181,106,0); }
+    100% { box-shadow: 0 0 0 0 rgba(231,181,106,0); }
+  }
+  .hint.gone { opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .hint .drop { animation: none; } }
+
+  /* loader */
+  #loader {
+    position: fixed; inset: 0; z-index: 20; background: #0b0908;
+    display: grid; place-items: center; transition: opacity 0.8s ease;
+  }
+  #loader.hide { opacity: 0; pointer-events: none; }
+  .loader-inner { text-align: center; color: var(--warm-dim); }
+  .loader-inner .lt {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 30px; color: var(--warm); letter-spacing: 0.04em;
+  }
+  .ring {
+    width: 30px; height: 30px; margin: 22px auto 0; border-radius: 50%;
+    border: 2px solid rgba(243,230,208,0.18); border-top-color: var(--gold);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+  .edge-hot {
+    position: absolute; top: 0; bottom: 0; width: 16%; z-index: 4; cursor: pointer;
+    pointer-events: auto; background: transparent;
+  }
+  .edge-hot.left { left: 0; } .edge-hot.right { right: 0; }
+
+  @media (max-width: 640px) {
+    .caption { top: auto; bottom: clamp(120px, 22vh, 200px); transform: none; }
+    .brand .series { letter-spacing: 0.3em; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <canvas id="gl" aria-hidden="true"></canvas>
+</div>
+
+<div id="fallback" aria-hidden="true">
+  <div class="fb-top" id="fbTop"></div>
+  <div class="fb-line"></div>
+  <div class="fb-ref" id="fbRef"></div>
+</div>
+
+<!-- invisible click zones for advancing -->
+<div class="edge-hot left"  id="edgeL" aria-hidden="true"></div>
+<div class="edge-hot right" id="edgeR" aria-hidden="true"></div>
+
+<div class="ui">
+  <div class="topbar">
+    <a class="back" href="../../index.html">&larr; All designs</a>
+    <div class="brand">
+      <div class="name">Tom Milton</div>
+      <div class="series">Reflections</div>
+    </div>
+  </div>
+
+  <div class="caption" id="caption" aria-live="polite">
+    <div class="title" id="cTitle">—</div>
+    <div class="loc" id="cLoc">—</div>
+    <div class="meta" id="cMeta">—</div>
+  </div>
+
+  <div class="hint" id="hint">
+    <span class="drop"></span> Touch the water — drag to ripple, tap to splash
+  </div>
+
+  <div class="controls">
+    <button class="nav" id="prev" aria-label="Previous photograph">&#8249;</button>
+    <div class="counter"><b id="cur">01</b> / <span id="tot">09</span></div>
+    <button class="nav" id="next" aria-label="Next photograph">&#8250;</button>
+  </div>
+</div>
+
+<div id="loader">
+  <div class="loader-inner">
+    <div class="lt">Reflections</div>
+    <div class="ring"></div>
+  </div>
+</div>
+
+<!-- Accessible photo list -->
+<ul class="sr-only" id="a11yList" aria-label="Photographs in this gallery by Tom Milton"></ul>
+
+<script>
+(function () {
+  "use strict";
+
+  var BASE = "../../assets/img/";
+  var PHOTOS = [
+    { file:"lake-mountain-house.jpg",      title:"Reflections, Still Morning", loc:"Hallstatt, Austria", film:"Kodak Ektar 100",   cam:"Mamiya RZ67",     year:"2000" },
+    { file:"golden-field-sunburst.jpg",    title:"Last Light, Wheat Country",  loc:"Tuscany, Italy",    film:"Kodak Portra 400",  cam:"Leica M6",        year:"1998" },
+    { file:"lake-cabin-dawn.jpg",          title:"The Cabin at Dawn",          loc:"Banff, Canada",     film:"Kodak Ektar 100",   cam:"Mamiya 7 II",     year:"2003" },
+    { file:"foggy-pier-lake.jpg",          title:"The Quiet Dock",             loc:"Lake District, UK", film:"Cinestill 50D",     cam:"Contax T2",       year:"2010" },
+    { file:"valley-green-river.jpg",       title:"River Bend, Spring",         loc:"Glencoe, Scotland", film:"Fujifilm Velvia 50",cam:"Nikon F3",        year:"1999" },
+    { file:"cliff-coast-ocean.jpg",        title:"Edge of the World",          loc:"Big Sur, USA",      film:"Kodak Portra 400",  cam:"Contax G2",       year:"2002" },
+    { file:"landscape-misty-mountains.jpg",title:"Morning Fog, Cascades",      loc:"Washington, USA",   film:"Fujifilm Pro 400H", cam:"Pentax 67",       year:"2001" },
+    { file:"waterfall-bridge.jpg",         title:"Hidden Falls",               loc:"Iceland",           film:"Fujifilm Velvia 50",cam:"Nikon FM2",       year:"2006" },
+    { file:"couple-silhouette-sunset.jpg", title:"Goodnight",                  loc:"Santorini, Greece", film:"Kodak Portra 800",  cam:"Canon EOS-1V",    year:"2013" }
+  ];
+
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- a11y list ----------
+  var ul = document.getElementById("a11yList");
+  PHOTOS.forEach(function (p) {
+    var li = document.createElement("li");
+    li.textContent = '"' + p.title + '", ' + p.loc + ". Shot on " + p.film + " with a " + p.cam + ", " + p.year + ".";
+    ul.appendChild(li);
+  });
+  document.getElementById("tot").textContent = ("0" + PHOTOS.length).slice(-2);
+
+  // ---------- WebGL setup ----------
+  var canvas = document.getElementById("gl");
+  var gl = null;
+  try {
+    gl = canvas.getContext("webgl", { antialias: true, alpha: false, premultipliedAlpha: false })
+      || canvas.getContext("experimental-webgl");
+  } catch (e) { gl = null; }
+
+  var WATERLINE = 0.42; // bottom 42% is water
+
+  if (!gl) { startFallback(); return; }
+
+  var VERT = [
+    "attribute vec2 aPos;",
+    "varying vec2 vUv;",
+    "void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.0,1.0); }"
+  ].join("\n");
+
+  var MAXR = 12;
+  var FRAG = [
+    "precision highp float;",
+    "varying vec2 vUv;",
+    "uniform sampler2D uTex0;",
+    "uniform sampler2D uTex1;",
+    "uniform float uMix;",
+    "uniform float uA0;",      // image aspect tex0
+    "uniform float uA1;",      // image aspect tex1
+    "uniform float uTime;",
+    "uniform float uAspect;",  // screen W/H
+    "uniform float uWL;",      // waterline (0..1 from bottom)
+    "uniform float uReduced;",
+    "uniform int   uRipN;",
+    "uniform vec4  uRip[" + MAXR + "];", // x,y,elapsed,strength
+    "",
+    "vec2 coverUV(float lu, float imgV, float ia){",
+    "  float ra = uAspect/(1.0-uWL);",  // region aspect (top region)
+    "  float u, v;",
+    "  if(ia > ra){ u = (lu-0.5)*(ra/ia)+0.5; v = imgV; }",
+    "  else       { u = lu; v = (imgV-0.5)*(ia/ra)+0.5; }",
+    "  return vec2(u, v);",
+    "}",
+    "",
+    "vec3 grade(vec3 c){",
+    "  c = pow(max(c,0.0), vec3(0.96));",
+    "  c.r *= 1.035; c.b *= 0.965;",
+    "  c += vec3(0.015,0.008,0.0)*(1.0-c);",  // warm shadow lift
+    "  return c;",
+    "}",
+    "",
+    "void main(){",
+    "  vec2 uv = vUv;",
+    "  float wl = uWL;",
+    "  float amb = uReduced > 0.5 ? 0.22 : 1.0;",
+    "",
+    "  // --- displacement field (ambient + ripples) ---",
+    "  vec2 disp = vec2(0.0);",
+    "  float t = uReduced > 0.5 ? 0.0 : uTime;",
+    "  disp.y += (0.0045*sin(uv.x*9.0 + t*0.7) + 0.003*sin(uv.x*17.0 - t*0.5 + uv.y*3.0))*amb;",
+    "  disp.x += (0.003*sin(uv.y*12.0 + t*0.6))*amb;",
+    "  float shimmer = 0.0;",
+    "  for(int i=0;i<" + MAXR + ";i++){",
+    "    if(i>=uRipN) break;",
+    "    vec4 r = uRip[i];",
+    "    vec2 d = vec2((uv.x-r.x)*uAspect, uv.y-r.y);",
+    "    float dist = length(d);",
+    "    float el = r.z;",
+    "    float radius = el*0.55;",
+    "    float ring = exp(-pow((dist-radius)*7.0, 2.0));",
+    "    float amp = r.w * exp(-el*1.15);",
+    "    float wave = sin(dist*42.0 - el*7.0);",
+    "    vec2 dir = dist>0.0001 ? vec2(uv.x-r.x, uv.y-r.y)/dist : vec2(0.0);",
+    "    float c = wave*ring*amp;",
+    "    disp += dir * c * 0.016;",
+    "    shimmer += ring*amp*abs(wave);",
+    "  }",
+    "",
+    "  vec3 col;",
+    "  if(uv.y >= wl){",
+    "    // ---- photo (above waterline) ----",
+    "    float imgV = (uv.y - wl)/(1.0-wl);",
+    "    float nearLine = smoothstep(0.08, 0.0, uv.y-wl);", // distortion only just above water
+    "    vec2 du = disp * nearLine * 0.4;",
+    "    vec2 uv0 = coverUV(uv.x+du.x, imgV+du.y, uA0);",
+    "    vec2 uv1 = coverUV(uv.x+du.x, imgV+du.y, uA1);",
+    "    vec3 c0 = texture2D(uTex0, clamp(uv0,0.0,1.0)).rgb;",
+    "    vec3 c1 = texture2D(uTex1, clamp(uv1,0.0,1.0)).rgb;",
+    "    col = mix(c0, c1, uMix);",
+    "    col = grade(col);",
+    "  } else {",
+    "    // ---- water reflection (below waterline) ----",
+    "    float depth = (wl - uv.y)/wl;",            // 0 at line -> 1 bottom
+    "    float imgV = (wl - uv.y)/(1.0-wl);",
+    "    vec2 du = disp * (0.6 + depth*1.4);",
+    "    vec2 uv0 = coverUV(uv.x+du.x, imgV+du.y, uA0);",
+    "    vec2 uv1 = coverUV(uv.x+du.x, imgV+du.y, uA1);",
+    "    vec3 c0 = texture2D(uTex0, clamp(uv0,0.0,1.0)).rgb;",
+    "    vec3 c1 = texture2D(uTex1, clamp(uv1,0.0,1.0)).rgb;",
+    "    col = mix(c0, c1, uMix);",
+    "    col = grade(col);",
+    "    // tint + darken with depth",
+    "    col *= (0.86 - depth*0.28);",
+    "    col = mix(col, col*vec3(1.08,0.92,0.74), 0.30 + depth*0.18);",
+    "    vec3 deep = vec3(0.06,0.05,0.045);",
+    "    col = mix(col, deep, depth*0.30);",
+    "    // wave specular shimmer",
+    "    float spec = clamp(shimmer*1.6 + abs(disp.y)*8.0, 0.0, 1.0);",
+    "    col += vec3(1.0,0.86,0.62) * spec * 0.18 * (1.0-depth*0.5);",
+    "  }",
+    "",
+    "  // ---- caustic waterline ----",
+    "  float line = exp(-pow((uv.y-wl)/0.011, 2.0));",
+    "  col += vec3(1.0,0.78,0.45) * line * 0.55;",
+    "  float line2 = exp(-pow((uv.y-wl)/0.05, 2.0));",
+    "  col += vec3(0.9,0.7,0.4) * line2 * 0.06;",
+    "",
+    "  // ---- vignette ----",
+    "  vec2 q = uv-0.5;",
+    "  float vig = smoothstep(0.95, 0.35, length(vec2(q.x*1.05, q.y)));",
+    "  col *= 0.62 + 0.38*vig;",
+    "",
+    "  // ---- film grain ----",
+    "  float g = fract(sin(dot(uv*vec2(uAspect,1.0)+t*0.05, vec2(12.9898,78.233)))*43758.5453);",
+    "  col += (g-0.5)*0.025;",
+    "",
+    "  gl_FragColor = vec4(col, 1.0);",
+    "}"
+  ].join("\n");
+
+  function compile(type, src) {
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      console.warn("shader error", gl.getShaderInfoLog(s));
+      return null;
+    }
+    return s;
+  }
+  var vs = compile(gl.VERTEX_SHADER, VERT);
+  var fs = compile(gl.FRAGMENT_SHADER, FRAG);
+  if (!vs || !fs) { startFallback(); return; }
+  var prog = gl.createProgram();
+  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { startFallback(); return; }
+  gl.useProgram(prog);
+
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  var aPos = gl.getAttribLocation(prog, "aPos");
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  var U = {};
+  ["uTex0","uTex1","uMix","uA0","uA1","uTime","uAspect","uWL","uReduced","uRipN","uRip"]
+    .forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+  gl.uniform1i(U.uTex0, 0);
+  gl.uniform1i(U.uTex1, 1);
+  gl.uniform1f(U.uWL, WATERLINE);
+  gl.uniform1f(U.uReduced, reduced ? 1.0 : 0.0);
+
+  // ---------- textures ----------
+  var slides = PHOTOS.map(function (p) {
+    return { meta: p, tex: null, aspect: 1.5, ready: false };
+  });
+
+  function makeTex(img) {
+    var t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    return t;
+  }
+
+  var loadedCount = 0;
+  slides.forEach(function (s, i) {
+    var img = new Image();
+    img.onload = function () {
+      s.tex = makeTex(img);
+      s.aspect = img.naturalWidth / img.naturalHeight;
+      s.ready = true;
+      loadedCount++;
+      if (i === 0) { onFirstReady(); }
+    };
+    img.onerror = function () { loadedCount++; if (i === 0) startFallback(); };
+    img.src = BASE + s.meta.file;
+  });
+
+  // ---------- state ----------
+  var cur = 0, nxt = 0;
+  var mixVal = 0, mixActive = false, mixStart = 0, MIX_DUR = 1.1;
+  var ripples = []; // {x,y,t0,strength}
+  var running = false, started = false;
+  var startTime = performance.now();
+
+  function dpr() { return Math.min(window.devicePixelRatio || 1, 1.75); }
+  function resize() {
+    var w = Math.floor(window.innerWidth * dpr());
+    var h = Math.floor(window.innerHeight * dpr());
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w; canvas.height = h;
+    }
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform1f(U.uAspect, canvas.width / canvas.height);
+    if (!running) renderOnce();
+  }
+  window.addEventListener("resize", resize);
+
+  function bindTextures() {
+    var a = slides[cur], b = slides[nxt];
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, (a && a.tex) || (b && b.tex));
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, (b && b.tex) || (a && a.tex));
+    gl.uniform1f(U.uA0, a && a.ready ? a.aspect : 1.5);
+    gl.uniform1f(U.uA1, b && b.ready ? b.aspect : 1.5);
+  }
+
+  var ripBuf = new Float32Array(MAXR * 4);
+  function uploadRipples(now) {
+    // newest first, max MAXR
+    var live = [];
+    for (var i = ripples.length - 1; i >= 0 && live.length < MAXR; i--) {
+      var el = (now - ripples[i].t0) / 1000;
+      if (el < 3.6) live.push({ r: ripples[i], el: el });
+    }
+    // prune old
+    if (ripples.length > 40) ripples = ripples.slice(-40);
+    for (var k = 0; k < MAXR; k++) {
+      if (k < live.length) {
+        var L = live[k];
+        ripBuf[k*4]   = L.r.x;
+        ripBuf[k*4+1] = L.r.y;
+        ripBuf[k*4+2] = L.el;
+        ripBuf[k*4+3] = L.r.strength;
+      } else { ripBuf[k*4]=0; ripBuf[k*4+1]=0; ripBuf[k*4+2]=99; ripBuf[k*4+3]=0; }
+    }
+    gl.uniform4fv(U.uRip, ripBuf);
+    gl.uniform1i(U.uRipN, Math.min(live.length, MAXR));
+  }
+
+  function renderOnce() {
+    if (!started) return;
+    var now = performance.now();
+    bindTextures();
+    gl.uniform1f(U.uTime, (now - startTime) / 1000);
+    gl.uniform1f(U.uMix, mixVal);
+    uploadRipples(now);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+
+  function frame() {
+    if (!running) return;
+    var now = performance.now();
+
+    if (mixActive) {
+      mixVal = Math.min((now - mixStart) / (MIX_DUR * 1000), 1);
+      if (mixVal >= 1) { mixActive = false; cur = nxt; mixVal = 0; }
+    }
+    renderOnce();
+    rafId = requestAnimationFrame(frame);
+  }
+
+  var rafId = null;
+  function play() {
+    if (reduced) { renderOnce(); return; }
+    if (!running) { running = true; rafId = requestAnimationFrame(frame); }
+  }
+  function stop() { running = false; if (rafId) cancelAnimationFrame(rafId); }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) stop();
+    else play();
+  });
+
+  // ---------- interaction ----------
+  function addRipple(clientX, clientY, strength) {
+    if (reduced) return;
+    var x = clientX / window.innerWidth;
+    var y = 1 - clientY / window.innerHeight;
+    ripples.push({ x: x, y: y, t0: performance.now(), strength: strength });
+    dismissHint();
+  }
+
+  var lastMove = 0;
+  function onMove(e) {
+    var now = performance.now();
+    if (now - lastMove < 55) return;
+    lastMove = now;
+    var p = pointFrom(e);
+    if (p) addRipple(p.x, p.y, 0.42);
+  }
+  function onDown(e) {
+    var p = pointFrom(e);
+    if (p) {
+      addRipple(p.x, p.y, 1.35);
+      // ensure animation runs to show the splash even at rest
+      if (reduced) { /* static */ }
+    }
+  }
+  function pointFrom(e) {
+    if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (e.changedTouches && e.changedTouches.length) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  var stage = document.getElementById("stage");
+  stage.addEventListener("pointermove", onMove, { passive: true });
+  stage.addEventListener("pointerdown", onDown, { passive: true });
+  stage.addEventListener("touchmove", function (e) { onMove(e); }, { passive: true });
+  stage.addEventListener("touchstart", function (e) { onDown(e); }, { passive: true });
+
+  // ---------- navigation ----------
+  function go(dir) {
+    if (mixActive) return;
+    var target = (cur + dir + slides.length) % slides.length;
+    if (target === cur) return;
+    nxt = target;
+    mixVal = 0; mixActive = true; mixStart = performance.now();
+    updateCaption(nxt);
+    if (reduced) {
+      // hard cut for reduced motion
+      mixActive = false; cur = nxt; mixVal = 0; renderOnce();
+    } else {
+      play();
+    }
+  }
+
+  document.getElementById("next").addEventListener("click", function () { go(1); });
+  document.getElementById("prev").addEventListener("click", function () { go(-1); });
+  document.getElementById("edgeR").addEventListener("click", function () { go(1); });
+  document.getElementById("edgeL").addEventListener("click", function () { go(-1); });
+
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") { go(1); }
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") { go(-1); }
+  });
+
+  var wheelLock = 0;
+  window.addEventListener("wheel", function (e) {
+    var now = performance.now();
+    if (now - wheelLock < 700) return;
+    if (Math.abs(e.deltaY) < 12 && Math.abs(e.deltaX) < 12) return;
+    wheelLock = now;
+    go((e.deltaY + e.deltaX) > 0 ? 1 : -1);
+  }, { passive: true });
+
+  // swipe (horizontal) for slide change
+  var touchSX = null, touchSY = null;
+  stage.addEventListener("touchstart", function (e) {
+    if (e.touches.length === 1) { touchSX = e.touches[0].clientX; touchSY = e.touches[0].clientY; }
+  }, { passive: true });
+  stage.addEventListener("touchend", function (e) {
+    if (touchSX == null) return;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - touchSX, dy = t.clientY - touchSY;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.4) { go(dx < 0 ? 1 : -1); }
+    touchSX = touchSY = null;
+  }, { passive: true });
+
+  // ---------- caption ----------
+  var capEl = document.getElementById("caption");
+  function updateCaption(i) {
+    var p = slides[i].meta;
+    capEl.classList.add("fading");
+    setTimeout(function () {
+      document.getElementById("cTitle").textContent = p.title;
+      document.getElementById("cLoc").textContent = p.loc;
+      document.getElementById("cMeta").textContent = p.film + "  ·  " + p.cam + "  ·  " + p.year;
+      document.getElementById("cur").textContent = ("0" + (i + 1)).slice(-2);
+      capEl.classList.remove("fading");
+    }, reduced ? 0 : 320);
+  }
+
+  var hintEl = document.getElementById("hint");
+  var hintDismissed = false;
+  function dismissHint() {
+    if (hintDismissed) return;
+    hintDismissed = true;
+    hintEl.classList.add("gone");
+  }
+  setTimeout(dismissHint, 9000);
+
+  // ---------- boot ----------
+  function onFirstReady() {
+    if (started) return;
+    started = true;
+    resize();
+    updateCaption(0);
+    renderOnce();
+    play();
+    var loader = document.getElementById("loader");
+    setTimeout(function () { loader.classList.add("hide"); }, 350);
+  }
+
+  // safety: if first image very slow, still hide loader after a while via fallback handled elsewhere
+
+  // ---------- CSS fallback ----------
+  function startFallback() {
+    if (started === undefined) {} // noop
+    var fb = document.getElementById("fallback");
+    canvas.style.display = "none";
+    fb.classList.add("show");
+    var idx = 0;
+    var top = document.getElementById("fbTop");
+    var ref = document.getElementById("fbRef");
+    function show(i) {
+      var p = PHOTOS[i];
+      var url = BASE + p.file;
+      top.style.backgroundImage = "url('" + url + "')";
+      ref.style.backgroundImage = "url('" + url + "')";
+      document.getElementById("cTitle").textContent = p.title;
+      document.getElementById("cLoc").textContent = p.loc;
+      document.getElementById("cMeta").textContent = p.film + "  ·  " + p.cam + "  ·  " + p.year;
+      document.getElementById("cur").textContent = ("0" + (i + 1)).slice(-2);
+    }
+    show(0);
+    function nav(d) { idx = (idx + d + PHOTOS.length) % PHOTOS.length; show(idx); }
+    document.getElementById("next").addEventListener("click", function () { nav(1); });
+    document.getElementById("prev").addEventListener("click", function () { nav(-1); });
+    document.getElementById("edgeR").addEventListener("click", function () { nav(1); });
+    document.getElementById("edgeL").addEventListener("click", function () { nav(-1); });
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") nav(1); else if (e.key === "ArrowLeft") nav(-1);
+    });
+    document.getElementById("hint").textContent = "Use the arrows to drift through the gallery";
+    setTimeout(function () { document.getElementById("loader").classList.add("hide"); }, 500);
+  }
+
+})();
+</script>
+</body>
+</html>

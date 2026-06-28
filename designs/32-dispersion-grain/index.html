@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dissolve — Tom Milton · Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0b08;
+  --bg2:#171009;
+  --paper:#f3ead9;
+  --ink:#efe6d6;
+  --ink-soft:#bcae98;
+  --ink-faint:#7d7058;
+  --accent:#d98a3d;
+  --accent-soft:#e6a85f;
+  --rule:rgba(220,200,170,0.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(120% 100% at 50% 0%, var(--bg2), var(--bg) 70%);
+  color:var(--ink);
+  font-family:'Inter',system-ui,sans-serif;
+  font-weight:400;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+/* film grain overlay */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:50;
+  opacity:0.045;
+  mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.stage{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#fx{
+  display:block;
+  touch-action:manipulation;
+  cursor:pointer;
+}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:30;
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  padding:1.5rem clamp(1.2rem,4vw,3rem);
+  pointer-events:none;
+}
+.topbar a, .topbar .brand{ pointer-events:auto; }
+.back{
+  font-size:.78rem;
+  letter-spacing:.06em;
+  color:var(--ink-soft);
+  text-decoration:none;
+  transition:color .3s;
+}
+.back:hover{ color:var(--accent-soft); }
+.brand{
+  font-family:'Fraunces',serif;
+  font-weight:400;
+  font-size:.95rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+.brand b{ color:var(--ink); font-weight:500; }
+.setlabel{
+  font-size:.72rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+/* ---------- caption ---------- */
+.caption{
+  position:fixed;
+  z-index:30;
+  left:50%;
+  bottom:clamp(1.6rem,5vh,3.2rem);
+  transform:translateX(-50%);
+  width:min(92vw,640px);
+  text-align:center;
+  pointer-events:none;
+  transition:opacity .6s ease;
+}
+.caption.dim{ opacity:0; }
+.cap-title{
+  font-family:'Fraunces',serif;
+  font-weight:400;
+  font-style:italic;
+  font-size:clamp(1.5rem,1rem + 2.4vw,2.5rem);
+  line-height:1.06;
+  color:var(--paper);
+  text-shadow:0 2px 30px rgba(0,0,0,.55);
+  margin-bottom:.5rem;
+}
+.cap-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.4rem 1.1rem;
+  justify-content:center;
+  font-size:.74rem;
+  letter-spacing:.05em;
+  color:var(--ink-soft);
+}
+.cap-meta span{ position:relative; white-space:nowrap; }
+.cap-meta .loc{ color:var(--accent-soft); }
+.cap-year{
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- progress dots ---------- */
+.dots{
+  position:fixed;
+  z-index:30;
+  left:50%;
+  bottom:.7rem;
+  transform:translateX(-50%);
+  display:flex;
+  gap:.5rem;
+  pointer-events:auto;
+}
+.dot{
+  width:7px;height:7px;
+  border-radius:50%;
+  border:none;
+  padding:0;
+  cursor:pointer;
+  background:rgba(220,200,170,0.25);
+  transition:background .4s, transform .4s;
+}
+.dot.on{ background:var(--accent); transform:scale(1.35); }
+
+/* ---------- hint ---------- */
+.hint{
+  position:fixed;
+  z-index:30;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:.8rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  background:rgba(14,11,8,.45);
+  backdrop-filter:blur(3px);
+  padding:.6rem 1.1rem;
+  border:1px solid var(--rule);
+  border-radius:2rem;
+  pointer-events:none;
+  transition:opacity .8s ease;
+  white-space:nowrap;
+}
+.hint.gone{ opacity:0; }
+
+/* loading */
+.loader{
+  position:fixed;
+  inset:0;
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.8rem;
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  background:var(--bg);
+  transition:opacity .6s ease;
+}
+.loader.gone{ opacity:0; pointer-events:none; }
+
+.sr-only{
+  position:absolute;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;border:0;
+}
+
+@media (max-width:560px){
+  .setlabel{ display:none; }
+  .cap-meta{ font-size:.68rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="../../index.html">&larr; All designs</a>
+  <div class="brand"><b>Tom Milton</b> — Dissolve</div>
+  <div class="setlabel">Motion · 32</div>
+</div>
+
+<div class="stage">
+  <canvas id="fx" aria-label="Interactive dissolving photograph"></canvas>
+</div>
+
+<div class="hint" id="hint">hover to dissolve · click for next</div>
+
+<div class="caption" id="caption" aria-hidden="true">
+  <div class="cap-title" id="capTitle"></div>
+  <div class="cap-meta" id="capMeta"></div>
+</div>
+
+<div class="dots" id="dots" role="tablist" aria-label="Choose photograph"></div>
+
+<div class="loader" id="loader">Developing</div>
+
+<!-- Accessible photo list -->
+<ul class="sr-only" id="srList" aria-label="Photographs by Tom Milton">
+</ul>
+
+<script>
+(function(){
+"use strict";
+
+const DATA = [
+  {file:"golden-field-sunburst.jpg", title:"Last Light, Wheat Country", loc:"Tuscany, Italy", film:"Kodak Portra 400", cam:"Leica M6", year:"1998", bw:false},
+  {file:"desert-dunes.jpg", title:"Wind Lines", loc:"Namibia", film:"Kodak Ektar 100", cam:"Hasselblad 503CW", year:"2008", bw:false},
+  {file:"cliff-coast-ocean.jpg", title:"Edge of the World", loc:"Big Sur, USA", film:"Kodak Portra 400", cam:"Contax G2", year:"2002", bw:false},
+  {file:"woman-fashion-portrait.jpg", title:"The Red Wall", loc:"Marrakesh, Morocco", film:"Kodak Portra 400", cam:"Pentax 67", year:"2019", bw:false},
+  {file:"sun-through-leaves.jpg", title:"Backlit", loc:"Kyoto, Japan", film:"Kodak Portra 800", cam:"Leica M6", year:"2004", bw:false},
+  {file:"couple-silhouette-sunset.jpg", title:"Goodnight", loc:"Santorini, Greece", film:"Kodak Portra 800", cam:"Canon EOS-1V", year:"2013", bw:false},
+  {file:"man-bw-portrait.jpg", title:"Portrait in Shadow", loc:"Berlin, Germany", film:"Ilford Delta 3200", cam:"Leica M6", year:"2018", bw:true},
+  {file:"mountain-road-fog.jpg", title:"The Long Way Home", loc:"Dolomites, Italy", film:"Cinestill 800T", cam:"Canon AE-1", year:"2005", bw:false},
+  {file:"woman-laughing-portrait.jpg", title:"That Laugh", loc:"Mexico City, Mexico", film:"Kodak Portra 800", cam:"Contax G2", year:"2021", bw:false}
+];
+const PATH = "../../assets/img/";
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---- accessible list ----
+const srList = document.getElementById('srList');
+DATA.forEach(d=>{
+  const li = document.createElement('li');
+  li.textContent = `${d.title} — ${d.loc}. ${d.film}, ${d.cam}, ${d.year}.`;
+  srList.appendChild(li);
+});
+
+// ---- canvas setup ----
+const canvas = document.getElementById('fx');
+const ctx = canvas.getContext('2d', { alpha:false });
+const stage = document.querySelector('.stage');
+
+let DPR = Math.min(window.devicePixelRatio||1, 2);
+let CW=0, CH=0;            // css px of canvas
+let cols=0, rows=0;       // tile grid
+let tileW=0, tileH=0;     // dest tile size (css px)
+let imgX=0, imgY=0, imgW=0, imgH=0; // letterboxed image rect within canvas (css px)
+
+// ---- images ----
+const images = new Array(DATA.length).fill(null);
+let loadedCount = 0;
+let current = 0;
+let ready = false;
+
+// per-tile state
+let tiles = [];          // home + source rects
+// animation morph state
+let morph = 1;           // 0 = fully scattered, 1 = assembled
+let morphTarget = 1;
+let prevIndex = -1;      // image we are scattering FROM during a switch
+let switching = false;
+let switchT = 0;         // 0..1 progress of a full transition
+
+// pointer
+let pointer = {x:-9999, y:-9999, active:false};
+let lastPointerMove = 0;
+
+function preload(){
+  DATA.forEach((d,i)=>{
+    const im = new Image();
+    im.onload = ()=>{ images[i]=im; loadedCount++; if(loadedCount===DATA.length) onAllLoaded(); };
+    im.onerror = ()=>{ loadedCount++; if(loadedCount===DATA.length) onAllLoaded(); };
+    im.src = PATH + d.file;
+  });
+}
+
+function onAllLoaded(){
+  ready = true;
+  document.getElementById('loader').classList.add('gone');
+  layout();
+  buildTiles();
+  // start assembled
+  morph = 1; morphTarget = 1;
+  setCaption(current);
+  loop();
+}
+
+// compute grid + image rect
+function layout(){
+  const rect = stage.getBoundingClientRect();
+  // leave margins so caption/topbar breathe
+  const availW = rect.width;
+  const availH = rect.height;
+  CW = Math.max(320, availW);
+  CH = Math.max(320, availH);
+
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  canvas.width = Math.round(CW*DPR);
+  canvas.height = Math.round(CH*DPR);
+  canvas.style.width = CW+'px';
+  canvas.style.height = CH+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+
+  // determine image draw rect (contain) using current image aspect
+  const im = images[current];
+  const ar = im ? im.width/im.height : 1.5;
+  // target frame: fit within ~88% of stage
+  const frameW = CW*0.9;
+  const frameH = CH*0.82;
+  let w = frameW, h = w/ar;
+  if(h > frameH){ h = frameH; w = h*ar; }
+  imgW = w; imgH = h;
+  imgX = (CW - w)/2;
+  imgY = (CH - h)/2;
+
+  // tile grid: cap total tiles ~1080
+  const target = 1000;
+  // aim square-ish tiles
+  const aspect = imgW/imgH;
+  rows = Math.round(Math.sqrt(target/aspect));
+  rows = Math.max(16, Math.min(34, rows));
+  cols = Math.max(16, Math.min(46, Math.round(rows*aspect)));
+  tileW = imgW/cols;
+  tileH = imgH/rows;
+}
+
+// Build tile array. Source rects are normalized (0..1) so they work for any image.
+function buildTiles(){
+  tiles = [];
+  const cx = cols/2, cy = rows/2;
+  const maxDist = Math.sqrt(cx*cx+cy*cy);
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const dxn = (c+0.5)/cols;  // normalized source center
+      const dyn = (r+0.5)/rows;
+      const fromCx = (c+0.5 - cx);
+      const fromCy = (r+0.5 - cy);
+      const dist = Math.sqrt(fromCx*fromCx+fromCy*fromCy)/maxDist; // 0..1
+      // scatter vector: outward + swirl
+      const baseAng = Math.atan2(fromCy, fromCx);
+      const swirl = baseAng + Math.PI*0.5;
+      const seedR = rand();
+      const seedR2 = rand();
+      tiles.push({
+        c, r,
+        sxn:c/cols, syn:r/rows, swn:1/cols, shn:1/rows,
+        dxn, dyn,
+        dist,
+        // scattered offset (in css px, relative to home), regenerated per scatter
+        ang: swirl + (seedR-0.5)*1.4,
+        spread: 0.6 + seedR2*0.9,
+        rot: (seedR-0.5)*2.4,
+        // delay by distance for wave
+        delay: dist*0.55 + seedR*0.12,
+        // breathing phase
+        phase: rand()*Math.PI*2,
+        jx: (rand()-0.5), jy:(rand()-0.5)
+      });
+    }
+  }
+}
+
+// deterministic-ish rng
+let _s = 123456789;
+function rand(){ _s ^= _s<<13; _s ^= _s>>>17; _s ^= _s<<5; return ((_s>>>0)%100000)/100000; }
+
+// ---- easing ----
+function easeOutCubic(t){ return 1-Math.pow(1-t,3); }
+function easeInOutCubic(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+function clamp01(v){ return v<0?0:v>1?1:v; }
+
+// ---- caption ----
+const capEl = document.getElementById('caption');
+const capTitle = document.getElementById('capTitle');
+const capMeta = document.getElementById('capMeta');
+function setCaption(i){
+  const d = DATA[i];
+  capTitle.textContent = d.title;
+  capMeta.innerHTML =
+    `<span class="loc">${d.loc}</span>`+
+    `<span>${d.film}</span>`+
+    `<span>${d.cam}</span>`+
+    `<span class="cap-year">${d.year}</span>`;
+}
+
+// ---- dots ----
+const dotsEl = document.getElementById('dots');
+DATA.forEach((d,i)=>{
+  const b = document.createElement('button');
+  b.className='dot'+(i===0?' on':'');
+  b.setAttribute('role','tab');
+  b.setAttribute('aria-label', d.title);
+  b.addEventListener('click', ()=> goTo(i));
+  dotsEl.appendChild(b);
+});
+function updateDots(){
+  [...dotsEl.children].forEach((b,i)=> b.classList.toggle('on', i===current));
+}
+
+// ---- transitions ----
+function startSwitch(next){
+  if(switching || !ready) return;
+  if(next===current) return;
+  prevIndex = current;
+  current = ((next%DATA.length)+DATA.length)%DATA.length;
+  switching = true;
+  switchT = 0;
+  // recompute frame/tiles for the NEW image aspect up front so the assembled
+  // result lands crisp with no aspect snap at the end of the transition.
+  layout(); buildTiles();
+  capEl.classList.add('dim');
+  updateDots();
+  hideHint();
+  if(reduceMotion){
+    // simple crossfade handled in draw via switchT
+  }
+}
+
+function goTo(i){ startSwitch(i); }
+function next(){ startSwitch(current+1); }
+
+// hover dissolve (no switch): drive morphTarget
+let hovering=false;
+function setHover(on){
+  if(switching) return;
+  hovering = on;
+  morphTarget = on ? (reduceMotion?1:0.32) : 1;
+}
+
+// ---- hint ----
+const hintEl = document.getElementById('hint');
+let hintHidden=false;
+function hideHint(){ if(!hintHidden){ hintHidden=true; hintEl.classList.add('gone'); } }
+
+// ---- interaction wiring ----
+canvas.addEventListener('mouseenter', ()=> setHover(true));
+canvas.addEventListener('mouseleave', ()=>{ setHover(false); pointer.active=false; pointer.x=-9999; });
+canvas.addEventListener('mousemove', (e)=>{
+  const rect = canvas.getBoundingClientRect();
+  pointer.x = e.clientX-rect.left;
+  pointer.y = e.clientY-rect.top;
+  pointer.active = true;
+  lastPointerMove = performance.now();
+  hideHint();
+});
+canvas.addEventListener('click', ()=>{ next(); });
+
+// touch: tap advances; touchmove scatters near finger
+canvas.addEventListener('touchstart', (e)=>{
+  const t=e.touches[0]; const rect=canvas.getBoundingClientRect();
+  pointer.x=t.clientX-rect.left; pointer.y=t.clientY-rect.top; pointer.active=true;
+  setHover(true); hideHint();
+}, {passive:true});
+canvas.addEventListener('touchmove', (e)=>{
+  const t=e.touches[0]; const rect=canvas.getBoundingClientRect();
+  pointer.x=t.clientX-rect.left; pointer.y=t.clientY-rect.top; pointer.active=true;
+  lastPointerMove=performance.now();
+}, {passive:true});
+canvas.addEventListener('touchend', ()=>{
+  setHover(false); pointer.active=false; pointer.x=-9999;
+  next();
+}, {passive:true});
+
+// keyboard
+window.addEventListener('keydown',(e)=>{
+  if(e.key==='ArrowRight'||e.key===' '){ e.preventDefault(); next(); }
+  else if(e.key==='ArrowLeft'){ startSwitch(current-1); }
+});
+
+// ---- resize ----
+let resizeTO=null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTO);
+  resizeTO=setTimeout(()=>{ if(ready){ layout(); buildTiles(); } }, 120);
+});
+
+// pause when hidden
+let hidden=false;
+document.addEventListener('visibilitychange', ()=>{ hidden=document.hidden; if(!hidden){ lastT=performance.now(); } });
+
+// ---- draw a single image's tiles at a given morph (0 scattered .. 1 home) ----
+function drawImageTiles(img, dIdx, m, globalAlpha){
+  if(!img) return;
+  const iw=img.width, ih=img.height;
+  const eM = easeOutCubic(clamp01(m));
+  const t = performance.now()*0.001;
+
+  // pointer influence (css px)
+  const pActive = pointer.active && pointer.x>-9000;
+  const pr = Math.min(imgW,imgH)*0.55; // influence radius
+
+  for(let i=0;i<tiles.length;i++){
+    const tl = tiles[i];
+    // staggered local morph for wave effect:
+    // tiles with higher delay lag during scatter/reform, producing a wave.
+    const d = tl.delay;
+    const wm = clamp01(eM*(1+d) - d);
+    const localEase = easeInOutCubic(wm);
+    const sc = 1-localEase; // scatter amount per tile
+
+    // home position (css px)
+    const hx = imgX + tl.dxn*imgW - tileW/2;
+    const hy = imgY + tl.dyn*imgH - tileH/2;
+    const homeCx = imgX + tl.dxn*imgW;
+    const homeCy = imgY + tl.dyn*imgH;
+
+    // scatter displacement
+    const maxOff = Math.max(imgW,imgH)*0.5 * tl.spread;
+    let ox = Math.cos(tl.ang)*maxOff*sc;
+    let oy = Math.sin(tl.ang)*maxOff*sc;
+    // upward drift like grain on the wind
+    oy -= maxOff*0.35*sc;
+
+    // pointer push: tiles flee from cursor, stronger as scattered
+    if(pActive){
+      const ddx = homeCx - pointer.x;
+      const ddy = homeCy - pointer.y;
+      const dd = Math.sqrt(ddx*ddx+ddy*ddy)+0.001;
+      if(dd<pr){
+        const f = (1-dd/pr);
+        const push = f*f* (60 + 120*sc);
+        ox += (ddx/dd)*push;
+        oy += (ddy/dd)*push;
+      }
+    }
+
+    // idle shimmer / breathing when assembled
+    let bx=0, by=0, brot=0;
+    if(localEase>0.92){
+      const breathe = (localEase-0.92)/0.08;
+      const sh = Math.sin(t*1.6 + tl.phase);
+      bx = tl.jx*0.7*sh*breathe;
+      by = tl.jy*0.7*Math.cos(t*1.4+tl.phase)*breathe;
+    }
+
+    const rot = tl.rot*sc + brot;
+    const scaleT = 1 - 0.25*sc; // shrink slightly when scattered
+    const alpha = globalAlpha * clamp01(localEase*1.25); // fade in as it settles
+
+    if(alpha<=0.01) continue;
+
+    const dx = hx + ox + bx;
+    const dy = hy + oy + by;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    if(rot!==0){
+      ctx.translate(dx+tileW/2, dy+tileH/2);
+      ctx.rotate(rot);
+      ctx.scale(scaleT,scaleT);
+      ctx.translate(-(tileW/2),-(tileH/2));
+      ctx.drawImage(img,
+        tl.sxn*iw, tl.syn*ih, tl.swn*iw, tl.shn*ih,
+        0,0, tileW, tileH);
+    }else{
+      ctx.drawImage(img,
+        tl.sxn*iw, tl.syn*ih, tl.swn*iw, tl.shn*ih,
+        dx, dy, tileW, tileH);
+    }
+    ctx.restore();
+  }
+}
+
+// color grade overlay per stock
+function applyGrade(d){
+  // subtle warm wash for color stocks, neutral for bw
+  ctx.save();
+  if(d.bw){
+    // slight cool/neutral vignette only
+  }else{
+    ctx.globalCompositeOperation='soft-light';
+    ctx.globalAlpha=0.16;
+    const g=ctx.createLinearGradient(imgX,imgY,imgX,imgY+imgH);
+    g.addColorStop(0,'#ffd9a0');
+    g.addColorStop(1,'#7a3d12');
+    ctx.fillStyle=g;
+    ctx.fillRect(imgX,imgY,imgW,imgH);
+  }
+  // vignette
+  ctx.globalCompositeOperation='multiply';
+  ctx.globalAlpha=1;
+  const rad=ctx.createRadialGradient(imgX+imgW/2,imgY+imgH/2,imgH*0.3, imgX+imgW/2,imgY+imgH/2,imgH*0.75);
+  rad.addColorStop(0,'rgba(255,255,255,1)');
+  rad.addColorStop(1,'rgba(120,90,60,0.78)');
+  ctx.fillStyle=rad;
+  ctx.fillRect(imgX,imgY,imgW,imgH);
+  ctx.restore();
+}
+
+// ---- main loop ----
+let lastT=performance.now();
+function loop(){
+  requestAnimationFrame(loop);
+  if(hidden) return;
+  const now=performance.now();
+  let dt=(now-lastT)/1000; lastT=now;
+  if(dt>0.05) dt=0.05;
+
+  // clear
+  ctx.fillStyle = '#0e0b08';
+  ctx.fillRect(0,0,CW,CH);
+
+  if(!ready) return;
+
+  if(switching){
+    // full transition: prev image disperses out while new assembles in
+    const dur = reduceMotion?0.9:1.65;
+    switchT += dt/dur;
+    if(switchT>=1){ switchT=1; switching=false; prevIndex=-1;
+      // settle hover state
+      morph=1; morphTarget = hovering? (reduceMotion?1:0.32):1;
+      capEl.classList.remove('dim');
+    }
+    const p = switchT;
+    if(reduceMotion){
+      // crossfade
+      drawImageTiles(images[prevIndex], prevIndex, 1, 1-p);
+      drawImageTiles(images[current], current, 1, p);
+      const d=DATA[current]; applyGrade(d);
+      return;
+    }
+    // prev: morph 1 -> 0 (scatter away) in first ~55%
+    const outM = 1 - easeInOutCubic(clamp01(p/0.55));
+    // new: morph 0 -> 1 (assemble) in last ~65%
+    const inM = easeInOutCubic(clamp01((p-0.35)/0.65));
+    // crossfade alphas
+    if(prevIndex>=0 && outM>0.001){
+      drawImageTiles(images[prevIndex], prevIndex, outM, clamp01(outM*1.2));
+    }
+    drawImageTiles(images[current], current, inM, 1);
+    applyGrade(DATA[current]);
+
+    // swap caption text at the dispersed midpoint
+    if(p>0.5 && capTitle.dataset.idx!=String(current)){
+      capTitle.dataset.idx=String(current);
+      setCaption(current);
+    }
+    return;
+  }
+
+  // idle / hover state — ease morph toward target
+  const spd = morphTarget<morph ? 6.0 : 3.2; // scatter fast, reform smooth
+  morph += (morphTarget-morph)*Math.min(1, dt*spd);
+  if(Math.abs(morphTarget-morph)<0.001) morph=morphTarget;
+
+  drawImageTiles(images[current], current, morph, 1);
+  applyGrade(DATA[current]);
+
+  // reveal caption when settled
+  if(morph>0.85) capEl.classList.remove('dim');
+  else if(morph<0.7) capEl.classList.add('dim');
+}
+
+// ---- go ----
+capTitle.dataset.idx="0";
+preload();
+
+// initial hint auto-hide
+setTimeout(()=>{ if(!hintHidden) { /* keep until interaction or 7s */ } }, 10);
+setTimeout(hideHint, 7000);
+
+})();
+</script>
+</body>
+</html>

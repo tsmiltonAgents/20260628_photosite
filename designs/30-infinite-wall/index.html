@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tom Milton — The Infinite Wall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0a09;
+    --bg2:#15110d;
+    --ink:#f3e9da;
+    --muted:#b8a890;
+    --faint:#7a6c5a;
+    --gold:#d8a657;
+    --line:rgba(216,166,87,.25);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif}
+  body{
+    background:
+      radial-gradient(ellipse at 30% 20%, #1c150e 0%, transparent 55%),
+      radial-gradient(ellipse at 75% 85%, #18120c 0%, transparent 55%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;
+    touch-action:none;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+
+  /* ---- Viewport / world ---- */
+  #viewport{
+    position:fixed;inset:0;
+    overflow:hidden;
+    cursor:grab;
+  }
+  #viewport.dragging{cursor:grabbing}
+  #world{
+    position:absolute;top:0;left:0;
+    width:0;height:0;
+    transform-origin:0 0;
+    will-change:transform;
+  }
+  .photo{
+    position:absolute;
+    will-change:transform,opacity;
+    transform-origin:center center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .photo .frame{
+    position:relative;
+    background:#0a0807;
+    padding:0;
+    box-shadow:0 18px 50px -12px rgba(0,0,0,.8), 0 4px 14px rgba(0,0,0,.5);
+    border:1px solid rgba(255,255,255,.05);
+    overflow:hidden;
+    transition:box-shadow .45s ease, transform .45s cubic-bezier(.2,.7,.2,1);
+    border-radius:2px;
+  }
+  .photo img{
+    display:block;width:100%;height:100%;object-fit:cover;
+    filter:saturate(1.06) contrast(1.03) brightness(.96);
+    background:#1a1510;
+  }
+  .photo.bw img{filter:grayscale(1) contrast(1.08) brightness(.97)}
+  .photo .grain{
+    position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;opacity:.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  }
+  /* warm vignette on each photo for the gallery-in-space mood */
+  .photo .vig{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 60px rgba(0,0,0,.45);}
+
+  .photo:hover .frame, .photo.hovered .frame{
+    box-shadow:0 30px 80px -10px rgba(0,0,0,.9), 0 0 0 1px rgba(216,166,87,.35), 0 0 60px -10px rgba(216,166,87,.25);
+  }
+
+  .photo .cap{
+    position:absolute;
+    left:0;top:calc(100% + 10px);
+    width:100%;
+    text-align:center;
+    opacity:0;
+    transform:translateY(4px);
+    transition:opacity .35s ease, transform .35s ease;
+    pointer-events:none;
+  }
+  .photo:hover .cap, .photo.hovered .cap{opacity:1;transform:translateY(0)}
+  .photo .cap .t{
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:34px;line-height:1.1;color:var(--ink);
+    text-shadow:0 2px 18px rgba(0,0,0,.9);
+  }
+  .photo .cap .m{
+    font-size:15px;letter-spacing:.04em;color:var(--gold);margin-top:4px;
+    text-shadow:0 2px 12px rgba(0,0,0,.9);
+  }
+
+  /* ---- Detail overlay (metadata when flown-to) ---- */
+  #detail{
+    position:fixed;left:0;bottom:0;width:100%;
+    padding:26px 30px 30px;
+    background:linear-gradient(to top, rgba(8,6,4,.92) 0%, rgba(8,6,4,.6) 60%, transparent 100%);
+    transform:translateY(102%);
+    transition:transform .6s cubic-bezier(.2,.7,.2,1);
+    z-index:30;pointer-events:none;
+    display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap;
+  }
+  #detail.show{transform:translateY(0)}
+  #detail .left{max-width:680px}
+  #detail .dt{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(30px,5vw,52px);line-height:1;color:var(--ink)}
+  #detail .dl{font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-top:12px}
+  #detail .dm{font-size:14px;color:var(--muted);margin-top:8px;letter-spacing:.02em}
+  #detail .closehint{font-size:12px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase}
+
+  /* ---- HUD ---- */
+  .ui{position:fixed;z-index:40;color:var(--muted)}
+  #topbar{top:0;left:0;width:100%;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+  #topbar > *{pointer-events:auto}
+  .back{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-decoration:none;transition:color .3s}
+  .back:hover{color:var(--gold)}
+  .brand{text-align:center;line-height:1}
+  .brand .n{font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:.04em;color:var(--ink)}
+  .brand .s{font-size:10px;letter-spacing:.42em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+
+  #hud{
+    bottom:18px;left:18px;
+    font-family:'Inter',monospace;
+    font-size:11px;letter-spacing:.06em;color:var(--faint);
+    background:rgba(12,10,9,.55);
+    border:1px solid rgba(216,166,87,.14);
+    padding:9px 12px;border-radius:8px;
+    backdrop-filter:blur(6px);
+    line-height:1.7;
+    pointer-events:none;
+  }
+  #hud b{color:var(--muted);font-weight:500}
+
+  #controls{bottom:18px;right:18px;display:flex;gap:10px;align-items:center}
+  .btn{
+    background:rgba(12,10,9,.6);
+    border:1px solid rgba(216,166,87,.2);
+    color:var(--muted);
+    width:42px;height:42px;border-radius:50%;
+    font-size:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(6px);
+    transition:all .25s ease;
+  }
+  .btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(20,16,12,.8)}
+  .btn:active{transform:scale(.92)}
+
+  /* hint */
+  #hint{
+    position:fixed;left:50%;bottom:84px;transform:translateX(-50%);
+    z-index:35;
+    font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+    background:rgba(12,10,9,.5);border:1px solid rgba(216,166,87,.18);
+    padding:11px 20px;border-radius:30px;backdrop-filter:blur(6px);
+    transition:opacity 1s ease;
+    pointer-events:none;
+    white-space:nowrap;
+  }
+  #hint .dot{color:var(--gold);margin:0 6px}
+  #hint.hide{opacity:0}
+
+  /* global vignette + ambient dust */
+  #vignette{position:fixed;inset:0;z-index:20;pointer-events:none;
+    box-shadow:inset 0 0 220px 30px rgba(0,0,0,.85);
+    background:radial-gradient(ellipse at center, transparent 50%, rgba(6,4,3,.5) 100%);}
+  #scanline{position:fixed;inset:0;z-index:21;pointer-events:none;opacity:.025;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  /* loading */
+  #loader{position:fixed;inset:0;z-index:60;background:var(--bg);
+    display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;
+    transition:opacity .8s ease}
+  #loader.gone{opacity:0;pointer-events:none}
+  #loader .ttl{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:30px;color:var(--ink)}
+  #loader .bar{width:160px;height:1px;background:rgba(216,166,87,.2);position:relative;overflow:hidden}
+  #loader .bar i{position:absolute;left:0;top:0;height:100%;width:0%;background:var(--gold);transition:width .3s}
+
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  @media (max-width:600px){
+    #detail .dt{font-size:26px}
+    #hud{font-size:10px}
+    #hint{font-size:11px;bottom:78px;padding:9px 14px}
+    .brand .n{font-size:18px}
+  }
+</style>
+</head>
+<body>
+
+<div id="viewport" aria-label="Explorable photo wall. Drag to pan, scroll to zoom.">
+  <div id="world"></div>
+</div>
+
+<div id="vignette"></div>
+<div id="scanline"></div>
+
+<div id="topbar" class="ui">
+  <a class="back" href="../../index.html">&larr; All designs</a>
+  <div class="brand">
+    <div class="n">Tom Milton</div>
+    <div class="s">The Infinite Wall</div>
+  </div>
+  <div style="width:90px"></div>
+</div>
+
+<div id="hint"><span>drag to explore</span><span class="dot">·</span><span>scroll to zoom</span><span class="dot">·</span><span>click a photo</span></div>
+
+<div id="hud" class="ui">
+  x <b id="hx">0</b> &nbsp; y <b id="hy">0</b> &nbsp; zoom <b id="hz">1.00&times;</b>
+</div>
+
+<div id="controls" class="ui">
+  <button class="btn" id="zoomOut" title="Zoom out" aria-label="Zoom out">&minus;</button>
+  <button class="btn" id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+  <button class="btn" id="recenter" title="Recenter" aria-label="Recenter">&#9678;</button>
+</div>
+
+<div id="detail" aria-hidden="true">
+  <div class="left">
+    <div class="dt" id="dTitle"></div>
+    <div class="dl" id="dLoc"></div>
+    <div class="dm" id="dMeta"></div>
+  </div>
+  <div class="closehint">click empty space to return</div>
+</div>
+
+<div id="loader"><div class="ttl">The Infinite Wall</div><div class="bar"><i id="loadbar"></i></div></div>
+
+<!-- Accessible photo list -->
+<nav class="sr-only" aria-label="All photographs">
+  <ul id="srList"></ul>
+</nav>
+
+<script>
+(function(){
+"use strict";
+
+var DATA = [
+ ["golden-field-sunburst","Last Light, Wheat Country","Tuscany, Italy","Kodak Portra 400","Leica M6","1998",0],
+ ["landscape-misty-mountains","Morning Fog, Cascades","Washington, USA","Fujifilm Pro 400H","Pentax 67","2001",0],
+ ["lake-cabin-dawn","The Cabin at Dawn","Banff, Canada","Kodak Ektar 100","Mamiya 7 II","2003",0],
+ ["forest-sunlight","Cathedral of Pines","Olympic NP, USA","Kodak Portra 160","Hasselblad 500CM","1996",0],
+ ["valley-green-river","River Bend, Spring","Glencoe, Scotland","Fujifilm Velvia 50","Nikon F3","1999",0],
+ ["cliff-coast-ocean","Edge of the World","Big Sur, USA","Kodak Portra 400","Contax G2","2002",0],
+ ["mountain-road-fog","The Long Way Home","Dolomites, Italy","Cinestill 800T","Canon AE-1","2005",0],
+ ["sun-through-leaves","Backlit","Kyoto, Japan","Kodak Portra 800","Leica M6","2004",0],
+ ["lake-mountain-house","Reflections, Still Morning","Hallstatt, Austria","Kodak Ektar 100","Mamiya RZ67","2000",0],
+ ["rolling-green-hills","Patchwork","Tuscany, Italy","Fujifilm Pro 400H","Pentax 645","1997",0],
+ ["forest-path-trees","Into the Woods","Black Forest, Germany","Kodak Portra 160","Rolleiflex 2.8F","1995",0],
+ ["waterfall-bridge","Hidden Falls","Iceland","Fujifilm Velvia 50","Nikon FM2","2006",0],
+ ["autumn-forest-road","October Road","Vermont, USA","Kodak Portra 400","Leica M7","2007",0],
+ ["desert-dunes","Wind Lines","Namibia","Kodak Ektar 100","Hasselblad 503CW","2008",0],
+ ["misty-pine-forest","Silence","Norway","Ilford HP5 Plus","Leica M6","2003",1],
+ ["succulent-closeup","Geometry of Growth","Studio","Kodak Portra 160","Hasselblad 500CM","2009",0],
+ ["foggy-pier-lake","The Quiet Dock","Lake District, UK","Cinestill 50D","Contax T2","2010",0],
+ ["woman-portrait-window","By the Window","Lisbon, Portugal","Kodak Portra 400","Pentax 67","2011",0],
+ ["man-portrait-street","Stranger, No. 14","Havana, Cuba","Kodak Tri-X 400","Leica M4","2012",1],
+ ["couple-silhouette-sunset","Goodnight","Santorini, Greece","Kodak Portra 800","Canon EOS-1V","2013",0],
+ ["woman-portrait-soft","Soft Hour","Paris, France","Fujifilm Pro 400H","Contax 645","2014",0],
+ ["woman-portrait-freckles","Freckles & Sun","Studio","Kodak Portra 160","Mamiya 645","2015",0],
+ ["friends-golden-hour","Golden Hour, Together","California, USA","Kodak Portra 400","Nikon F100","2016",0],
+ ["woman-curly-portrait","Curls","Brooklyn, USA","Cinestill 800T","Canon AE-1","2017",0],
+ ["man-bw-portrait","Portrait in Shadow","Berlin, Germany","Ilford Delta 3200","Leica M6","2018",1],
+ ["woman-fashion-portrait","The Red Wall","Marrakesh, Morocco","Kodak Portra 400","Pentax 67","2019",0],
+ ["street-cafe-paris","Café de Flore","Paris, France","Kodak Gold 200","Olympus OM-1","2020",0],
+ ["woman-laughing-portrait","That Laugh","Mexico City, Mexico","Kodak Portra 800","Contax G2","2021",0],
+ ["vintage-car-street","Sunday Drive","Havana, Cuba","Kodak Ektar 100","Nikon FE","2022",0],
+ ["cozy-interior-window","Home Light","Copenhagen, Denmark","Kodak Portra 400","Leica M6","2023",0]
+];
+
+var IMG = "../../assets/img/";
+var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- deterministic PRNG ----------
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+// ---------- layout the world ----------
+// We scatter photos across a tile. The tile repeats (wraps) in a grid so it feels infinite.
+var TILE = 5200;                 // world units per tile (one repeating block)
+var rand = mulberry32(20260628);
+
+// possible aspect orientations; portraits taller, landscapes wider, some square
+function pickAspect(idx){
+  var name = DATA[idx][0];
+  var portraitish = /portrait|woman|man|couple|window|fashion|laughing|curly|freckles|soft|succulent/.test(name);
+  var r = rand();
+  if(portraitish && r<0.7) return {w:1, h:1.32};
+  if(r<0.5) return {w:1.5, h:1};      // landscape
+  if(r<0.75) return {w:1, h:1};       // square
+  return {w:1.34, h:1};
+}
+
+// Place each photo with non-overlapping-ish scatter within the tile using a jittered grid.
+var items = [];
+(function buildLayout(){
+  var n = DATA.length;
+  var cols = 6, rows = Math.ceil(n/cols);
+  var cellW = TILE/cols, cellH = TILE/rows;
+  // shuffle indices deterministically for variety
+  var order = DATA.map(function(_,i){return i;});
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(rand()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  for(var k=0;k<n;k++){
+    var idx = order[k];
+    var c = k%cols, r = Math.floor(k/cols);
+    var asp = pickAspect(idx);
+    // base size varies; bigger "hero" pieces occasionally
+    var scaleBase = 320 + rand()*260;
+    if(rand()<0.18) scaleBase *= 1.5;     // some larger
+    var w = scaleBase*asp.w, h = scaleBase*asp.h;
+    // center within cell + jitter
+    var cx = c*cellW + cellW/2 + (rand()-0.5)*cellW*0.42;
+    var cy = r*cellH + cellH/2 + (rand()-0.5)*cellH*0.42;
+    var rot = (rand()-0.5)*7;             // slight rotation
+    var depth = 0.7 + rand()*0.6;         // parallax-ish depth factor (visual only)
+    items.push({idx:idx, x:cx, y:cy, w:w, h:h, rot:rot, depth:depth});
+  }
+})();
+
+// ---------- build DOM (with wrapping tiles) ----------
+var world = document.getElementById("world");
+var WRAP = [-1,0,1];   // 3x3 grid of repeated tiles => seamless infinite drift
+var nodes = [];        // {el, item, tx, ty} world-space top-left center coords
+
+DATA.forEach(function(d,i){
+  // accessible list
+});
+
+WRAP.forEach(function(gx){
+  WRAP.forEach(function(gy){
+    items.forEach(function(it){
+      var d = DATA[it.idx];
+      var el = document.createElement("div");
+      el.className = "photo" + (d[6]? " bw":"");
+      el.style.width = it.w+"px";
+      el.style.height = it.h+"px";
+      var wx = it.x + gx*TILE;
+      var wy = it.y + gy*TILE;
+      el.style.left = (wx - it.w/2)+"px";
+      el.style.top  = (wy - it.h/2)+"px";
+      el.style.transform = "rotate("+it.rot+"deg)";
+      el.dataset.rot = it.rot;
+      el.innerHTML =
+        '<div class="frame" style="width:100%;height:100%">' +
+          '<img loading="lazy" src="'+IMG+d[0]+'.jpg" alt="'+d[1]+'">' +
+          '<div class="grain"></div><div class="vig"></div>' +
+        '</div>' +
+        '<div class="cap"><div class="t">'+d[1]+'</div><div class="m">'+d[2]+' · '+d[5]+'</div></div>';
+      el.addEventListener("pointerenter", function(){ el.classList.add("hovered"); });
+      el.addEventListener("pointerleave", function(){ el.classList.remove("hovered"); });
+      el.addEventListener("click", function(ev){
+        ev.stopPropagation();
+        flyTo(wx, wy, it, d);
+      });
+      world.appendChild(el);
+      nodes.push({el:el, it:it, cx:wx, cy:wy, d:d});
+    });
+  });
+});
+
+// accessible list
+var srList = document.getElementById("srList");
+DATA.forEach(function(d,i){
+  var li = document.createElement("li");
+  var b = document.createElement("button");
+  b.textContent = d[1]+" — "+d[2]+", "+d[5]+". "+d[3]+", "+d[4]+(d[6]?" (Black & White).":".");
+  b.addEventListener("click", function(){
+    // find a node for this photo near origin tile and fly to it
+    for(var k=0;k<nodes.length;k++){ if(nodes[k].d===d){ flyTo(nodes[k].cx, nodes[k].cy, nodes[k].it, d); break; } }
+  });
+  li.appendChild(b);
+  srList.appendChild(li);
+});
+
+// ---------- camera ----------
+var vp = document.getElementById("viewport");
+var cam = {x:TILE/2, y:TILE/2, zoom:0.5};   // world point centered on screen
+var target = {x:cam.x, y:cam.y, zoom:cam.zoom};
+var vel = {x:0, y:0};
+var MINZ = 0.18, MAXZ = 2.6;
+var W = window.innerWidth, H = window.innerHeight;
+var flying = false;
+
+function clampZoom(z){ return Math.max(MINZ, Math.min(MAXZ, z)); }
+
+// keep camera within central tile range by wrapping (modulo) so it's truly infinite
+function wrapCam(){
+  // wrap x,y into [TILE*0.5 .. TILE*1.5)-ish band by adding/subtracting TILE
+  // Because the 3x3 grid spans [-TILE .. 2*TILE], keep cam inside [0,TILE) band repeated.
+  if(flying) return;
+  var shifted = false;
+  while(cam.x < 0){ cam.x += TILE; target.x += TILE; shifted=true; }
+  while(cam.x >= TILE){ cam.x -= TILE; target.x -= TILE; shifted=true; }
+  while(cam.y < 0){ cam.y += TILE; target.y += TILE; shifted=true; }
+  while(cam.y >= TILE){ cam.y -= TILE; target.y -= TILE; shifted=true; }
+}
+
+function applyTransform(){
+  // world translate so that cam point sits at screen center
+  var tx = W/2 - cam.x*cam.zoom;
+  var ty = H/2 - cam.y*cam.zoom;
+  world.style.transform = "translate3d("+tx+"px,"+ty+"px,0) scale("+cam.zoom+")";
+}
+
+// HUD
+var hx=document.getElementById("hx"), hy=document.getElementById("hy"), hz=document.getElementById("hz");
+function updateHUD(){
+  hx.textContent = Math.round(cam.x - TILE/2);
+  hy.textContent = Math.round(cam.y - TILE/2);
+  hz.textContent = cam.zoom.toFixed(2)+"×";
+}
+
+// ---------- interaction: drag ----------
+var dragging=false, lastX=0, lastY=0, moved=0, pid=null;
+var lastMoveT=0;
+
+vp.addEventListener("pointerdown", function(e){
+  if(e.target.closest(".btn")||e.target.closest("a")) return;
+  dragging=true; flying=false; moved=0;
+  pid=e.pointerId;
+  try{vp.setPointerCapture(pid);}catch(_){}
+  lastX=e.clientX; lastY=e.clientY; lastMoveT=performance.now();
+  vel.x=0; vel.y=0;
+  vp.classList.add("dragging");
+  hideHint();
+});
+vp.addEventListener("pointermove", function(e){
+  if(!dragging) return;
+  var dx=e.clientX-lastX, dy=e.clientY-lastY;
+  lastX=e.clientX; lastY=e.clientY;
+  moved += Math.abs(dx)+Math.abs(dy);
+  var now=performance.now(); var dt=Math.max(1, now-lastMoveT); lastMoveT=now;
+  // move camera opposite to pointer, scaled by zoom
+  cam.x -= dx/cam.zoom;
+  cam.y -= dy/cam.zoom;
+  target.x = cam.x; target.y = cam.y;
+  // velocity in world units per frame (approx)
+  vel.x = (-dx/cam.zoom) * (16/dt);
+  vel.y = (-dy/cam.zoom) * (16/dt);
+});
+function endDrag(e){
+  if(!dragging) return;
+  dragging=false;
+  vp.classList.remove("dragging");
+  try{vp.releasePointerCapture(pid);}catch(_){}
+}
+vp.addEventListener("pointerup", endDrag);
+vp.addEventListener("pointercancel", endDrag);
+
+// click empty space => zoom back out / dismiss detail
+vp.addEventListener("click", function(e){
+  if(moved>6) return; // was a drag
+  if(detailOpen){ dismissDetail(); }
+});
+
+// ---------- wheel zoom toward cursor ----------
+vp.addEventListener("wheel", function(e){
+  e.preventDefault();
+  hideHint();
+  flying=false;
+  var rect = vp.getBoundingClientRect();
+  var px = e.clientX-rect.left, py = e.clientY-rect.top;
+  // world point under cursor BEFORE zoom
+  var wxBefore = cam.x + (px - W/2)/cam.zoom;
+  var wyBefore = cam.y + (py - H/2)/cam.zoom;
+  var factor = Math.exp(-e.deltaY*0.0014);
+  var nz = clampZoom(cam.zoom*factor);
+  cam.zoom = nz;
+  // keep same world point under cursor AFTER zoom
+  cam.x = wxBefore - (px - W/2)/cam.zoom;
+  cam.y = wyBefore - (py - H/2)/cam.zoom;
+  target.x=cam.x; target.y=cam.y; target.zoom=cam.zoom;
+  vel.x=0; vel.y=0;
+}, {passive:false});
+
+// ---------- pinch zoom ----------
+var pointers={}, pinchStart=null;
+vp.addEventListener("pointerdown", function(e){ pointers[e.pointerId]={x:e.clientX,y:e.clientY}; });
+vp.addEventListener("pointermove", function(e){
+  if(pointers[e.pointerId]) pointers[e.pointerId]={x:e.clientX,y:e.clientY};
+  var ids=Object.keys(pointers);
+  if(ids.length===2){
+    dragging=false; vp.classList.remove("dragging");
+    var a=pointers[ids[0]], b=pointers[ids[1]];
+    var dist=Math.hypot(a.x-b.x,a.y-b.y);
+    var midx=(a.x+b.x)/2, midy=(a.y+b.y)/2;
+    if(pinchStart){
+      var wxBefore = cam.x + (midx - W/2)/cam.zoom;
+      var wyBefore = cam.y + (midy - H/2)/cam.zoom;
+      var nz = clampZoom(pinchStart.zoom * (dist/pinchStart.dist));
+      cam.zoom=nz;
+      cam.x = wxBefore - (midx - W/2)/cam.zoom;
+      cam.y = wyBefore - (midy - H/2)/cam.zoom;
+      target.x=cam.x;target.y=cam.y;target.zoom=cam.zoom;
+    } else {
+      pinchStart={dist:dist, zoom:cam.zoom};
+    }
+  }
+});
+function clearPointer(e){ delete pointers[e.pointerId]; if(Object.keys(pointers).length<2) pinchStart=null; }
+vp.addEventListener("pointerup", clearPointer);
+vp.addEventListener("pointercancel", clearPointer);
+
+// ---------- buttons ----------
+function zoomBy(factor){
+  flying=false;
+  var wxc=cam.x, wyc=cam.y;
+  cam.zoom=clampZoom(cam.zoom*factor);
+  cam.x=wxc;cam.y=wyc;target.zoom=cam.zoom;target.x=cam.x;target.y=cam.y;
+}
+document.getElementById("zoomIn").addEventListener("click",function(){zoomBy(1.4);});
+document.getElementById("zoomOut").addEventListener("click",function(){zoomBy(1/1.4);});
+document.getElementById("recenter").addEventListener("click",function(){
+  dismissDetail();
+  flyToPoint(TILE/2, TILE/2, 0.5);
+});
+
+// ---------- fly-to (camera tween) ----------
+var flyAnim=null;
+function flyToPoint(tx,ty,tz){
+  flying=true; vel.x=0;vel.y=0;
+  var start={x:cam.x,y:cam.y,zoom:cam.zoom};
+  var t0=performance.now(), dur=reduced?1:900;
+  flyAnim={start:start, end:{x:tx,y:ty,zoom:tz}, t0:t0, dur:dur};
+}
+var detailOpen=false, activeNode=null;
+function flyTo(cx, cy, it, d){
+  hideHint();
+  activeNode={cx:cx, cy:cy, d:d};
+  // choose zoom so the photo fills ~70% of the smaller viewport dimension
+  var fitZoom = Math.min(W/it.w, H/it.h) * 0.62;
+  fitZoom = clampZoom(fitZoom);
+  flyToPoint(cx, cy, fitZoom);
+  showDetail(d);
+}
+function showDetail(d){
+  document.getElementById("dTitle").textContent=d[1];
+  document.getElementById("dLoc").textContent=d[2]+" — "+d[5];
+  document.getElementById("dMeta").textContent=d[3]+"  ·  "+d[4]+(d[6]?"  ·  Black & White":"");
+  var det=document.getElementById("detail");
+  det.classList.add("show"); det.setAttribute("aria-hidden","false");
+  detailOpen=true;
+}
+function dismissDetail(){
+  if(!detailOpen) return;
+  var det=document.getElementById("detail");
+  det.classList.remove("show"); det.setAttribute("aria-hidden","true");
+  detailOpen=false; activeNode=null;
+  // gently zoom back out
+  flyToPoint(cam.x, cam.y, 0.5);
+}
+
+// ---------- idle ambient drift ----------
+var lastInteract=performance.now();
+["pointerdown","wheel","keydown"].forEach(function(ev){
+  window.addEventListener(ev, function(){ lastInteract=performance.now(); }, {passive:true});
+});
+var driftPhase=rand()*6.28;
+
+// ---------- main loop ----------
+function frame(now){
+  // fly tween
+  if(flyAnim){
+    var p=(now-flyAnim.t0)/flyAnim.dur;
+    if(p>=1){p=1;}
+    var e = p<0.5 ? 4*p*p*p : 1-Math.pow(-2*p+2,3)/2; // easeInOutCubic
+    cam.x = flyAnim.start.x + (flyAnim.end.x-flyAnim.start.x)*e;
+    cam.y = flyAnim.start.y + (flyAnim.end.y-flyAnim.start.y)*e;
+    cam.zoom = flyAnim.start.zoom + (flyAnim.end.zoom-flyAnim.start.zoom)*e;
+    target.x=cam.x;target.y=cam.y;target.zoom=cam.zoom;
+    if(p>=1){ flyAnim=null; flying=false; }
+  } else if(!dragging){
+    // inertia
+    cam.x += vel.x;
+    cam.y += vel.y;
+    vel.x *= 0.92; vel.y *= 0.92;
+    if(Math.abs(vel.x)<0.02) vel.x=0;
+    if(Math.abs(vel.y)<0.02) vel.y=0;
+    target.x=cam.x;target.y=cam.y;
+
+    // ambient drift when idle (disabled with reduced motion)
+    if(!reduced && !detailOpen && (now-lastInteract)>3200 && vel.x===0 && vel.y===0){
+      driftPhase += 0.0016;
+      cam.x += Math.cos(driftPhase)*0.35;
+      cam.y += Math.sin(driftPhase*0.8)*0.28;
+    }
+  }
+
+  wrapCam();
+  applyTransform();
+  updateHUD();
+  requestAnimationFrame(frame);
+}
+
+// ---------- resize ----------
+window.addEventListener("resize", function(){
+  W=window.innerWidth; H=window.innerHeight;
+  applyTransform();
+});
+
+// keyboard nudge
+window.addEventListener("keydown", function(e){
+  var step=120/cam.zoom;
+  if(e.key==="ArrowLeft"){cam.x-=step;target.x=cam.x;vel.x=0;}
+  else if(e.key==="ArrowRight"){cam.x+=step;target.x=cam.x;vel.x=0;}
+  else if(e.key==="ArrowUp"){cam.y-=step;target.y=cam.y;vel.y=0;}
+  else if(e.key==="ArrowDown"){cam.y+=step;target.y=cam.y;vel.y=0;}
+  else if(e.key==="Escape"){dismissDetail();}
+  else if(e.key==="+"||e.key==="="){zoomBy(1.4);}
+  else if(e.key==="-"){zoomBy(1/1.4);}
+});
+
+// ---------- hint auto-hide ----------
+var hintEl=document.getElementById("hint");
+var hintHidden=false;
+function hideHint(){ if(!hintHidden){hintHidden=true; hintEl.classList.add("hide");} }
+setTimeout(hideHint, 6500);
+
+// ---------- loader ----------
+var loadbar=document.getElementById("loadbar");
+var loaded=0, totalImgs=DATA.length;
+var seen={};
+var imgs=world.querySelectorAll("img");
+// only count unique filenames so progress is sensible
+imgs.forEach(function(im){
+  function done(){
+    var key=im.getAttribute("src");
+    if(!seen[key]){ seen[key]=1; loaded++; loadbar.style.width=Math.min(100,(loaded/totalImgs)*100)+"%"; }
+    check();
+  }
+  if(im.complete){ done(); }
+  else { im.addEventListener("load",done); im.addEventListener("error",done); }
+});
+var finished=false;
+function check(){
+  if(finished) return;
+  if(loaded>=totalImgs){
+    finished=true;
+    document.getElementById("loader").classList.add("gone");
+  }
+}
+// safety: never hang on the loader
+setTimeout(function(){ if(!finished){finished=true;document.getElementById("loader").classList.add("gone");} }, 3500);
+
+// start
+applyTransform();
+updateHUD();
+requestAnimationFrame(frame);
+
+})();
+</script>
+</body>
+</html>
